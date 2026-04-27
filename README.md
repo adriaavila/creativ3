@@ -1,36 +1,49 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Servicios Creativos — Landing Editorial
 
-## Getting Started
+La agencia que automatiza LATAM. Landing page con estética editorial, mucho silencio visual y animaciones cinemáticas usando Next.js 14, TailwindCSS y GSAP.
 
-First, run the development server:
+## Stack
+
+- Next.js 14 (App Router)
+- Tailwind CSS 4
+- TypeScript
+- Tipografía: Fraunces (Display), Italiana (Editorial), JetBrains Mono (Metadata)
+- Animaciones: GSAP + ScrollTrigger
+- Smooth Scroll: Lenis
+
+## Cómo correrlo
+
+Instalá las dependencias y corré el servidor de desarrollo:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
+pnpm install
 pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Visitá `http://localhost:3000`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Organización del código
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- `src/app/page.tsx`: Es el archivo principal que renderiza todas las secciones en orden.
+- `src/app/globals.css`: Contiene las variables del design system (`--noche`, `--cobalto`, etc.), las texturas (grain, vignette) y animaciones nativas clave (como `animate-reveal-char`).
+- `src/app/layout.tsx`: Configuración de fuentes y metadata (SEO).
+- `src/app/opengraph-image.tsx`: Genera la imagen OG dinámicamente con `@vercel/og`.
+- `src/components/landing/*.tsx`: Componentes para cada sección, modularizados para separar la lógica de animación.
 
-## Learn More
+## Dónde ajustar...
 
-To learn more about Next.js, take a look at the following resources:
+### 1. El Copy
+El texto vive directamente en los componentes dentro de `src/components/landing/`:
+- **Hero (`Hero.tsx`)**: Modificá el título desestructurado y la metadata editorial.
+- **Tesis (`Tesis.tsx`)**: Los párrafos del manifiesto.
+- **Productos (`Productos.tsx`)**: En el arreglo constante `PRODUCTS` en la parte superior del componente.
+- **Marquee (`Marquee.tsx`)**: En la lista de `items`.
+- **Principios (`Principios.tsx`)**: En la constante `PRINCIPIOS`.
+- **Método (`Metodo.tsx`)**: Los párrafos del ensayo.
+- **Puertas (`Puertas.tsx`)**: Los enlaces (mailto, links externos) y textos en la constante `PUERTAS`.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### 2. Las Animaciones
+Las animaciones cinemáticas se manejan con `gsap` y `ScrollTrigger` dentro del `useEffect` de cada componente.
+- **Tiempos y Easing**: Editá el objeto de configuración en los llamados `gsap.to()` / `gsap.fromTo()`.
+- **Sticky Scroll (Productos)**: Revisá el mapeo matemático en la propiedad `onUpdate` de `ScrollTrigger` dentro de `Productos.tsx`.
+- **Animaciones CSS**: `globals.css` maneja keyframes nativos y utilidades globales. Las transiciones de hover se realizan con las clases de Tailwind (`duration-500`, `transition-all`, etc).

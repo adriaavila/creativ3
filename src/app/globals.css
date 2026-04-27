@@ -1,26 +1,112 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-noche: var(--noche);
+  --color-noche-deep: var(--noche-deep);
+  --color-noche-rise: var(--noche-rise);
+  --color-cobalto: var(--cobalto);
+  --color-monte: var(--monte);
+  --color-lima: var(--lima);
+  --color-papiro: var(--papiro);
+  --color-papiro-soft: var(--papiro-soft);
+  --color-guayoyo: var(--guayoyo);
+  
+  --font-display: var(--font-fraunces);
+  --font-editorial: var(--font-italiana);
+  --font-mono: var(--font-jetbrains);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+:root {
+  --noche: #0a1f2e;
+  --noche-deep: #06151f;
+  --noche-rise: #12293a;
+  --cobalto: #2a6ea0;
+  --monte: #2d5f3f;
+  --lima: #a8c97f;
+  --papiro: #f0ead6;
+  --papiro-soft: #d4cdb8;
+  --guayoyo: #c89464;
+}
+
+@layer base {
+  body {
+    background-color: var(--noche);
+    color: var(--papiro);
+    overflow-x: hidden;
+  }
+
+  /* Light-themed routes set their own bg/color via their wrapper (.mistica-page, .shopea-page-wrapper).
+     Only neutralize the dark default on <html> so scroll-bounce doesn't flash noche. */
+  html.theme-light {
+    background-color: transparent;
+  }
+  
+  /* Noise overlay — only on dark-themed routes */
+  html.theme-dark body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 50;
+    opacity: 0.25;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 600 600' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /* Vignette — only on dark-themed routes */
+  html.theme-dark body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 40;
+    background: radial-gradient(circle, transparent 40%, rgba(6, 21, 31, 0.8) 150%);
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+.text-outline {
+  -webkit-text-stroke: 1px var(--papiro);
+  color: transparent;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Custom cursor hide default — only when CustomCursor is mounted */
+@media (pointer: fine) {
+  html.cursor-hidden,
+  html.cursor-hidden body,
+  html.cursor-hidden a,
+  html.cursor-hidden button,
+  html.cursor-hidden .hover-target {
+    cursor: none;
+  }
+}
+
+/* Custom cursor theming */
+html.theme-dark .cc-dot { background: var(--lima); }
+html.theme-dark .cc-ring { border-color: var(--lima); }
+html.theme-light .cc-dot { background: #0a1f2e; }
+html.theme-light .cc-ring { border-color: #0a1f2e; }
+
+@keyframes revealChar {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+.animate-reveal-char {
+  animation: revealChar 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+.hover-target {
+  /* Used to detect interactives by cursor */
 }

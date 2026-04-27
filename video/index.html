@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Creativ3 — Composición</title>
+</head>
+<body>
+  <div data-composition-id="creativ3-promo" data-width="1920" data-height="1080">
+
+    <!-- SCENE 1: Studio Identity (0–9s) -->
+    <div id="s1"
+         data-start="0" data-duration="9" data-track-index="1"
+         style="position:absolute;inset:0;background:#0a1f2e;">
+      <div class="s1-content">
+        <div class="s1-meta">
+          <span id="s1-meta-left">VOL. I · NÚMERO I</span>
+          <span id="s1-meta-right">CARACAS · 2026</span>
+        </div>
+        <div class="s1-title-wrap">
+          <h1 id="s1-title">CREATIV3</h1>
+        </div>
+        <p id="s1-sub">Un estudio de software con voz caraqueña.</p>
+      </div>
+    </div>
+
+    <!-- TRANSITION 1: dark wipe (7.5–10.5s) -->
+    <div id="t1"
+         data-start="7.5" data-duration="3" data-track-index="2"
+         style="position:absolute;inset:0;background:#06151f;opacity:0;pointer-events:none;">
+    </div>
+
+    <!-- SCENE 2: Manifesto (9–19s) -->
+    <div id="s2"
+         data-start="9" data-duration="10" data-track-index="1"
+         style="position:absolute;inset:0;background:#f0ead6;">
+      <div class="s2-content">
+        <p id="s2-p1" class="s2-text">No somos una agencia. Somos un estudio convencido de que el software puede ser distinto cuando nace en el trópico.</p>
+        <p id="s2-p2" class="s2-text">Construimos despacio, con intención, para los que venden y viven en serio.</p>
+      </div>
+    </div>
+
+    <!-- TRANSITION 2: dark wipe (17.5–21s) -->
+    <div id="t2"
+         data-start="17.5" data-duration="3.5" data-track-index="2"
+         style="position:absolute;inset:0;background:#06151f;opacity:0;pointer-events:none;">
+    </div>
+
+    <!-- SCENE 3: Productos (19–27s) -->
+    <div id="s3"
+         data-start="19" data-duration="8" data-track-index="1"
+         style="position:absolute;inset:0;background:#0a1f2e;">
+      <div class="s3-content">
+        <div id="s3-label" class="s3-label">Nuestros productos</div>
+        <div class="s3-rows">
+          <div id="s3-r1" class="s3-row">
+            <span class="s3-num">I</span>
+            <span class="s3-name">Shopea</span>
+            <span class="s3-desc">Catálogo, checkout y cobro en un solo link.</span>
+          </div>
+          <div id="s3-r2" class="s3-row">
+            <span class="s3-num">II</span>
+            <span class="s3-name">AgendaBella</span>
+            <span class="s3-desc">El software para las que te ponen bella.</span>
+          </div>
+          <div id="s3-r3" class="s3-row">
+            <span class="s3-num">III</span>
+            <span class="s3-name">InvitaPro</span>
+            <span class="s3-desc">Tus eventos, organizados sin estrés.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TRANSITION 3: dark wipe (25.5–28.5s) -->
+    <div id="t3"
+         data-start="25.5" data-duration="3" data-track-index="2"
+         style="position:absolute;inset:0;background:#06151f;opacity:0;pointer-events:none;">
+    </div>
+
+    <!-- SCENE 4: Closing (27–35s) -->
+    <div id="s4"
+         data-start="27" data-duration="8" data-track-index="1"
+         style="position:absolute;inset:0;background:#0a1f2e;">
+      <div class="s4-content">
+        <div id="s4-wrap">
+          <div id="s4-line1" class="s4-line">El software que</div>
+          <div id="s4-line2" class="s4-line s4-italic">merece</div>
+          <div id="s4-line3" class="s4-line">Venezuela.</div>
+        </div>
+      </div>
+    </div>
+
+    <style>
+      [data-composition-id="creativ3-promo"] * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      /* ── SCENE 1 ── */
+      .s1-content {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        width: 100%;
+        height: 100%;
+        padding: 60px 100px;
+        color: #f0ead6;
+      }
+      .s1-meta {
+        display: flex;
+        justify-content: space-between;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 18px;
+        letter-spacing: 0.15em;
+        color: #d4cdb8;
+        opacity: 0.7;
+      }
+      .s1-title-wrap {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex: 1;
+      }
+      #s1-title {
+        font-family: 'Fraunces', serif;
+        font-size: 240px;
+        font-weight: 900;
+        letter-spacing: -0.02em;
+        line-height: 1;
+        color: #f0ead6;
+      }
+      #s1-sub {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 22px;
+        letter-spacing: 0.05em;
+        color: #d4cdb8;
+        opacity: 0.7;
+        text-align: center;
+      }
+
+      /* ── SCENE 2 ── */
+      .s2-content {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        width: 100%;
+        height: 100%;
+        padding: 100px 160px;
+        gap: 64px;
+      }
+      .s2-text {
+        font-family: 'Fraunces', serif;
+        font-size: 54px;
+        font-weight: 400;
+        line-height: 1.15;
+        letter-spacing: -0.01em;
+        color: #0a1f2e;
+        max-width: 1400px;
+      }
+
+      /* ── SCENE 3 ── */
+      .s3-content {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        width: 100%;
+        height: 100%;
+        padding: 80px 140px;
+        gap: 40px;
+      }
+      .s3-label {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 16px;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: #2a6ea0;
+      }
+      .s3-rows {
+        display: flex;
+        flex-direction: column;
+      }
+      .s3-row {
+        display: flex;
+        align-items: baseline;
+        gap: 48px;
+        padding: 32px 0;
+        border-top: 1px solid rgba(240, 234, 214, 0.12);
+      }
+      .s3-row:last-child {
+        border-bottom: 1px solid rgba(240, 234, 214, 0.12);
+      }
+      .s3-num {
+        font-family: 'Fraunces', serif;
+        font-size: 20px;
+        color: #2a6ea0;
+        min-width: 56px;
+        font-variant-numeric: tabular-nums;
+      }
+      .s3-name {
+        font-family: 'Fraunces', serif;
+        font-size: 68px;
+        line-height: 1;
+        letter-spacing: -0.02em;
+        color: #f0ead6;
+        flex: 1;
+      }
+      .s3-desc {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 18px;
+        color: #d4cdb8;
+        max-width: 480px;
+        text-align: right;
+        align-self: center;
+      }
+
+      /* ── SCENE 4 ── */
+      .s4-content {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        height: 100%;
+        padding: 80px 140px;
+      }
+      #s4-wrap {
+        text-align: center;
+      }
+      .s4-line {
+        display: block;
+        font-family: 'Fraunces', serif;
+        font-size: 155px;
+        font-weight: 900;
+        line-height: 1.0;
+        letter-spacing: -0.03em;
+        color: #f0ead6;
+        overflow: hidden;
+      }
+      .s4-italic {
+        font-style: italic;
+        color: #2a6ea0;
+      }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      // ── SCENE 1 (0–9s) ──
+      tl.from("#s1-meta-left",  { x: -30, opacity: 0, duration: 0.8, ease: "power2.out" }, 0.3);
+      tl.from("#s1-meta-right", { x:  30, opacity: 0, duration: 0.8, ease: "power2.out" }, 0.3);
+      tl.from("#s1-title",      { y: 80, opacity: 0, duration: 1.3, ease: "power4.out"  }, 0.9);
+      tl.from("#s1-sub",        { y: 20, opacity: 0, duration: 0.9, ease: "expo.out"    }, 2.0);
+
+      // ── TRANSITION 1 (7.5–10.5s) ──
+      tl.to("#t1", { opacity: 1, duration: 0.6, ease: "power2.in"  }, 7.5);
+      tl.to("#t1", { opacity: 0, duration: 0.6, ease: "power2.out" }, 9.9);
+
+      // ── SCENE 2 (9–19s) ──
+      tl.from("#s2-p1", { y: 50, opacity: 0, duration: 1.1, ease: "power3.out" }, 10.1);
+      tl.from("#s2-p2", { y: 40, opacity: 0, duration: 1.0, ease: "expo.out"   }, 12.0);
+
+      // ── TRANSITION 2 (17.5–21s) ──
+      tl.to("#t2", { opacity: 1, duration: 0.7, ease: "power2.in"  }, 17.5);
+      tl.to("#t2", { opacity: 0, duration: 0.7, ease: "power2.out" }, 20.3);
+
+      // ── SCENE 3 (19–27s) ──
+      tl.from("#s3-label", { opacity: 0, y: 10, duration: 0.6, ease: "power2.out"  }, 19.5);
+      tl.from("#s3-r1",    { x: -50, opacity: 0, duration: 0.8, ease: "power3.out" }, 20.2);
+      tl.from("#s3-r2",    { x: -50, opacity: 0, duration: 0.8, ease: "expo.out"   }, 21.2);
+      tl.from("#s3-r3",    { x: -50, opacity: 0, duration: 0.8, ease: "power2.out" }, 22.2);
+
+      // ── TRANSITION 3 (25.5–28.5s) ──
+      tl.to("#t3", { opacity: 1, duration: 0.7, ease: "power2.in"  }, 25.5);
+      tl.to("#t3", { opacity: 0, duration: 0.7, ease: "power2.out" }, 28.1);
+
+      // ── SCENE 4 (27–35s) ──
+      tl.from("#s4-line1", { y: 70, opacity: 0, duration: 1.0, ease: "power3.out" }, 28.0);
+      tl.from("#s4-line2", { y: 60, opacity: 0, duration: 0.9, ease: "power4.out" }, 28.9);
+      tl.from("#s4-line3", { y: 50, opacity: 0, duration: 0.9, ease: "expo.out"   }, 29.8);
+      // Final exit — only last scene allowed
+      tl.to("#s4-wrap", { opacity: 0, duration: 1.4, ease: "power2.in" }, 33.4);
+
+      window.__timelines["creativ3-promo"] = tl;
+    </script>
+
+  </div>
+</body>
+</html>

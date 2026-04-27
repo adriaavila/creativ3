@@ -1,0 +1,1786 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Shopea — Vende en línea como si fuera por WhatsApp.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@400;500;600&family=Caveat:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #f5ede0;
+    --cream-deep: #ece1cd;
+    --terracotta: #c65a3a;
+    --terracotta-deep: #a3432a;
+    --clay: #d87b4f;
+    --olive: #6b6240;
+    --ink: #2a1e14;
+    --ink-soft: #4a3a2a;
+    --sand: #e8dcc4;
+    --moss: #8b9968;
+    --green-wa: #a8d4a0;
+    --line: rgba(42,30,20,0.14);
+    --serif: 'Instrument Serif', 'Times New Roman', serif;
+    --sans: 'DM Sans', system-ui, sans-serif;
+    --hand: 'Caveat', cursive;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--cream);
+    color: var(--ink);
+    font-family: var(--sans);
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+  /* paper grain */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.4;
+    z-index: 100;
+    mix-blend-mode: multiply;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 600 600' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.6 0 0 0 0 0.45 0 0 0 0 0.3 0 0 0 0.18 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  body::after {
+    content: "";
+    position: fixed;
+    top: -25%;
+    right: -12%;
+    width: 800px;
+    height: 800px;
+    background: radial-gradient(circle, rgba(198,90,58,0.22), transparent 65%);
+    pointer-events: none;
+    z-index: 0;
+    filter: blur(40px);
+  }
+
+  /* NAV */
+  nav {
+    position: fixed;
+    top: 18px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 10px 10px 10px 22px;
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    z-index: 50;
+    background: rgba(245,237,224,0.82);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--line);
+    border-radius: 100px;
+  }
+  nav .logo {
+    font-family: var(--serif);
+    font-size: 24px;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  nav .logo em { font-style: italic; color: var(--terracotta); }
+  nav .logo-dot {
+    width: 7px; height: 7px;
+    background: var(--terracotta);
+    border-radius: 50%;
+  }
+  nav ul { display: flex; gap: 24px; list-style: none; font-size: 14px; }
+  nav a { color: var(--ink-soft); text-decoration: none; transition: color 0.2s; }
+  nav a:hover { color: var(--terracotta); }
+  nav .cta {
+    background: var(--ink);
+    color: var(--cream);
+    padding: 10px 18px;
+    border-radius: 100px;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 500;
+    transition: background 0.3s, transform 0.3s;
+  }
+  nav .cta:hover { background: var(--terracotta); transform: translateY(-1px); }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh;
+    padding: 140px 40px 60px;
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .hero-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 16px 8px 10px;
+    background: var(--cream-deep);
+    border: 1px solid var(--line);
+    border-radius: 100px;
+    font-size: 13px;
+    color: var(--ink-soft);
+    width: fit-content;
+    margin-bottom: 32px;
+    animation: fadeUp 0.8s 0.1s backwards cubic-bezier(.2,.8,.2,1);
+  }
+  .hero-tag .pulse {
+    width: 8px; height: 8px;
+    background: var(--terracotta);
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(198,90,58,0.5); }
+    70% { box-shadow: 0 0 0 10px rgba(198,90,58,0); }
+  }
+  .hero h1 {
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: clamp(56px, 10.5vw, 172px);
+    line-height: 0.92;
+    letter-spacing: -0.03em;
+    max-width: 1500px;
+  }
+  .hero h1 .italic { font-style: italic; color: var(--terracotta); }
+  .hero h1 .underline { position: relative; display: inline-block; }
+  .hero h1 .underline svg {
+    position: absolute;
+    left: -4%;
+    bottom: -12%;
+    width: 108%;
+    height: 45%;
+    color: var(--terracotta);
+    overflow: visible;
+  }
+  .hero h1 .underline svg path {
+    stroke-dasharray: 500;
+    stroke-dashoffset: 500;
+    animation: drawLine 1.6s 1.5s forwards cubic-bezier(.4,0,.2,1);
+  }
+  @keyframes drawLine { to { stroke-dashoffset: 0; } }
+  .hero h1 .word {
+    display: inline-block;
+    overflow: hidden;
+    padding-bottom: 0.08em;
+    vertical-align: top;
+  }
+  .hero h1 .word > span {
+    display: inline-block;
+    transform: translateY(100%);
+    animation: riseUp 1s cubic-bezier(.2,.8,.2,1) forwards;
+  }
+  @keyframes riseUp { to { transform: translateY(0); } }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .hero-sub {
+    font-family: var(--serif);
+    font-size: clamp(20px, 2vw, 26px);
+    line-height: 1.4;
+    max-width: 640px;
+    color: var(--ink-soft);
+    margin-top: 40px;
+    animation: fadeUp 1s 1.3s backwards cubic-bezier(.2,.8,.2,1);
+  }
+  .hero-sub em { font-style: italic; color: var(--terracotta); }
+  .hero-sub strong { font-weight: 500; color: var(--ink); }
+
+  .hero-bottom {
+    margin-top: 56px;
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    flex-wrap: wrap;
+    animation: fadeUp 1s 1.5s backwards cubic-bezier(.2,.8,.2,1);
+  }
+  .hero-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 14px;
+    background: var(--ink);
+    color: var(--cream);
+    padding: 22px 36px;
+    border-radius: 100px;
+    text-decoration: none;
+    font-size: 15px;
+    font-weight: 500;
+    transition: background 0.3s, transform 0.3s;
+  }
+  .hero-cta:hover { background: var(--terracotta); transform: translateY(-2px); }
+  .hero-cta .arrow {
+    width: 32px; height: 32px;
+    background: var(--cream);
+    color: var(--ink);
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    transition: transform 0.3s, color 0.3s;
+  }
+  .hero-cta:hover .arrow { transform: rotate(-45deg); color: var(--terracotta); }
+  .hero-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--ink-soft);
+    text-decoration: none;
+    font-size: 15px;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 4px;
+    transition: color 0.2s, border-color 0.2s;
+  }
+  .hero-secondary:hover { color: var(--terracotta); border-color: var(--terracotta); }
+  .hero-note {
+    font-family: var(--hand);
+    font-size: 22px;
+    color: var(--terracotta);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* floating live card with dual pricing */
+  .price-card {
+    position: absolute;
+    top: 140px;
+    right: 60px;
+    background: var(--cream);
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    padding: 18px 22px;
+    box-shadow: 0 14px 50px -14px rgba(42,30,20,0.2);
+    min-width: 260px;
+    animation: fadeUp 1s 0.7s backwards cubic-bezier(.2,.8,.2,1), float 6s 2s infinite ease-in-out;
+    z-index: 2;
+  }
+  @keyframes float {
+    0%, 100% { transform: rotate(3deg) translateY(0); }
+    50% { transform: rotate(3deg) translateY(-10px); }
+  }
+  .price-card-head {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--ink-soft);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .price-card-head::before {
+    content: "";
+    width: 6px; height: 6px;
+    background: #2a9d4e;
+    border-radius: 50%;
+    animation: pulse-green 1.6s infinite;
+  }
+  @keyframes pulse-green { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+  .price-card-product {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--line);
+  }
+  .price-card-emoji {
+    width: 44px; height: 44px;
+    background: var(--cream-deep);
+    border-radius: 10px;
+    display: grid;
+    place-items: center;
+    font-size: 22px;
+  }
+  .price-card-name {
+    font-family: var(--serif);
+    font-size: 18px;
+    line-height: 1;
+    margin-bottom: 2px;
+  }
+  .price-card-meta {
+    font-size: 11px;
+    color: var(--ink-soft);
+  }
+  .price-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0 4px;
+    font-size: 13px;
+  }
+  .price-row .tag {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--ink-soft);
+  }
+  .price-row strong {
+    font-family: var(--serif);
+    font-size: 20px;
+    font-weight: 400;
+  }
+  .price-row.usd strong { color: var(--moss); }
+  .price-row.bs strong { color: var(--terracotta); }
+
+  /* MARQUEE */
+  .marquee {
+    background: var(--ink);
+    color: var(--cream);
+    padding: 26px 0;
+    overflow: hidden;
+    position: relative;
+    z-index: 2;
+  }
+  .marquee-track {
+    display: flex;
+    gap: 48px;
+    white-space: nowrap;
+    animation: scroll 55s linear infinite;
+    font-family: var(--serif);
+    font-size: 48px;
+    font-style: italic;
+  }
+  .marquee-track span { display: inline-flex; align-items: center; gap: 48px; }
+  .marquee-track .flower {
+    color: var(--terracotta);
+    font-style: normal;
+    font-family: var(--sans);
+    font-size: 20px;
+  }
+  @keyframes scroll { to { transform: translateX(-50%); } }
+
+  /* ANTES / DESPUÉS strip */
+  .vs-section {
+    padding: 120px 40px 80px;
+    position: relative;
+    z-index: 1;
+  }
+  .vs-grid {
+    max-width: 1280px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    align-items: stretch;
+  }
+  .vs-box {
+    padding: 40px;
+    border-radius: 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    position: relative;
+  }
+  .vs-before {
+    background: var(--cream-deep);
+    border: 1px solid var(--line);
+  }
+  .vs-after {
+    background: var(--ink);
+    color: var(--cream);
+  }
+  .vs-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    font-weight: 500;
+    color: var(--ink-soft);
+  }
+  .vs-after .vs-label { color: rgba(245,237,224,0.6); }
+  .vs-title {
+    font-family: var(--serif);
+    font-size: 40px;
+    line-height: 1;
+    letter-spacing: -0.02em;
+  }
+  .vs-title em { font-style: italic; color: var(--terracotta); }
+  .vs-items { display: flex; flex-direction: column; gap: 14px; margin-top: 8px; }
+  .vs-item {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    font-size: 15px;
+    line-height: 1.4;
+  }
+  .vs-item .mark {
+    flex-shrink: 0;
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    margin-top: 2px;
+  }
+  .vs-before .vs-item .mark {
+    background: var(--terracotta);
+    color: var(--cream);
+  }
+  .vs-after .vs-item .mark {
+    background: var(--green-wa);
+    color: var(--ink);
+  }
+
+  /* HORIZONTAL SCROLL */
+  .horizontal-section { position: relative; z-index: 1; }
+  .horizontal-wrap { height: 600vh; position: relative; }
+  .horizontal-sticky {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+  }
+  .horizontal-track {
+    display: flex;
+    gap: 40px;
+    padding: 0 60px;
+    will-change: transform;
+  }
+  .h-intro {
+    flex-shrink: 0;
+    width: 100vw;
+    padding: 0 60px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .section-label {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: var(--terracotta);
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: 500;
+  }
+  .section-label::before {
+    content: "";
+    width: 40px;
+    height: 1px;
+    background: var(--terracotta);
+  }
+  .h-intro h2 {
+    font-family: var(--serif);
+    font-size: clamp(56px, 9vw, 140px);
+    font-weight: 400;
+    line-height: 0.95;
+    letter-spacing: -0.03em;
+    max-width: 1100px;
+  }
+  .h-intro h2 em { font-style: italic; color: var(--terracotta); }
+  .h-intro .hint {
+    margin-top: 40px;
+    font-family: var(--hand);
+    font-size: 30px;
+    color: var(--terracotta);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .h-intro .hint svg { animation: nudge 1.8s ease-in-out infinite; }
+  @keyframes nudge {
+    0%, 100% { transform: translateX(0); }
+    50% { transform: translateX(12px); }
+  }
+
+  .h-card {
+    flex-shrink: 0;
+    width: 72vw;
+    max-width: 900px;
+    height: 78vh;
+    border-radius: 32px;
+    padding: 56px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid var(--line);
+  }
+  .h-card-1 { background: var(--cream-deep); }
+  .h-card-2 { background: var(--sand); }
+  .h-card-3 { background: #e6d5b3; }
+  .h-card-4 { background: var(--terracotta); color: var(--cream); }
+  .h-card-4 .card-num { color: var(--cream); }
+  .h-card-4 .card-title em { color: var(--cream); }
+  .h-card-4 .card-body { color: rgba(245,237,224,0.85); }
+
+  .card-meta { display: flex; flex-direction: column; gap: 24px; }
+  .card-num {
+    font-family: var(--serif);
+    font-size: 120px;
+    font-style: italic;
+    color: var(--terracotta);
+    line-height: 0.8;
+  }
+  .card-title {
+    font-family: var(--serif);
+    font-size: 52px;
+    line-height: 1;
+    letter-spacing: -0.02em;
+  }
+  .card-title em { font-style: italic; color: var(--terracotta); }
+  .card-body {
+    font-size: 17px;
+    line-height: 1.55;
+    color: var(--ink-soft);
+    max-width: 420px;
+  }
+  .card-visual {
+    width: 100%;
+    height: 100%;
+    min-height: 340px;
+    border-radius: 20px;
+    background: var(--cream);
+    border: 1px solid var(--line);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    padding: 22px;
+  }
+
+  /* CARD 1: product setup con dual pricing */
+  .setup-row {
+    background: var(--cream-deep);
+    border-radius: 12px;
+    padding: 14px 16px;
+    display: grid;
+    grid-template-columns: 44px 1fr auto;
+    gap: 14px;
+    align-items: center;
+  }
+  .setup-emoji {
+    width: 44px; height: 44px;
+    background: var(--cream);
+    border-radius: 10px;
+    display: grid;
+    place-items: center;
+    font-size: 22px;
+  }
+  .setup-name { font-family: var(--serif); font-size: 18px; line-height: 1.1; }
+  .setup-sub { font-size: 11px; color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.08em; }
+  .setup-prices {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    align-items: flex-end;
+  }
+  .setup-price-chip {
+    font-size: 12px;
+    padding: 3px 10px;
+    border-radius: 100px;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .chip-usd { background: var(--moss); color: white; }
+  .chip-bs { background: var(--terracotta); color: var(--cream); }
+
+  .setup-config {
+    margin-top: 16px;
+    padding: 14px 16px;
+    background: var(--cream);
+    border: 1.5px dashed var(--terracotta);
+    border-radius: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+  }
+  .setup-config-label { font-size: 11px; color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.1em; }
+  .setup-config-val { font-family: var(--serif); font-size: 22px; color: var(--terracotta); }
+  .setup-note {
+    font-family: var(--hand);
+    font-size: 18px;
+    color: var(--terracotta);
+    text-align: center;
+    margin-top: 8px;
+  }
+
+  /* CARD 2: link + phone */
+  .link-demo { align-items: center; justify-content: flex-start; padding: 24px; gap: 14px; }
+  .mini-url {
+    background: var(--ink);
+    color: var(--cream);
+    padding: 10px 16px;
+    border-radius: 100px;
+    font-size: 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    align-self: flex-start;
+  }
+  .mini-url .dot { width: 6px; height: 6px; background: var(--terracotta); border-radius: 50%; }
+  .mini-phone {
+    margin: 0 auto;
+    width: 220px;
+    background: var(--cream-deep);
+    border-radius: 22px;
+    padding: 16px;
+    border: 1px solid var(--line);
+  }
+  .mini-phone-title {
+    font-family: var(--serif);
+    font-size: 22px;
+    line-height: 1;
+    margin-bottom: 2px;
+  }
+  .mini-phone-title em { font-style: italic; color: var(--terracotta); }
+  .mini-phone-sub { font-size: 10px; color: var(--ink-soft); margin-bottom: 14px; }
+  .mini-product {
+    display: flex;
+    gap: 10px;
+    padding: 10px 0;
+    border-top: 1px solid var(--line);
+    align-items: center;
+  }
+  .mini-product-img {
+    width: 34px; height: 34px;
+    background: var(--cream);
+    border-radius: 7px;
+    display: grid;
+    place-items: center;
+    font-size: 17px;
+  }
+  .mini-product-info { flex: 1; min-width: 0; }
+  .mini-product-name { font-size: 12px; line-height: 1.2; }
+  .mini-product-dual {
+    display: flex;
+    gap: 6px;
+    margin-top: 2px;
+    font-size: 10px;
+  }
+  .mini-product-dual .usd { color: var(--moss); font-weight: 600; }
+  .mini-product-dual .bs { color: var(--terracotta); font-weight: 600; }
+
+  /* CARD 3: checkout con selector moneda */
+  .checkout-demo {
+    background: var(--cream);
+    padding: 24px;
+  }
+  .checkout-head {
+    font-family: var(--serif);
+    font-size: 20px;
+    margin-bottom: 4px;
+  }
+  .checkout-sub {
+    font-size: 11px;
+    color: var(--ink-soft);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 16px;
+  }
+  .currency-toggle {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    background: var(--cream-deep);
+    border-radius: 14px;
+    padding: 4px;
+    margin-bottom: 16px;
+  }
+  .toggle-btn {
+    padding: 10px;
+    text-align: center;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 500;
+    transition: background 0.3s, color 0.3s;
+    cursor: pointer;
+  }
+  .toggle-btn.active {
+    background: var(--ink);
+    color: var(--cream);
+  }
+  .checkout-items {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 12px 0;
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    font-size: 13px;
+    color: var(--ink-soft);
+  }
+  .checkout-items .row {
+    display: flex;
+    justify-content: space-between;
+  }
+  .checkout-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 14px 0;
+    margin-bottom: 12px;
+  }
+  .checkout-total .label { font-size: 12px; color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.1em; }
+  .checkout-total .val {
+    font-family: var(--serif);
+    font-size: 32px;
+    color: var(--terracotta);
+  }
+  .pay-methods {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+  }
+  .pay-method {
+    background: var(--cream-deep);
+    border-radius: 10px;
+    padding: 10px 4px;
+    font-size: 9px;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--ink-soft);
+    font-weight: 500;
+  }
+  .pay-method.hl {
+    background: var(--terracotta);
+    color: var(--cream);
+  }
+
+  /* CARD 4: WhatsApp notif */
+  .wa-demo {
+    background: var(--terracotta-deep);
+    border-color: rgba(245,237,224,0.2);
+  }
+  .wa-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid rgba(245,237,224,0.2);
+    color: var(--cream);
+  }
+  .wa-avatar {
+    width: 36px; height: 36px;
+    background: var(--cream);
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    font-size: 18px;
+  }
+  .wa-header-info { flex: 1; }
+  .wa-name { font-size: 14px; font-weight: 500; color: var(--cream); }
+  .wa-status { font-size: 11px; color: rgba(245,237,224,0.65); }
+  .wa-messages { flex: 1; display: flex; flex-direction: column; gap: 10px; padding-top: 16px; }
+  .wa-msg {
+    max-width: 84%;
+    padding: 10px 14px;
+    border-radius: 16px;
+    font-size: 13px;
+    line-height: 1.4;
+    color: var(--ink);
+  }
+  .wa-msg.them { background: var(--cream); border-bottom-left-radius: 4px; align-self: flex-start; }
+  .wa-msg.me { background: var(--green-wa); border-bottom-right-radius: 4px; align-self: flex-end; }
+  .wa-msg strong { font-weight: 600; }
+  .wa-msg .time {
+    font-size: 10px;
+    color: rgba(42,30,20,0.5);
+    margin-top: 4px;
+    text-align: right;
+  }
+  .wa-badge {
+    background: var(--moss);
+    color: white;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 2px 8px;
+    border-radius: 6px;
+    display: inline-block;
+    margin-bottom: 4px;
+    font-weight: 600;
+  }
+
+  /* QUOTE */
+  .quote {
+    padding: 160px 40px 140px;
+    max-width: 1200px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+  }
+  .quote-mark {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 280px;
+    line-height: 0.7;
+    color: var(--terracotta);
+    opacity: 0.35;
+    margin-bottom: -60px;
+  }
+  .quote p {
+    font-family: var(--serif);
+    font-size: clamp(32px, 4.5vw, 60px);
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+  }
+  .quote p em { font-style: italic; color: var(--terracotta); }
+  .quote-author { margin-top: 48px; display: flex; align-items: center; gap: 18px; }
+  .quote-avatar {
+    width: 60px; height: 60px;
+    background: var(--sand);
+    border: 1px solid var(--line);
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    font-size: 28px;
+  }
+  .quote-author-info { font-size: 15px; line-height: 1.3; }
+  .quote-author-info strong {
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: 20px;
+    display: block;
+    margin-bottom: 2px;
+  }
+  .quote-author-info span { color: var(--ink-soft); }
+
+  /* PAYMENT METHODS RAIL */
+  .rail-section {
+    padding: 60px 40px 120px;
+    position: relative;
+    z-index: 1;
+  }
+  .rail-wrap {
+    max-width: 1400px;
+    margin: 0 auto;
+    background: var(--cream-deep);
+    border-radius: 32px;
+    padding: 60px 48px;
+    border: 1px solid var(--line);
+  }
+  .rail-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    gap: 24px;
+    margin-bottom: 48px;
+  }
+  .rail-top h3 {
+    font-family: var(--serif);
+    font-size: clamp(36px, 5vw, 68px);
+    line-height: 1;
+    letter-spacing: -0.02em;
+    max-width: 700px;
+  }
+  .rail-top h3 em { font-style: italic; color: var(--terracotta); }
+  .rail-top p {
+    font-family: var(--serif);
+    font-size: 18px;
+    color: var(--ink-soft);
+    line-height: 1.4;
+    max-width: 320px;
+  }
+  .rail-methods {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+  }
+  .rail-card {
+    background: var(--cream);
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    padding: 28px 24px;
+    transition: transform 0.4s cubic-bezier(.2,.8,.2,1);
+  }
+  .rail-card:hover { transform: translateY(-6px); }
+  .rail-card-icon {
+    width: 48px; height: 48px;
+    background: var(--cream-deep);
+    border-radius: 12px;
+    display: grid;
+    place-items: center;
+    font-size: 24px;
+    margin-bottom: 20px;
+  }
+  .rail-card h4 {
+    font-family: var(--serif);
+    font-size: 24px;
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .rail-card .currency {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--terracotta);
+    font-weight: 500;
+    margin-bottom: 10px;
+  }
+  .rail-card p {
+    font-size: 13px;
+    line-height: 1.4;
+    color: var(--ink-soft);
+  }
+
+  /* PRICING */
+  .pricing-section { padding: 120px 40px; position: relative; z-index: 1; }
+  .section-heading { max-width: 1400px; margin: 0 auto 80px; }
+  .section-heading h2 {
+    font-family: var(--serif);
+    font-size: clamp(48px, 7vw, 112px);
+    line-height: 0.95;
+    letter-spacing: -0.03em;
+  }
+  .section-heading h2 em { font-style: italic; color: var(--terracotta); }
+  .pricing-grid {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+  .plan {
+    background: var(--cream-deep);
+    border: 1px solid var(--line);
+    border-radius: 32px;
+    padding: 48px 40px;
+    min-height: 560px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    transition: transform 0.4s cubic-bezier(.2,.8,.2,1);
+  }
+  .plan:hover { transform: translateY(-6px); }
+  .plan.featured {
+    background: var(--ink);
+    color: var(--cream);
+    border-color: var(--ink);
+  }
+  .plan.featured .plan-desc { color: rgba(245,237,224,0.75); }
+  .plan-badge {
+    position: absolute;
+    top: 32px;
+    right: 32px;
+    font-family: var(--hand);
+    font-size: 28px;
+    color: var(--terracotta);
+    transform: rotate(6deg);
+  }
+  .plan-name {
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    margin-bottom: 28px;
+    opacity: 0.75;
+    font-weight: 500;
+  }
+  .plan-price {
+    font-family: var(--serif);
+    font-size: 96px;
+    line-height: 1;
+    letter-spacing: -0.04em;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: flex-start;
+  }
+  .plan-price sup { font-size: 28px; margin-top: 14px; opacity: 0.5; }
+  .plan-price .per {
+    font-size: 14px;
+    font-family: var(--sans);
+    margin-top: 36px;
+    margin-left: 10px;
+    opacity: 0.55;
+  }
+  .plan-desc {
+    font-family: var(--serif);
+    font-size: 19px;
+    line-height: 1.35;
+    color: var(--ink-soft);
+    margin-bottom: 36px;
+    max-width: 340px;
+  }
+  .plan ul { list-style: none; margin-bottom: auto; display: flex; flex-direction: column; gap: 2px; }
+  .plan ul li {
+    padding: 14px 0;
+    font-size: 15px;
+    border-top: 1px solid var(--line);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .plan.featured ul li { border-top-color: rgba(245,237,224,0.15); }
+  .plan ul li svg { flex-shrink: 0; color: var(--terracotta); }
+  .plan.featured ul li svg { color: #e89a82; }
+  .plan .plan-cta {
+    margin-top: 36px;
+    padding: 18px 24px;
+    background: var(--ink);
+    color: var(--cream);
+    border-radius: 100px;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    text-align: center;
+    transition: background 0.3s, color 0.3s;
+  }
+  .plan.featured .plan-cta { background: var(--cream); color: var(--ink); }
+  .plan .plan-cta:hover { background: var(--terracotta); color: var(--cream); }
+
+  /* FAQ */
+  .faq-section { padding: 120px 40px; position: relative; z-index: 1; }
+  .faq-wrap { max-width: 1000px; margin: 0 auto; }
+  .faq-item { border-top: 1px solid var(--line); padding: 32px 0; cursor: pointer; }
+  .faq-item:last-child { border-bottom: 1px solid var(--line); }
+  .faq-q {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    font-family: var(--serif);
+    font-size: clamp(22px, 2.8vw, 34px);
+    line-height: 1.2;
+    transition: color 0.3s;
+  }
+  .faq-item:hover .faq-q { color: var(--terracotta); }
+  .faq-q em { font-style: italic; }
+  .faq-q .plus {
+    width: 42px; height: 42px; min-width: 42px;
+    border-radius: 50%;
+    background: var(--cream-deep);
+    display: grid;
+    place-items: center;
+    transition: transform 0.4s cubic-bezier(.2,.8,.2,1), background 0.3s, color 0.3s;
+  }
+  .faq-item.open .plus { transform: rotate(45deg); background: var(--terracotta); color: var(--cream); }
+  .faq-a {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.5s cubic-bezier(.2,.8,.2,1), padding 0.5s;
+    font-size: 17px;
+    line-height: 1.6;
+    color: var(--ink-soft);
+    max-width: 720px;
+  }
+  .faq-item.open .faq-a { max-height: 400px; padding-top: 20px; }
+
+  /* FINAL */
+  .final {
+    padding: 180px 40px 160px;
+    text-align: center;
+    background: var(--ink);
+    color: var(--cream);
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+  }
+  .final::before {
+    content: "";
+    position: absolute;
+    top: -30%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 1200px;
+    height: 1200px;
+    background: radial-gradient(circle, rgba(198,90,58,0.35), transparent 55%);
+    pointer-events: none;
+    filter: blur(60px);
+  }
+  .final-inner { position: relative; z-index: 1; }
+  .final .scribble {
+    font-family: var(--hand);
+    color: var(--terracotta);
+    font-size: 32px;
+    margin-bottom: 20px;
+  }
+  .final h2 {
+    font-family: var(--serif);
+    font-size: clamp(56px, 10vw, 180px);
+    line-height: 0.9;
+    letter-spacing: -0.04em;
+    max-width: 1200px;
+    margin: 0 auto 56px;
+  }
+  .final h2 em { font-style: italic; color: var(--terracotta); }
+  .final-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 16px;
+    background: var(--terracotta);
+    color: var(--cream);
+    padding: 26px 40px;
+    border-radius: 100px;
+    text-decoration: none;
+    font-size: 16px;
+    font-weight: 500;
+    transition: background 0.3s, color 0.3s, transform 0.3s;
+  }
+  .final-cta:hover { background: var(--cream); color: var(--ink); transform: scale(1.04); }
+  .final-meta { margin-top: 40px; font-size: 13px; color: rgba(245,237,224,0.55); }
+
+  /* FOOTER */
+  footer { background: var(--ink); color: var(--cream); padding: 0 40px 40px; position: relative; z-index: 1; }
+  .footer-wordmark {
+    font-family: var(--serif);
+    font-size: clamp(100px, 22vw, 380px);
+    line-height: 0.85;
+    letter-spacing: -0.05em;
+    padding: 40px 0;
+    border-top: 1px solid rgba(245,237,224,0.15);
+    text-align: center;
+  }
+  .footer-wordmark em { font-style: italic; color: var(--terracotta); }
+  .footer-bottom {
+    padding-top: 32px;
+    border-top: 1px solid rgba(245,237,224,0.15);
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 20px;
+    font-size: 13px;
+    color: rgba(245,237,224,0.55);
+  }
+  .footer-bottom a { color: inherit; text-decoration: none; margin-right: 20px; transition: color 0.2s; }
+  .footer-bottom a:hover { color: var(--terracotta); }
+
+  @media (max-width: 900px) {
+    nav { padding: 8px 8px 8px 16px; gap: 16px; }
+    nav ul { display: none; }
+    .hero { padding: 120px 20px 40px; }
+    .price-card { display: none; }
+    .hero-bottom { gap: 20px; }
+    .marquee-track { font-size: 32px; gap: 28px; }
+    .vs-section { padding: 60px 20px; }
+    .vs-grid { grid-template-columns: 1fr; }
+    .vs-box { padding: 28px; }
+    .vs-title { font-size: 30px; }
+    .horizontal-wrap { height: auto; }
+    .horizontal-sticky { position: relative; height: auto; padding: 80px 0; }
+    .horizontal-track { flex-direction: column; gap: 24px; padding: 0 20px; transform: none !important; }
+    .h-intro { width: 100%; padding: 0 20px 40px; }
+    .h-card { width: 100%; height: auto; grid-template-columns: 1fr; padding: 32px; gap: 24px; }
+    .card-visual { min-height: 300px; }
+    .card-title { font-size: 36px; }
+    .card-num { font-size: 80px; }
+    .quote { padding: 80px 20px; }
+    .quote-mark { font-size: 160px; margin-bottom: -30px; }
+    .rail-section { padding: 40px 20px 80px; }
+    .rail-wrap { padding: 36px 24px; border-radius: 24px; }
+    .rail-methods { grid-template-columns: repeat(2, 1fr); }
+    .pricing-section, .faq-section { padding: 80px 20px; }
+    .pricing-grid { grid-template-columns: 1fr; }
+    .final { padding: 120px 20px; }
+    .footer-bottom { flex-direction: column; gap: 12px; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="#" class="logo">Shop<em>ea</em><span class="logo-dot"></span></a>
+  <ul>
+    <li><a href="#como">Cómo funciona</a></li>
+    <li><a href="#pagos">Pagos</a></li>
+    <li><a href="#precios">Precios</a></li>
+    <li><a href="#faq">Preguntas</a></li>
+  </ul>
+  <a href="#final" class="cta">Empezar gratis</a>
+</nav>
+
+<header class="hero">
+  <div class="price-card">
+    <div class="price-card-head">Así lo ve tu cliente</div>
+    <div class="price-card-product">
+      <div class="price-card-emoji">🎂</div>
+      <div>
+        <div class="price-card-name">Torta tres leches</div>
+        <div class="price-card-meta">Dulces Mariana · Las Mercedes</div>
+      </div>
+    </div>
+    <div class="price-row usd">
+      <span class="tag">Paga en divisa</span>
+      <strong>$25,00</strong>
+    </div>
+    <div class="price-row bs">
+      <span class="tag">Paga en bolívares</span>
+      <strong>Bs 1.081</strong>
+    </div>
+  </div>
+
+  <div class="hero-tag">
+    <span class="pulse"></span>
+    Hecho en Caracas, para Caracas
+  </div>
+
+  <h1>
+    <span class="word"><span style="animation-delay:.1s">Vende</span></span>
+    <span class="word"><span style="animation-delay:.2s">en</span></span>
+    <span class="word"><span class="italic" style="animation-delay:.3s">línea</span></span>
+    <br>
+    <span class="word"><span style="animation-delay:.45s">como</span></span>
+    <span class="word"><span style="animation-delay:.55s">si</span></span>
+    <span class="word"><span style="animation-delay:.65s">fuera</span></span>
+    <span class="word"><span style="animation-delay:.75s">por</span></span>
+    <span class="word"><span class="italic underline" style="animation-delay:.85s">
+      WhatsApp.
+      <svg viewBox="0 0 300 30" fill="none" preserveAspectRatio="none">
+        <path d="M2 22 Q 75 8, 150 16 T 298 14" stroke="currentColor" stroke-width="5" stroke-linecap="round"/>
+      </svg>
+    </span></span>
+    <br>
+    <span class="word"><span style="animation-delay:1s">Pero</span></span>
+    <span class="word"><span style="animation-delay:1.1s">en</span></span>
+    <span class="word"><span class="italic" style="animation-delay:1.2s">serio.</span></span>
+  </h1>
+
+  <p class="hero-sub">
+    <strong>Shopea</strong> es tu <em>catálogo, checkout y cobro</em> en un solo link. Subes tus productos una vez, tu cliente elige si paga en divisa o bolívares, y te cae el pedido al WhatsApp con el total correcto. Todo lo que hace falta para vender mejor que en <em>Facebook Marketplace</em>.
+  </p>
+
+  <div class="hero-bottom">
+    <a href="#final" class="hero-cta">
+      Crea tu tienda, es gratis
+      <span class="arrow">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <path d="M3 11L11 3M11 3H5M11 3V9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </span>
+    </a>
+    <a href="#como" class="hero-secondary">
+      Ver cómo funciona
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+        <path d="M3 1.5L9 6L3 10.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+      </svg>
+    </a>
+    <span class="hero-note">¡en 4 minutos!</span>
+  </div>
+</header>
+
+<div class="marquee">
+  <div class="marquee-track">
+    <span>
+      Dulces de abuela <span class="flower">✿</span>
+      Ropa por pedido <span class="flower">✿</span>
+      Barberías del Este <span class="flower">✿</span>
+      Electrodomésticos Catia <span class="flower">✿</span>
+      Bodegones en Las Mercedes <span class="flower">✿</span>
+      Manicuristas de Chacao <span class="flower">✿</span>
+      Tenis usados como nuevos <span class="flower">✿</span>
+      Tequeños por encargo <span class="flower">✿</span>
+      Muebles del abuelo <span class="flower">✿</span>
+      Cachapas en Altamira <span class="flower">✿</span>
+    </span>
+  </div>
+</div>
+
+<!-- VS FB MARKETPLACE -->
+<section class="vs-section">
+  <div style="max-width: 1280px; margin: 0 auto;">
+    <div class="section-label">Te sonará familiar</div>
+    <h2 style="font-family: var(--serif); font-size: clamp(44px, 6vw, 92px); font-weight: 400; line-height: 0.95; letter-spacing: -0.03em; max-width: 1100px; margin-bottom: 60px;">
+      Si vendes por <em style="font-style: italic; color: var(--terracotta);">Marketplace</em>, ya sabes lo pesado que es esto.
+    </h2>
+  </div>
+  <div class="vs-grid">
+    <div class="vs-box vs-before">
+      <span class="vs-label">Antes · por Facebook</span>
+      <h3 class="vs-title">La vida <em>complicada.</em></h3>
+      <div class="vs-items">
+        <div class="vs-item"><span class="mark">
+          <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 2L8 8M8 2L2 8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        </span>"¿Cuánto cuesta hoy?" diez veces al día por WhatsApp.</div>
+        <div class="vs-item"><span class="mark">
+          <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 2L8 8M8 2L2 8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        </span>Recalcular precios cada vez que el dólar se mueve.</div>
+        <div class="vs-item"><span class="mark">
+          <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 2L8 8M8 2L2 8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        </span>Capturas de Pago Móvil, confirmar, volver a confirmar.</div>
+        <div class="vs-item"><span class="mark">
+          <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 2L8 8M8 2L2 8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        </span>Perder ventas porque el cliente se aburre de preguntar.</div>
+        <div class="vs-item"><span class="mark">
+          <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 2L8 8M8 2L2 8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        </span>Tu negocio vive entre grupos de Facebook y mensajes sueltos.</div>
+      </div>
+    </div>
+    <div class="vs-box vs-after">
+      <span class="vs-label">Ahora · con Shopea</span>
+      <h3 class="vs-title">La vida <em>sencilla.</em></h3>
+      <div class="vs-items">
+        <div class="vs-item"><span class="mark">
+          <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5L4 7L8 3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </span>Tu link dice el precio. Se acabó la pregunta.</div>
+        <div class="vs-item"><span class="mark">
+          <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5L4 7L8 3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </span>Precios en Bs y en divisa actualizados solos.</div>
+        <div class="vs-item"><span class="mark">
+          <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5L4 7L8 3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </span>El cliente elige cómo pagar. Tú solo confirmas.</div>
+        <div class="vs-item"><span class="mark">
+          <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5L4 7L8 3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </span>Pedidos ordenaditos al WhatsApp, con total y datos.</div>
+        <div class="vs-item"><span class="mark">
+          <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5L4 7L8 3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </span>Mismo link, sirve para FB, Insta, status, todos lados.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HORIZONTAL SCROLL: cómo funciona -->
+<section class="horizontal-section" id="como">
+  <div class="horizontal-wrap">
+    <div class="horizontal-sticky">
+      <div class="horizontal-track" id="hTrack">
+
+        <div class="h-intro">
+          <div class="section-label">Cómo funciona</div>
+          <h2>Cuatro pasos. <em>Cero</em> calculadora. Cero dramas.</h2>
+          <div class="hint">
+            Deslizá para ver
+            <svg width="40" height="20" viewBox="0 0 40 20" fill="none">
+              <path d="M2 10H36M36 10L28 3M36 10L28 17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </div>
+        </div>
+
+        <div class="h-card h-card-1">
+          <div class="card-meta">
+            <div class="card-num">01</div>
+            <h3 class="card-title">Subes <em>lo que vendes</em></h3>
+            <p class="card-body">
+              Foto, nombre, precio en dólares. Nosotros calculamos el precio en bolívares automáticamente con la tasa del día, y tú decides si quieres dar un pequeño descuento a quien pague en divisa.
+            </p>
+          </div>
+          <div class="card-visual">
+            <div class="setup-row">
+              <div class="setup-emoji">🎂</div>
+              <div>
+                <div class="setup-name">Torta tres leches</div>
+                <div class="setup-sub">repostería</div>
+              </div>
+              <div class="setup-prices">
+                <span class="setup-price-chip chip-usd">$ 25,00</span>
+                <span class="setup-price-chip chip-bs">Bs 1.081</span>
+              </div>
+            </div>
+            <div class="setup-row" style="margin-top: 10px;">
+              <div class="setup-emoji">🧁</div>
+              <div>
+                <div class="setup-name">Cupcakes x12</div>
+                <div class="setup-sub">repostería</div>
+              </div>
+              <div class="setup-prices">
+                <span class="setup-price-chip chip-usd">$ 18,00</span>
+                <span class="setup-price-chip chip-bs">Bs 779</span>
+              </div>
+            </div>
+            <div class="setup-config">
+              <div>
+                <div class="setup-config-label">Recargo paga en Bs</div>
+                <div class="setup-config-val">+5%</div>
+              </div>
+              <div style="text-align: right;">
+                <div class="setup-config-label">Tasa hoy</div>
+                <div class="setup-config-val">Bs 41,18</div>
+              </div>
+            </div>
+            <div class="setup-note">↑ todo se actualiza solito ↑</div>
+          </div>
+        </div>
+
+        <div class="h-card h-card-2">
+          <div class="card-meta">
+            <div class="card-num">02</div>
+            <h3 class="card-title">Compartes <em>tu link</em></h3>
+            <p class="card-body">
+              Pega tu link en Facebook Marketplace, en tu bio de Instagram, en el grupo del edificio, en tu status de WhatsApp. El mismo link sirve para todo. Tu vitrina abre 24/7, tus clientes llegan solos.
+            </p>
+          </div>
+          <div class="card-visual link-demo">
+            <div class="mini-url">
+              <span class="dot"></span>
+              shopea.online/dulcesmariana
+            </div>
+            <div class="mini-phone">
+              <div class="mini-phone-title">Dulces <em>Mariana</em></div>
+              <div class="mini-phone-sub">Repostería · Las Mercedes</div>
+              <div class="mini-product">
+                <div class="mini-product-img">🎂</div>
+                <div class="mini-product-info">
+                  <div class="mini-product-name">Torta tres leches</div>
+                  <div class="mini-product-dual">
+                    <span class="usd">$25</span>·<span class="bs">Bs 1.081</span>
+                  </div>
+                </div>
+              </div>
+              <div class="mini-product">
+                <div class="mini-product-img">🧁</div>
+                <div class="mini-product-info">
+                  <div class="mini-product-name">Cupcakes x12</div>
+                  <div class="mini-product-dual">
+                    <span class="usd">$18</span>·<span class="bs">Bs 779</span>
+                  </div>
+                </div>
+              </div>
+              <div class="mini-product">
+                <div class="mini-product-img">🍪</div>
+                <div class="mini-product-info">
+                  <div class="mini-product-name">Galletas deco</div>
+                  <div class="mini-product-dual">
+                    <span class="usd">$1,50</span>·<span class="bs">Bs 65</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="h-card h-card-3">
+          <div class="card-meta">
+            <div class="card-num">03</div>
+            <h3 class="card-title">Tu cliente <em>elige cómo pagar</em></h3>
+            <p class="card-body">
+              Arma su pedido y decide: ¿divisa o bolívares? El total se actualiza al instante. Ve los métodos de pago que tú configuraste: Pago Móvil, Zelle, Binance, efectivo. Cero malentendidos, cero "¿cuánto me sale en Bs?".
+            </p>
+          </div>
+          <div class="card-visual checkout-demo">
+            <div class="checkout-head">Tu pedido</div>
+            <div class="checkout-sub">Dulces Mariana · 3 productos</div>
+
+            <div class="currency-toggle">
+              <div class="toggle-btn">Paga en $</div>
+              <div class="toggle-btn active">Paga en Bs</div>
+            </div>
+
+            <div class="checkout-items">
+              <div class="row"><span>Torta tres leches</span><span>Bs 1.081</span></div>
+              <div class="row"><span>Cupcakes x12</span><span>Bs 779</span></div>
+              <div class="row"><span>Galletas x10</span><span>Bs 650</span></div>
+            </div>
+
+            <div class="checkout-total">
+              <div class="label">Total</div>
+              <div class="val">Bs 2.510</div>
+            </div>
+
+            <div class="pay-methods">
+              <div class="pay-method hl">Pago Móvil</div>
+              <div class="pay-method">Transf.</div>
+              <div class="pay-method">Zelle</div>
+              <div class="pay-method">Binance</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="h-card h-card-4">
+          <div class="card-meta">
+            <div class="card-num">04</div>
+            <h3 class="card-title">Te llega <em>ordenadito</em></h3>
+            <p class="card-body">
+              Te cae el pedido al WhatsApp con todo claro: qué pidió, cuánto, en qué moneda, con qué método. Respondes tus datos de pago y listo. Tú cobras directo, Shopea no toca tu plata. Es como vender por WhatsApp, pero sin el caos.
+            </p>
+          </div>
+          <div class="card-visual wa-demo">
+            <div class="wa-header">
+              <div class="wa-avatar">🛍️</div>
+              <div class="wa-header-info">
+                <div class="wa-name">Shopea · Pedido</div>
+                <div class="wa-status">Nuevo · hace 8 seg</div>
+              </div>
+            </div>
+            <div class="wa-messages">
+              <div class="wa-msg them">
+                <span class="wa-badge">Pedido #104</span>
+                👋 Hola! Soy Carla, quiero:
+                <br>• 1x Torta tres leches
+                <br>• 1 docena cupcakes
+                <br>• 10x Galletas
+              </div>
+              <div class="wa-msg them">
+                <strong>Total: Bs 2.510</strong><br>
+                💳 Pago Móvil<br>
+                📍 Delivery a Los Palos Grandes
+                <div class="time">10:42</div>
+              </div>
+              <div class="wa-msg me">
+                Lista! Datos de Pago Móvil:<br>
+                Banesco · 0424-xxxx<br>
+                Cédula: V-xxx
+                <div class="time">10:43 ✓✓</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- QUOTE -->
+<section class="quote">
+  <div class="quote-mark">&rdquo;</div>
+  <p>
+    Antes vivía pegada a la <em>calculadora</em> del teléfono. Ahora los pedidos me llegan <em>ordenaditos</em>, con el total en Bs o en divisa según elija el cliente. Dejé de perder ventas por no contestar rápido.
+  </p>
+  <div class="quote-author">
+    <div class="quote-avatar">👩🏽</div>
+    <div class="quote-author-info">
+      <strong>Mariana Pérez</strong>
+      <span>Dulces Mariana · Las Mercedes</span>
+    </div>
+  </div>
+</section>
+
+<!-- PAYMENT METHODS RAIL -->
+<section class="rail-section" id="pagos">
+  <div class="rail-wrap">
+    <div class="rail-top">
+      <h3>Cobra como <em>a ti te guste</em>, en la moneda que <em>te convenga.</em></h3>
+      <p>Tú decides qué métodos aceptar. Tu cliente elige con cuál pagar. Shopea no se queda con ni un céntimo.</p>
+    </div>
+    <div class="rail-methods">
+      <div class="rail-card">
+        <div class="rail-card-icon">📱</div>
+        <h4>Pago Móvil</h4>
+        <div class="currency">Bolívares</div>
+        <p>El de todos los días, el favorito para delivery en Caracas.</p>
+      </div>
+      <div class="rail-card">
+        <div class="rail-card-icon">🏦</div>
+        <h4>Transferencia</h4>
+        <div class="currency">Bolívares</div>
+        <p>Banesco, Mercantil, BDV. Tu número de cuenta, tu plata.</p>
+      </div>
+      <div class="rail-card">
+        <div class="rail-card-icon">💵</div>
+        <h4>Zelle</h4>
+        <div class="currency">Divisa</div>
+        <p>Para clientes con cuenta en USA o que reciben remesas.</p>
+      </div>
+      <div class="rail-card">
+        <div class="rail-card-icon">₿</div>
+        <h4>Binance Pay</h4>
+        <div class="currency">Divisa · USDT</div>
+        <p>Rápido, sin comisiones, cada vez más usado en el país.</p>
+      </div>
+      <div class="rail-card">
+        <div class="rail-card-icon">💶</div>
+        <h4>Efectivo</h4>
+        <div class="currency">Divisa o Bs</div>
+        <p>Contra entrega, contraentrega, como le digas. Clásico.</p>
+      </div>
+      <div class="rail-card">
+        <div class="rail-card-icon">💳</div>
+        <h4>Punto de venta</h4>
+        <div class="currency">Bolívares</div>
+        <p>Si recibes en tu local o en domicilio, también va.</p>
+      </div>
+      <div class="rail-card">
+        <div class="rail-card-icon">🔄</div>
+        <h4>PayPal</h4>
+        <div class="currency">Divisa</div>
+        <p>Para clientes de la diáspora que te mandan desde afuera.</p>
+      </div>
+      <div class="rail-card">
+        <div class="rail-card-icon">✨</div>
+        <h4>+ Lo que uses</h4>
+        <div class="currency">Libre</div>
+        <p>Nequi, Wally, Reserve, lo que sea. Tú agregas, tu cliente ve.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="pricing-section" id="precios">
+  <div class="section-heading">
+    <div class="section-label">Cuánto cuesta</div>
+    <h2>Empieza <em>gratis.</em> Crece sin techo.</h2>
+  </div>
+  <div class="pricing-grid">
+    <div class="plan">
+      <div class="plan-name">Plan Bodega</div>
+      <div class="plan-price">$0<span class="per">/ mes</span></div>
+      <p class="plan-desc">Para arrancar hoy, probar sin riesgo y vender esta misma semana.</p>
+      <ul>
+        <li><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8L6.5 11.5L13 4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Hasta 30 productos</li>
+        <li><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8L6.5 11.5L13 4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Precios duales Bs / divisa automáticos</li>
+        <li><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8L6.5 11.5L13 4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Pedidos ilimitados por WhatsApp</li>
+        <li><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8L6.5 11.5L13 4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Métodos de pago ilimitados</li>
+        <li><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8L6.5 11.5L13 4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Link shopea.online/tutienda</li>
+        <li><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8L6.5 11.5L13 4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Con nuestra marquita (discreta)</li>
+      </ul>
+      <a href="#" class="plan-cta">Empezar gratis</a>
+    </div>
+
+    <div class="plan featured">
+      <div class="plan-badge">¡más pedido!</div>
+      <div class="plan-name">Plan Bodegón</div>
+      <div class="plan-price">$4<sup>.99</sup><span class="per">/ mes</span></div>
+      <p class="plan-desc">Para cuando ya cogiste vuelo y quieres verte pro de verdad.</p>
+      <ul>
+        <li><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8L6.5 11.5L13 4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Productos ilimitados</li>
+        <li><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8L6.5 11.5L13 4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Tu propio dominio (.com, .shop, .store)</li>
+        <li><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8L6.5 11.5L13 4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Tasa BCV + Paralelo, elige cuál mostrar</li>
+        <li><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8L6.5 11.5L13 4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Precios duales personalizados por producto</li>
+        <li><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8L6.5 11.5L13 4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Sin marca Shopea</li>
+        <li><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8L6.5 11.5L13 4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Analytics: qué productos se ven, qué se pide</li>
+        <li><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8L6.5 11.5L13 4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Cupones y descuentos</li>
+        <li><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8L6.5 11.5L13 4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Soporte prioritario por WhatsApp</li>
+      </ul>
+      <a href="#" class="plan-cta">Probar 14 días gratis</a>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="faq-section" id="faq">
+  <div class="section-heading">
+    <div class="section-label">Lo de siempre</div>
+    <h2>Las <em>preguntas</em> que todos hacen.</h2>
+  </div>
+
+  <div class="faq-wrap">
+    <div class="faq-item">
+      <div class="faq-q">
+        <span>¿Puedo <em>seguir usando</em> FB Marketplace?</span>
+        <span class="plus"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1V13M1 7H13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span>
+      </div>
+      <div class="faq-a">Claro que sí, no te queremos hacer mudar de casa. Shopea es el complemento: tú sigues publicando en Facebook Marketplace, Instagram o grupos de WhatsApp, pero en vez de mandar el precio por mensaje, pones tu link de Shopea. El cliente ve todo claro, hace el pedido y a ti te llega ordenado. Es usar lo que ya tienes, pero mejor.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">
+        <span>¿Cómo manejo <em>precios en Bs y en divisa?</em></span>
+        <span class="plus"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1V13M1 7H13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span>
+      </div>
+      <div class="faq-a">Tú pones el precio en dólares y nosotros calculamos el precio en Bs automáticamente con la tasa del día. Puedes configurar un recargo para quien pague en Bs (por ejemplo +5%, porque sabemos que cobrar en bolívares tiene sus riesgos) o dejarlo igual. Y si algún producto tiene un margen distinto, puedes sobreescribir el precio en Bs manualmente. Control total, cero dolor de cabeza.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">
+        <span>¿De dónde sale <em>la tasa del dólar?</em></span>
+        <span class="plus"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1V13M1 7H13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span>
+      </div>
+      <div class="faq-a">Tomamos la tasa oficial del BCV y la paralela de fuentes públicas (Monitor Dólar, EnParaleloVzla). Tú decides cuál usar. En el plan Bodegón puedes incluso mostrar las dos para que tu cliente sepa a qué tasa le estás cobrando. Se actualiza cada hora, sin que hagas nada.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">
+        <span>¿Ustedes se quedan con <em>comisión de mis ventas?</em></span>
+        <span class="plus"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1V13M1 7H13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span>
+      </div>
+      <div class="faq-a">No. Cero. Nada. Tu cliente te paga directo a tu Pago Móvil, tu Zelle, tu Binance. Nosotros no tocamos tu plata nunca, no tenemos pasarela, no somos intermediarios. Cobramos una suscripción fija y ya. Tu plata es tu plata.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">
+        <span>¿Necesito saber <em>de computación?</em></span>
+        <span class="plus"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1V13M1 7H13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span>
+      </div>
+      <div class="faq-a">Cero. Si subes fotos a Instagram, puedes usar Shopea. Abres tu tienda desde el celular, subes una foto, le pones precio y listo. En 4 minutos ya tienes tu link para compartir. Y si te atoras, nos escribes al WhatsApp y te ayudamos en vivo.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">
+        <span>¿Puedo <em>cancelar</em> cuando quiera?</span>
+        <span class="plus"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1V13M1 7H13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span>
+      </div>
+      <div class="faq-a">Cuando quieras, sin letra chica. Cancelas con un botón, tu tienda se queda en el plan gratis con tus productos intactos. No perdemos amigos por plata.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">
+        <span>¿Y si vendo <em>servicios</em>, no productos?</span>
+        <span class="plus"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1V13M1 7H13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span>
+      </div>
+      <div class="faq-a">También te sirve. Manicuristas, barberos, fotógrafos, tatuadores: ponen sus servicios con precio y el cliente pide cita por WhatsApp. En unos meses sacamos AgendaBella, una versión con calendario de citas. Si eres del gremio, anótate y te avisamos primero.</div>
+    </div>
+  </div>
+</section>
+
+<!-- FINAL -->
+<section class="final" id="final">
+  <div class="final-inner">
+    <div class="scribble">¿listo, listico?</div>
+    <h2>Tu próximo cliente <em>ya te está buscando.</em></h2>
+    <a href="#" class="final-cta">
+      Crear mi tienda gratis
+      <svg width="16" height="16" viewBox="0 0 14 14" fill="none">
+        <path d="M3 11L11 3M11 3H5M11 3V9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </a>
+    <p class="final-meta">Sin tarjeta · Sin compromiso · 4 minutos y estás vendiendo</p>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-wordmark">Shop<em>ea</em>.</div>
+  <div class="footer-bottom">
+    <div>
+      <a href="#">Términos</a>
+      <a href="#">Privacidad</a>
+      <a href="#">Contacto</a>
+    </div>
+    <div>© 2026 Servicios Creativos · Caracas · Hecho con cariño y cafecito</div>
+  </div>
+</footer>
+
+<script>
+  const hWrap = document.querySelector('.horizontal-wrap');
+  const hTrack = document.getElementById('hTrack');
+  function updateHorizontalScroll() {
+    if (window.innerWidth <= 900) {
+      hTrack.style.transform = 'none';
+      return;
+    }
+    const rect = hWrap.getBoundingClientRect();
+    const total = hWrap.offsetHeight - window.innerHeight;
+    const scrolled = -rect.top;
+    const progress = Math.max(0, Math.min(1, scrolled / total));
+    const maxTranslate = hTrack.scrollWidth - window.innerWidth;
+    hTrack.style.transform = `translateX(${-progress * maxTranslate}px)`;
+  }
+  window.addEventListener('scroll', updateHorizontalScroll, { passive: true });
+  window.addEventListener('resize', updateHorizontalScroll);
+  updateHorizontalScroll();
+
+  document.querySelectorAll('.faq-item').forEach(item => {
+    item.addEventListener('click', () => item.classList.toggle('open'));
+  });
+
+  const track = document.querySelector('.marquee-track');
+  track.innerHTML = track.innerHTML + track.innerHTML;
+
+  // currency toggle demo interactivo
+  const toggleBtns = document.querySelectorAll('.toggle-btn');
+  const checkoutItems = document.querySelector('.checkout-items');
+  const checkoutTotal = document.querySelector('.checkout-total .val');
+  toggleBtns.forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggleBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const isUsd = btn.textContent.trim().includes('$');
+      if (isUsd) {
+        checkoutItems.innerHTML = `
+          <div class="row"><span>Torta tres leches</span><span>$ 25,00</span></div>
+          <div class="row"><span>Cupcakes x12</span><span>$ 18,00</span></div>
+          <div class="row"><span>Galletas x10</span><span>$ 15,00</span></div>`;
+        checkoutTotal.textContent = '$ 58,00';
+        checkoutTotal.style.color = 'var(--moss)';
+      } else {
+        checkoutItems.innerHTML = `
+          <div class="row"><span>Torta tres leches</span><span>Bs 1.081</span></div>
+          <div class="row"><span>Cupcakes x12</span><span>Bs 779</span></div>
+          <div class="row"><span>Galletas x10</span><span>Bs 650</span></div>`;
+        checkoutTotal.textContent = 'Bs 2.510';
+        checkoutTotal.style.color = 'var(--terracotta)';
+      }
+    });
+  });
+</script>
+
+</body>
+</html>

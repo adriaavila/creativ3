@@ -95,6 +95,13 @@ html.theme-dark .cc-ring { border-color: var(--lima); }
 html.theme-light .cc-dot { background: #0a1f2e; }
 html.theme-light .cc-ring { border-color: #0a1f2e; }
 
+/* Hide custom cursor on touch devices */
+@media (pointer: coarse) {
+  .cc-ring, .cc-dot {
+    display: none !important;
+  }
+}
+
 @keyframes revealChar {
   from {
     transform: translateY(100%);

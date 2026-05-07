@@ -124,13 +124,15 @@ export default function CustomCursor() {
         ref={ringRef}
         className="cc-ring fixed top-0 left-0 pointer-events-none z-[9998] rounded-full border opacity-55 hidden sm:block"
         style={{ width: 44, height: 44, borderWidth: "1.5px" }}
+        className="cc-ring fixed top-0 left-0 pointer-events-none z-[9998] rounded-full border-2 opacity-60"
+        style={{ width: 40, height: 40 }}
       />
 
       {/* Core dot */}
       <div
         ref={cursorRef}
-        className="cc-dot fixed top-0 left-0 pointer-events-none z-[9999] rounded-full hidden sm:block"
-        style={{ width: 8, height: 8 }}
+        className="cc-dot fixed top-0 left-0 pointer-events-none z-[9999] rounded-full"
+        style={{ width: 10, height: 10 }}
       />
     </>
   );

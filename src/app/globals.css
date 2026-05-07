@@ -237,4 +237,29 @@ html.theme-dark .cc-ring { border-color: var(--lima); }
 html.theme-light .cc-dot { background: #0a1f2e; }
 html.theme-light .cc-ring { border-color: #0a1f2e; }
 
+<<<<<<< claude/youthful-brown-e21ec7
 .hover-target { }
+=======
+/* Hide custom cursor on touch devices */
+@media (pointer: coarse) {
+  .cc-ring, .cc-dot {
+    display: none !important;
+  }
+}
+
+@keyframes revealChar {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+.animate-reveal-char {
+  animation: revealChar 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+.hover-target {
+  /* Used to detect interactives by cursor */
+}
+>>>>>>> main

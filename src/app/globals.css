@@ -10,7 +10,7 @@
   --color-papiro: var(--papiro);
   --color-papiro-soft: var(--papiro-soft);
   --color-guayoyo: var(--guayoyo);
-  
+
   --font-display: var(--font-fraunces);
   --font-editorial: var(--font-italiana);
   --font-mono: var(--font-jetbrains);
@@ -28,6 +28,12 @@
   --guayoyo: #c89464;
 }
 
+/* ─── Custom scrollbar ─────────────────────────────────────── */
+::-webkit-scrollbar { width: 3px; }
+::-webkit-scrollbar-track { background: var(--noche-deep); }
+::-webkit-scrollbar-thumb { background: var(--cobalto); border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: var(--papiro-soft); }
+
 @layer base {
   body {
     background-color: var(--noche);
@@ -35,40 +41,174 @@
     overflow-x: hidden;
   }
 
-  /* Light-themed routes set their own bg/color via their wrapper (.mistica-page, .shopea-page-wrapper).
-     Only neutralize the dark default on <html> so scroll-bounce doesn't flash noche. */
   html.theme-light {
     background-color: transparent;
   }
-  
-  /* Noise overlay — only on dark-themed routes */
+
+  /* Noise overlay */
   html.theme-dark body::before {
     content: "";
     position: fixed;
     inset: 0;
     pointer-events: none;
     z-index: 50;
-    opacity: 0.25;
+    opacity: 0.18;
     mix-blend-mode: overlay;
     background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 600 600' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   }
 
-  /* Vignette — only on dark-themed routes */
+  /* Vignette */
   html.theme-dark body::after {
     content: "";
     position: fixed;
     inset: 0;
     pointer-events: none;
     z-index: 40;
-    background: radial-gradient(circle, transparent 40%, rgba(6, 21, 31, 0.8) 150%);
+    background: radial-gradient(circle, transparent 30%, rgba(6, 21, 31, 0.85) 150%);
   }
 }
 
+/* ─── Text utilities ───────────────────────────────────────── */
 .text-outline {
   -webkit-text-stroke: 1px var(--papiro);
   color: transparent;
 }
 
+/* ─── Character reveal ─────────────────────────────────────── */
+@keyframes revealChar {
+  from { transform: translateY(100%); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+.animate-reveal-char {
+  animation: revealChar 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+/* ─── Floating orbs ────────────────────────────────────────── */
+@keyframes orb-drift-a {
+  0%   { transform: translate(0, 0)   scale(1);    }
+  33%  { transform: translate(80px, -60px) scale(1.08); }
+  66%  { transform: translate(-40px, 80px) scale(0.95); }
+  100% { transform: translate(0, 0)   scale(1);    }
+}
+@keyframes orb-drift-b {
+  0%   { transform: translate(0, 0)   scale(1);    }
+  40%  { transform: translate(-100px, 60px) scale(1.1);  }
+  80%  { transform: translate(60px, -80px) scale(0.92); }
+  100% { transform: translate(0, 0)   scale(1);    }
+}
+@keyframes orb-drift-c {
+  0%   { transform: translate(0, 0)  rotate(0deg)   scale(1);    }
+  50%  { transform: translate(60px, 40px) rotate(180deg) scale(1.06); }
+  100% { transform: translate(0, 0)  rotate(360deg) scale(1);    }
+}
+
+/* ─── Pulse glow ───────────────────────────────────────────── */
+@keyframes pulse-glow {
+  0%, 100% { opacity: 0.35; filter: blur(60px); }
+  50%       { opacity: 0.55; filter: blur(40px); }
+}
+
+/* ─── Text shimmer ─────────────────────────────────────────── */
+@keyframes shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position:  200% center; }
+}
+.text-shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--papiro) 0%,
+    var(--cobalto) 40%,
+    var(--papiro) 60%,
+    var(--papiro) 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: shimmer 4s linear infinite;
+}
+
+/* ─── Glow border ──────────────────────────────────────────── */
+@keyframes border-glow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(42,110,160,0); }
+  50%       { box-shadow: 0 0 32px 4px rgba(42,110,160,0.35); }
+}
+.glow-border {
+  animation: border-glow 3s ease-in-out infinite;
+}
+
+/* ─── Scan line sweep ──────────────────────────────────────── */
+@keyframes scan-sweep {
+  0%   { top: -4px; opacity: 0; }
+  5%   { opacity: 1; }
+  95%  { opacity: 1; }
+  100% { top: 100%; opacity: 0; }
+}
+.scan-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent 0%, rgba(42,110,160,0.6) 50%, transparent 100%);
+  animation: scan-sweep 8s linear infinite;
+  pointer-events: none;
+}
+
+/* ─── Gradient spin (pricing card) ────────────────────────── */
+@keyframes gradient-spin {
+  from { --angle: 0deg; }
+  to   { --angle: 360deg; }
+}
+@property --angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+.gradient-border-spin {
+  border: 1.5px solid transparent;
+  background-image:
+    linear-gradient(var(--noche-rise), var(--noche-rise)),
+    conic-gradient(from var(--angle), var(--cobalto), transparent 60%, var(--cobalto));
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
+  animation: gradient-spin 4s linear infinite;
+}
+
+/* ─── Counter odometer ─────────────────────────────────────── */
+@keyframes count-up {
+  from { transform: translateY(100%); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+/* ─── Loader bar ───────────────────────────────────────────── */
+@keyframes load-bar {
+  0%   { width: 0%; }
+  60%  { width: 80%; }
+  100% { width: 100%; }
+}
+
+/* ─── Float tick ───────────────────────────────────────────── */
+@keyframes float-tick {
+  0%   { transform: translateY(0px); }
+  50%  { transform: translateY(-8px); }
+  100% { transform: translateY(0px); }
+}
+
+/* ─── Horizontal light streak ──────────────────────────────── */
+@keyframes light-streak {
+  0%   { transform: translateX(-120%); opacity: 0; }
+  10%  { opacity: 1; }
+  90%  { opacity: 1; }
+  100% { transform: translateX(120%); opacity: 0; }
+}
+
+/* ─── Cursor glow ──────────────────────────────────────────── */
+@keyframes cursor-glow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(168,201,127,0); }
+  50%       { box-shadow: 0 0 12px 4px rgba(168,201,127,0.5); }
+}
+
+/* ─── Reduced motion ───────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
   * {
     animation-duration: 0.01ms !important;
@@ -78,7 +218,7 @@
   }
 }
 
-/* Custom cursor hide default — only when CustomCursor is mounted */
+/* ─── Custom cursor ────────────────────────────────────────── */
 @media (pointer: fine) {
   html.cursor-hidden,
   html.cursor-hidden body,
@@ -89,12 +229,17 @@
   }
 }
 
-/* Custom cursor theming */
-html.theme-dark .cc-dot { background: var(--lima); }
+html.theme-dark .cc-dot {
+  background: var(--lima);
+  animation: cursor-glow 2s ease-in-out infinite;
+}
 html.theme-dark .cc-ring { border-color: var(--lima); }
 html.theme-light .cc-dot { background: #0a1f2e; }
 html.theme-light .cc-ring { border-color: #0a1f2e; }
 
+<<<<<<< claude/youthful-brown-e21ec7
+.hover-target { }
+=======
 /* Hide custom cursor on touch devices */
 @media (pointer: coarse) {
   .cc-ring, .cc-dot {
@@ -117,3 +262,4 @@ html.theme-light .cc-ring { border-color: #0a1f2e; }
 .hover-target {
   /* Used to detect interactives by cursor */
 }
+>>>>>>> main

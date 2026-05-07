@@ -67,8 +67,18 @@ export default function SiteHeader() {
           href="/"
           className="group font-display text-xl sm:text-2xl tracking-tight text-papiro hover-target shrink-0"
         >
-          Servicios
-          <span className="text-cobalto italic transition-all duration-500 group-hover:text-lima">
+          Servicios{" "}
+          <span
+            className="italic"
+            style={{
+              background: "linear-gradient(90deg, var(--cobalto), var(--lima) 60%, var(--cobalto))",
+              backgroundSize: "200% auto",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              backgroundClip: "text",
+              animation: "shimmer 5s linear infinite",
+            }}
+          >
             Creativos
           </span>
         </Link>

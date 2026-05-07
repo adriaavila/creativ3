@@ -75,18 +75,35 @@ export default function Hero() {
 
   return (
     <section className="relative min-h-screen w-full flex flex-col justify-between p-6 sm:p-12 pt-24 sm:pt-32 overflow-hidden">
-      <div className="w-full flex justify-between items-start text-xs sm:text-sm font-mono tracking-wide opacity-80 text-papiro-soft">
+      {/* Background Image Wrapper */}
+      <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
+        <div
+          className="absolute inset-0 w-full h-full bg-cover bg-center opacity-30"
+          style={{
+            backgroundImage: "url('https://upload.wikimedia.org/wikipedia/commons/thumb/0/06/Caribbean_Sea%2C_Avila_Mt%2C_Caracas_Panorama.jpg/1920px-Caribbean_Sea%2C_Avila_Mt%2C_Caracas_Panorama.jpg')",
+            backgroundPosition: "center top",
+            filter: "contrast(1.1) saturate(1.2)",
+            animation: "slowZoom 40s ease-in-out infinite alternate",
+            willChange: "transform",
+          }}
+        />
+        {/* Cinematic gradient overlays */}
+        <div className="absolute inset-0 bg-gradient-to-b from-noche/40 via-noche/70 to-noche" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_0%,var(--noche)_100%)] opacity-80" />
+      </div>
+
+      <div className="relative z-10 w-full flex justify-between items-start text-xs sm:text-sm font-mono tracking-wide opacity-80 text-papiro-soft">
         <span>VOL. I &middot; NÚMERO II</span>
         <span>LATAM &middot; 2026</span>
       </div>
 
-      <div className="flex-1 flex items-center justify-center">
+      <div className="relative z-10 flex-1 flex items-center justify-center">
         <h1
           ref={titleRef}
           className="text-center font-display leading-[0.92] tracking-tight max-w-[95vw]"
           style={{ fontSize: "clamp(36px, 7vw, 140px)" }}
         >
-          <span className="block overflow-hidden pb-2 sm:pb-3">
+          <span className="block overflow-hidden pb-2 sm:pb-3 drop-shadow-2xl">
             {"Construimos".split("").map((char, i) => (
               <span key={i} className="letter inline-block">
                 {char === " " ? " " : char}
@@ -94,7 +111,7 @@ export default function Hero() {
             ))}
           </span>
 
-          <span className="block overflow-hidden pb-2 sm:pb-3">
+          <span className="block overflow-hidden pb-2 sm:pb-3 drop-shadow-2xl">
             <span
               ref={phraseRef}
               className="italic inline-block"
@@ -106,24 +123,31 @@ export default function Hero() {
         </h1>
       </div>
 
-      <div className="w-full grid grid-cols-1 sm:grid-cols-3 gap-6 items-end pb-4">
+      <div className="relative z-10 w-full grid grid-cols-1 sm:grid-cols-3 gap-6 items-end pb-4">
         <div className="hidden sm:block text-papiro-soft font-mono text-sm">
           <span className="inline-block" style={{ animation: "spin 20s linear infinite" }}>
             ✦
           </span>
         </div>
-        <div className="text-center sm:text-left text-sm sm:text-base opacity-80 max-w-md mx-auto sm:mx-0 text-papiro-soft font-mono">
+        <div className="text-center sm:text-left text-sm sm:text-base opacity-80 max-w-md mx-auto sm:mx-0 text-papiro-soft font-mono drop-shadow-lg">
           <p ref={copyRef}>{ROTATING_COPIES[0]}</p>
         </div>
         <div className="flex justify-center sm:justify-end gap-4">
           <a
             href="#servicios"
-            className="border border-papiro/30 px-8 py-3 rounded-full text-sm font-mono hover:bg-papiro hover:text-noche transition-colors duration-500"
+            className="border border-papiro/30 px-8 py-3 rounded-full text-sm font-mono hover:bg-papiro hover:text-noche transition-colors duration-500 backdrop-blur-sm bg-noche/30"
           >
             Adelante
           </a>
         </div>
       </div>
+      
+      <style>{`
+        @keyframes slowZoom {
+          0% { transform: scale(1); }
+          100% { transform: scale(1.15); }
+        }
+      `}</style>
     </section>
   );
 }

@@ -106,7 +106,6 @@ export default function Colofon() {
         </h2>
       </div>
 
-<<<<<<< claude/youthful-brown-e21ec7
       {/* Links row */}
       <div ref={linksRef} className="flex flex-wrap justify-center gap-6 mb-16">
         {[
@@ -124,19 +123,14 @@ export default function Colofon() {
             {l.label}
           </a>
         ))}
-=======
+      </div>
+
       {/* Enlaces Legales */}
       <div className="w-full max-w-7xl flex flex-wrap justify-center gap-6 text-xs font-mono text-papiro/40 mb-12">
         <a href="/terminos" className="hover:text-papiro transition-colors">Términos y Condiciones</a>
         <a href="/privacidad" className="hover:text-papiro transition-colors">Política de Privacidad</a>
         <a href="/eliminacion-de-datos" className="hover:text-papiro transition-colors">Eliminación de Datos</a>
         <a href="/embedded-whatsapp" className="hover:text-papiro transition-colors">Onboarding WhatsApp</a>
-      </div>
-
-      {/* Colofón line */}
-      <div className="w-full text-center text-xs sm:text-sm font-mono text-papiro/40 max-w-2xl mx-auto">
-        Este sitio vive en LATAM. Fraunces, Italiana, JetBrains Mono. Potenciado por Inteligencia Artificial, guiado por humanos.
->>>>>>> main
       </div>
 
       {/* Colofón line */}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 
 const ROTATING_PHRASES = [
@@ -19,28 +19,42 @@ const ROTATING_COPIES = [
   "Tu competencia sigue en Excel. Tú, no.",
 ];
 
+const PROMPTS = [
+  "Automatiza mis cobros con WhatsApp...",
+  "Crea un dashboard de inventario en tiempo real...",
+  "Sincroniza mis leads de Instagram con Google Sheets...",
+  "Genera reportes de ventas automáticos cada lunes...",
+];
+
 export default function Hero() {
   const titleRef = useRef<HTMLHeadingElement>(null);
   const phraseRef = useRef<HTMLSpanElement>(null);
   const copyRef = useRef<HTMLParagraphElement>(null);
+  const promptRef = useRef<HTMLDivElement>(null);
   const indexRef = useRef(0);
+  const [promptText, setPromptText] = useState("");
+  const [promptIndex, setPromptIndex] = useState(0);
 
+  // Intro animation + phrase rotation — run once
   useEffect(() => {
     const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (!titleRef.current || !phraseRef.current || !copyRef.current) return;
+    if (!titleRef.current || !phraseRef.current || !copyRef.current || !promptRef.current) return;
 
     const letters = titleRef.current.querySelectorAll(".letter");
     const phraseEl = phraseRef.current;
     const copyEl = copyRef.current;
+    const promptEl = promptRef.current;
 
     if (!prefersReducedMotion) {
       gsap.set(letters, { yPercent: 100 });
       gsap.set(phraseEl, { yPercent: 50, opacity: 0 });
       gsap.set(copyEl, { opacity: 0 });
+      gsap.set(promptEl, { y: 30, opacity: 0 });
 
       gsap.timeline({ delay: 0.6 })
         .to(letters, { yPercent: 0, duration: 1.2, ease: "power3.out", stagger: 0.04 })
         .to(phraseEl, { yPercent: 0, opacity: 1, duration: 0.9, ease: "power3.out" }, "-=1.0")
+        .to(promptEl, { y: 0, opacity: 1, duration: 1, ease: "power2.out" }, "-=0.6")
         .to(copyEl, { opacity: 1, duration: 0.7, ease: "power2.out" }, "-=0.4");
     }
 
@@ -73,6 +87,45 @@ export default function Hero() {
     };
   }, []);
 
+  // Typing effect — restarts only when prompt index advances
+  useEffect(() => {
+    let currentText = "";
+    let isDeleting = false;
+    let typingSpeed = 100;
+    let timeoutHandle: ReturnType<typeof setTimeout>;
+
+    const type = () => {
+      const fullText = PROMPTS[promptIndex % PROMPTS.length];
+
+      if (isDeleting) {
+        currentText = fullText.substring(0, currentText.length - 1);
+        typingSpeed = 50;
+      } else {
+        currentText = fullText.substring(0, currentText.length + 1);
+        typingSpeed = 100;
+      }
+
+      setPromptText(currentText);
+
+      if (!isDeleting && currentText === fullText) {
+        setTimeout(() => (isDeleting = true), 2000);
+      } else if (isDeleting && currentText === "") {
+        isDeleting = false;
+        setPromptIndex((prev) => prev + 1);
+        typingSpeed = 500;
+      }
+
+      timeoutHandle = setTimeout(type, typingSpeed);
+    };
+
+    const startTimeout = setTimeout(type, promptIndex === 0 ? 2000 : 0);
+
+    return () => {
+      clearTimeout(startTimeout);
+      clearTimeout(timeoutHandle);
+    };
+  }, [promptIndex]);
+
   return (
     <section className="relative min-h-screen w-full flex flex-col justify-between p-6 sm:p-12 pt-24 sm:pt-32 overflow-hidden">
       {/* Background Image Wrapper */}
@@ -97,13 +150,13 @@ export default function Hero() {
         <span>LATAM &middot; 2026</span>
       </div>
 
-      <div className="relative z-10 flex-1 flex items-center justify-center">
+      <div className="relative z-10 flex-1 flex flex-col items-center justify-center gap-12">
         <h1
           ref={titleRef}
-          className="text-center font-display leading-[0.92] tracking-tight max-w-[95vw]"
-          style={{ fontSize: "clamp(36px, 7vw, 140px)" }}
+          className="text-center font-display leading-[0.92] tracking-tight max-w-[95vw] flex flex-wrap justify-center items-center"
+          style={{ fontSize: "clamp(48px, 9vw, 140px)" }}
         >
-          <span className="block overflow-hidden pb-2 sm:pb-3 drop-shadow-2xl">
+          <span className="inline-block overflow-hidden pb-2 sm:pb-3 drop-shadow-2xl">
             {"Construimos".split("").map((char, i) => (
               <span key={i} className="letter inline-block">
                 {char === " " ? " " : char}
@@ -111,7 +164,7 @@ export default function Hero() {
             ))}
           </span>
 
-          <span className="block overflow-hidden pb-2 sm:pb-3 drop-shadow-2xl">
+          <span className="mx-4 sm:mx-6 overflow-visible drop-shadow-2xl h-[1.1em] flex items-center">
             <span
               ref={phraseRef}
               className="italic inline-block"
@@ -121,6 +174,25 @@ export default function Hero() {
             </span>
           </span>
         </h1>
+
+        {/* Anything-style Command Prompt */}
+        <div
+          ref={promptRef}
+          className="w-full max-w-2xl px-6 py-4 bg-noche-rise/20 backdrop-blur-xl border border-papiro/10 rounded-2xl shadow-2xl relative group overflow-hidden"
+        >
+          {/* Internal shine sweep */}
+          <div aria-hidden="true" className="absolute inset-0 pointer-events-none">
+            <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-papiro/5 to-transparent" />
+          </div>
+
+          <div className="flex items-center gap-4">
+            <div className="w-2 h-2 rounded-full bg-cobalto animate-pulse" />
+            <div className="flex-1 font-mono text-sm sm:text-base text-papiro/60">
+              <span className="text-papiro">{promptText}</span>
+              <span className="w-1.5 h-4 inline-block bg-cobalto ml-1 align-middle animate-blink" />
+            </div>
+          </div>
+        </div>
       </div>
 
       <div className="relative z-10 w-full grid grid-cols-1 sm:grid-cols-3 gap-6 items-end pb-4">
@@ -146,6 +218,13 @@ export default function Hero() {
         @keyframes slowZoom {
           0% { transform: scale(1); }
           100% { transform: scale(1.15); }
+        }
+        @keyframes blink {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0; }
+        }
+        .animate-blink {
+          animation: blink 1s infinite;
         }
       `}</style>
     </section>

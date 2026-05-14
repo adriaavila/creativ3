@@ -4,6 +4,7 @@ import FloatingOrbs from "@/components/landing/FloatingOrbs";
 import ScrollProgress from "@/components/landing/ScrollProgress";
 import Hero from "@/components/landing/Hero";
 import Tesis from "@/components/landing/Tesis";
+import TaskAutomation from "@/components/landing/TaskAutomation";
 import Servicios from "@/components/landing/Servicios";
 import Marquee from "@/components/landing/Marquee";
 import Principios from "@/components/landing/Principios";
@@ -22,6 +23,7 @@ export default function Home() {
       <main className="relative z-10">
         <Hero />
         <Tesis />
+        <TaskAutomation />
         <Servicios />
         <Marquee />
         <Principios />

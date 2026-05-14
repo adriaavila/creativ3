@@ -1,279 +1,264 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import Colofon from "@/components/landing/Colofon";
-import { CheckCircle2, MessageSquare, Shield, Zap, ArrowRight, Share2, Phone, Database } from "lucide-react";
-import { motion } from "motion/react";
+import { Shield, CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
+import { motion, AnimatePresence } from "motion/react";
 
-// Add FB to window object for TypeScript
 declare global {
   interface Window {
     fbAsyncInit: () => void;
-    FB: any;
+    FB: {
+      init: (config: object) => void;
+      login: (callback: (response: FBLoginResponse) => void, options: object) => void;
+    };
   }
 }
 
+interface FBLoginResponse {
+  authResponse?: {
+    code: string;
+    accessToken?: string;
+  };
+  status?: string;
+}
+
+const APP_ID = "928506006692783";
+const GRAPH_VERSION = "v24.0";
+const CONFIG_ID = "1314818040747845";
+
+const N8N_ONBOARDING_WEBHOOK =
+  "https://n8n.servicioscreativos.online/webhook/whatsapp-onboarding-finish-7f3a9c";
+const N8N_CODE_WEBHOOK =
+  "https://n8n.servicioscreativos.online/webhook/whatsapp-login-code-7f3a9c";
+
+const WEBHOOK_HEADER_NAME = "x-servicioscreativos-secret";
+const WEBHOOK_HEADER_VALUE = "rei_n8n_secret_2026_xK92pLm7qA_private";
+
+function getClientParam(): string | null {
+  return new URLSearchParams(window.location.search).get("client");
+}
+
+async function postToN8n(url: string, payload: object): Promise<void> {
+  try {
+    await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        [WEBHOOK_HEADER_NAME]: WEBHOOK_HEADER_VALUE,
+      },
+      body: JSON.stringify(payload),
+    });
+  } catch (err) {
+    console.error("Error enviando a n8n:", err);
+  }
+}
+
+type Status = "idle" | "loading" | "success" | "error";
+
 export default function EmbeddedWhatsapp() {
-  const [isSdkLoaded, setIsSdkLoaded] = useState(false);
+  const [sdkReady, setSdkReady] = useState(false);
+  const [status, setStatus] = useState<Status>("idle");
 
   useEffect(() => {
-    // Initialize Facebook SDK for Embedded Signup
-    window.fbAsyncInit = function() {
+    window.fbAsyncInit = function () {
       window.FB.init({
-        appId: 'YOUR_FACEBOOK_APP_ID', // Reemplazar con el ID de la App de Meta
+        appId: APP_ID,
         autoLogAppEvents: true,
         xfbml: true,
-        version: 'v20.0'
+        version: GRAPH_VERSION,
       });
-      setIsSdkLoaded(true);
+      setSdkReady(true);
     };
 
-    (function(d, s, id) {
-      var js, fjs = d.getElementsByTagName(s)[0];
-      if (d.getElementById(id)) return;
-      js = d.createElement(s) as HTMLScriptElement; js.id = id;
-      js.src = "https://connect.facebook.net/en_US/sdk.js";
-      fjs?.parentNode?.insertBefore(js, fjs);
-    }(document, 'script', 'facebook-jssdk'));
+    if (!document.getElementById("facebook-jssdk")) {
+      const script = document.createElement("script");
+      script.id = "facebook-jssdk";
+      script.src = "https://connect.facebook.net/en_US/sdk.js";
+      script.async = true;
+      script.defer = true;
+      script.crossOrigin = "anonymous";
+      document.body.appendChild(script);
+    }
+
+    const handleMessage = async (event: MessageEvent) => {
+      if (!event.origin.endsWith("facebook.com")) return;
+
+      try {
+        const data =
+          typeof event.data === "string" ? JSON.parse(event.data) : event.data;
+
+        if (data?.type === "WA_EMBEDDED_SIGNUP") {
+          const client = getClientParam();
+          await postToN8n(N8N_ONBOARDING_WEBHOOK, {
+            client,
+            embedded_event: data,
+            received_at: new Date().toISOString(),
+          });
+        }
+      } catch {
+        // non-JSON messages from facebook.com — ignore
+      }
+    };
+
+    window.addEventListener("message", handleMessage);
+    return () => window.removeEventListener("message", handleMessage);
   }, []);
 
-  const launchWhatsAppSignup = () => {
-    if (window.FB) {
-      window.FB.login((response: any) => {
-        if (response.authResponse) {
-          const accessToken = response.authResponse.accessToken;
-          console.log('Access Token:', accessToken);
-          // Aquí se manejaría el intercambio de tokens y la obtención del WABA ID
-        } else {
-          console.log('User cancelled login or did not fully authorize.');
-        }
-      }, {
-        scope: 'whatsapp_business_management,whatsapp_business_messaging',
-        extras: {
-          feature: 'whatsapp_embedded_signup',
-          setup: {
-            // Configuración para Coexistence si es necesario
-          }
-        }
-      });
+  const fbLoginCallback = (response: FBLoginResponse) => {
+    const client = getClientParam();
+
+    if (response.authResponse) {
+      const code = response.authResponse.code;
+      void postToN8n(N8N_CODE_WEBHOOK, {
+        client,
+        code,
+        received_at: new Date().toISOString(),
+      }).then(() => setStatus("success"));
+    } else {
+      void postToN8n(N8N_CODE_WEBHOOK, {
+        client,
+        error: response,
+        received_at: new Date().toISOString(),
+      }).then(() => setStatus("error"));
     }
   };
 
+  const launchWhatsAppSignup = () => {
+    if (!window.FB) {
+      console.error("FB SDK no cargado aún");
+      return;
+    }
+    setStatus("loading");
+    window.FB.login(fbLoginCallback, {
+      config_id: CONFIG_ID,
+      response_type: "code",
+      override_default_response_type: true,
+      extras: {
+        setup: {},
+        featureType: "whatsapp_business_app_onboarding",
+        sessionInfoVersion: "3",
+      },
+    });
+  };
+
   return (
-    <div className="min-h-screen bg-noche text-papiro selection:bg-cobalto/10 relative overflow-hidden">
-      <main className="pt-32 pb-20 px-4 relative z-10">
-        <div className="max-w-7xl mx-auto">
-          {/* Hero Section */}
-          <div className="max-w-4xl mx-auto text-center mb-32 relative">
-            {/* Background Glow */}
-            <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-cobalto/10 rounded-full blur-[120px] pointer-events-none" />
-            
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+    <div className="min-h-screen bg-noche text-papiro flex flex-col items-center justify-center px-4 relative overflow-hidden">
+      {/* Background glow */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-cobalto/8 rounded-full blur-[140px]" />
+      </div>
+
+      <motion.div
+        initial={{ opacity: 0, y: 24 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+        className="relative z-10 w-full max-w-md"
+      >
+        {/* Card */}
+        <div className="rounded-3xl border border-papiro/10 bg-papiro/5 backdrop-blur-xl p-10 md:p-14 text-center">
+          {/* WhatsApp icon */}
+          <div className="w-16 h-16 rounded-2xl bg-green-500/10 border border-green-500/20 flex items-center justify-center mx-auto mb-8">
+            <svg
+              viewBox="0 0 24 24"
+              className="w-8 h-8 fill-green-500"
+              aria-hidden="true"
             >
-              <div className="inline-flex mb-6 border border-cobalto/30 text-cobalto px-5 py-1.5 rounded-full bg-cobalto/5 backdrop-blur-xl animate-pulse font-mono tracking-widest text-[10px] uppercase">
-                Onboarding Oficial Meta • v20.0
-              </div>
-              <h1 className="text-5xl md:text-8xl mb-8 tracking-tighter leading-[0.9] font-editorial italic">
-                WhatsApp <br />
-                <span className="text-cobalto not-italic font-display">Embedded</span>
-              </h1>
-              <p className="text-xl md:text-2xl text-papiro/60 mb-12 max-w-2xl mx-auto leading-relaxed font-mono">
-                El futuro de la comunicación empresarial. Conecta tu número actual a la API Cloud mediante el flujo de <span className="text-papiro font-medium">Coexistence</span>.
-              </p>
-              
-              <div className="flex flex-wrap justify-center gap-6">
-                <button 
-                  onClick={launchWhatsAppSignup}
-                  className="bg-cobalto hover:bg-cobalto/80 text-white px-10 h-16 rounded-2xl text-lg font-semibold shadow-2xl shadow-cobalto/30 transition-all hover:scale-[1.02] active:scale-[0.98] group flex items-center"
-                >
-                  Configurar Número
-                  <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
-                </button>
-                <button 
-                  className="h-16 px-10 rounded-2xl border border-papiro/20 bg-noche/50 backdrop-blur-md hover:bg-white/5 hover:border-cobalto/20 transition-all text-papiro"
-                >
-                  Guía de Integración
-                </button>
-              </div>
-            </motion.div>
+              <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.886 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+            </svg>
           </div>
 
-          {/* Features Grid */}
-          <div className="grid md:grid-cols-3 gap-10 mb-40">
-            {[
-              {
-                icon: <Share2 className="h-7 w-7 text-cobalto" />,
-                title: "Coexistencia Híbrida",
-                description: "Mantén tu App de WhatsApp activa mientras escalas con herramientas de automatización API."
-              },
-              {
-                icon: <Database className="h-7 w-7 text-cobalto" />,
-                title: "Historial Preservado",
-                description: "Sincronización bidireccional de contactos y mensajes para una transición sin fricciones."
-              },
-              {
-                icon: <Shield className="h-7 w-7 text-cobalto" />,
-                title: "Seguridad de Grado Meta",
-                description: "Autenticación directa con los servidores de Meta sin intermediarios de terceros."
-              }
-            ].map((feature, idx) => (
+          <h1 className="text-3xl md:text-4xl font-editorial italic mb-3 tracking-tight leading-tight">
+            Conecta tu WhatsApp Business
+          </h1>
+          <p className="text-papiro/55 font-mono text-sm leading-relaxed mb-10">
+            Autoriza la conexión para activar automatizaciones, seguimiento y
+            atención desde Servicios Creativos.
+          </p>
+
+          {/* Status area */}
+          <AnimatePresence mode="wait">
+            {status === "success" && (
               <motion.div
-                key={idx}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: idx * 0.1 }}
+                key="success"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                className="flex items-center gap-3 bg-green-500/10 border border-green-500/20 rounded-2xl px-5 py-4 mb-8 text-left"
               >
-                <div className="p-10 rounded-3xl border border-papiro/10 bg-papiro/5 backdrop-blur-xl hover:bg-papiro/10 transition-all duration-500 group relative overflow-hidden h-full">
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-cobalto/5 rounded-full blur-3xl -mr-16 -mt-16 group-hover:bg-cobalto/10 transition-colors" />
-                  <div className="w-14 h-14 rounded-2xl bg-cobalto/10 flex items-center justify-center mb-8 group-hover:scale-110 group-hover:rotate-3 transition-transform duration-500">
-                    {feature.icon}
-                  </div>
-                  <h3 className="text-2xl font-editorial italic mb-4 leading-tight">{feature.title}</h3>
-                  <p className="text-papiro/60 leading-relaxed font-mono text-sm">{feature.description}</p>
+                <CheckCircle2 className="h-5 w-5 text-green-500 shrink-0" />
+                <div>
+                  <p className="text-sm font-semibold text-green-400">
+                    ¡Conexión autorizada!
+                  </p>
+                  <p className="text-xs text-papiro/50 font-mono mt-0.5">
+                    Tu cuenta fue enviada para activación.
+                  </p>
                 </div>
               </motion.div>
-            ))}
-          </div>
+            )}
 
-          {/* How it works */}
-          <div className="p-1 bg-gradient-to-br from-papiro/10 to-transparent rounded-[2.5rem] mb-40">
-            <div className="bg-noche/90 backdrop-blur-3xl rounded-[2.4rem] p-12 md:p-24 grid md:grid-cols-2 gap-20 items-center relative overflow-hidden">
-              <div className="relative z-10">
-                <div className="inline-block mb-8 bg-cobalto/10 text-cobalto border-none px-4 py-1 rounded-full text-sm font-mono">Proceso Paso a Paso</div>
-                <h2 className="text-4xl md:text-5xl font-editorial italic mb-12 tracking-tight">Infraestructura <br/> en minutos.</h2>
-                <div className="space-y-12">
-                  {[
-                    {
-                      step: "01",
-                      title: "Vínculo con Facebook",
-                      description: "Conecta tu Business Manager oficial para gestionar los activos de marca."
-                    },
-                    {
-                      step: "02",
-                      title: "Verificación en Tiempo Real",
-                      description: "Validación instantánea del número mediante OTP (One-Time Password)."
-                    },
-                    {
-                      step: "03",
-                      title: "Activación del Túnel",
-                      description: "Habilitación del canal API conservando la interfaz móvil de WhatsApp."
-                    }
-                  ].map((step, idx) => (
-                    <div key={idx} className="flex gap-8 group">
-                      <div className="relative">
-                        <span className="text-5xl font-bold text-cobalto/20 font-mono leading-none transition-colors group-hover:text-cobalto/40">{step.step}</span>
-                        {idx !== 2 && <div className="absolute top-full left-1/2 -translate-x-1/2 w-px h-12 bg-papiro/10 mt-2" />}
-                      </div>
-                      <div>
-                        <h4 className="text-xl font-bold mb-3 font-display">{step.title}</h4>
-                        <p className="text-papiro/60 text-sm font-mono leading-relaxed">{step.description}</p>
-                      </div>
-                    </div>
-                  ))}
+            {status === "error" && (
+              <motion.div
+                key="error"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                className="flex items-center gap-3 bg-red-500/10 border border-red-500/20 rounded-2xl px-5 py-4 mb-8 text-left"
+              >
+                <AlertCircle className="h-5 w-5 text-red-400 shrink-0" />
+                <div>
+                  <p className="text-sm font-semibold text-red-400">
+                    Proceso cancelado
+                  </p>
+                  <p className="text-xs text-papiro/50 font-mono mt-0.5">
+                    Puedes intentarlo de nuevo cuando quieras.
+                  </p>
                 </div>
-              </div>
-              
-              <div className="relative z-10">
-                <div className="aspect-[4/5] rounded-[3rem] bg-gradient-to-br from-cobalto/10 to-transparent border border-cobalto/20 p-1">
-                  <div className="w-full h-full bg-noche/40 backdrop-blur-2xl rounded-[2.9rem] flex flex-col items-center justify-center p-12 text-center border border-papiro/10">
-                    <motion.div 
-                      animate={{ 
-                        scale: [1, 1.05, 1],
-                        rotate: [0, 5, 0]
-                      }}
-                      transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                      className="w-24 h-24 rounded-3xl bg-green-500/10 flex items-center justify-center mb-8 shadow-inner"
-                    >
-                      <Phone className="h-12 w-12 text-green-500" />
-                    </motion.div>
-                    <h3 className="text-3xl font-editorial italic mb-6">Estado: Listo</h3>
-                    <p className="text-papiro/60 text-sm font-mono mb-10 leading-relaxed">Tu número +34 ••• ••• ••• está operando en modo coexistencia.</p>
-                    
-                    <div className="w-full space-y-4">
-                      <div className="flex justify-between text-xs font-mono text-papiro/60 uppercase tracking-wider mb-2">
-                        <span>Sincronizando</span>
-                        <span>100%</span>
-                      </div>
-                      <div className="w-full h-1.5 bg-papiro/10 rounded-full overflow-hidden">
-                        <motion.div 
-                          initial={{ width: 0 }}
-                          animate={{ width: "100%" }}
-                          transition={{ duration: 2, ease: "easeOut" }}
-                          className="h-full bg-green-500 shadow-[0_0_12px_rgba(34,197,94,0.4)]" 
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                
-                {/* Floating icons */}
-                <motion.div 
-                  animate={{ y: [0, -15, 0] }}
-                  transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-                  className="absolute -top-6 -right-6 w-16 h-16 bg-noche border border-papiro/20 rounded-2xl shadow-xl flex items-center justify-center"
-                >
-                  <MessageSquare className="text-cobalto h-8 w-8" />
-                </motion.div>
-                
-                <motion.div 
-                  animate={{ y: [0, 15, 0] }}
-                  transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
-                  className="absolute -bottom-6 -left-6 w-20 h-20 bg-noche border border-papiro/20 rounded-3xl shadow-xl flex items-center justify-center"
-                >
-                  <Zap className="text-cobalto h-10 w-10" />
-                </motion.div>
-              </div>
-            </div>
-          </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
-          {/* Requirements */}
-          <div className="max-w-4xl mx-auto">
-            <div className="p-12 rounded-3xl border border-papiro/10 bg-papiro/5 backdrop-blur-xl relative overflow-hidden">
-              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-cobalto/50 to-transparent" />
-              <div className="flex items-center gap-4 mb-10">
-                <div className="w-12 h-12 rounded-xl bg-cobalto/10 flex items-center justify-center">
-                  <Zap className="h-6 w-6 text-cobalto" />
-                </div>
-                <h3 className="text-3xl font-editorial italic">Requisitos del Sistema</h3>
-              </div>
-              <div className="grid md:grid-cols-2 gap-10">
-                <ul className="space-y-6">
-                  {[
-                    "WhatsApp Business App v2.24.17+",
-                    "Admin en Meta Business Manager",
-                  ].map((req, idx) => (
-                    <li key={idx} className="flex gap-4 items-start text-papiro/70 group">
-                      <div className="mt-1.5 p-0.5 rounded-full bg-green-500/10 transition-colors group-hover:bg-green-500/20">
-                        <CheckCircle2 className="h-5 w-5 text-green-500 shrink-0" />
-                      </div>
-                      <span className="text-lg font-mono text-sm">{req}</span>
-                    </li>
-                  ))}
-                </ul>
-                <ul className="space-y-6">
-                  {[
-                    "Número capaz de recibir SMS/Llamadas",
-                    "Portafolio verificado por Meta"
-                  ].map((req, idx) => (
-                    <li key={idx} className="flex gap-4 items-start text-papiro/70 group">
-                      <div className="mt-1.5 p-0.5 rounded-full bg-green-500/10 transition-colors group-hover:bg-green-500/20">
-                        <CheckCircle2 className="h-5 w-5 text-green-500 shrink-0" />
-                      </div>
-                      <span className="text-lg font-mono text-sm">{req}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
+          {/* CTA button */}
+          <button
+            onClick={launchWhatsAppSignup}
+            disabled={!sdkReady || status === "loading" || status === "success"}
+            className="w-full h-14 rounded-2xl bg-[#1877f2] hover:bg-[#1565d8] active:bg-[#1053b8] disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold text-base transition-all duration-200 flex items-center justify-center gap-2 shadow-lg shadow-[#1877f2]/20"
+          >
+            {status === "loading" ? (
+              <>
+                <Loader2 className="h-5 w-5 animate-spin" />
+                Abriendo Meta…
+              </>
+            ) : status === "success" ? (
+              <>
+                <CheckCircle2 className="h-5 w-5" />
+                Conectado
+              </>
+            ) : (
+              "Conectar mi WhatsApp"
+            )}
+          </button>
+
+          {!sdkReady && status === "idle" && (
+            <p className="text-papiro/30 font-mono text-xs mt-3">
+              Cargando SDK de Meta…
+            </p>
+          )}
+
+          {/* Security note */}
+          <div className="flex items-center justify-center gap-2 mt-8 text-papiro/35 font-mono text-xs">
+            <Shield className="h-3.5 w-3.5 shrink-0" />
+            <span>
+              Nunca compartimos tu clave secreta de Meta en el navegador.
+            </span>
           </div>
         </div>
-      </main>
 
-      <Colofon />
+        {/* Powered by */}
+        <p className="text-center text-papiro/25 font-mono text-xs mt-6">
+          Servicios Creativos · Integración oficial Meta WhatsApp API
+        </p>
+      </motion.div>
     </div>
   );
 }

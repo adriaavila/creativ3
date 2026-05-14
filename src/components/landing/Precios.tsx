@@ -314,7 +314,7 @@ export default function Precios() {
         <div className="flex items-center justify-center gap-3 mt-12">
           <span className="h-px w-12 bg-papiro/10" />
           <p className="font-mono text-xs text-papiro/25">
-            Pagos seguros con Stripe · Cancela en cualquier momento · Precios en USD
+            Pagos seguros · Cancela en cualquier momento · Precios en USD
           </p>
           <span className="h-px w-12 bg-papiro/10" />
         </div>

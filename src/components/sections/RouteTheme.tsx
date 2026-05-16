@@ -3,7 +3,7 @@
 import { usePathname } from "next/navigation";
 import { useEffect } from "react";
 
-const LIGHT_ROUTES = ["/projects/mistica", "/shopea"];
+const LIGHT_ROUTES = ["/projects/mistica"];
 
 export default function RouteTheme() {
   const pathname = usePathname();

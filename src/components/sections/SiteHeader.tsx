@@ -12,7 +12,7 @@ const NAV = [
   { label: "Proyectos", href: "/projects" },
 ];
 
-const HIDE_ON = ["/projects/mistica", "/shopea"];
+const HIDE_ON = ["/projects/mistica"];
 
 export default function SiteHeader() {
   const pathname = usePathname();

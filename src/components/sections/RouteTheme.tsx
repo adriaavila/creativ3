@@ -3,12 +3,13 @@
 import { usePathname } from "next/navigation";
 import { useEffect } from "react";
 
-const LIGHT_ROUTES = ["/projects/mistica"];
+const DARK_ROUTES = ["/projects/mistica"];
 
 export default function RouteTheme() {
   const pathname = usePathname();
-  const isLight =
-    pathname && LIGHT_ROUTES.some((p) => pathname.startsWith(p));
+  const isDark =
+    !!pathname && DARK_ROUTES.some((p) => pathname.startsWith(p));
+  const isLight = !isDark;
 
   useEffect(() => {
     const html = document.documentElement;

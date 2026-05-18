@@ -1,142 +1,87 @@
-"use client";
-
-import { useEffect, useRef } from "react";
-import gsap from "gsap";
-import ScrollTrigger from "gsap/ScrollTrigger";
+import { ArrowUpRight, Mail, MessageCircle } from "lucide-react";
+import CreativvLogo from "./CreativvLogo";
 
 export default function Colofon() {
-  const textRef = useRef<HTMLDivElement>(null);
-  const streakRef = useRef<HTMLDivElement>(null);
-  const linksRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    gsap.registerPlugin(ScrollTrigger);
-    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (prefersReducedMotion) return;
-
-    // Wordmark reveal
-    if (textRef.current) {
-      gsap.fromTo(textRef.current,
-        { y: 80, opacity: 0, scale: 0.97 },
-        {
-          y: 0, opacity: 1, scale: 1, duration: 1.2, ease: "power3.out",
-          scrollTrigger: { trigger: textRef.current, start: "top 92%" },
-        }
-      );
-    }
-
-    // Links
-    if (linksRef.current) {
-      gsap.fromTo(linksRef.current.children,
-        { opacity: 0, y: 16 },
-        {
-          opacity: 1, y: 0, stagger: 0.1, duration: 0.7, ease: "power2.out",
-          scrollTrigger: { trigger: linksRef.current, start: "top 90%" },
-        }
-      );
-    }
-
-    // Light streak loop
-    if (streakRef.current) {
-      gsap.to(streakRef.current, {
-        x: "120vw",
-        duration: 3.5,
-        ease: "power1.inOut",
-        repeat: -1,
-        repeatDelay: 7,
-        delay: 2,
-      });
-    }
-  }, []);
-
   return (
-    <footer className="w-full bg-noche-deep pb-12 pt-32 px-6 sm:px-12 flex flex-col items-center border-t border-papiro/10 overflow-hidden relative">
-
-      {/* Light streak */}
-      <div
-        ref={streakRef}
-        aria-hidden="true"
-        className="absolute top-16 -left-[30vw] w-[30vw] h-px pointer-events-none"
-        style={{
-          background: "linear-gradient(90deg, transparent, rgba(42,110,160,0.7) 50%, transparent)",
-          boxShadow: "0 0 8px rgba(42,110,160,0.5)",
-        }}
-      />
-
-      {/* Ambient top glow */}
-      <div
-        aria-hidden="true"
-        className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[200px] pointer-events-none"
-        style={{
-          background: "radial-gradient(ellipse, rgba(42,110,160,0.1) 0%, transparent 70%)",
-          filter: "blur(40px)",
-        }}
-      />
-
-      {/* Editorial meta */}
-      <div className="w-full max-w-7xl flex flex-col md:flex-row justify-between items-center text-xs font-mono text-papiro/30 mb-24 gap-6 relative">
-        <span>10.4806° N, 66.9036° W</span>
-        <div
-          className="hidden md:block h-px flex-1 mx-8"
-          style={{ background: "linear-gradient(90deg, transparent, rgba(240,234,214,0.1), transparent)" }}
-        />
-        <span>MMXXVI</span>
-      </div>
-
-      {/* Wordmark */}
-      <div ref={textRef} className="w-full max-w-full text-center mb-20 opacity-0 relative">
-        <h2
-          className="font-editorial leading-[0.85] tracking-tighter w-full text-papiro"
-          style={{ fontSize: "clamp(40px, 13vw, 240px)" }}
-        >
-          Servicios{" "}
-          <span
-            className="italic"
-            style={{
-              background: "linear-gradient(90deg, var(--cobalto), var(--lima) 60%, var(--cobalto))",
-              backgroundSize: "200% auto",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-              backgroundClip: "text",
-              animation: "shimmer 5s linear infinite",
-            }}
+    <footer
+      id="contacto"
+      className="relative w-full bg-[#f5f3ec] text-[#1f2a1d] scroll-mt-24 overflow-hidden"
+    >
+      <div className="max-w-6xl mx-auto px-6 md:px-10 pt-24 md:pt-32 pb-12">
+        {/* Big CTA */}
+        <div className="flex flex-col items-start gap-8 mb-20 md:mb-28">
+          <div className="text-xs font-medium tracking-widest uppercase text-[#85AB8B]">
+            Contacto
+          </div>
+          <h2
+            className="text-[#336443] font-normal leading-[0.95] text-5xl sm:text-6xl md:text-7xl lg:text-[6.5rem] max-w-5xl"
+            style={{ letterSpacing: "-0.04em" }}
           >
-            Creativos
-          </span>
-        </h2>
-      </div>
+            Empecemos con{" "}
+            <span className="text-[#85AB8B]">una conversación.</span>
+          </h2>
+          <p className="text-[#4b5b47] text-base md:text-lg max-w-xl leading-relaxed">
+            Cuéntanos qué quieres construir. Respondemos en menos de 24 horas con una propuesta concreta — alcance, tiempo y precio.
+          </p>
 
-      {/* Links row */}
-      <div ref={linksRef} className="flex flex-wrap justify-center gap-6 mb-16">
-        {[
-          { label: "Servicios", href: "/#servicios" },
-          { label: "Método", href: "/#metodo" },
-          { label: "Precios", href: "/#precios" },
-          { label: "Proyectos", href: "/projects" },
-          { label: "Contacto", href: "/#contacto" },
-        ].map((l) => (
-          <a
-            key={l.href}
-            href={l.href}
-            className="font-mono text-xs text-papiro/30 hover:text-papiro/70 transition-colors duration-300 tracking-widest uppercase hover-target"
-          >
-            {l.label}
-          </a>
-        ))}
-      </div>
+          <div className="flex flex-wrap items-center gap-4 mt-2">
+            <a
+              href="mailto:hola@creativv.studio"
+              className="inline-flex items-center gap-2 bg-[#1f2a1d] hover:bg-[#2a3827] text-white text-sm font-semibold px-6 py-3 rounded-full transition-colors"
+            >
+              <Mail className="w-4 h-4" />
+              hola@creativv.studio
+            </a>
+            <a
+              href="https://wa.me/584140000000"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 bg-white hover:bg-white/80 text-[#1f2a1d] border border-[#1f2a1d]/15 text-sm font-semibold px-6 py-3 rounded-full transition-colors"
+            >
+              <MessageCircle className="w-4 h-4" />
+              WhatsApp
+            </a>
+          </div>
+        </div>
 
-      {/* Enlaces Legales */}
-      <div className="w-full max-w-7xl flex flex-wrap justify-center gap-6 text-xs font-mono text-papiro/40 mb-12">
-        <a href="/terminos" className="hover:text-papiro transition-colors">Términos y Condiciones</a>
-        <a href="/privacidad" className="hover:text-papiro transition-colors">Política de Privacidad</a>
-        <a href="/eliminacion-de-datos" className="hover:text-papiro transition-colors">Eliminación de Datos</a>
-        <a href="/embedded-whatsapp" className="hover:text-papiro transition-colors">Onboarding WhatsApp</a>
-      </div>
+        {/* Meta + links */}
+        <div className="border-t border-[#1f2a1d]/10 pt-10 flex flex-col md:flex-row md:items-end justify-between gap-10">
+          <div>
+            <div className="flex items-center mb-4 text-[#1f2a1d]">
+              <CreativvLogo variant="lockup-bare" className="h-9 w-auto" />
+            </div>
+            <p className="text-xs text-[#4b5b47] max-w-xs leading-relaxed">
+              Estudio de software a medida y automatización con IA. Construido en LATAM, para el mundo.
+            </p>
+          </div>
 
-      {/* Colofón line */}
-      <div className="w-full text-center text-xs font-mono text-papiro/25 max-w-2xl mx-auto leading-relaxed">
-        Construido en LATAM. Fraunces, Italiana, JetBrains Mono.{" "}
-        <span className="text-cobalto/50">Potenciado por Inteligencia Artificial, guiado por humanos.</span>
+          <div className="grid grid-cols-2 gap-x-12 gap-y-3 text-sm">
+            {[
+              { label: "Servicios", href: "#servicios" },
+              { label: "Proyectos", href: "#proyectos" },
+              { label: "Cotizar", href: "/cotizar" },
+              { label: "Pago", href: "/pago" },
+              { label: "Términos", href: "/terminos" },
+              { label: "Privacidad", href: "/privacidad" },
+              { label: "Eliminación de datos", href: "/eliminacion-de-datos" },
+              { label: "WhatsApp Business", href: "/embedded-whatsapp" },
+            ].map((l) => (
+              <a
+                key={l.href}
+                href={l.href}
+                className="group inline-flex items-center gap-1 text-[#4b5b47] hover:text-[#1f2a1d] transition-colors"
+              >
+                {l.label}
+                <ArrowUpRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+              </a>
+            ))}
+          </div>
+        </div>
+
+        <div className="mt-12 flex flex-col md:flex-row items-start md:items-center justify-between gap-2 text-xs text-[#4b5b47]/70">
+          <span>© {new Date().getFullYear()} creativv. Todos los derechos reservados.</span>
+          <span>10.4806° N · 66.9036° W</span>
+        </div>
       </div>
     </footer>
   );

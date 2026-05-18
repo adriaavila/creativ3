@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Fraunces, Italiana, JetBrains_Mono } from "next/font/google";
+import { Fraunces, Italiana, JetBrains_Mono, Inter } from "next/font/google";
 import "./globals.css";
 import SiteHeader from "@/components/sections/SiteHeader";
 import RouteTheme from "@/components/sections/RouteTheme";
@@ -27,6 +27,13 @@ const jetbrains = JetBrains_Mono({
   display: "swap",
 });
 
+const inter = Inter({
+  weight: ["300", "400", "500", "600", "700"],
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
+});
+
 export const metadata: Metadata = {
   title: "Servicios Creativos",
   description: "El software que merece Venezuela.",
@@ -45,9 +52,9 @@ export default function RootLayout({
   return (
     <html
       lang="es"
-      className={`${fraunces.variable} ${italiana.variable} ${jetbrains.variable} theme-dark h-full bg-noche`}
+      className={`${fraunces.variable} ${italiana.variable} ${jetbrains.variable} ${inter.variable} theme-dark h-full`}
     >
-      <body className="min-h-full font-display bg-noche text-papiro overflow-x-hidden antialiased">
+      <body className="min-h-full overflow-x-hidden antialiased">
         <RouteTheme />
         <CustomCursor />
         <SiteHeader />

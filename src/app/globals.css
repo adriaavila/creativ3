@@ -4,9 +4,12 @@
   --color-noche: var(--noche);
   --color-noche-deep: var(--noche-deep);
   --color-noche-rise: var(--noche-rise);
+  --color-ink: var(--ink);
+  --color-ink-rise: var(--ink-rise);
   --color-cobalto: var(--cobalto);
   --color-monte: var(--monte);
   --color-lima: var(--lima);
+  --color-lima-electric: var(--lima-electric);
   --color-papiro: var(--papiro);
   --color-papiro-soft: var(--papiro-soft);
   --color-guayoyo: var(--guayoyo);
@@ -20,9 +23,12 @@
   --noche: #0a1f2e;
   --noche-deep: #06151f;
   --noche-rise: #12293a;
+  --ink: #0a0d10;
+  --ink-rise: #13181d;
   --cobalto: #2a6ea0;
   --monte: #2d5f3f;
   --lima: #a8c97f;
+  --lima-electric: #c5f04a;
   --papiro: #f0ead6;
   --papiro-soft: #d4cdb8;
   --guayoyo: #c89464;
@@ -41,8 +47,15 @@
     overflow-x: hidden;
   }
 
-  html.theme-light {
-    background-color: transparent;
+  html.theme-dark body {
+    font-family: var(--font-fraunces), Georgia, serif;
+  }
+
+  html.theme-light,
+  html.theme-light body {
+    background-color: #f5f3ec;
+    color: #1f2a1d;
+    font-family: var(--font-inter), 'Helvetica Neue', Helvetica, Arial, sans-serif;
   }
 
   /* Noise overlay (Paper grain) */
@@ -256,3 +269,13 @@ html.theme-light .cc-ring { border-color: #0a1f2e; }
 .hover-target {
   /* Used to detect interactives by cursor */
 }
+
+/* ─── Theme kinetic (light playful) ───────────────────────── */
+.theme-kinetic {
+  color: #1a1a1f;
+}
+.theme-kinetic ::selection {
+  background: #ff8a4c;
+  color: #1a1a1f;
+}
+html.theme-dark .theme-kinetic ~ * { /* no-op selector to scope */ }

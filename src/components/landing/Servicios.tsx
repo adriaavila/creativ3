@@ -1,100 +1,82 @@
-"use client";
-
-import { useEffect, useRef, useState } from "react";
-import gsap from "gsap";
-import ScrollTrigger from "gsap/ScrollTrigger";
+import { Code2, Sparkles, Boxes, ArrowUpRight } from "lucide-react";
 
 const SERVICIOS = [
   {
-    id: "I",
-    name: "Software a Medida",
-    desc: "Desarrollamos soluciones personalizadas que se ajustan exactamente a tus procesos de negocio. Sin limitaciones de plataformas genéricas.",
-    features: ["Arquitectura scalable", "Integración con sistemas existentes", "Desarrollo frontend y backend", "APIs y microservicios"],
-    active: true,
+    icon: Code2,
+    name: "Software a medida",
+    desc: "Construimos web apps, plataformas SaaS y dashboards desde cero. Arquitectura escalable, integración con tus sistemas, frontend y backend bajo un mismo equipo.",
+    tags: ["Next.js", "Supabase", "Stripe"],
   },
   {
-    id: "II",
-    name: "Automatización IA",
-    desc: "Implementamos agentes inteligentes y workflows automatizados que liberan a tu equipo del trabajo repetitivo.",
-    features: ["Agentes conversacionales", "Automatización de procesos", "Integración con herramientas", "Machine learning"],
-    active: true,
+    icon: Sparkles,
+    name: "Automatización con IA",
+    desc: "Agentes conversacionales, workflows automáticos y modelos integrados a tus operaciones. Liberamos a tu equipo del trabajo repetitivo.",
+    tags: ["Agentes", "Workflows", "LLMs"],
+  },
+  {
+    icon: Boxes,
+    name: "Diseño de producto",
+    desc: "Investigación, UX y sistemas de diseño. Tu producto se ve y se siente como uno de referencia — antes de escribir la primera línea de código.",
+    tags: ["UX", "UI", "Sistemas"],
   },
 ];
 
 export default function Servicios() {
-  const sectionRef = useRef<HTMLElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [activeIndex, setActiveIndex] = useState(0);
-
-  useEffect(() => {
-    gsap.registerPlugin(ScrollTrigger);
-
-    if (!sectionRef.current) return;
-
-    ScrollTrigger.create({
-      trigger: sectionRef.current,
-      start: "top top",
-      end: "bottom bottom",
-      scrub: true,
-      onUpdate: (self) => {
-        const progress = self.progress;
-        let newIndex = Math.floor(progress * SERVICIOS.length);
-        if (newIndex >= SERVICIOS.length) newIndex = SERVICIOS.length - 1;
-        setActiveIndex(newIndex);
-      }
-    });
-
-  }, []);
-
-  const servicio = SERVICIOS[activeIndex];
-
   return (
-    <section ref={sectionRef} id="servicios" className="relative h-[300vh] w-full bg-noche scroll-mt-24">
-      <div ref={containerRef} className="sticky top-0 h-screen w-full flex items-center justify-center overflow-hidden px-6">
-        <div className="w-full max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-start md:items-center">
-
-          <div className="font-editorial text-[10rem] md:text-[25rem] leading-none text-noche-rise select-none transition-all duration-700 ease-in-out">
-            {servicio.id}
-          </div>
-
-          <div className="relative z-10 flex flex-col items-start md:-ml-32 mt-[-2rem] md:mt-0">
-            <h2 className="font-display text-5xl md:text-8xl mb-4 tracking-tight flex overflow-hidden">
-              {servicio.name.split("").map((char, i) => (
-                <span
-                  key={`${activeIndex}-${i}`}
-                  className="inline-block animate-reveal-char"
-                  style={{ animationDelay: `${i * 0.04}s`, animationFillMode: "both" }}
-                >
-                  {char === " " ? "\u00A0" : char}
-                </span>
-              ))}
-            </h2>
-            <p className="font-mono text-papiro-soft text-sm md:text-base mb-8 max-w-sm min-h-[3rem]">
-              {servicio.desc}
-            </p>
-            <div className="grid grid-cols-2 gap-3 mb-12">
-              {servicio.features.map((feature, i) => (
-                <div key={i} className="flex items-center gap-2 text-papiro-soft/70 text-sm font-mono">
-                  <span className="text-cobalto">✓</span>
-                  {feature}
-                </div>
-              ))}
+    <section id="servicios" className="relative w-full bg-[#f5f3ec] text-[#1f2a1d] scroll-mt-24">
+      <div className="max-w-6xl mx-auto px-6 md:px-10 py-24 md:py-32">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-16 md:mb-24">
+          <div>
+            <div className="text-xs font-medium tracking-widest uppercase text-[#85AB8B] mb-4">
+              Servicios
             </div>
-
-            {servicio.active ? (
-              <a
-                href="#contacto"
-                className="group relative flex items-center gap-4 text-cobalto hover:text-papiro transition-colors duration-500 hover-target px-8 py-4 border border-cobalto/30 hover:border-papiro/50 rounded-full"
-              >
-                <span className="font-display italic text-2xl">Cotizar proyecto</span>
-                <span className="transform transition-transform duration-500 group-hover:translate-x-2 group-hover:-translate-y-2">↗</span>
-              </a>
-            ) : (
-              <div className="flex items-center gap-4 text-papiro/30 px-8 py-4 border border-papiro/10 rounded-full">
-                <span className="font-display italic text-2xl">Pronto</span>
-              </div>
-            )}
+            <h2
+              className="text-[#336443] font-normal leading-[0.95] text-4xl sm:text-5xl md:text-6xl lg:text-7xl max-w-2xl"
+              style={{ letterSpacing: "-0.035em" }}
+            >
+              Tres formas{" "}
+              <span className="text-[#85AB8B]">de trabajar juntos.</span>
+            </h2>
           </div>
+          <p className="text-[#4b5b47] text-base md:text-lg max-w-sm leading-relaxed">
+            Cada proyecto empieza con una conversación. Elige el punto de entrada — nosotros nos encargamos del resto.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+          {SERVICIOS.map((s) => {
+            const Icon = s.icon;
+            return (
+              <a
+                key={s.name}
+                href="#contacto"
+                className="group relative flex flex-col bg-white/70 backdrop-blur-sm border border-[#1f2a1d]/8 rounded-3xl p-7 md:p-8 hover:bg-white hover:border-[#1f2a1d]/15 hover:-translate-y-1 transition-all duration-300 shadow-sm hover:shadow-lg"
+              >
+                <div className="flex items-start justify-between mb-8">
+                  <div className="w-11 h-11 rounded-full bg-[#1f2a1d] text-white flex items-center justify-center">
+                    <Icon className="w-5 h-5" />
+                  </div>
+                  <ArrowUpRight className="w-5 h-5 text-[#4b5b47] group-hover:text-[#1f2a1d] group-hover:-translate-y-0.5 group-hover:translate-x-0.5 transition-all duration-300" />
+                </div>
+                <h3 className="text-xl md:text-2xl font-semibold text-[#1f2a1d] mb-3 tracking-tight">
+                  {s.name}
+                </h3>
+                <p className="text-[#4b5b47] text-sm leading-relaxed mb-8 flex-1">
+                  {s.desc}
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {s.tags.map((t) => (
+                    <span
+                      key={t}
+                      className="text-xs font-medium text-[#3d5638] bg-[#85AB8B]/15 px-3 py-1 rounded-full"
+                    >
+                      {t}
+                    </span>
+                  ))}
+                </div>
+              </a>
+            );
+          })}
         </div>
       </div>
     </section>

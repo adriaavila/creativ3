@@ -48,7 +48,7 @@ export default function CotizarPage() {
   };
 
   return (
-    <div className="min-h-screen bg-noche text-papiro selection:bg-cobalto/20 selection:text-papiro flex flex-col relative overflow-hidden">
+    <div className="min-h-screen bg-[#f5f3ec] text-[#1f2a1d] selection:bg-[#85AB8B]/30 selection:text-[#1f2a1d] flex flex-col relative overflow-hidden">
       {/* Decorative Background */}
       <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[url('/noise.png')]" />
       
@@ -64,16 +64,16 @@ export default function CotizarPage() {
                 exit={{ opacity: 0, scale: 0.95 }}
                 className="w-full flex flex-col items-center"
               >
-                <div className="inline-flex mb-8 border border-cobalto/30 text-cobalto px-5 py-1.5 rounded-full bg-cobalto/5 backdrop-blur-xl font-mono tracking-widest text-[10px] uppercase">
+                <div className="inline-flex mb-8 border border-[#336443]/30 text-[#336443] px-5 py-1.5 rounded-full bg-[#336443]/5 backdrop-blur-xl font-mono tracking-widest text-[10px] uppercase">
                   Agente de Cotización IA
                 </div>
                 
-                <h1 className="text-4xl md:text-6xl font-editorial italic mb-6 leading-tight">
+                <h1 className="text-4xl md:text-6xl font-normal mb-6 leading-tight">
                   Cuéntanos tu <br />
-                  <span className="text-cobalto not-italic font-display tracking-tight">proyecto</span>
+                  <span className="text-[#336443] not-italic font-normal tracking-tight">proyecto</span>
                 </h1>
                 
-                <p className="text-papiro/60 text-lg mb-16 max-w-md mx-auto leading-relaxed font-mono">
+                <p className="text-[#4b5b47] text-lg mb-16 max-w-md mx-auto leading-relaxed font-mono">
                   Presiona el micrófono y descríbenos qué necesitas automatizar, integrar o crear. Nuestro agente analizará tu audio.
                 </p>
 
@@ -86,13 +86,13 @@ export default function CotizarPage() {
                         initial={{ opacity: 0.8, scale: 1 }}
                         animate={{ opacity: 0, scale: 2 }}
                         transition={{ repeat: Infinity, duration: 1.5, ease: "easeOut" }}
-                        className="absolute w-32 h-32 rounded-full bg-cobalto/30 pointer-events-none"
+                        className="absolute w-32 h-32 rounded-full bg-[#336443]/30 pointer-events-none"
                       />
                       <motion.div 
                         initial={{ opacity: 0.8, scale: 1 }}
                         animate={{ opacity: 0, scale: 2.5 }}
                         transition={{ repeat: Infinity, duration: 1.5, ease: "easeOut", delay: 0.5 }}
-                        className="absolute w-32 h-32 rounded-full bg-cobalto/20 pointer-events-none"
+                        className="absolute w-32 h-32 rounded-full bg-[#85AB8B]/30 pointer-events-none"
                       />
                     </>
                   )}
@@ -102,15 +102,15 @@ export default function CotizarPage() {
                     disabled={isProcessing}
                     className={`relative w-32 h-32 rounded-full flex items-center justify-center shadow-2xl transition-all duration-500 z-10
                       ${isProcessing 
-                        ? 'bg-noche border border-papiro/20 cursor-wait' 
+                        ? 'bg-[#f5f3ec] border border-[#1f2a1d]/15 cursor-wait' 
                         : isRecording 
                           ? 'bg-red-500/10 border-red-500 text-red-500 hover:bg-red-500/20' 
-                          : 'bg-cobalto hover:bg-cobalto/80 text-white hover:scale-105'
+                          : 'bg-[#336443] hover:bg-[#336443]/80 text-white hover:scale-105'
                       }
                     `}
                   >
                     {isProcessing ? (
-                      <Loader2 className="w-10 h-10 animate-spin text-cobalto" />
+                      <Loader2 className="w-10 h-10 animate-spin text-[#336443]" />
                     ) : isRecording ? (
                       <Square className="w-10 h-10 fill-current" />
                     ) : (
@@ -127,7 +127,7 @@ export default function CotizarPage() {
                           initial={{ opacity: 0, y: 5 }}
                           animate={{ opacity: 1, y: 0 }}
                           exit={{ opacity: 0, y: -5 }}
-                          className="font-mono text-sm text-cobalto animate-pulse"
+                          className="font-mono text-sm text-[#336443] animate-pulse"
                         >
                           Transcribiendo y analizando...
                         </motion.span>
@@ -140,7 +140,7 @@ export default function CotizarPage() {
                           className="flex flex-col items-center"
                         >
                           <span className="font-mono text-sm text-red-400 mb-1 animate-pulse">Grabando audio...</span>
-                          <span className="font-mono text-xl text-papiro font-light">{formatTime(recordingTime)}</span>
+                          <span className="font-mono text-xl text-[#1f2a1d] font-light">{formatTime(recordingTime)}</span>
                         </motion.div>
                       ) : (
                         <motion.span 
@@ -148,7 +148,7 @@ export default function CotizarPage() {
                           initial={{ opacity: 0, y: 5 }}
                           animate={{ opacity: 1, y: 0 }}
                           exit={{ opacity: 0, y: -5 }}
-                          className="font-mono text-sm text-papiro/40"
+                          className="font-mono text-sm text-[#4b5b47]/70"
                         >
                           Toca para hablar
                         </motion.span>
@@ -162,7 +162,7 @@ export default function CotizarPage() {
                 key="success-ui"
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="w-full max-w-md bg-noche-rise/30 border border-papiro/10 rounded-[2rem] p-12 flex flex-col items-center relative overflow-hidden"
+                className="w-full max-w-md bg-white/30 border border-[#1f2a1d]/10 rounded-[2rem] p-12 flex flex-col items-center relative overflow-hidden"
               >
                 <div className="absolute -top-32 -right-32 w-64 h-64 bg-green-500/10 rounded-full blur-[80px] pointer-events-none" />
                 
@@ -170,14 +170,14 @@ export default function CotizarPage() {
                   <CheckCircle2 className="w-10 h-10 text-green-500" />
                 </div>
                 
-                <h2 className="text-3xl font-editorial italic mb-4">Información Recibida</h2>
-                <p className="text-papiro/70 font-mono text-sm leading-relaxed mb-10">
+                <h2 className="text-3xl font-normal mb-4">Información Recibida</h2>
+                <p className="text-[#4b5b47] font-mono text-sm leading-relaxed mb-10">
                   Hemos procesado tu nota de voz. Nuestro equipo de arquitectura evaluará el caso y te enviaremos una propuesta formal en menos de 24 horas.
                 </p>
                 
                 <button 
                   onClick={() => setIsSuccess(false)}
-                  className="w-full border border-papiro/20 rounded-full py-4 font-mono text-sm hover:bg-papiro hover:text-noche transition-colors"
+                  className="w-full border border-[#1f2a1d]/15 rounded-full py-4 font-mono text-sm hover:bg-[#1f2a1d] hover:text-[#f5f3ec] transition-colors"
                 >
                   Enviar otro requerimiento
                 </button>

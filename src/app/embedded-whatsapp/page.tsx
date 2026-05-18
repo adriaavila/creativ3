@@ -142,10 +142,10 @@ export default function EmbeddedWhatsapp() {
   };
 
   return (
-    <div className="min-h-screen bg-noche text-papiro flex flex-col items-center justify-center px-4 relative overflow-hidden">
+    <div className="min-h-screen bg-[#f5f3ec] text-[#1f2a1d] flex flex-col items-center justify-center px-4 relative overflow-hidden">
       {/* Background glow */}
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-cobalto/8 rounded-full blur-[140px]" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-[#336443]/8 rounded-full blur-[140px]" />
       </div>
 
       <motion.div
@@ -155,7 +155,7 @@ export default function EmbeddedWhatsapp() {
         className="relative z-10 w-full max-w-md"
       >
         {/* Card */}
-        <div className="rounded-3xl border border-papiro/10 bg-papiro/5 backdrop-blur-xl p-10 md:p-14 text-center">
+        <div className="rounded-3xl border border-[#1f2a1d]/10 bg-[#1f2a1d]/5 backdrop-blur-xl p-10 md:p-14 text-center">
           {/* WhatsApp icon */}
           <div className="w-16 h-16 rounded-2xl bg-green-500/10 border border-green-500/20 flex items-center justify-center mx-auto mb-8">
             <svg
@@ -167,10 +167,10 @@ export default function EmbeddedWhatsapp() {
             </svg>
           </div>
 
-          <h1 className="text-3xl md:text-4xl font-editorial italic mb-3 tracking-tight leading-tight">
+          <h1 className="text-3xl md:text-4xl font-normal mb-3 tracking-tight leading-tight">
             Conecta tu WhatsApp Business
           </h1>
-          <p className="text-papiro/55 font-mono text-sm leading-relaxed mb-10">
+          <p className="text-[#1f2a1d]/55 font-mono text-sm leading-relaxed mb-10">
             Autoriza la conexión para activar automatizaciones, seguimiento y
             atención desde Servicios Creativos.
           </p>
@@ -190,7 +190,7 @@ export default function EmbeddedWhatsapp() {
                   <p className="text-sm font-semibold text-green-400">
                     ¡Conexión autorizada!
                   </p>
-                  <p className="text-xs text-papiro/50 font-mono mt-0.5">
+                  <p className="text-xs text-[#4b5b47]/80 font-mono mt-0.5">
                     Tu cuenta fue enviada para activación.
                   </p>
                 </div>
@@ -210,7 +210,7 @@ export default function EmbeddedWhatsapp() {
                   <p className="text-sm font-semibold text-red-400">
                     Proceso cancelado
                   </p>
-                  <p className="text-xs text-papiro/50 font-mono mt-0.5">
+                  <p className="text-xs text-[#4b5b47]/80 font-mono mt-0.5">
                     Puedes intentarlo de nuevo cuando quieras.
                   </p>
                 </div>
@@ -240,13 +240,13 @@ export default function EmbeddedWhatsapp() {
           </button>
 
           {!sdkReady && status === "idle" && (
-            <p className="text-papiro/30 font-mono text-xs mt-3">
+            <p className="text-[#4b5b47]/60 font-mono text-xs mt-3">
               Cargando SDK de Meta…
             </p>
           )}
 
           {/* Security note */}
-          <div className="flex items-center justify-center gap-2 mt-8 text-papiro/35 font-mono text-xs">
+          <div className="flex items-center justify-center gap-2 mt-8 text-[#1f2a1d]/35 font-mono text-xs">
             <Shield className="h-3.5 w-3.5 shrink-0" />
             <span>
               Nunca compartimos tu clave secreta de Meta en el navegador.
@@ -255,7 +255,7 @@ export default function EmbeddedWhatsapp() {
         </div>
 
         {/* Powered by */}
-        <p className="text-center text-papiro/25 font-mono text-xs mt-6">
+        <p className="text-center text-[#1f2a1d]/25 font-mono text-xs mt-6">
           Servicios Creativos · Integración oficial Meta WhatsApp API
         </p>
       </motion.div>

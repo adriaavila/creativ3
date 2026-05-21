@@ -14,6 +14,13 @@
       "port": 3001
     },
     {
+      "name": "Shopea dev",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["dev"],
+      "port": 3000,
+      "autoPort": true
+    },
+    {
       "name": "Next.js production preview",
       "runtimeExecutable": "pnpm",
       "runtimeArgs": ["start"],

@@ -37,7 +37,7 @@ export default function PagoCanceladoPage() {
             Ver planes
           </Link>
           <a
-            href="mailto:proyectos@servicioscreativos.online"
+            href="mailto:contacto@servicioscreativos.online"
             className="border border-[#1f2a1d]/15 px-8 py-3 rounded-full font-mono text-sm hover:bg-[#1f2a1d] hover:text-[#f5f3ec] transition-colors duration-500"
           >
             Hablar con el equipo

@@ -26,14 +26,14 @@ export default function Colofon() {
 
           <div className="flex flex-wrap items-center gap-4 mt-2">
             <a
-              href="mailto:hola@creativv.studio"
+              href="mailto:contacto@servicioscreativos.online"
               className="inline-flex items-center gap-2 bg-[#1f2a1d] hover:bg-[#2a3827] text-white text-sm font-semibold px-6 py-3 rounded-full transition-colors"
             >
               <Mail className="w-4 h-4" />
-              hola@creativv.studio
+              contacto@servicioscreativos.online
             </a>
             <a
-              href="https://wa.me/584140000000"
+              href="https://wa.me/584220023684?text=Hola%2C%20me%20interesan%20su%20servicios"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 bg-white hover:bg-white/80 text-[#1f2a1d] border border-[#1f2a1d]/15 text-sm font-semibold px-6 py-3 rounded-full transition-colors"

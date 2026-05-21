@@ -124,7 +124,7 @@ export default function Precios() {
 
   const handleCta = async (plan: typeof PLANES[number]) => {
     if (plan.custom) {
-      window.location.href = "mailto:proyectos@servicioscreativos.online?subject=Cotización%20Proyecto%20Empresa";
+      window.location.href = "mailto:contacto@servicioscreativos.online?subject=Cotización%20Proyecto%20Empresa";
       return;
     }
     setLoading(plan.id);

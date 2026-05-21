@@ -50,7 +50,7 @@ export default async function PagoExitoPage({
             Volver al inicio
           </Link>
           <a
-            href="mailto:proyectos@servicioscreativos.online"
+            href="mailto:contacto@servicioscreativos.online"
             className="bg-[#336443] text-white px-8 py-3 rounded-full font-mono text-sm hover:bg-[#1f2a1d] transition-colors duration-500"
           >
             Contactar equipo
@@ -59,8 +59,8 @@ export default async function PagoExitoPage({
 
         <p className="font-mono text-xs text-[#4b5b47]/60">
           ¿Algún problema? Escríbenos a{" "}
-          <a href="mailto:proyectos@servicioscreativos.online" className="underline underline-offset-2 hover:text-[#1f2a1d] transition-colors">
-            proyectos@servicioscreativos.online
+          <a href="mailto:contacto@servicioscreativos.online" className="underline underline-offset-2 hover:text-[#1f2a1d] transition-colors">
+            contacto@servicioscreativos.online
           </a>
         </p>
       </div>

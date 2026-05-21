@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { ArrowUpRight } from "lucide-react";
 
 type Proyecto = {
@@ -7,6 +8,8 @@ type Proyecto = {
   desc: string;
   stack: string[];
   url: string;
+  image?: string;
+  brand?: { bg: string; fg: string; logo: string };
 };
 
 const PROYECTOS: Proyecto[] = [
@@ -17,6 +20,7 @@ const PROYECTOS: Proyecto[] = [
     desc: "App para coaches de running: planes, atletas y métricas semanales.",
     stack: ["Next.js", "Supabase", "TypeScript"],
     url: "https://pace-running-three.vercel.app",
+    image: "/projects/pace-running/01-desktop.jpg",
   },
   {
     num: "02",
@@ -25,6 +29,7 @@ const PROYECTOS: Proyecto[] = [
     desc: "Gestión de propiedades, contratos y cobranzas para inmobiliarias.",
     stack: ["Next.js", "Postgres", "Stripe"],
     url: "https://rei-fm.vercel.app",
+    image: "/projects/rei-fm/01-desktop.jpg",
   },
   {
     num: "03",
@@ -33,6 +38,7 @@ const PROYECTOS: Proyecto[] = [
     desc: "Gestión ágil para lavanderías: órdenes, ruta y notificaciones.",
     stack: ["Next.js", "Supabase", "WhatsApp"],
     url: "https://soapy-sooty.vercel.app",
+    brand: { bg: "#3FBFB8", fg: "#ffffff", logo: "soapy" },
   },
   {
     num: "04",
@@ -41,6 +47,7 @@ const PROYECTOS: Proyecto[] = [
     desc: "Tienda online para una marca de arte. Catálogo y checkout.",
     stack: ["Next.js", "Stripe", "Tailwind"],
     url: "https://artistheway.vercel.app",
+    image: "/projects/artistheway/01-desktop.jpg",
   },
   {
     num: "05",
@@ -49,6 +56,7 @@ const PROYECTOS: Proyecto[] = [
     desc: "Software para taller mecánico: órdenes de trabajo, clientes, repuestos.",
     stack: ["Next.js", "Postgres", "Supabase"],
     url: "https://taller-samer.vercel.app",
+    image: "/projects/taller-samer/01-desktop.jpg",
   },
   {
     num: "06",
@@ -57,8 +65,44 @@ const PROYECTOS: Proyecto[] = [
     desc: "Reservas y clases para academia de natación. Cupos y pagos.",
     stack: ["Next.js", "Supabase", "Stripe"],
     url: "https://mistica-app-fawn.vercel.app",
+    image: "/projects/mistica/dashboard.png",
   },
 ];
+
+function ProjectMedia({ p }: { p: Proyecto }) {
+  if (p.image) {
+    return (
+      <div className="relative aspect-[16/10] w-full overflow-hidden rounded-2xl bg-white/[0.04] border border-white/10">
+        <Image
+          src={p.image}
+          alt={`Captura de ${p.name}`}
+          fill
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+          className="object-cover object-top group-hover:scale-[1.03] transition-transform duration-700 ease-out"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
+      </div>
+    );
+  }
+  const b = p.brand!;
+  return (
+    <div
+      className="relative aspect-[16/10] w-full overflow-hidden rounded-2xl flex items-center justify-center"
+      style={{ background: b.bg, color: b.fg }}
+    >
+      <div className="absolute inset-0 opacity-30" style={{
+        background: `radial-gradient(circle at 30% 30%, rgba(255,255,255,0.4), transparent 60%), radial-gradient(circle at 70% 70%, rgba(0,0,0,0.2), transparent 60%)`,
+      }} />
+      <div className="relative font-display text-5xl md:text-6xl tracking-tight font-bold lowercase">
+        {b.logo}
+      </div>
+      <div className="absolute bottom-3 left-4 right-4 flex items-center justify-between font-mono text-[10px] tracking-widest uppercase opacity-80">
+        <span>{p.tag}</span>
+        <span>· login gated</span>
+      </div>
+    </div>
+  );
+}
 
 export default function ProyectosShowcase() {
   return (
@@ -92,29 +136,33 @@ export default function ProyectosShowcase() {
               href={p.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="group relative flex flex-col bg-white/[0.04] border border-white/10 rounded-3xl p-7 md:p-8 hover:bg-white/[0.07] hover:border-white/20 hover:-translate-y-1 transition-all duration-300"
+              className="group relative flex flex-col bg-white/[0.04] border border-white/10 rounded-3xl p-4 hover:bg-white/[0.07] hover:border-white/20 hover:-translate-y-1 transition-all duration-300"
             >
-              <div className="flex items-start justify-between mb-10">
-                <span className="text-xs font-mono font-medium text-[#85AB8B] tracking-widest">
-                  {p.num} · {p.tag}
-                </span>
-                <ArrowUpRight className="w-5 h-5 text-white/50 group-hover:text-white group-hover:-translate-y-0.5 group-hover:translate-x-0.5 transition-all duration-300" />
-              </div>
-              <h3 className="text-2xl md:text-3xl font-semibold tracking-tight mb-3">
-                {p.name}
-              </h3>
-              <p className="text-white/65 text-sm leading-relaxed mb-8 flex-1">
-                {p.desc}
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {p.stack.map((s) => (
-                  <span
-                    key={s}
-                    className="text-xs font-medium text-white/70 bg-white/[0.06] border border-white/10 px-2.5 py-1 rounded-full"
-                  >
-                    {s}
+              <ProjectMedia p={p} />
+
+              <div className="px-3 md:px-4 pt-6 pb-3">
+                <div className="flex items-start justify-between mb-4">
+                  <span className="text-xs font-mono font-medium text-[#85AB8B] tracking-widest">
+                    {p.num} · {p.tag}
                   </span>
-                ))}
+                  <ArrowUpRight className="w-5 h-5 text-white/50 group-hover:text-white group-hover:-translate-y-0.5 group-hover:translate-x-0.5 transition-all duration-300 shrink-0" />
+                </div>
+                <h3 className="text-2xl md:text-3xl font-semibold tracking-tight mb-3">
+                  {p.name}
+                </h3>
+                <p className="text-white/65 text-sm leading-relaxed mb-6">
+                  {p.desc}
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {p.stack.map((s) => (
+                    <span
+                      key={s}
+                      className="text-xs font-medium text-white/70 bg-white/[0.06] border border-white/10 px-2.5 py-1 rounded-full"
+                    >
+                      {s}
+                    </span>
+                  ))}
+                </div>
               </div>
             </a>
           ))}

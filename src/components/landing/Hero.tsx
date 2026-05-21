@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { LogIn, UserPlus, Play, Menu, X } from "lucide-react";
+import { LogIn, UserPlus, Play, Menu, X, Sparkles } from "lucide-react";
 import BoomerangVideoBg from "./BoomerangVideoBg";
 import CreativvLogo from "./CreativvLogo";
 
@@ -197,21 +197,20 @@ export default function Hero() {
         </h1>
         <p className="mt-6 sm:mt-8 text-[#4b5b47] text-sm sm:text-base md:text-lg leading-relaxed max-w-xl px-2">
           Convertimos ideas borrosas en producto medible. Diseño, ingeniería e IA bajo un mismo techo —
-          para equipos que no se conforman con plantillas.
+          para empresas que no se conforman.
         </p>
       </div>
 
       {/* Bottom-left CTA block */}
       <div className="absolute left-4 right-4 sm:right-auto sm:left-6 md:left-10 bottom-6 sm:bottom-8 md:bottom-10 z-10 max-w-sm">
-        <div className="flex items-center gap-2 text-[#3d5638] sm:text-white/95 mb-3">
+        <div className="flex items-center gap-2 text-white/95 mb-3">
           <CreativvLogo variant="mark-bare" className="h-5 w-5" />
           <span className="text-xs font-semibold tracking-widest uppercase">
             Estudio · Caracas / Remoto
           </span>
         </div>
-        <p className="text-[#3d5638]/90 sm:text-white/85 text-xs leading-relaxed mb-6 max-w-xs font-medium sm:font-normal">
-          Trabajamos junto a fundadores y equipos de producto que necesitan ir rápido sin sacrificar profundidad.
-          Tres disciplinas — diseño, ingeniería e IA — un mismo equipo.
+        <p className="text-white/85 text-xs leading-relaxed mb-6 max-w-xs font-medium sm:font-normal">
+          Trabajamos junto a empresas y equipos que necesitan ir rápido sin sacrificar profundidad.
         </p>
         <div className="flex items-center gap-4 flex-wrap">
           <a

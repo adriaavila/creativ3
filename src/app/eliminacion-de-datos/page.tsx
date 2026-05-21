@@ -25,7 +25,7 @@ export default function LegalDataDeletion() {
               <h2 className="text-2xl font-semibold mb-3 text-[#1f2a1d]">2. Instrucciones para la eliminación</h2>
               <p>Para solicitar formalmente la eliminación de tus datos, debes seguir estos pasos:</p>
               <ul className="list-disc pl-6 mt-4 space-y-2">
-                <li>Envía un correo electrónico a <strong><a className="text-[#336443] hover:underline" href="mailto:hola@servicioscreativos.online">hola@servicioscreativos.online</a></strong>.</li>
+                <li>Envía un correo electrónico a <strong><a className="text-[#336443] hover:underline" href="mailto:contacto@servicioscreativos.online">contacto@servicioscreativos.online</a></strong>.</li>
                 <li><strong>Asunto sugerido:</strong> Solicitud de Eliminación de Datos.</li>
                 <li><strong>Cuerpo del correo:</strong> Indica claramente el correo o número de teléfono que deseas eliminar de los registros, y especifica si la solicitud involucra alguna aplicación conectada específica o si se trata del registro general comercial.</li>
               </ul>

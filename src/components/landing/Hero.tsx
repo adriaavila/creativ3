@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { LogIn, UserPlus, Play, Menu, X, Sparkles } from "lucide-react";
+import Link from "next/link";
+import { LogIn, UserPlus, Play, Menu, X } from "lucide-react";
 import BoomerangVideoBg from "./BoomerangVideoBg";
 import CreativvLogo from "./CreativvLogo";
 
@@ -58,9 +59,9 @@ export default function Hero() {
       <BoomerangVideoBg src={BG_VIDEO} className="absolute inset-0 w-full h-full" />
 
       <nav className="absolute top-0 left-0 right-0 z-30 flex items-center justify-between px-4 sm:px-6 md:px-10 py-4 sm:py-6">
-        <a href="/" className="flex items-center text-[#1f2a1d]" aria-label="creativv">
+        <Link href="/" className="flex items-center text-[#1f2a1d]" aria-label="creativv">
           <CreativvLogo variant="lockup-bare" className="h-7 sm:h-8 md:h-9 w-auto" />
-        </a>
+        </Link>
 
         <div className="hidden lg:flex items-center gap-1 bg-white/70 backdrop-blur-md rounded-full pl-6 pr-1 py-1 shadow-sm border border-white/60">
           {NAV_LINKS.map((link, i) => (

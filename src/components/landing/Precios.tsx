@@ -83,7 +83,7 @@ async function startCheckout(plan: string) {
   });
   const data = await res.json();
   if (data.url) {
-    window.location.href = data.url;
+    window.location.assign(data.url);
   } else {
     alert("Error al iniciar el pago. Intenta de nuevo.");
   }
@@ -124,7 +124,7 @@ export default function Precios() {
 
   const handleCta = async (plan: typeof PLANES[number]) => {
     if (plan.custom) {
-      window.location.href = "mailto:contacto@servicioscreativos.online?subject=Cotización%20Proyecto%20Empresa";
+      window.location.assign("mailto:contacto@servicioscreativos.online?subject=Cotización%20Proyecto%20Empresa");
       return;
     }
     setLoading(plan.id);

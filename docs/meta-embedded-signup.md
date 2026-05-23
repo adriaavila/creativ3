@@ -46,17 +46,25 @@ The command prints missing env var names, checks whether the configured webhook 
 
 ## n8n Workflow
 
-Import `n8n/meta-embedded-signup.workflow.json`, set credentials, and activate it.
+The live n8n workflow is active as `Meta Embedded Signup - Tech Provider`.
+
+Workflow ID:
+
+```txt
+EA6f6q8SZkewllyJ
+```
 
 Expected webhook path:
 
 ```txt
-/meta/embedded-signup
+https://n8n.servicioscreativos.online/webhook/meta/embedded-signup
 ```
 
-The app backend calls this workflow after the Meta code exchange and WABA subscription. The workflow template also contains exchange and subscribe HTTP Request nodes so it can be adapted for direct n8n ownership of those server-side steps, but do not exchange the same short-lived code twice in production.
+The app backend calls this workflow after the Meta code exchange and WABA subscription. The active workflow validates `code`, `waba_id`, and `phone_number_id`, stores the connected account in n8n workflow static data, and returns clean JSON. It also accepts `meta_embedded_signup_diagnostic` payloads without storing test data.
 
-Recommended table:
+Import `n8n/meta-embedded-signup.workflow.json` only if the workflow needs to be recreated.
+
+Recommended DB table if you later move storage from n8n static data to Postgres:
 
 ```sql
 create table if not exists connected_whatsapp_accounts (

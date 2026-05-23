@@ -1,0 +1,310 @@
+{
+  "name": "Meta Embedded Signup - Tech Provider",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "meta/embedded-signup",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "metaEmbeddedSignupWebhook",
+      "name": "Webhook Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -880,
+        0
+      ],
+      "webhookId": "meta-embedded-signup"
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $json.body ?? $json;\nconst connected = body.connected_account ?? {};\nconst signup = body.signup ?? {};\nconst code = body.code ?? signup.code;\nconst wabaId = body.waba_id ?? connected.waba_id;\nconst phoneNumberId = body.phone_number_id ?? connected.phone_number_id;\n\nif (!code) throw new Error('code is required');\nif (!wabaId) throw new Error('waba_id is required');\nif (!phoneNumberId) throw new Error('phone_number_id is required');\n\nreturn [{\n  json: {\n    code,\n    waba_id: wabaId,\n    phone_number_id: phoneNumberId,\n    business_id: body.business_id ?? connected.business_id,\n    business_token: connected.business_token,\n    token_metadata: connected.token_metadata ?? {},\n    connected_at: connected.connected_at ?? new Date().toISOString(),\n    owner: connected.owner ?? {\n      client: body.client,\n      user_id: body.user_id,\n      team_id: body.team_id,\n      account_id: body.account_id,\n    },\n    status: connected.status ?? 'connected',\n    state: body.state ?? signup.state,\n    should_exchange: !connected.business_token,\n  },\n}];"
+      },
+      "id": "validatePayload",
+      "name": "Validate Payload",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -640,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.should_exchange }}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "id": "needsExchange",
+      "name": "Needs Meta Exchange?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        -400,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "url": "=https://graph.facebook.com/{{ $env.META_GRAPH_VERSION || 'v25.0' }}/oauth/access_token",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "client_id",
+              "value": "={{ $env.META_APP_ID }}"
+            },
+            {
+              "name": "client_secret",
+              "value": "={{ $env.META_APP_SECRET }}"
+            },
+            {
+              "name": "code",
+              "value": "={{ $json.code }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "exchangeCode",
+      "name": "HTTP Request: Exchange Code With Meta",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -160,
+        -160
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://graph.facebook.com/{{ $env.META_GRAPH_VERSION || 'v25.0' }}/{{ $('Validate Payload').item.json.waba_id }}/subscribed_apps",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $json.access_token }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "subscribeWaba",
+      "name": "HTTP Request: Subscribe WABA To App",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        80,
+        -160
+      ],
+      "notes": "Uses the business token returned by the previous exchange node. Keep this workflow server-side only."
+    },
+    {
+      "parameters": {
+        "jsCode": "const validate = $('Validate Payload').item.json;\nconst exchangeItems = $('HTTP Request: Exchange Code With Meta').isExecuted ? $('HTTP Request: Exchange Code With Meta').all() : [];\nconst exchange = exchangeItems[0]?.json ?? {};\n\nreturn [{\n  json: {\n    ...validate,\n    business_token: validate.business_token ?? exchange.access_token,\n    token_metadata: {\n      ...validate.token_metadata,\n      token_type: validate.token_metadata?.token_type ?? exchange.token_type,\n      expires_in: exchange.expires_in,\n    },\n    status: validate.status === 'subscribed' ? 'subscribed' : 'connected',\n  },\n}];"
+      },
+      "id": "buildRecord",
+      "name": "Build Connected Account Record",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        320,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "insert into connected_whatsapp_accounts (waba_id, phone_number_id, business_id, business_token, token_metadata, owner, status, connected_at, updated_at)\nvalues (\n  '{{ $json.waba_id }}',\n  '{{ $json.phone_number_id }}',\n  {{ $json.business_id ? `'${$json.business_id}'` : 'null' }},\n  '{{ $json.business_token }}',\n  '{{ JSON.stringify($json.token_metadata ?? {}) }}'::jsonb,\n  '{{ JSON.stringify($json.owner ?? {}) }}'::jsonb,\n  '{{ $json.status }}',\n  '{{ $json.connected_at }}',\n  now()\n)\non conflict (waba_id, phone_number_id) do update set\n  business_id = excluded.business_id,\n  business_token = excluded.business_token,\n  token_metadata = excluded.token_metadata,\n  owner = excluded.owner,\n  status = excluded.status,\n  connected_at = excluded.connected_at,\n  updated_at = now();",
+        "options": {}
+      },
+      "id": "upsertConnectedAccount",
+      "name": "DB Insert/Update Connected Account",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        560,
+        0
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "REPLACE_WITH_POSTGRES_CREDENTIAL_ID",
+          "name": "Connected Accounts Database"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{ json: { ok: true, waba_id: $('Build Connected Account Record').item.json.waba_id, phone_number_id: $('Build Connected Account Record').item.json.phone_number_id, status: $('Build Connected Account Record').item.json.status } }];"
+      },
+      "id": "cleanResponse",
+      "name": "Clean JSON Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        800,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {}
+      },
+      "id": "respondToWebhook",
+      "name": "Return Clean JSON Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1040,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://hooks.slack.com/services/REPLACE_ME",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "text",
+              "value": "=WhatsApp account connected: {{ $json.waba_id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "optionalNotify",
+      "name": "Optional Notification",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        800,
+        220
+      ],
+      "disabled": true
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook Trigger": {
+      "main": [
+        [
+          {
+            "node": "Validate Payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Payload": {
+      "main": [
+        [
+          {
+            "node": "Needs Meta Exchange?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Needs Meta Exchange?": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request: Exchange Code With Meta",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Build Connected Account Record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request: Exchange Code With Meta": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request: Subscribe WABA To App",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request: Subscribe WABA To App": {
+      "main": [
+        [
+          {
+            "node": "Build Connected Account Record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Connected Account Record": {
+      "main": [
+        [
+          {
+            "node": "DB Insert/Update Connected Account",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DB Insert/Update Connected Account": {
+      "main": [
+        [
+          {
+            "node": "Clean JSON Response",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Optional Notification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clean JSON Response": {
+      "main": [
+        [
+          {
+            "node": "Return Clean JSON Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "meta-embedded-signup-template",
+  "meta": {
+    "templateCredsSetupCompleted": false
+  },
+  "id": "meta-embedded-signup-tech-provider",
+  "tags": []
+}

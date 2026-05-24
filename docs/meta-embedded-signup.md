@@ -14,13 +14,22 @@ META_GRAPH_VERSION=v25.0
 META_WEBHOOK_VERIFY_TOKEN=
 META_WEBHOOK_CALLBACK_URL=https://YOUR_DOMAIN/api/meta/whatsapp/webhook
 N8N_WEBHOOK_URL=https://YOUR_N8N_HOST/webhook/meta/embedded-signup
-N8N_WEBHOOK_SECRET=
-N8N_WHATSAPP_EVENTS_WEBHOOK_URL=
 APP_URL=https://YOUR_DOMAIN
-DATABASE_URL=
+NEXT_PUBLIC_META_APP_ID=
+NEXT_PUBLIC_META_CONFIG_ID=
+NEXT_PUBLIC_META_GRAPH_VERSION=v25.0
+NEXT_PUBLIC_APP_URL=https://YOUR_DOMAIN
 ```
 
-`META_APP_SECRET`, connected-account business tokens, webhook secrets, and database URLs must stay server-side.
+Optional:
+
+```txt
+DATABASE_URL=
+N8N_WEBHOOK_SECRET=
+N8N_WHATSAPP_EVENTS_WEBHOOK_URL=
+```
+
+`DATABASE_URL` is only required if the app writes connected accounts directly to Postgres. The current production flow stores the connection payload in n8n. `META_APP_SECRET`, connected-account business tokens, webhook secrets, and database URLs must stay server-side.
 
 ## Meta Dashboard Checks
 

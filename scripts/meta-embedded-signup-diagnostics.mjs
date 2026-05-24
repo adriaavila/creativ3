@@ -3,7 +3,7 @@ import { join } from "node:path";
 
 loadLocalEnv();
 
-const ENV_CHECKS = [
+const SERVER_ENV_CHECKS = [
   "META_APP_ID",
   "META_APP_SECRET",
   "META_CONFIG_ID",
@@ -12,14 +12,30 @@ const ENV_CHECKS = [
   "META_WEBHOOK_CALLBACK_URL",
   "N8N_WEBHOOK_URL",
   "APP_URL",
-  "DATABASE_URL",
 ];
 
-const missing = ENV_CHECKS.filter((key) => !process.env[key]?.trim());
+const PUBLIC_ENV_CHECKS = [
+  "NEXT_PUBLIC_META_APP_ID",
+  "NEXT_PUBLIC_META_CONFIG_ID",
+  "NEXT_PUBLIC_META_GRAPH_VERSION",
+  "NEXT_PUBLIC_APP_URL",
+];
+
+const OPTIONAL_ENV_CHECKS = [
+  "DATABASE_URL",
+  "N8N_WEBHOOK_SECRET",
+  "N8N_WHATSAPP_EVENTS_WEBHOOK_URL",
+];
+
+const missingServer = SERVER_ENV_CHECKS.filter((key) => !process.env[key]?.trim());
+const missingPublic = PUBLIC_ENV_CHECKS.filter((key) => !process.env[key]?.trim());
+const missingOptional = OPTIONAL_ENV_CHECKS.filter((key) => !process.env[key]?.trim());
 const shouldTestN8n = process.argv.includes("--test-n8n");
 
 console.log("Meta Embedded Signup diagnostics");
-console.log(`Missing env vars: ${missing.length ? missing.join(", ") : "none"}`);
+console.log(`Missing server env vars: ${missingServer.length ? missingServer.join(", ") : "none"}`);
+console.log(`Missing public env vars: ${missingPublic.length ? missingPublic.join(", ") : "none"}`);
+console.log(`Missing optional env vars: ${missingOptional.length ? missingOptional.join(", ") : "none"}`);
 console.log(`Graph API version configured: ${process.env.META_GRAPH_VERSION ? "yes" : "no"}`);
 console.log(`Meta App Secret server-side only: ${process.env.META_APP_SECRET ? "yes" : "missing"}`);
 console.log("Required permissions: business_management, whatsapp_business_management, whatsapp_business_messaging");

@@ -18,7 +18,6 @@ export const META_ENV_CHECKS = [
   "META_WEBHOOK_CALLBACK_URL",
   "N8N_WEBHOOK_URL",
   "APP_URL",
-  "DATABASE_URL",
 ] as const;
 
 type GraphErrorBody = {

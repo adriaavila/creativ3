@@ -3,12 +3,15 @@ import { mkdir } from "node:fs/promises";
 import { join } from "node:path";
 
 const PROJECTS = [
+  { slug: "frontai-landing", url: "https://frontai-landing.vercel.app" },
+  { slug: "parley-mundial", url: "https://parlai-mundial.vercel.app" },
   { slug: "pace-running", url: "https://pace-running-three.vercel.app" },
   { slug: "rei-fm", url: "https://rei-fm.vercel.app" },
   { slug: "soapy", url: "https://soapy-sooty.vercel.app" },
   { slug: "artistheway", url: "https://artistheway.vercel.app" },
   { slug: "taller-samer", url: "https://taller-samer.vercel.app" },
   { slug: "mistica", url: "https://mistica-app-fawn.vercel.app" },
+  { slug: "almacen-vc", url: "https://almacen-vc.vercel.app" },
 ];
 
 const OUT_BASE = new URL("../public/projects", import.meta.url).pathname;

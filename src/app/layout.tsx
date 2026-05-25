@@ -35,12 +35,38 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Servicios Creativos",
-  description: "El software que merece Venezuela.",
+  metadataBase: new URL("https://www.servicioscreativos.online"),
+  title: {
+    default: "creativv | Estudio AI de diseno y codigo",
+    template: "%s | creativv",
+  },
+  description:
+    "creativv crea websites premium, productos digitales, automatizaciones y sistemas IA para convertir visitas en conversaciones y operaciones en procesos medibles.",
+  keywords: [
+    "creativv",
+    "estudio AI",
+    "diseno web premium",
+    "automatizacion IA",
+    "Next.js",
+    "WhatsApp automation",
+    "SaaS LATAM",
+  ],
   openGraph: {
-    title: "Servicios Creativos",
-    description: "El software que merece Venezuela.",
-    images: [{ url: "/og-image.png", width: 1200, height: 630 }],
+    title: "creativv | Estudio AI de diseno y codigo",
+    description:
+      "Websites premium, productos digitales y automatizaciones IA para negocios que necesitan vender y operar mejor.",
+    url: "https://www.servicioscreativos.online",
+    siteName: "creativv",
+    locale: "es_VE",
+    type: "website",
+    images: [{ url: "/opengraph-image", width: 1200, height: 630, alt: "creativv" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "creativv | Estudio AI de diseno y codigo",
+    description:
+      "Websites premium, productos digitales y automatizaciones IA para generar conversaciones calificadas.",
+    images: ["/opengraph-image"],
   },
 };
 

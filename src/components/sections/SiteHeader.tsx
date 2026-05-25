@@ -6,8 +6,9 @@ import { useEffect, useState } from "react";
 import CreativvLogo from "@/components/landing/CreativvLogo";
 
 const NAV = [
-  { label: "Servicios", href: "/#servicios" },
-  { label: "Proyectos", href: "/#proyectos" },
+  { label: "Oferta", href: "/#oferta" },
+  { label: "Capacidades", href: "/#servicios" },
+  { label: "Prueba", href: "/#proyectos" },
   { label: "Contacto", href: "/#contacto" },
 ];
 
@@ -56,19 +57,19 @@ export default function SiteHeader() {
             </Link>
           ))}
           <Link
-            href="/#contacto"
+            href="/cotizar"
             className="ml-2 bg-[#1f2a1d] hover:bg-[#2a3827] text-white text-sm font-medium px-5 py-2.5 rounded-full transition-colors"
           >
-            Cotizar proyecto
+            Pedir diagnostico
           </Link>
         </div>
 
         <div className="lg:hidden flex items-center gap-3">
           <Link
-            href="/#contacto"
+            href="/cotizar"
             className="hidden sm:inline-flex bg-[#1f2a1d] hover:bg-[#2a3827] text-white text-xs font-medium px-4 py-2 rounded-full transition-colors"
           >
-            Cotizar
+            Diagnostico
           </Link>
           <button
             type="button"
@@ -96,11 +97,11 @@ export default function SiteHeader() {
               </Link>
             ))}
             <Link
-              href="/#contacto"
+              href="/cotizar"
               onClick={() => setOpen(false)}
               className="self-start mt-2 bg-[#1f2a1d] hover:bg-[#2a3827] text-white text-sm font-semibold px-5 py-2.5 rounded-full transition-colors"
             >
-              Cotizar proyecto
+              Pedir diagnostico
             </Link>
           </div>
         </div>

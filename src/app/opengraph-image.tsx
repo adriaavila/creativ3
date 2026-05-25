@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 
 export const runtime = "edge";
-export const alt = "Servicios Creativos - El software que merece Venezuela.";
+export const alt = "creativv - Estudio AI de diseno y codigo.";
 export const size = {
   width: 1200,
   height: 630,
@@ -22,7 +22,7 @@ export default async function Image() {
           justifyContent: "center",
           padding: "80px",
           color: "#f0ead6",
-          fontFamily: "serif", // In OG generation, custom fonts require loading TTF files. Using default serif for fallback, or we can load Google Fonts.
+          fontFamily: "serif",
         }}
       >
         {/* Subtle noise representation via radial gradients */}
@@ -33,7 +33,7 @@ export default async function Image() {
             right: "-20%",
             width: "1000px",
             height: "1000px",
-            background: "radial-gradient(circle, rgba(42, 110, 160, 0.2), transparent 60%)",
+            background: "radial-gradient(circle, rgba(168, 201, 127, 0.24), transparent 60%)",
           }}
         />
         
@@ -50,7 +50,6 @@ export default async function Image() {
           <div
             style={{
               fontSize: 100,
-              letterSpacing: "-0.05em",
               lineHeight: 0.9,
               textAlign: "center",
               display: "flex",
@@ -58,8 +57,8 @@ export default async function Image() {
               alignItems: "center",
             }}
           >
-            <span>Servicios</span>
-            <span style={{ color: "#2a6ea0", fontStyle: "italic" }}>Creativos</span>
+            <span>creativv</span>
+            <span style={{ color: "#a8c97f", fontStyle: "italic" }}>design + code + AI</span>
           </div>
           
           <div
@@ -69,7 +68,7 @@ export default async function Image() {
               marginTop: "40px",
             }}
           >
-            El software que merece Venezuela.
+            Websites premium, productos digitales y automatizaciones IA.
           </div>
         </div>
 
@@ -85,7 +84,7 @@ export default async function Image() {
             opacity: 0.5,
           }}
         >
-          <span>VOL. I &middot; CARACAS</span>
+          <span>PREMIUM STUDIO &middot; CARACAS / REMOTO</span>
           <span>10.4806° N, 66.9036° W</span>
         </div>
       </div>

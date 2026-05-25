@@ -129,7 +129,7 @@ export default function CustomCursor() {
       {/* Core dot */}
       <div
         ref={cursorRef}
-        className="cc-dot fixed top-0 left-0 pointer-events-none z-[9999] rounded-full"
+        className="cc-dot fixed top-0 left-0 pointer-events-none z-[9999] hidden rounded-full sm:block"
         style={{ width: 10, height: 10 }}
       />
     </>

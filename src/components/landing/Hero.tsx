@@ -1,7 +1,9 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { LogIn, UserPlus, Play, Menu, X, Sparkles } from "lucide-react";
+import Link from "next/link";
+import { CalendarCheck, MessageCircle, Play, Menu, X } from "lucide-react";
+import { whatsappUrl } from "@/lib/contact";
 import BoomerangVideoBg from "./BoomerangVideoBg";
 import CreativvLogo from "./CreativvLogo";
 
@@ -11,10 +13,15 @@ const BG_VIDEO =
 const PROCESS_VIDEO = "/videos/como-trabajamos.mp4";
 
 const NAV_LINKS = [
-  { href: "#servicios", label: "Servicios" },
-  { href: "#proyectos", label: "Proyectos" },
+  { href: "#oferta", label: "Oferta" },
+  { href: "#servicios", label: "Capacidades" },
+  { href: "#proyectos", label: "Prueba" },
   { href: "#contacto", label: "Contacto" },
 ];
+
+const AUDIT_WHATSAPP_URL = whatsappUrl(
+  "Hola, quiero un diagnostico express con creativv. Mi objetivo es conseguir mas leads, mejorar mi web o automatizar un proceso con IA."
+);
 
 export default function Hero() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -54,13 +61,13 @@ export default function Hero() {
   }, [videoOpen]);
 
   return (
-    <section className="relative w-full min-h-screen sm:h-screen overflow-hidden bg-[#e8e7df]">
+    <section className="relative w-full min-h-[92svh] sm:h-[92vh] overflow-hidden bg-[#e8e7df]">
       <BoomerangVideoBg src={BG_VIDEO} className="absolute inset-0 w-full h-full" />
 
       <nav className="absolute top-0 left-0 right-0 z-30 flex items-center justify-between px-4 sm:px-6 md:px-10 py-4 sm:py-6">
-        <a href="/" className="flex items-center text-[#1f2a1d]" aria-label="creativv">
+        <Link href="/" className="flex items-center text-[#1f2a1d]" aria-label="creativv">
           <CreativvLogo variant="lockup-bare" className="h-7 sm:h-8 md:h-9 w-auto" />
-        </a>
+        </Link>
 
         <div className="hidden lg:flex items-center gap-1 bg-white/70 backdrop-blur-md rounded-full pl-6 pr-1 py-1 shadow-sm border border-white/60">
           {NAV_LINKS.map((link, i) => (
@@ -77,27 +84,29 @@ export default function Hero() {
             </a>
           ))}
           <a
-            href="#contacto"
+            href="/cotizar"
             className="ml-2 bg-[#1f2a1d] hover:bg-[#2a3827] text-white text-sm font-medium px-5 py-2.5 rounded-full transition-colors"
           >
-            Cotizar proyecto
+            Pedir diagnostico
           </a>
         </div>
 
         <div className="flex items-center gap-3 sm:gap-6 text-[#2d3a2a]">
           <a
-            href="#contacto"
+            href="/cotizar"
             className="hidden sm:flex items-center gap-2 text-sm font-medium hover:opacity-80 transition-opacity"
           >
-            <UserPlus className="w-4 h-4" />
-            Crear cuenta
+            <CalendarCheck className="w-4 h-4" />
+            Ver planes
           </a>
           <a
-            href="#contacto"
+            href={AUDIT_WHATSAPP_URL}
+            target="_blank"
+            rel="noopener noreferrer"
             className="hidden sm:flex items-center gap-2 text-sm font-medium hover:opacity-80 transition-opacity"
           >
-            <LogIn className="w-4 h-4" />
-            Entrar
+            <MessageCircle className="w-4 h-4" />
+            WhatsApp
           </a>
           <button
             onClick={() => setMenuOpen((v) => !v)}
@@ -159,25 +168,27 @@ export default function Hero() {
             style={{ transitionDelay: menuOpen ? "400ms" : "0ms" }}
           >
             <a
-              href="#contacto"
+              href="/cotizar"
               className="flex items-center gap-2 text-sm font-medium text-[#2d3a2a] sm:hidden"
             >
-              <UserPlus className="w-4 h-4" />
-              Crear cuenta
+              <CalendarCheck className="w-4 h-4" />
+              Ver planes
             </a>
             <a
-              href="#contacto"
+              href={AUDIT_WHATSAPP_URL}
+              target="_blank"
+              rel="noopener noreferrer"
               className="flex items-center gap-2 text-sm font-medium text-[#2d3a2a] sm:hidden"
             >
-              <LogIn className="w-4 h-4" />
-              Entrar
+              <MessageCircle className="w-4 h-4" />
+              WhatsApp
             </a>
             <a
-              href="#contacto"
+              href="/cotizar"
               onClick={() => setMenuOpen(false)}
               className="mt-2 inline-block text-center bg-[#1f2a1d] hover:bg-[#2a3827] text-white text-sm font-semibold px-5 py-3 rounded-full transition-colors"
             >
-              Cotizar proyecto
+              Pedir diagnostico
             </a>
           </div>
         </div>
@@ -187,7 +198,6 @@ export default function Hero() {
       <div className="relative z-10 flex flex-col items-center text-center pt-24 sm:pt-28 md:pt-32 px-4 sm:px-6">
         <h1
           className="font-normal leading-[0.95] text-[#336443] text-[2rem] sm:text-4xl md:text-5xl lg:text-[4.75rem] xl:text-[5.25rem] max-w-5xl"
-          style={{ letterSpacing: "-0.035em" }}
         >
           Cerramos la brecha{" "}
           <span className="text-[#85AB8B]">
@@ -206,24 +216,26 @@ export default function Hero() {
         <div className="flex items-center gap-2 text-white/95 mb-3">
           <CreativvLogo variant="mark-bare" className="h-5 w-5" />
           <span className="text-xs font-semibold tracking-widest uppercase">
-            Estudio · Caracas / Remoto
+            Premium studio · Caracas / Remoto
           </span>
         </div>
         <p className="text-white/85 text-xs leading-relaxed mb-6 max-w-xs font-medium sm:font-normal">
-          Trabajamos junto a empresas y equipos que necesitan ir rápido sin sacrificar profundidad.
+          Entrada clara: diagnostico pagado, piloto en 14 dias o sprint web/producto con alcance cerrado.
         </p>
         <div className="flex items-center gap-4 flex-wrap">
           <a
-            href="#contacto"
+            href="/cotizar"
             className="bg-[#3d5638] sm:bg-white hover:bg-[#2d4228] sm:hover:bg-white/90 text-white sm:text-[#1f2a1d] text-sm font-semibold px-5 sm:px-6 py-2.5 sm:py-3 rounded-full transition-colors shadow-sm"
           >
-            Cotizar proyecto
+            Ver oferta
           </a>
           <a
-            href="#servicios"
+            href={AUDIT_WHATSAPP_URL}
+            target="_blank"
+            rel="noopener noreferrer"
             className="text-[#3d5638] sm:text-white text-sm font-semibold sm:font-medium hover:opacity-80 transition-opacity"
           >
-            Conoce más.
+            Escribir por WhatsApp
           </a>
         </div>
       </div>

@@ -17,8 +17,6 @@ export default function ProyectoPage() {
       interval = setInterval(() => {
         setRecordingTime((prev) => prev + 1);
       }, 1000);
-    } else {
-      setRecordingTime(0);
     }
     return () => clearInterval(interval);
   }, [isRecording]);
@@ -33,6 +31,7 @@ export default function ProyectoPage() {
         setIsSuccess(true);
       }, 3000);
     } else {
+      setRecordingTime(0);
       setIsRecording(true);
       setIsSuccess(false);
     }

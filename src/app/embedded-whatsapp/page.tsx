@@ -1,13 +1,18 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Shield, CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
+import {
+  META_MESSAGE_ORIGINS,
+  type MetaEmbeddedSignupConfig,
+  type MetaSignupSession,
+} from "@/lib/meta/embedded-signup";
 
 declare global {
   interface Window {
-    fbAsyncInit: () => void;
-    FB: {
+    fbAsyncInit?: () => void;
+    FB?: {
       init: (config: object) => void;
       login: (callback: (response: FBLoginResponse) => void, options: object) => void;
     };
@@ -16,121 +21,236 @@ declare global {
 
 interface FBLoginResponse {
   authResponse?: {
-    code: string;
-    accessToken?: string;
+    code?: string;
   };
   status?: string;
 }
 
-const APP_ID = "928506006692783";
-const GRAPH_VERSION = "v24.0";
-const CONFIG_ID = "1314818040747845";
+type SignupEvent = {
+  type?: string;
+  event?: string;
+  version?: number;
+  data?: {
+    phone_number_id?: string;
+    waba_id?: string;
+    business_id?: string;
+    current_step?: string;
+    error_code?: string;
+    error_message?: string;
+    session_id?: string;
+    timestamp?: string;
+  };
+};
 
-const N8N_ONBOARDING_WEBHOOK =
-  "https://n8n.servicioscreativos.online/webhook/whatsapp-onboarding-finish-7f3a9c";
-const N8N_CODE_WEBHOOK =
-  "https://n8n.servicioscreativos.online/webhook/whatsapp-login-code-7f3a9c";
+type PendingSignup = {
+  code?: string;
+  waba_id?: string;
+  phone_number_id?: string;
+  business_id?: string;
+  session?: MetaSignupSession;
+};
 
-const WEBHOOK_HEADER_NAME = "x-servicioscreativos-secret";
-const WEBHOOK_HEADER_VALUE = "rei_n8n_secret_2026_xK92pLm7qA_private";
+type Status = "idle" | "loading" | "exchanging" | "success" | "error";
 
-function getClientParam(): string | null {
-  return new URLSearchParams(window.location.search).get("client");
-}
-
-async function postToN8n(url: string, payload: object): Promise<void> {
-  try {
-    await fetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        [WEBHOOK_HEADER_NAME]: WEBHOOK_HEADER_VALUE,
-      },
-      body: JSON.stringify(payload),
-    });
-  } catch (err) {
-    console.error("Error enviando a n8n:", err);
-  }
-}
-
-type Status = "idle" | "loading" | "success" | "error";
+const allowedOrigins = new Set<string>(META_MESSAGE_ORIGINS);
 
 export default function EmbeddedWhatsapp() {
+  const [config, setConfig] = useState<MetaEmbeddedSignupConfig | null>(null);
   const [sdkReady, setSdkReady] = useState(false);
   const [status, setStatus] = useState<Status>("idle");
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [successDetails, setSuccessDetails] = useState<{
+    waba_id?: string;
+    phone_number_id?: string;
+  } | null>(null);
+  const pendingSignupRef = useRef<PendingSignup>({});
+  const exchangeStartedRef = useRef(false);
+  const signupStateRef = useRef<string>("");
 
-  useEffect(() => {
-    window.fbAsyncInit = function () {
-      window.FB.init({
-        appId: APP_ID,
-        autoLogAppEvents: true,
-        xfbml: true,
-        version: GRAPH_VERSION,
-      });
-      setSdkReady(true);
-    };
-
-    if (!document.getElementById("facebook-jssdk")) {
-      const script = document.createElement("script");
-      script.id = "facebook-jssdk";
-      script.src = "https://connect.facebook.net/en_US/sdk.js";
-      script.async = true;
-      script.defer = true;
-      script.crossOrigin = "anonymous";
-      document.body.appendChild(script);
+  const exchangeWhenReady = useCallback(async () => {
+    const pending = pendingSignupRef.current;
+    if (
+      exchangeStartedRef.current ||
+      !pending.code ||
+      !pending.waba_id ||
+      !pending.phone_number_id
+    ) {
+      return;
     }
 
-    const handleMessage = async (event: MessageEvent) => {
-      if (!event.origin.endsWith("facebook.com")) return;
+    exchangeStartedRef.current = true;
+    setStatus("exchanging");
+    setErrorMessage(null);
 
+    const response = await fetch("/api/meta/embedded-signup/exchange", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        code: pending.code,
+        waba_id: pending.waba_id,
+        phone_number_id: pending.phone_number_id,
+        business_id: pending.business_id,
+        state: signupStateRef.current,
+        ...getSafeAppContext(),
+        session: pending.session,
+      }),
+    });
+    const result = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+      exchangeStartedRef.current = false;
+      setStatus("error");
+      setErrorMessage(safeErrorMessage(result));
+      return;
+    }
+
+    setSuccessDetails({
+      waba_id: pending.waba_id,
+      phone_number_id: pending.phone_number_id,
+    });
+    setStatus("success");
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    signupStateRef.current = getOrCreateSignupState();
+
+    async function bootMetaSdk() {
       try {
-        const data =
-          typeof event.data === "string" ? JSON.parse(event.data) : event.data;
+        const response = await fetch("/api/meta/embedded-signup/config", {
+          cache: "no-store",
+        });
+        const metaConfig = await response.json();
 
-        if (data?.type === "WA_EMBEDDED_SIGNUP") {
-          const client = getClientParam();
-          await postToN8n(N8N_ONBOARDING_WEBHOOK, {
-            client,
-            embedded_event: data,
-            received_at: new Date().toISOString(),
-          });
+        if (!response.ok) {
+          throw new Error(safeErrorMessage(metaConfig));
         }
-      } catch {
-        // non-JSON messages from facebook.com — ignore
+
+        if (cancelled) return;
+
+        setConfig(metaConfig);
+
+        const initializeSdk = () => {
+          window.FB?.init({
+            appId: metaConfig.appId,
+            autoLogAppEvents: true,
+            xfbml: true,
+            version: metaConfig.graphVersion,
+          });
+          setSdkReady(true);
+        };
+
+        window.fbAsyncInit = initializeSdk;
+
+        if (window.FB) {
+          initializeSdk();
+          return;
+        }
+
+        const existingScript = document.getElementById("facebook-jssdk");
+        if (existingScript) {
+          existingScript.addEventListener("load", initializeSdk, { once: true });
+          return;
+        }
+
+        const script = document.createElement("script");
+        script.id = "facebook-jssdk";
+        script.src = "https://connect.facebook.net/en_US/sdk.js";
+        script.async = true;
+        script.defer = true;
+        script.crossOrigin = "anonymous";
+        document.body.appendChild(script);
+      } catch (error) {
+        if (cancelled) return;
+        setStatus("error");
+        setErrorMessage(error instanceof Error ? error.message : "Meta no está configurado.");
       }
+    }
+
+    void bootMetaSdk();
+
+    const handleMessage = (event: MessageEvent) => {
+      if (!allowedOrigins.has(event.origin)) return;
+
+      const signupEvent = parseSignupEvent(event.data);
+      if (signupEvent?.type !== "WA_EMBEDDED_SIGNUP") return;
+
+      if (signupEvent.event === "CANCEL") {
+        setStatus("error");
+        setErrorMessage(cancelMessage(signupEvent));
+        return;
+      }
+
+      const wabaId = signupEvent.data?.waba_id;
+      const phoneNumberId = signupEvent.data?.phone_number_id;
+      if (!wabaId || !phoneNumberId) return;
+
+      pendingSignupRef.current = {
+        ...pendingSignupRef.current,
+        waba_id: wabaId,
+        phone_number_id: phoneNumberId,
+        business_id: signupEvent.data?.business_id,
+        session: {
+          event: signupEvent.event,
+          version: signupEvent.version,
+          session_id: signupEvent.data?.session_id,
+          received_at: new Date().toISOString(),
+        },
+      };
+      void exchangeWhenReady();
     };
 
     window.addEventListener("message", handleMessage);
-    return () => window.removeEventListener("message", handleMessage);
-  }, []);
+    return () => {
+      cancelled = true;
+      window.removeEventListener("message", handleMessage);
+    };
+  }, [exchangeWhenReady]);
 
   const fbLoginCallback = (response: FBLoginResponse) => {
-    const client = getClientParam();
+    const code = response.authResponse?.code;
 
-    if (response.authResponse) {
-      const code = response.authResponse.code;
-      void postToN8n(N8N_CODE_WEBHOOK, {
-        client,
-        code,
-        received_at: new Date().toISOString(),
-      }).then(() => setStatus("success"));
-    } else {
-      void postToN8n(N8N_CODE_WEBHOOK, {
-        client,
-        error: response,
-        received_at: new Date().toISOString(),
-      }).then(() => setStatus("error"));
+    if (!code) {
+      setStatus("error");
+      setErrorMessage("Meta no devolvió un código de autorización.");
+      return;
     }
+
+    pendingSignupRef.current = {
+      ...pendingSignupRef.current,
+      code,
+    };
+    void exchangeWhenReady();
+
+    window.setTimeout(() => {
+      const pending = pendingSignupRef.current;
+      if (
+        !exchangeStartedRef.current &&
+        pending.code &&
+        (!pending.waba_id || !pending.phone_number_id)
+      ) {
+        setStatus("error");
+        setErrorMessage("Meta devolvió el código, pero no llegó el evento con WABA y número.");
+      }
+    }, 24000);
   };
 
   const launchWhatsAppSignup = () => {
-    if (!window.FB) {
-      console.error("FB SDK no cargado aún");
+    if (!window.FB || !config) {
+      setStatus("error");
+      setErrorMessage("El SDK de Meta todavía no está listo.");
       return;
     }
+
+    pendingSignupRef.current = {};
+    exchangeStartedRef.current = false;
+    setSuccessDetails(null);
+    setErrorMessage(null);
     setStatus("loading");
+
     window.FB.login(fbLoginCallback, {
-      config_id: CONFIG_ID,
+      config_id: config.configId,
       response_type: "code",
       override_default_response_type: true,
       extras: {
@@ -141,9 +261,10 @@ export default function EmbeddedWhatsapp() {
     });
   };
 
+  const busy = status === "loading" || status === "exchanging";
+
   return (
     <div className="min-h-screen bg-[#f5f3ec] text-[#1f2a1d] flex flex-col items-center justify-center px-4 relative overflow-hidden">
-      {/* Background glow */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-[#336443]/8 rounded-full blur-[140px]" />
       </div>
@@ -154,9 +275,7 @@ export default function EmbeddedWhatsapp() {
         transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
         className="relative z-10 w-full max-w-md"
       >
-        {/* Card */}
         <div className="rounded-3xl border border-[#1f2a1d]/10 bg-[#1f2a1d]/5 backdrop-blur-xl p-10 md:p-14 text-center">
-          {/* WhatsApp icon */}
           <div className="w-16 h-16 rounded-2xl bg-green-500/10 border border-green-500/20 flex items-center justify-center mx-auto mb-8">
             <svg
               viewBox="0 0 24 24"
@@ -175,7 +294,6 @@ export default function EmbeddedWhatsapp() {
             atención desde Servicios Creativos.
           </p>
 
-          {/* Status area */}
           <AnimatePresence mode="wait">
             {status === "success" && (
               <motion.div
@@ -187,17 +305,17 @@ export default function EmbeddedWhatsapp() {
               >
                 <CheckCircle2 className="h-5 w-5 text-green-500 shrink-0" />
                 <div>
-                  <p className="text-sm font-semibold text-green-400">
-                    ¡Conexión autorizada!
+                  <p className="text-sm font-semibold text-green-700">
+                    Conexión autorizada y guardada.
                   </p>
                   <p className="text-xs text-[#4b5b47]/80 font-mono mt-0.5">
-                    Tu cuenta fue enviada para activación.
+                    WABA {successDetails?.waba_id} · número {successDetails?.phone_number_id}
                   </p>
                 </div>
               </motion.div>
             )}
 
-            {status === "error" && (
+            {status === "error" && errorMessage && (
               <motion.div
                 key="error"
                 initial={{ opacity: 0, scale: 0.95 }}
@@ -205,29 +323,28 @@ export default function EmbeddedWhatsapp() {
                 exit={{ opacity: 0, scale: 0.95 }}
                 className="flex items-center gap-3 bg-red-500/10 border border-red-500/20 rounded-2xl px-5 py-4 mb-8 text-left"
               >
-                <AlertCircle className="h-5 w-5 text-red-400 shrink-0" />
+                <AlertCircle className="h-5 w-5 text-red-500 shrink-0" />
                 <div>
-                  <p className="text-sm font-semibold text-red-400">
-                    Proceso cancelado
+                  <p className="text-sm font-semibold text-red-600">
+                    No pudimos completar la conexión.
                   </p>
                   <p className="text-xs text-[#4b5b47]/80 font-mono mt-0.5">
-                    Puedes intentarlo de nuevo cuando quieras.
+                    {errorMessage}
                   </p>
                 </div>
               </motion.div>
             )}
           </AnimatePresence>
 
-          {/* CTA button */}
           <button
             onClick={launchWhatsAppSignup}
-            disabled={!sdkReady || status === "loading" || status === "success"}
+            disabled={!sdkReady || busy || status === "success"}
             className="w-full h-14 rounded-2xl bg-[#1877f2] hover:bg-[#1565d8] active:bg-[#1053b8] disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold text-base transition-all duration-200 flex items-center justify-center gap-2 shadow-lg shadow-[#1877f2]/20"
           >
-            {status === "loading" ? (
+            {busy ? (
               <>
                 <Loader2 className="h-5 w-5 animate-spin" />
-                Abriendo Meta…
+                {status === "exchanging" ? "Guardando conexión..." : "Abriendo Meta..."}
               </>
             ) : status === "success" ? (
               <>
@@ -241,24 +358,78 @@ export default function EmbeddedWhatsapp() {
 
           {!sdkReady && status === "idle" && (
             <p className="text-[#4b5b47]/60 font-mono text-xs mt-3">
-              Cargando SDK de Meta…
+              Cargando SDK de Meta...
             </p>
           )}
 
-          {/* Security note */}
           <div className="flex items-center justify-center gap-2 mt-8 text-[#1f2a1d]/35 font-mono text-xs">
             <Shield className="h-3.5 w-3.5 shrink-0" />
-            <span>
-              Nunca compartimos tu clave secreta de Meta en el navegador.
-            </span>
+            <span>La clave secreta de Meta se usa solo en el servidor.</span>
           </div>
         </div>
 
-        {/* Powered by */}
         <p className="text-center text-[#1f2a1d]/25 font-mono text-xs mt-6">
           Servicios Creativos · Integración oficial Meta WhatsApp API
         </p>
       </motion.div>
     </div>
   );
+}
+
+function parseSignupEvent(data: unknown): SignupEvent | null {
+  try {
+    return typeof data === "string" ? JSON.parse(data) : (data as SignupEvent);
+  } catch {
+    return null;
+  }
+}
+
+function getSafeAppContext() {
+  const params = new URLSearchParams(window.location.search);
+  return {
+    client: safeParam(params, "client"),
+    user_id: safeParam(params, "user_id"),
+    team_id: safeParam(params, "team_id"),
+    account_id: safeParam(params, "account_id"),
+  };
+}
+
+function getOrCreateSignupState() {
+  const params = new URLSearchParams(window.location.search);
+  const explicitState = safeParam(params, "state");
+  if (explicitState) return explicitState;
+
+  const existingState = window.sessionStorage.getItem("meta_embedded_signup_state");
+  if (existingState) return existingState;
+
+  const state =
+    window.crypto?.randomUUID?.() ??
+    `meta_${Date.now().toString(36)}_${Math.random().toString(36).slice(2)}`;
+  window.sessionStorage.setItem("meta_embedded_signup_state", state);
+  return state;
+}
+
+function safeParam(params: URLSearchParams, key: string) {
+  const value = params.get(key);
+  return value && value.length <= 160 ? value : undefined;
+}
+
+function safeErrorMessage(result: unknown) {
+  if (!result || typeof result !== "object") return "Error desconocido.";
+
+  const value = result as Record<string, unknown>;
+  if (typeof value.error === "string") {
+    const missingEnv = Array.isArray(value.missing_env) ? ` (${value.missing_env.join(", ")})` : "";
+    return `${value.error}${missingEnv}`;
+  }
+
+  return "Error desconocido.";
+}
+
+function cancelMessage(signupEvent: SignupEvent) {
+  if (signupEvent.data?.error_message) return signupEvent.data.error_message;
+  if (signupEvent.data?.current_step) {
+    return `Proceso cancelado en ${signupEvent.data.current_step}.`;
+  }
+  return "Proceso cancelado antes de finalizar.";
 }

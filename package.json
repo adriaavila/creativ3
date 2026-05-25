@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "meta:diagnostics": "node scripts/meta-embedded-signup-diagnostics.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",

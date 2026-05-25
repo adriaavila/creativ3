@@ -1,190 +1,136 @@
-"use client";
-
-import React, { useState, useEffect } from "react";
+import Link from "next/link";
+import { ArrowRight, CheckCircle2, Mail, MessageCircle } from "lucide-react";
 import Colofon from "@/components/landing/Colofon";
-import { Mic, Loader2, CheckCircle2, Square } from "lucide-react";
-import { motion, AnimatePresence } from "motion/react";
+import { CONTACT_EMAIL, whatsappUrl } from "@/lib/contact";
+
+const OPTIONS = [
+  {
+    name: "Diagnostico express",
+    price: "USD 150",
+    bestFor: "Quieres claridad antes de gastar en diseño, desarrollo o IA.",
+    delivery: "48 horas",
+    points: ["Auditoria de oferta, web y funnel", "10 quick wins ordenados por impacto", "Se acredita si avanzas a proyecto"],
+    message:
+      "Hola, quiero comprar el diagnostico express de creativv. Mi web/proyecto es:",
+  },
+  {
+    name: "Piloto IA",
+    price: "Desde USD 900",
+    bestFor: "Ya tienes conversaciones o tareas repetitivas que consumen equipo.",
+    delivery: "10-14 dias",
+    points: ["Workflow IA funcionando", "Integracion con WhatsApp, email o CRM", "Medicion diaria de leads, ahorro o respuesta"],
+    message:
+      "Hola, quiero cotizar un piloto IA con creativv. El proceso que quiero automatizar es:",
+  },
+  {
+    name: "Sprint web/producto",
+    price: "Desde USD 1.500",
+    bestFor: "Necesitas una presencia o producto que se sienta premium y funcione.",
+    delivery: "10-21 dias",
+    points: ["Direccion visual + UX", "Next.js + integraciones", "Entrega lista para vender, medir u operar"],
+    message:
+      "Hola, quiero cotizar un sprint web/producto con creativv. Necesito construir:",
+  },
+];
 
 export default function CotizarPage() {
-  const [isRecording, setIsRecording] = useState(false);
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false);
-  const [recordingTime, setRecordingTime] = useState(0);
-
-  useEffect(() => {
-    let interval: NodeJS.Timeout;
-    if (isRecording) {
-      interval = setInterval(() => {
-        setRecordingTime((prev) => prev + 1);
-      }, 1000);
-    } else {
-      setRecordingTime(0);
-    }
-    return () => clearInterval(interval);
-  }, [isRecording]);
-
-  const handleMicClick = () => {
-    if (isRecording) {
-      // Stop recording
-      setIsRecording(false);
-      setIsProcessing(true);
-      
-      // Simulate processing audio and receiving response
-      setTimeout(() => {
-        setIsProcessing(false);
-        setIsSuccess(true);
-      }, 3000);
-    } else {
-      // Start recording
-      setIsRecording(true);
-      setIsSuccess(false);
-    }
-  };
-
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
-  };
-
   return (
-    <div className="min-h-screen bg-[#f5f3ec] text-[#1f2a1d] selection:bg-[#85AB8B]/30 selection:text-[#1f2a1d] flex flex-col relative overflow-hidden">
-      {/* Decorative Background */}
-      <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[url('/noise.png')]" />
-      
-      <main className="flex-1 flex flex-col items-center justify-center pt-32 pb-24 px-6 relative z-10 min-h-[80vh]">
-        <div className="max-w-2xl mx-auto w-full flex flex-col items-center text-center">
-          
-          <AnimatePresence mode="wait">
-            {!isSuccess ? (
-              <motion.div
-                key="recording-ui"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                className="w-full flex flex-col items-center"
+    <div className="min-h-screen bg-[#f5f3ec] text-[#1f2a1d] selection:bg-[#85AB8B]/30 selection:text-[#1f2a1d]">
+      <main className="px-6 pb-20 pt-28 md:px-10 md:pb-28 md:pt-36">
+        <section className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-end">
+          <div>
+            <div className="mb-5 inline-flex rounded-full border border-[#336443]/20 bg-white px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-[#336443]">
+              Cotizar con creativv
+            </div>
+            <h1 className="max-w-3xl text-5xl font-normal leading-[0.95] text-[#336443] sm:text-6xl md:text-7xl">
+              Entra por el problema correcto.
+            </h1>
+          </div>
+          <div className="rounded-lg border border-[#1f2a1d]/10 bg-white p-6 shadow-sm">
+            <p className="text-base leading-relaxed text-[#4b5b47]">
+              Para avanzar no necesitas una propuesta enorme. Necesitas una decision limpia:
+              que duele, que vale resolver y cual es el primer entregable que puede pagarse solo.
+            </p>
+            <div className="mt-6 flex flex-wrap gap-3">
+              <a
+                href={whatsappUrl()}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 rounded-full bg-[#1f2a1d] px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#336443]"
               >
-                <div className="inline-flex mb-8 border border-[#336443]/30 text-[#336443] px-5 py-1.5 rounded-full bg-[#336443]/5 backdrop-blur-xl font-mono tracking-widest text-[10px] uppercase">
-                  Agente de Cotización IA
-                </div>
-                
-                <h1 className="text-4xl md:text-6xl font-normal mb-6 leading-tight">
-                  Cuéntanos tu <br />
-                  <span className="text-[#336443] not-italic font-normal tracking-tight">proyecto</span>
-                </h1>
-                
-                <p className="text-[#4b5b47] text-lg mb-16 max-w-md mx-auto leading-relaxed font-mono">
-                  Presiona el micrófono y descríbenos qué necesitas automatizar, integrar o crear. Nuestro agente analizará tu audio.
-                </p>
+                <MessageCircle className="h-4 w-4" />
+                WhatsApp
+              </a>
+              <a
+                href={`mailto:${CONTACT_EMAIL}?subject=Cotizar%20con%20creativv`}
+                className="inline-flex items-center gap-2 rounded-full border border-[#1f2a1d]/15 bg-white px-5 py-3 text-sm font-semibold text-[#1f2a1d] transition-colors hover:bg-[#f5f3ec]"
+              >
+                <Mail className="h-4 w-4" />
+                Email
+              </a>
+            </div>
+          </div>
+        </section>
 
-                {/* Voice Record Button */}
-                <div className="relative flex flex-col items-center justify-center">
-                  {/* Pulsing rings when recording */}
-                  {isRecording && (
-                    <>
-                      <motion.div 
-                        initial={{ opacity: 0.8, scale: 1 }}
-                        animate={{ opacity: 0, scale: 2 }}
-                        transition={{ repeat: Infinity, duration: 1.5, ease: "easeOut" }}
-                        className="absolute w-32 h-32 rounded-full bg-[#336443]/30 pointer-events-none"
-                      />
-                      <motion.div 
-                        initial={{ opacity: 0.8, scale: 1 }}
-                        animate={{ opacity: 0, scale: 2.5 }}
-                        transition={{ repeat: Infinity, duration: 1.5, ease: "easeOut", delay: 0.5 }}
-                        className="absolute w-32 h-32 rounded-full bg-[#85AB8B]/30 pointer-events-none"
-                      />
-                    </>
-                  )}
-
-                  <button
-                    onClick={handleMicClick}
-                    disabled={isProcessing}
-                    className={`relative w-32 h-32 rounded-full flex items-center justify-center shadow-2xl transition-all duration-500 z-10
-                      ${isProcessing 
-                        ? 'bg-[#f5f3ec] border border-[#1f2a1d]/15 cursor-wait' 
-                        : isRecording 
-                          ? 'bg-red-500/10 border-red-500 text-red-500 hover:bg-red-500/20' 
-                          : 'bg-[#336443] hover:bg-[#336443]/80 text-white hover:scale-105'
-                      }
-                    `}
-                  >
-                    {isProcessing ? (
-                      <Loader2 className="w-10 h-10 animate-spin text-[#336443]" />
-                    ) : isRecording ? (
-                      <Square className="w-10 h-10 fill-current" />
-                    ) : (
-                      <Mic className="w-12 h-12" />
-                    )}
-                  </button>
-                  
-                  {/* Status Text */}
-                  <div className="mt-8 h-8 flex items-center justify-center">
-                    <AnimatePresence mode="wait">
-                      {isProcessing ? (
-                        <motion.span 
-                          key="processing"
-                          initial={{ opacity: 0, y: 5 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: -5 }}
-                          className="font-mono text-sm text-[#336443] animate-pulse"
-                        >
-                          Transcribiendo y analizando...
-                        </motion.span>
-                      ) : isRecording ? (
-                        <motion.div 
-                          key="recording"
-                          initial={{ opacity: 0, y: 5 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: -5 }}
-                          className="flex flex-col items-center"
-                        >
-                          <span className="font-mono text-sm text-red-400 mb-1 animate-pulse">Grabando audio...</span>
-                          <span className="font-mono text-xl text-[#1f2a1d] font-light">{formatTime(recordingTime)}</span>
-                        </motion.div>
-                      ) : (
-                        <motion.span 
-                          key="ready"
-                          initial={{ opacity: 0, y: 5 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: -5 }}
-                          className="font-mono text-sm text-[#4b5b47]/70"
-                        >
-                          Toca para hablar
-                        </motion.span>
-                      )}
-                    </AnimatePresence>
+        <section className="mx-auto mt-12 grid max-w-6xl gap-4 md:grid-cols-3">
+          {OPTIONS.map((option) => (
+            <article
+              key={option.name}
+              className="flex h-full flex-col rounded-lg border border-[#1f2a1d]/10 bg-white p-6 shadow-sm"
+            >
+              <div className="mb-6 flex items-center justify-between gap-4">
+                <h2 className="text-2xl font-semibold">{option.name}</h2>
+                <span className="rounded-full bg-[#85AB8B]/15 px-3 py-1 text-xs font-semibold text-[#336443]">
+                  {option.delivery}
+                </span>
+              </div>
+              <div className="text-xl font-semibold text-[#336443]">{option.price}</div>
+              <p className="mt-4 text-sm leading-relaxed text-[#4b5b47]">{option.bestFor}</p>
+              <div className="mt-6 grid flex-1 gap-3">
+                {option.points.map((point) => (
+                  <div key={point} className="flex gap-2 text-sm text-[#4b5b47]">
+                    <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-[#336443]" />
+                    <span>{point}</span>
                   </div>
-                </div>
-              </motion.div>
-            ) : (
-              <motion.div
-                key="success-ui"
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="w-full max-w-md bg-white/30 border border-[#1f2a1d]/10 rounded-[2rem] p-12 flex flex-col items-center relative overflow-hidden"
+                ))}
+              </div>
+              <a
+                href={whatsappUrl(option.message)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-8 inline-flex items-center justify-center gap-2 rounded-full bg-[#1f2a1d] px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#336443]"
               >
-                <div className="absolute -top-32 -right-32 w-64 h-64 bg-green-500/10 rounded-full blur-[80px] pointer-events-none" />
-                
-                <div className="w-20 h-20 bg-green-500/10 rounded-full flex items-center justify-center mb-8">
-                  <CheckCircle2 className="w-10 h-10 text-green-500" />
-                </div>
-                
-                <h2 className="text-3xl font-normal mb-4">Información Recibida</h2>
-                <p className="text-[#4b5b47] font-mono text-sm leading-relaxed mb-10">
-                  Hemos procesado tu nota de voz. Nuestro equipo de arquitectura evaluará el caso y te enviaremos una propuesta formal en menos de 24 horas.
-                </p>
-                
-                <button 
-                  onClick={() => setIsSuccess(false)}
-                  className="w-full border border-[#1f2a1d]/15 rounded-full py-4 font-mono text-sm hover:bg-[#1f2a1d] hover:text-[#f5f3ec] transition-colors"
-                >
-                  Enviar otro requerimiento
-                </button>
-              </motion.div>
-            )}
-          </AnimatePresence>
+                Elegir opcion
+                <ArrowRight className="h-4 w-4" />
+              </a>
+            </article>
+          ))}
+        </section>
 
+        <section className="mx-auto mt-12 max-w-6xl rounded-lg border border-[#1f2a1d]/10 bg-[#1f2a1d] p-6 text-white md:p-8">
+          <div className="grid gap-6 md:grid-cols-[0.9fr_1.1fr] md:items-center">
+            <div>
+              <div className="text-xs font-semibold uppercase tracking-widest text-[#85AB8B]">
+                Para cotizar sin humo
+              </div>
+              <h2 className="mt-3 text-3xl font-semibold">Manda contexto. Respondemos con criterio.</h2>
+            </div>
+            <div className="grid gap-3 text-sm text-white/75">
+              <p>1. Link de tu web, Instagram, producto o proceso actual.</p>
+              <p>2. Meta de los proximos 30 dias: mas leads, mas ventas, ahorro de tiempo o lanzamiento.</p>
+              <p>3. Presupuesto aproximado, urgencia y quien decide.</p>
+            </div>
+          </div>
+        </section>
+
+        <div className="mx-auto mt-10 max-w-6xl">
+          <Link
+            href="/"
+            className="inline-flex items-center gap-2 text-sm font-semibold text-[#336443] hover:text-[#1f2a1d]"
+          >
+            Volver al inicio
+            <ArrowRight className="h-4 w-4" />
+          </Link>
         </div>
       </main>
 

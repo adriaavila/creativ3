@@ -175,6 +175,12 @@ const DELIVERABLES = [
   "Revision y optimizacion inicial",
 ];
 
+const HERMES_SERVICES = [
+  "Asesoria sobre oportunidades y objeciones detectadas en tus chats",
+  "Envios asistidos para seguimiento, recordatorios y recuperacion de leads",
+  "Resumenes ejecutivos de conversaciones de WhatsApp para decidir rapido",
+];
+
 const PRICING = [
   {
     id: "whatsapp_starter",
@@ -215,6 +221,7 @@ const PRICING = [
     features: [
       "Todo lo de Growth",
       "Funnel completo desde Instagram/anuncios",
+      "Hermes Agent para asesoria, envios y resumenes",
       "Dashboard mas avanzado",
       "Segmentacion de leads",
       "Reporte semanal",
@@ -925,14 +932,22 @@ export default function WhatsAppRevenuePage() {
                 Oferta founder: primeros 5 negocios
               </h2>
               <p className="mt-6 max-w-xl text-base leading-relaxed text-white/70">
-                Estoy abriendo 5 cupos para instalar este sistema con precio especial y construir casos reales.
+                Estoy abriendo 5 cupos para instalar este sistema con precio especial y sumar Hermes Agent como capa de consultoria operativa.
               </p>
               <div className="mt-8 text-3xl font-semibold text-[#dff5c1] md:text-4xl">
                 Growth System por $249 setup + $69/mes
               </div>
               <p className="mt-3 text-sm text-white/55">
-                Cuando se llenen los cupos, vuelve al precio normal.
+                Incluye asesoria, envios asistidos y resumenes de chats de WhatsApp durante el lanzamiento.
               </p>
+              <div className="mt-6 grid gap-2">
+                {HERMES_SERVICES.map((service) => (
+                  <div key={service} className="flex gap-3 rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-sm text-white/78">
+                    <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-[#dff5c1]" />
+                    <span>{service}</span>
+                  </div>
+                ))}
+              </div>
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                 <PrimaryButton href={whatsappUrl(FOUNDER_MESSAGE)} className="bg-white !text-[#173322] shadow-none hover:bg-[#dff5c1]">
                   Reservar cupo founder

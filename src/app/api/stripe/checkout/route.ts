@@ -33,14 +33,16 @@ const PLANS = {
     currency: "usd",
     setupAmount: 69900,
     recurringAmount: 17900,
-    description: "Sistema WhatsApp Revenue — funnel, dashboard avanzado, segmentación y optimización.",
+    description:
+      "Sistema WhatsApp Revenue — funnel, dashboard avanzado, segmentación, optimización y Hermes Agent.",
   },
   whatsapp_founder: {
     name: "Founder Launch Deal",
     currency: "usd",
     setupAmount: 24900,
     recurringAmount: 6900,
-    description: "Growth System founder LATAM — precio especial para los primeros 5 negocios.",
+    description:
+      "Growth System founder LATAM — precio especial con Hermes Agent para asesoría, envíos y resúmenes.",
   },
 } as const;
 

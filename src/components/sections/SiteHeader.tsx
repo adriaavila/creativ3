@@ -9,10 +9,11 @@ const NAV = [
   { label: "Oferta", href: "/#oferta" },
   { label: "Capacidades", href: "/#servicios" },
   { label: "Prueba", href: "/#proyectos" },
+  { label: "WhatsApp IA", href: "/whatsapp" },
   { label: "Contacto", href: "/#contacto" },
 ];
 
-const HIDE_ON = ["/projects/mistica", "/"];
+const HIDE_ON = ["/projects/mistica", "/", "/whatsapp"];
 
 export default function SiteHeader() {
   const pathname = usePathname();

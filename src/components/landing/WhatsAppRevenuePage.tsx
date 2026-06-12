@@ -471,39 +471,40 @@ function RevenueCalculator() {
         </div>
 
         <div className="rounded-2xl border border-white/12 bg-white/[0.06] p-5 md:p-6">
-          <div className="grid gap-4 md:grid-cols-3">
+          <div className="grid gap-6 md:grid-cols-3">
             {[
-              ["Mensajes al mes", messages, setMessages, 1, 500],
-              ["Respondes tarde", late, setLate, 0, 300],
-              ["Valor por cliente", value, setValue, 10, 2000],
-            ].map(([label, current, setter, min, max]) => (
-              <label key={label as string} className="grid gap-2">
-                <span className="text-xs font-semibold uppercase tracking-[0.16em] text-white/45">
-                  {label as string}
-                </span>
+              ["Mensajes al mes", messages, setMessages, 1, 500, 1],
+              ["Respondes tarde", late, (val: number) => setLate(Math.min(val, messages)), 0, messages, 1],
+              ["Valor por cliente", value, setValue, 10, 2000, 10],
+            ].map(([label, current, setter, min, max, step]) => (
+              <div key={label as string} className="grid gap-2">
+                <div className="flex justify-between items-center text-xs font-semibold uppercase tracking-[0.16em]">
+                  <span className="text-white/45">{label as string}</span>
+                  <span className="text-[#b7d989] font-mono text-sm font-bold">{current as number}</span>
+                </div>
                 <input
-                  type="number"
+                  type="range"
                   min={min as number}
                   max={max as number}
+                  step={step as number}
                   value={current as number}
                   onChange={(event) => (setter as (value: number) => void)(Number(event.target.value))}
-                  className="h-12 rounded-xl border border-white/12 bg-white px-4 text-base font-semibold text-[#173322] outline-none transition focus:border-[#b7d989] focus:ring-2 focus:ring-[#b7d989]/35"
+                  className="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-[#b7d989] hover:bg-white/20 transition-all"
                 />
-              </label>
+              </div>
             ))}
-          </div>
-
-          <div className="mt-6 grid gap-4 rounded-2xl bg-[#f6f1e4] p-5 text-[#173322] md:grid-cols-[1fr_auto] md:items-center">
-            <div>
-              <div className="text-sm font-semibold text-[#5d6b59]">Estimacion simple</div>
-              <p className="mt-1 text-lg font-semibold">
-                Si pierdes {result.lostLeads} leads al mes y cada cliente vale ${value}, estas dejando hasta{" "}
-                <span className="text-[#b45f19]">${result.lostRevenue.toLocaleString("en-US")}</span> sobre la mesa.
-              </p>
+            <div className="md:col-span-3 mt-6 grid gap-4 rounded-2xl bg-[#f6f1e4] p-5 text-[#173322] md:grid-cols-[1fr_auto] md:items-center">
+              <div>
+                <div className="text-sm font-semibold text-[#5d6b59]">Estimacion simple</div>
+                <p className="mt-1 text-base sm:text-lg font-semibold">
+                  Si pierdes {result.lostLeads} leads al mes y cada cliente vale ${value}, estas dejando hasta{" "}
+                  <span className="text-[#b45f19]">${result.lostRevenue.toLocaleString("en-US")}</span> sobre la mesa.
+                </p>
+              </div>
+              <PrimaryButton href={whatsappUrl(AUDIT_MESSAGE)} className="shadow-none">
+                Revisar mi caso
+              </PrimaryButton>
             </div>
-            <PrimaryButton href={whatsappUrl(AUDIT_MESSAGE)} className="shadow-none">
-              Revisar mi caso
-            </PrimaryButton>
           </div>
         </div>
       </div>

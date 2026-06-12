@@ -13,6 +13,7 @@ const BG_VIDEO =
 const PROCESS_VIDEO = "/videos/como-trabajamos.mp4";
 
 const NAV_LINKS = [
+  { href: "/whatsapp", label: "WhatsApp IA ✨" },
   { href: "#oferta", label: "Oferta" },
   { href: "#servicios", label: "Capacidades" },
   { href: "#proyectos", label: "Prueba" },
@@ -70,25 +71,28 @@ export default function Hero() {
         </Link>
 
         <div className="hidden lg:flex items-center gap-1 bg-white/70 backdrop-blur-md rounded-full pl-6 pr-1 py-1 shadow-sm border border-white/60">
-          {NAV_LINKS.map((link, i) => (
-            <a
-              key={link.href}
-              href={link.href}
-              className={`text-sm px-3 py-2 transition-colors ${
-                i === 0
-                  ? "font-semibold text-[#1f2a1d]"
-                  : "font-medium text-[#4b5b47] hover:text-[#1f2a1d]"
-              }`}
-            >
-              {link.label}
-            </a>
-          ))}
-          <a
+          {NAV_LINKS.map((link) => {
+            const isWhatsApp = link.href === "/whatsapp";
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={`text-sm transition-all duration-300 ${
+                  isWhatsApp
+                    ? "font-semibold text-[#173322] bg-[#b7d989]/20 hover:bg-[#b7d989]/30 px-4 py-2.5 rounded-full ml-1"
+                    : "font-medium px-3 py-2 text-[#4b5b47] hover:text-[#1f2a1d]"
+                }`}
+              >
+                {link.label}
+              </Link>
+            );
+          })}
+          <Link
             href="/cotizar"
             className="ml-2 bg-[#1f2a1d] hover:bg-[#2a3827] text-white text-sm font-medium px-5 py-2.5 rounded-full transition-colors"
           >
             Pedir diagnostico
-          </a>
+          </Link>
         </div>
 
         <div className="flex items-center gap-3 sm:gap-6 text-[#2d3a2a]">
@@ -147,7 +151,7 @@ export default function Hero() {
         <div className="flex flex-col h-full pt-24 px-8 pb-8">
           <div className="flex flex-col gap-1">
             {NAV_LINKS.map((link, i) => (
-              <a
+              <Link
                 key={link.href}
                 href={link.href}
                 onClick={() => setMenuOpen(false)}
@@ -157,7 +161,7 @@ export default function Hero() {
                 style={{ transitionDelay: menuOpen ? `${150 + i * 70}ms` : "0ms" }}
               >
                 {link.label}
-              </a>
+              </Link>
             ))}
           </div>
 

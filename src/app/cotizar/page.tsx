@@ -5,31 +5,31 @@ import { CONTACT_EMAIL, whatsappUrl } from "@/lib/contact";
 
 const OPTIONS = [
   {
-    name: "Diagnostico express",
-    price: "USD 150",
-    bestFor: "Quieres claridad antes de gastar en diseño, desarrollo o IA.",
-    delivery: "48 horas",
-    points: ["Auditoria de oferta, web y funnel", "10 quick wins ordenados por impacto", "Se acredita si avanzas a proyecto"],
+    name: "Landing page",
+    price: "USD 199",
+    bestFor: "Quieres una presencia online premium, rápida y optimizada para convertir.",
+    delivery: "3 dias",
+    points: ["Diseño UX/UI premium a medida", "Código limpio en Next.js (React)", "Optimización SEO y velocidad de carga"],
     message:
-      "Hola, quiero comprar el diagnostico express de creativv. Mi web/proyecto es:",
+      "Hola, quiero cotizar la landing page de USD 199 con creativv. Mi negocio es:",
   },
   {
-    name: "Piloto IA",
-    price: "Desde USD 900",
-    bestFor: "Ya tienes conversaciones o tareas repetitivas que consumen equipo.",
-    delivery: "10-14 dias",
-    points: ["Workflow IA funcionando", "Integracion con WhatsApp, email o CRM", "Medicion diaria de leads, ahorro o respuesta"],
+    name: "Automatizacion simple",
+    price: "Desde USD 499",
+    bestFor: "Quieres ahorrar tiempo conectando tus formularios, CRM, bases de datos o APIs.",
+    delivery: "5-10 dias",
+    points: ["1 flujo de automatización activo", "Integración con CRM o base de datos", "Pruebas de estrés y handoff técnico"],
     message:
-      "Hola, quiero cotizar un piloto IA con creativv. El proceso que quiero automatizar es:",
+      "Hola, quiero cotizar una automatizacion simple con creativv. El proceso que quiero automatizar es:",
   },
   {
-    name: "Sprint web/producto",
-    price: "Desde USD 1.500",
-    bestFor: "Necesitas una presencia o producto que se sienta premium y funcione.",
+    name: "WEB/ PRODUCTO",
+    price: "Desde USD 699",
+    bestFor: "Necesitas una plataforma web custom, SaaS o MVP completo con código escalable.",
     delivery: "10-21 dias",
-    points: ["Direccion visual + UX", "Next.js + integraciones", "Entrega lista para vender, medir u operar"],
+    points: ["Diseño de interfaz UX/UI completo", "Desarrollo frontend/backend en Next.js", "Dashboard o panel de control"],
     message:
-      "Hola, quiero cotizar un sprint web/producto con creativv. Necesito construir:",
+      "Hola, quiero cotizar una web o producto completo con creativv. Necesito construir:",
   },
 ];
 

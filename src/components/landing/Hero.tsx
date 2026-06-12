@@ -21,7 +21,7 @@ const NAV_LINKS = [
 ];
 
 const AUDIT_WHATSAPP_URL = whatsappUrl(
-  "Hola, quiero un diagnostico express con creativv. Mi objetivo es conseguir mas leads, mejorar mi web o automatizar un proceso con IA."
+  "Hola, quiero cotizar un desarrollo web, landing page o automatización con creativv. Mi objetivo es:"
 );
 
 export default function Hero() {
@@ -91,7 +91,7 @@ export default function Hero() {
             href="/cotizar"
             className="ml-2 bg-[#1f2a1d] hover:bg-[#2a3827] text-white text-sm font-medium px-5 py-2.5 rounded-full transition-colors"
           >
-            Pedir diagnostico
+            Pedir presupuesto
           </Link>
         </div>
 
@@ -187,13 +187,13 @@ export default function Hero() {
               <MessageCircle className="w-4 h-4" />
               WhatsApp
             </a>
-            <a
+            <Link
               href="/cotizar"
               onClick={() => setMenuOpen(false)}
               className="mt-2 inline-block text-center bg-[#1f2a1d] hover:bg-[#2a3827] text-white text-sm font-semibold px-5 py-3 rounded-full transition-colors"
             >
-              Pedir diagnostico
-            </a>
+              Pedir presupuesto
+            </Link>
           </div>
         </div>
       </div>

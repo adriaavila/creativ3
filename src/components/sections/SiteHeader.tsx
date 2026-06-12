@@ -61,7 +61,7 @@ export default function SiteHeader() {
             href="/cotizar"
             className="ml-2 bg-[#1f2a1d] hover:bg-[#2a3827] text-white text-sm font-medium px-5 py-2.5 rounded-full transition-colors"
           >
-            Pedir diagnostico
+            Pedir presupuesto
           </Link>
         </div>
 
@@ -70,7 +70,7 @@ export default function SiteHeader() {
             href="/cotizar"
             className="hidden sm:inline-flex bg-[#1f2a1d] hover:bg-[#2a3827] text-white text-xs font-medium px-4 py-2 rounded-full transition-colors"
           >
-            Diagnostico
+            Presupuesto
           </Link>
           <button
             type="button"
@@ -102,7 +102,7 @@ export default function SiteHeader() {
               onClick={() => setOpen(false)}
               className="self-start mt-2 bg-[#1f2a1d] hover:bg-[#2a3827] text-white text-sm font-semibold px-5 py-2.5 rounded-full transition-colors"
             >
-              Pedir diagnostico
+              Pedir presupuesto
             </Link>
           </div>
         </div>

@@ -4,43 +4,43 @@ import { whatsappUrl } from "@/lib/contact";
 const OFFERS = [
   {
     icon: SearchCheck,
-    name: "Diagnostico express",
-    price: "USD 150",
-    timeline: "48 horas",
-    desc: "Revision de web, oferta, funnel y procesos. Sales con mapa de quick wins, alcance sugerido y siguiente sprint priorizado.",
-    outcomes: ["10 mejoras accionables", "1 roadmap de conversion", "Credito si avanzas a proyecto"],
-    cta: "Pedir diagnostico",
+    name: "Landing page",
+    price: "USD 199",
+    timeline: "3 dias",
+    desc: "Diseño y desarrollo de landing page premium a medida en Next.js. Rápida, optimizada para SEO, responsive y conectada con tus herramientas de marketing.",
+    outcomes: ["Diseño UX/UI premium a medida", "Código limpio en Next.js (React)", "Optimización SEO y velocidad (100% CWV)"],
+    cta: "Pedir landing page",
     message:
-      "Hola, quiero comprar el diagnostico express de creativv. Mi web/proyecto es:",
+      "Hola, quiero cotizar la landing page de USD 199 con creativv. Mi negocio es:",
   },
   {
     icon: Rocket,
-    name: "Piloto IA 14 dias",
-    price: "Desde USD 900",
-    timeline: "10-14 dias",
-    desc: "Un workflow vivo para capturar, calificar o responder leads. Ideal para WhatsApp, cotizaciones, soporte, operaciones y reporting.",
-    outcomes: ["1 automatizacion funcionando", "Dashboard basico de seguimiento", "Manual + handoff tecnico"],
-    cta: "Cotizar piloto",
+    name: "Automatizacion simple",
+    price: "Desde USD 499",
+    timeline: "5-10 dias",
+    desc: "Conectamos tus formularios, CRM, bases de datos o APIs. Resolvemos problemas de código y automatizamos flujos manuales repetitivos.",
+    outcomes: ["1 flujo de automatización activo", "Integración con CRM o base de datos", "Pruebas de estrés y handoff técnico"],
+    cta: "Cotizar automatizacion",
     message:
-      "Hola, quiero cotizar un piloto IA de 14 dias con creativv. Proceso que quiero automatizar:",
+      "Hola, quiero cotizar una automatizacion simple con creativv. El proceso que quiero automatizar es:",
   },
   {
     icon: Gauge,
-    name: "Sprint web/producto",
-    price: "Desde USD 1.500",
+    name: "WEB/ PRODUCTO",
+    price: "Desde USD 699",
     timeline: "10-21 dias",
-    desc: "Landing premium, sitio comercial, MVP, dashboard o sistema interno con diseno, codigo e integraciones bajo un solo equipo.",
-    outcomes: ["UX/UI premium", "Next.js + integraciones", "Entrega lista para vender"],
-    cta: "Cotizar sprint",
+    desc: "Sitio corporativo completo, plataforma SaaS, MVP de producto o sistema interno. Diseño de interfaz exclusivo y desarrollo fullstack robusto.",
+    outcomes: ["Diseño visual + UX completo", "Next.js + Base de datos + Auth", "Panel de control / dashboard interno"],
+    cta: "Cotizar web/producto",
     message:
-      "Hola, quiero cotizar un sprint web/producto con creativv. Necesito construir:",
+      "Hola, quiero cotizar una web o producto completo con creativv. Lo que necesito construir es:",
   },
 ];
 
 const QUALIFIERS = [
-  "Tienes una oferta valiosa, pero tu web no genera suficientes conversaciones.",
-  "Tu equipo responde leads o tareas repetitivas a mano todos los dias.",
-  "Necesitas lanzar algo premium rapido sin contratar diseno, dev y AI por separado.",
+  "Necesitas una web premium, rápida y optimizada que de verdad convierta visitas en clientes.",
+  "Tienes problemas con código, bugs o integraciones rotas en tu plataforma actual.",
+  "Quieres automatizar flujos repetitivos y conectar tus sistemas con código limpio y sin fricción.",
 ];
 
 export default function OfertaSection() {

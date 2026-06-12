@@ -261,6 +261,8 @@ export async function forwardConnectedAccountToN8n(input: {
   subscribeResult: SubscribeResponse;
   env: NonNullable<ReturnType<typeof getExchangeEnv>["env"]>;
   connectedAt: string;
+  pin?: string;
+  registerResult?: SubscribeResponse;
 }): Promise<N8nForwardResponse> {
   const response = await fetch(input.env.n8nWebhookUrl, {
     method: "POST",
@@ -274,13 +276,18 @@ export async function forwardConnectedAccountToN8n(input: {
         business_token: input.businessToken,
         token_metadata: input.tokenMetadata,
         connected_at: input.connectedAt,
+        pin: input.pin,
         owner: {
           client: input.payload.client,
           user_id: input.payload.user_id,
           team_id: input.payload.team_id,
           account_id: input.payload.account_id,
         },
-        status: input.subscribeResult.success ? "subscribed" : "connected",
+        status: input.registerResult?.success
+          ? "registered"
+          : input.subscribeResult.success
+            ? "subscribed"
+            : "connected",
       },
       signup: {
         code: input.payload.code,
@@ -294,6 +301,7 @@ export async function forwardConnectedAccountToN8n(input: {
         webhook_callback_url: input.env.webhookCallbackUrl,
         app_url: input.env.appUrl,
         subscribe_succeeded: input.subscribeResult.success === true,
+        register_succeeded: input.registerResult?.success === true,
       },
     }),
   });
@@ -327,6 +335,39 @@ export async function sendPreparedTextMessage(input: {
         body: input.body,
       },
     },
+  });
+}
+
+export async function registerPhoneNumber(input: {
+  phoneNumberId: string;
+  businessToken: string;
+  pin: string;
+  graphVersion?: string;
+}) {
+  return graphRequest<SubscribeResponse>({
+    requestName: "register_phone_number",
+    graphVersion: input.graphVersion ?? getGraphVersion(),
+    path: `${encodeURIComponent(input.phoneNumberId)}/register`,
+    method: "POST",
+    accessToken: input.businessToken,
+    body: {
+      messaging_product: "whatsapp",
+      pin: input.pin,
+    },
+  });
+}
+
+export async function deregisterPhoneNumber(input: {
+  phoneNumberId: string;
+  businessToken: string;
+  graphVersion?: string;
+}) {
+  return graphRequest<SubscribeResponse>({
+    requestName: "deregister_phone_number",
+    graphVersion: input.graphVersion ?? getGraphVersion(),
+    path: `${encodeURIComponent(input.phoneNumberId)}/deregister`,
+    method: "POST",
+    accessToken: input.businessToken,
   });
 }
 

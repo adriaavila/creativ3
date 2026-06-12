@@ -6,6 +6,7 @@ import {
   forwardConnectedAccountToN8n,
   getExchangeEnv,
   getMissingTokenPermissions,
+  registerPhoneNumber,
   safeMetaError,
   subscribeWabaToApp,
   validateSignupPayload,
@@ -68,6 +69,16 @@ export async function POST(req: NextRequest) {
       businessToken,
       exchangeEnv.env.graphVersion,
     );
+
+    // Generate a secure 6-digit PIN for WhatsApp registration
+    const pin = Math.floor(100000 + Math.random() * 900000).toString();
+    const registerResult = await registerPhoneNumber({
+      phoneNumberId: payload.phone_number_id,
+      businessToken,
+      pin,
+      graphVersion: exchangeEnv.env.graphVersion,
+    });
+
     const connectedAt = new Date().toISOString();
     const tokenMetadata = buildTokenMetadata(tokenExchange, debugData);
     const n8nResult = await forwardConnectedAccountToN8n({
@@ -77,6 +88,8 @@ export async function POST(req: NextRequest) {
       subscribeResult,
       env: exchangeEnv.env,
       connectedAt,
+      pin,
+      registerResult,
     });
 
     if (!n8nResult.ok) {
@@ -84,6 +97,7 @@ export async function POST(req: NextRequest) {
         {
           error: "Connected account was authorized, but n8n storage failed.",
           waba_subscribe_succeeded: subscribeResult.success === true,
+          phone_register_succeeded: registerResult.success === true,
           n8n: {
             reached: true,
             status: n8nResult.status,
@@ -101,10 +115,15 @@ export async function POST(req: NextRequest) {
         phone_number_id: payload.phone_number_id,
         business_id: payload.business_id,
         connected_at: connectedAt,
-        status: subscribeResult.success ? "subscribed" : "connected",
+        status: registerResult.success
+          ? "registered"
+          : subscribeResult.success
+            ? "subscribed"
+            : "connected",
       },
       token_metadata: tokenMetadata,
       waba_subscribe_succeeded: subscribeResult.success === true,
+      phone_register_succeeded: registerResult.success === true,
       n8n: {
         reached: true,
         status: n8nResult.status,

@@ -15,6 +15,11 @@ declare global {
     FB?: {
       init: (config: object) => void;
       login: (callback: (response: FBLoginResponse) => void, options: object) => void;
+      api: (
+        path: string,
+        method: "GET" | "POST" | "DELETE",
+        callback: (response: unknown) => void,
+      ) => void;
     };
   }
 }
@@ -261,6 +266,34 @@ export default function EmbeddedWhatsapp() {
     });
   };
 
+  const deauthorizeApp = () => {
+    if (!window.FB) {
+      setStatus("error");
+      setErrorMessage("El SDK de Meta no está listo.");
+      return;
+    }
+
+    setStatus("loading");
+    setErrorMessage(null);
+
+    window.FB.api("/me/permissions", "DELETE", (response: unknown) => {
+      const res = response as { error?: { message?: string } } | null | undefined;
+      if (res && !res.error) {
+        setStatus("idle");
+        setSuccessDetails(null);
+        pendingSignupRef.current = {};
+        exchangeStartedRef.current = false;
+        window.sessionStorage.removeItem("meta_embedded_signup_state");
+        signupStateRef.current = getOrCreateSignupState();
+      } else {
+        setStatus("error");
+        setErrorMessage(
+          res?.error?.message || "No se pudieron revocar los permisos."
+        );
+      }
+    });
+  };
+
   const busy = status === "loading" || status === "exchanging";
 
   return (
@@ -355,6 +388,15 @@ export default function EmbeddedWhatsapp() {
               "Conectar mi WhatsApp"
             )}
           </button>
+
+          {(status === "success" || status === "error") && (
+            <button
+              onClick={deauthorizeApp}
+              className="mt-4 text-xs font-mono text-[#1f2a1d]/50 hover:text-red-600 hover:underline transition-colors cursor-pointer"
+            >
+              Resetear Conexión (Revocar permisos en Facebook)
+            </button>
+          )}
 
           {!sdkReady && status === "idle" && (
             <p className="text-[#4b5b47]/60 font-mono text-xs mt-3">

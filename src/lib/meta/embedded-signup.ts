@@ -37,6 +37,7 @@ export type MetaEmbeddedSignupConfig = {
   appId: string;
   configId: string;
   graphVersion: string;
+  appUrl?: string;
   allowedMessageOrigins: readonly string[];
   requiredPermissions: readonly string[];
 };

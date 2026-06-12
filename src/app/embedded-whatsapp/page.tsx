@@ -27,8 +27,13 @@ declare global {
 interface FBLoginResponse {
   authResponse?: {
     code?: string;
+    grantedScopes?: string;
   };
   status?: string;
+  error?: string;
+  error_code?: string | number;
+  error_message?: string;
+  error_reason?: string;
 }
 
 type SignupEvent = {
@@ -217,8 +222,16 @@ export default function EmbeddedWhatsapp() {
     const code = response.authResponse?.code;
 
     if (!code) {
+      console.warn("Meta Embedded Signup did not return an authorization code.", {
+        status: response.status,
+        error: response.error,
+        error_code: response.error_code,
+        error_message: response.error_message,
+        error_reason: response.error_reason,
+        origin: window.location.origin,
+      });
       setStatus("error");
-      setErrorMessage("Meta no devolvió un código de autorización.");
+      setErrorMessage(loginFailureMessage(response, config));
       return;
     }
 
@@ -256,8 +269,12 @@ export default function EmbeddedWhatsapp() {
 
     window.FB.login(fbLoginCallback, {
       config_id: config.configId,
+      auth_type: "rerequest",
       response_type: "code",
       override_default_response_type: true,
+      return_scopes: true,
+      scope: config.requiredPermissions.join(","),
+      state: signupStateRef.current,
       extras: {
         setup: {},
         featureType: "whatsapp_business_app_onboarding",
@@ -466,6 +483,42 @@ function safeErrorMessage(result: unknown) {
   }
 
   return "Error desconocido.";
+}
+
+function loginFailureMessage(
+  response: FBLoginResponse,
+  config: MetaEmbeddedSignupConfig | null,
+) {
+  const details = [
+    response.error_message,
+    response.error_reason,
+    response.error,
+    response.error_code ? `Código ${response.error_code}` : undefined,
+  ].filter(Boolean);
+  const detailText = details.length ? ` Meta respondió: ${details.join(" · ")}.` : "";
+  const statusText = response.status ? ` Estado: ${response.status}.` : "";
+  const origin = typeof window === "undefined" ? undefined : window.location.origin;
+  const configuredOrigin = getConfiguredOrigin(config?.appUrl);
+
+  if (response.status === "not_authorized") {
+    return `Meta no autorizó la app.${statusText}${detailText} Revoca permisos y vuelve a intentar; si sigue igual, revisa permisos avanzados y la configuración de Facebook Login for Business.`;
+  }
+
+  if (configuredOrigin && origin && configuredOrigin !== origin) {
+    return `Meta no devolvió un código de autorización.${statusText}${detailText} Estás abriendo la página desde ${origin}, pero la app está configurada para ${configuredOrigin}; agrega este origen en Meta o usa el dominio configurado.`;
+  }
+
+  return `Meta no devolvió un código de autorización.${statusText}${detailText} Revisa que ${origin ?? "este dominio"} esté en Allowed domains y Valid OAuth Redirect URIs, que el config_id pertenezca a Facebook Login for Business y que los permisos estén aprobados.`;
+}
+
+function getConfiguredOrigin(appUrl?: string) {
+  if (!appUrl) return undefined;
+
+  try {
+    return new URL(appUrl).origin;
+  } catch {
+    return undefined;
+  }
 }
 
 function cancelMessage(signupEvent: SignupEvent) {

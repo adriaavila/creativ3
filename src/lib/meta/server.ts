@@ -106,6 +106,7 @@ export function getPublicMetaConfig() {
       appId: process.env.META_APP_ID as string,
       configId: process.env.META_CONFIG_ID as string,
       graphVersion: getGraphVersion(),
+      appUrl: process.env.NEXT_PUBLIC_APP_URL || process.env.APP_URL,
     },
   };
 }

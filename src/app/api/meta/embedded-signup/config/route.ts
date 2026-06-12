@@ -22,6 +22,7 @@ export async function GET() {
     appId: result.config.appId,
     configId: result.config.configId,
     graphVersion: result.config.graphVersion,
+    appUrl: result.config.appUrl,
     allowedMessageOrigins: META_MESSAGE_ORIGINS,
     requiredPermissions: META_REQUIRED_PERMISSIONS,
   });

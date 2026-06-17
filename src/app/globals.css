@@ -150,6 +150,12 @@
   animation: shimmer 4s linear infinite;
 }
 
+/* ─── Portfolio ticker ─────────────────────────────────────── */
+@keyframes project-marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
 /* ─── Glow border ──────────────────────────────────────────── */
 @keyframes border-glow {
   0%, 100% { box-shadow: 0 0 0 0 rgba(42,110,160,0); }

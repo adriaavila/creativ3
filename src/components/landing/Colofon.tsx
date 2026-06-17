@@ -34,7 +34,7 @@ const FOOTER_LINKS = [
   { label: "Planes", href: "#oferta" },
   { label: "Ruta", href: "#funnel" },
   { label: "Servicios", href: "#servicios" },
-  { label: "Ejemplos", href: "#proyectos" },
+  { label: "Proyectos", href: "#proyectos" },
   { label: "Cotizar", href: "/cotizar" },
   { label: "WhatsApp IA", href: "/whatsapp" },
   { label: "Términos", href: "/terminos" },

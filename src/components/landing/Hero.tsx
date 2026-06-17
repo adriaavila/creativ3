@@ -24,7 +24,7 @@ const NAV_LINKS = [
   { href: "#oferta", label: "Planes" },
   { href: "#funnel", label: "Ruta" },
   { href: "#servicios", label: "Servicios" },
-  { href: "#proyectos", label: "Ejemplos" },
+  { href: "#proyectos", label: "Proyectos" },
   { href: "#contacto", label: "Contacto" },
 ];
 

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Fraunces, Italiana, JetBrains_Mono, Inter } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 import SiteHeader from "@/components/sections/SiteHeader";
 import RouteTheme from "@/components/sections/RouteTheme";
@@ -85,6 +86,7 @@ export default function RootLayout({
         <CustomCursor />
         <SiteHeader />
         {children}
+        <Analytics />
       </body>
     </html>
   );

@@ -2,94 +2,132 @@ import { ArrowUpRight, Mail, MessageCircle } from "lucide-react";
 import { CONTACT_EMAIL, whatsappUrl } from "@/lib/contact";
 import CreativvLogo from "./CreativvLogo";
 
-const CONTACT_WHATSAPP_URL = whatsappUrl(
-  "Hola, quiero hablar con creativv. Estoy buscando mejorar mi web, producto o automatizacion con IA. Mi negocio es:"
-);
+const CTA_LINKS = [
+  {
+    label: "Pedir landing page",
+    href: whatsappUrl(
+      "Hola, quiero pedir la landing page de USD 199 en 3 días con creativv. Mi negocio es:"
+    ),
+    primary: true,
+  },
+  {
+    label: "Cotizar automatización",
+    href: whatsappUrl(
+      "Hola, quiero cotizar una automatización simple desde USD 499 con creativv. El flujo que quiero ordenar es:"
+    ),
+  },
+  {
+    label: "Cotizar web/producto",
+    href: whatsappUrl(
+      "Hola, quiero cotizar una web o producto desde USD 699 con creativv. Necesito construir:"
+    ),
+  },
+  {
+    label: "Escribir por WhatsApp",
+    href: whatsappUrl(
+      "Hola, quiero mejorar mi presencia digital para captar más leads. Mi caso es:"
+    ),
+  },
+];
+
+const FOOTER_LINKS = [
+  { label: "Planes", href: "#oferta" },
+  { label: "Ruta", href: "#funnel" },
+  { label: "Servicios", href: "#servicios" },
+  { label: "Ejemplos", href: "#proyectos" },
+  { label: "Cotizar", href: "/cotizar" },
+  { label: "WhatsApp IA", href: "/whatsapp" },
+  { label: "Términos", href: "/terminos" },
+  { label: "Privacidad", href: "/privacidad" },
+];
 
 export default function Colofon() {
   return (
     <footer
       id="contacto"
-      className="relative w-full bg-[#f5f3ec] text-[#1f2a1d] scroll-mt-24 overflow-hidden"
+      className="relative w-full overflow-hidden bg-[#f5f3ec] text-[#1f2a1d] scroll-mt-24"
     >
-      <div className="max-w-6xl mx-auto px-6 md:px-10 pt-24 md:pt-32 pb-12">
-        {/* Big CTA */}
-        <div className="flex flex-col items-start gap-8 mb-20 md:mb-28">
-          <div className="text-xs font-medium tracking-widest uppercase text-[#85AB8B]">
+      <div className="mx-auto max-w-6xl px-6 pb-12 pt-20 md:px-10 md:pb-12 md:pt-28">
+        <div className="mb-16 flex flex-col items-start gap-8 md:mb-24">
+          <div className="text-xs font-semibold uppercase tracking-[0.14em] text-[#336443]">
             Siguiente paso
           </div>
-          <h2
-            className="text-[#336443] font-normal leading-[0.95] text-5xl sm:text-6xl md:text-7xl lg:text-[6.5rem] max-w-5xl"
-          >
-            Si hay potencial, lo vemos en una conversacion.
+          <h2 className="max-w-5xl text-5xl font-normal leading-[0.95] text-[#336443] sm:text-6xl md:text-7xl lg:text-[5.8rem]">
+            Cuéntame qué quieres mejorar y te digo el camino más simple.
           </h2>
-          <p className="text-[#4b5b47] text-base md:text-lg max-w-xl leading-relaxed">
-            Envia tu web, tu oferta y el cuello de botella que mas te cuesta. Te respondemos con una ruta concreta:
-            que arreglar, que automatizar, cuanto tarda y que no deberias construir todavia.
+          <p className="max-w-2xl text-base leading-relaxed text-[#4b5b47] md:text-lg">
+            Dime si quieres más leads, una página para vender mejor, un flujo de WhatsApp más ordenado
+            o una primera versión de producto. Te digo si conviene empezar con landing, automatización
+            o web/producto.
           </p>
 
-          <div className="flex flex-wrap items-center gap-4 mt-2">
+          <div className="grid w-full gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {CTA_LINKS.map((link) => (
+              <a
+                key={link.label}
+                href={link.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`inline-flex min-h-12 items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-semibold transition-all duration-300 hover:-translate-y-0.5 ${
+                  link.primary
+                    ? "bg-[#1f2a1d] text-white hover:bg-[#336443]"
+                    : "border border-[#1f2a1d]/15 bg-white text-[#1f2a1d] hover:bg-[#eef0e7]"
+                }`}
+              >
+                {link.label}
+                <ArrowUpRight className="h-4 w-4" />
+              </a>
+            ))}
+          </div>
+
+          <div className="flex flex-wrap items-center gap-3">
             <a
-              href={`mailto:${CONTACT_EMAIL}?subject=Diagnostico%20creativv`}
-              className="inline-flex items-center gap-2 bg-[#1f2a1d] hover:bg-[#2a3827] text-white text-sm font-semibold px-6 py-3 rounded-full transition-colors"
+              href={`mailto:${CONTACT_EMAIL}?subject=Consulta%20creativv`}
+              className="inline-flex items-center gap-2 rounded-full border border-[#1f2a1d]/15 bg-white px-5 py-3 text-sm font-semibold text-[#1f2a1d] transition-colors hover:bg-[#eef0e7]"
             >
-              <Mail className="w-4 h-4" />
+              <Mail className="h-4 w-4" />
               {CONTACT_EMAIL}
             </a>
             <a
-              href={CONTACT_WHATSAPP_URL}
+              href={whatsappUrl()}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 bg-white hover:bg-white/80 text-[#1f2a1d] border border-[#1f2a1d]/15 text-sm font-semibold px-6 py-3 rounded-full transition-colors"
+              className="inline-flex items-center gap-2 rounded-full bg-[#dbe9c3] px-5 py-3 text-sm font-semibold text-[#1f2a1d] transition-colors hover:bg-white"
             >
-              <MessageCircle className="w-4 h-4" />
+              <MessageCircle className="h-4 w-4" />
               WhatsApp
             </a>
           </div>
         </div>
 
-        {/* Meta + links */}
-        <div className="border-t border-[#1f2a1d]/10 pt-10 flex flex-col md:flex-row md:items-end justify-between gap-10">
+        <div className="flex flex-col justify-between gap-10 border-t border-[#1f2a1d]/10 pt-10 md:flex-row md:items-end">
           <div>
-            <div className="flex items-center mb-4 text-[#1f2a1d]">
+            <div className="mb-4 flex items-center text-[#1f2a1d]">
               <CreativvLogo variant="lockup-bare" className="h-9 w-auto" />
             </div>
-            <p className="text-xs text-[#4b5b47] max-w-xs leading-relaxed">
-              Estudio de diseño, código e IA para negocios que quieren verse mas caros,
-              responder mas rapido y operar con menos ruido.
+            <p className="max-w-sm text-xs leading-relaxed text-[#4b5b47]">
+              Creativv crea landing pages, automatizaciones y productos digitales para que tu negocio
+              capture más leads y venda con menos fricción.
             </p>
           </div>
 
           <div className="grid grid-cols-2 gap-x-12 gap-y-3 text-sm">
-            {[
-              { label: "Oferta", href: "#oferta" },
-              { label: "Clinicas", href: "/clinicas" },
-              { label: "Inmobiliarias", href: "/inmobiliarias" },
-              { label: "Ecommerce", href: "/ecommerce" },
-              { label: "Academias", href: "/academias" },
-              { label: "Servicios", href: "#servicios" },
-              { label: "Proyectos", href: "#proyectos" },
-              { label: "Cotizar", href: "/cotizar" },
-              { label: "Términos", href: "/terminos" },
-              { label: "Privacidad", href: "/privacidad" },
-              { label: "Eliminación de datos", href: "/eliminacion-de-datos" },
-              { label: "WhatsApp Business", href: "/embedded-whatsapp" },
-            ].map((l) => (
+            {FOOTER_LINKS.map((link) => (
               <a
-                key={l.href}
-                href={l.href}
-                className="group inline-flex items-center gap-1 text-[#4b5b47] hover:text-[#1f2a1d] transition-colors"
+                key={link.href}
+                href={link.href}
+                className="group inline-flex items-center gap-1 text-[#4b5b47] transition-colors hover:text-[#1f2a1d]"
               >
-                {l.label}
-                <ArrowUpRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+                {link.label}
+                <ArrowUpRight className="h-3 w-3 opacity-0 transition-opacity group-hover:opacity-100" />
               </a>
             ))}
           </div>
         </div>
 
-        <div className="mt-12 flex flex-col md:flex-row items-start md:items-center justify-between gap-2 text-xs text-[#4b5b47]/70">
+        <div className="mt-12 flex flex-col items-start justify-between gap-2 text-xs text-[#4b5b47]/70 md:flex-row md:items-center">
           <span>© {new Date().getFullYear()} creativv. Todos los derechos reservados.</span>
-          <span>10.4806° N · 66.9036° W</span>
+          <span>ServiciosCreativos.online</span>
         </div>
       </div>
     </footer>

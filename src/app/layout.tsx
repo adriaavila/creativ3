@@ -38,24 +38,28 @@ const inter = Inter({
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.servicioscreativos.online"),
   title: {
-    default: "creativv | Estudio AI de diseno y codigo",
+    default: "creativv | Landing pages, automatizaciones y productos digitales",
     template: "%s | creativv",
   },
   description:
-    "creativv crea websites premium, productos digitales, automatizaciones y sistemas IA para convertir visitas en conversaciones y operaciones en procesos medibles.",
+    "Creativv convierte tu presencia digital en mas clientes con landing pages desde USD 199, automatizaciones simples y productos digitales para captar leads y vender con menos friccion.",
   keywords: [
     "creativv",
-    "estudio AI",
-    "diseno web premium",
-    "automatizacion IA",
+    "landing pages",
+    "landing page USD 199",
+    "automatizaciones",
+    "captacion de leads",
+    "diseno web",
+    "productos digitales",
+    "MVP",
+    "dashboard",
     "Next.js",
-    "WhatsApp automation",
-    "SaaS LATAM",
+    "WhatsApp",
   ],
   openGraph: {
-    title: "creativv | Estudio AI de diseno y codigo",
+    title: "creativv | Convierte tu presencia digital en mas clientes",
     description:
-      "Websites premium, productos digitales y automatizaciones IA para negocios que necesitan vender y operar mejor.",
+      "Landing pages desde USD 199, automatizaciones simples y productos digitales para explicar mejor, captar leads y vender con menos friccion.",
     url: "https://www.servicioscreativos.online",
     siteName: "creativv",
     locale: "es_VE",
@@ -64,9 +68,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "creativv | Estudio AI de diseno y codigo",
+    title: "creativv | Convierte tu presencia digital en mas clientes",
     description:
-      "Websites premium, productos digitales y automatizaciones IA para generar conversaciones calificadas.",
+      "Landing pages, automatizaciones y productos digitales para captar leads y vender con menos friccion.",
     images: ["/opengraph-image"],
   },
 };

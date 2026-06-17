@@ -1,8 +1,16 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { CalendarCheck, MessageCircle, Play, Menu, X } from "lucide-react";
+import {
+  ArrowRight,
+  CalendarCheck,
+  Clock3,
+  Menu,
+  MessageCircle,
+  Play,
+  X,
+} from "lucide-react";
 import { whatsappUrl } from "@/lib/contact";
 import BoomerangVideoBg from "./BoomerangVideoBg";
 import CreativvLogo from "./CreativvLogo";
@@ -13,15 +21,19 @@ const BG_VIDEO =
 const PROCESS_VIDEO = "/videos/como-trabajamos.mp4";
 
 const NAV_LINKS = [
-  { href: "/whatsapp", label: "WhatsApp IA ✨" },
-  { href: "#oferta", label: "Oferta" },
-  { href: "#servicios", label: "Capacidades" },
-  { href: "#proyectos", label: "Prueba" },
+  { href: "#oferta", label: "Planes" },
+  { href: "#funnel", label: "Ruta" },
+  { href: "#servicios", label: "Servicios" },
+  { href: "#proyectos", label: "Ejemplos" },
   { href: "#contacto", label: "Contacto" },
 ];
 
-const AUDIT_WHATSAPP_URL = whatsappUrl(
-  "Hola, quiero cotizar un desarrollo web, landing page o automatización con creativv. Mi objetivo es:"
+const LANDING_WHATSAPP_URL = whatsappUrl(
+  "Hola, quiero pedir la landing page de USD 199 en 3 dias con creativv. Mi negocio es:"
+);
+
+const CONSULT_WHATSAPP_URL = whatsappUrl(
+  "Hola, quiero mejorar mi presencia digital para captar mas leads. No se si empezar con landing, automatizacion o web/producto. Mi caso es:"
 );
 
 export default function Hero() {
@@ -30,11 +42,7 @@ export default function Hero() {
   const videoRef = useRef<HTMLVideoElement | null>(null);
 
   useEffect(() => {
-    if (menuOpen || videoOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
+    document.body.style.overflow = menuOpen || videoOpen ? "hidden" : "";
     return () => {
       document.body.style.overflow = "";
     };
@@ -49,116 +57,115 @@ export default function Hero() {
       }
       return;
     }
+
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") setVideoOpen(false);
     };
+
     window.addEventListener("keydown", onKey);
     const el = videoRef.current;
     if (el) {
       el.currentTime = 0;
       void el.play().catch(() => {});
     }
+
     return () => window.removeEventListener("keydown", onKey);
   }, [videoOpen]);
 
   return (
-    <section className="relative w-full min-h-[92svh] sm:h-[92vh] overflow-hidden bg-[#e8e7df]">
-      <BoomerangVideoBg src={BG_VIDEO} className="absolute inset-0 w-full h-full" />
+    <section className="relative min-h-[86svh] w-full overflow-hidden bg-[#dfe2d5] text-[#152115]">
+      <BoomerangVideoBg src={BG_VIDEO} className="absolute inset-0 h-full w-full" />
+      <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(245,243,236,0.96)_0%,rgba(245,243,236,0.9)_42%,rgba(245,243,236,0.44)_76%,rgba(245,243,236,0.25)_100%)]" />
+      <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-[#f5f3ec] to-transparent" />
 
-      <nav className="absolute top-0 left-0 right-0 z-30 flex items-center justify-between px-4 sm:px-6 md:px-10 py-4 sm:py-6">
+      <nav className="absolute left-0 right-0 top-0 z-30 flex items-center justify-between px-4 py-4 sm:px-6 sm:py-6 md:px-10">
         <Link href="/" className="flex items-center text-[#1f2a1d]" aria-label="creativv">
-          <CreativvLogo variant="lockup-bare" className="h-7 sm:h-8 md:h-9 w-auto" />
+          <CreativvLogo variant="lockup-bare" className="h-7 w-auto sm:h-8 md:h-9" />
         </Link>
 
-        <div className="hidden lg:flex items-center gap-1 bg-white/70 backdrop-blur-md rounded-full pl-6 pr-1 py-1 shadow-sm border border-white/60">
-          {NAV_LINKS.map((link) => {
-            const isWhatsApp = link.href === "/whatsapp";
-            return (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={`text-sm transition-all duration-300 ${
-                  isWhatsApp
-                    ? "font-semibold text-[#173322] bg-[#b7d989]/20 hover:bg-[#b7d989]/30 px-4 py-2.5 rounded-full ml-1"
-                    : "font-medium px-3 py-2 text-[#4b5b47] hover:text-[#1f2a1d]"
-                }`}
-              >
-                {link.label}
-              </Link>
-            );
-          })}
-          <Link
-            href="/cotizar"
-            className="ml-2 bg-[#1f2a1d] hover:bg-[#2a3827] text-white text-sm font-medium px-5 py-2.5 rounded-full transition-colors"
+        <div className="hidden items-center gap-1 rounded-full border border-white/70 bg-white/80 py-1 pl-6 pr-1 shadow-sm backdrop-blur-md lg:flex">
+          {NAV_LINKS.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className="px-3 py-2 text-sm font-medium text-[#4b5b47] transition-colors hover:text-[#1f2a1d]"
+            >
+              {link.label}
+            </Link>
+          ))}
+          <a
+            href={LANDING_WHATSAPP_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="ml-2 rounded-full bg-[#1f2a1d] px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#336443]"
           >
-            Pedir presupuesto
-          </Link>
+            Pedir landing
+          </a>
         </div>
 
-        <div className="flex items-center gap-3 sm:gap-6 text-[#2d3a2a]">
+        <div className="flex items-center gap-3 sm:gap-5">
           <a
-            href="/cotizar"
-            className="hidden sm:flex items-center gap-2 text-sm font-medium hover:opacity-80 transition-opacity"
+            href="#oferta"
+            className="hidden items-center gap-2 text-sm font-semibold text-[#2d3a2a] transition-opacity hover:opacity-75 sm:flex"
           >
-            <CalendarCheck className="w-4 h-4" />
+            <CalendarCheck className="h-4 w-4" />
             Ver planes
           </a>
           <a
-            href={AUDIT_WHATSAPP_URL}
+            href={CONSULT_WHATSAPP_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="hidden sm:flex items-center gap-2 text-sm font-medium hover:opacity-80 transition-opacity"
+            className="hidden items-center gap-2 text-sm font-semibold text-[#2d3a2a] transition-opacity hover:opacity-75 sm:flex"
           >
-            <MessageCircle className="w-4 h-4" />
+            <MessageCircle className="h-4 w-4" />
             WhatsApp
           </a>
           <button
+            type="button"
             onClick={() => setMenuOpen((v) => !v)}
-            className="lg:hidden relative flex items-center justify-center w-10 h-10 rounded-full bg-white/70 backdrop-blur-md border border-white/60 text-[#1f2a1d] transition-all duration-300 hover:bg-white/90"
-            aria-label={menuOpen ? "Cerrar menú" : "Abrir menú"}
+            className="relative flex h-10 w-10 items-center justify-center rounded-full border border-white/70 bg-white/80 text-[#1f2a1d] backdrop-blur-md transition-colors hover:bg-white lg:hidden"
+            aria-label={menuOpen ? "Cerrar menu" : "Abrir menu"}
             aria-expanded={menuOpen}
           >
             <Menu
-              className={`w-5 h-5 absolute transition-all duration-300 ${
-                menuOpen ? "opacity-0 rotate-90 scale-50" : "opacity-100 rotate-0 scale-100"
+              className={`absolute h-5 w-5 transition-all duration-300 ${
+                menuOpen ? "scale-50 rotate-90 opacity-0" : "scale-100 rotate-0 opacity-100"
               }`}
             />
             <X
-              className={`w-5 h-5 absolute transition-all duration-300 ${
-                menuOpen ? "opacity-100 rotate-0 scale-100" : "opacity-0 -rotate-90 scale-50"
+              className={`absolute h-5 w-5 transition-all duration-300 ${
+                menuOpen ? "scale-100 rotate-0 opacity-100" : "scale-50 -rotate-90 opacity-0"
               }`}
             />
           </button>
         </div>
       </nav>
 
-      {/* Mobile menu overlay */}
       <div
-        className={`lg:hidden fixed inset-0 z-20 transition-opacity duration-300 ${
-          menuOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+        className={`fixed inset-0 z-20 transition-opacity duration-300 lg:hidden ${
+          menuOpen ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"
         }`}
         onClick={() => setMenuOpen(false)}
       >
         <div className="absolute inset-0 bg-[#1f2a1d]/40 backdrop-blur-sm" />
       </div>
 
-      {/* Mobile drawer */}
       <div
-        className={`lg:hidden fixed top-0 right-0 bottom-0 z-20 w-[85%] max-w-sm bg-white/95 backdrop-blur-xl shadow-2xl transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+        className={`fixed bottom-0 right-0 top-0 z-20 w-[86%] max-w-sm bg-white/95 shadow-2xl backdrop-blur-xl transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] lg:hidden ${
           menuOpen ? "translate-x-0" : "translate-x-full"
         }`}
       >
-        <div className="flex flex-col h-full pt-24 px-8 pb-8">
+        <div className="flex h-full flex-col px-8 pb-8 pt-24">
           <div className="flex flex-col gap-1">
             {NAV_LINKS.map((link, i) => (
               <Link
                 key={link.href}
                 href={link.href}
                 onClick={() => setMenuOpen(false)}
-                className={`text-2xl font-semibold text-[#1f2a1d] py-4 border-b border-[#1f2a1d]/10 transition-all duration-500 ${
+                className={`border-b border-[#1f2a1d]/10 py-4 text-2xl font-semibold text-[#1f2a1d] transition-all duration-500 ${
                   menuOpen ? "translate-x-0 opacity-100" : "translate-x-8 opacity-0"
                 }`}
-                style={{ transitionDelay: menuOpen ? `${150 + i * 70}ms` : "0ms" }}
+                style={{ transitionDelay: menuOpen ? `${120 + i * 60}ms` : "0ms" }}
               >
                 {link.label}
               </Link>
@@ -166,122 +173,123 @@ export default function Hero() {
           </div>
 
           <div
-            className={`mt-8 flex flex-col gap-4 transition-all duration-500 ${
+            className={`mt-8 grid gap-3 transition-all duration-500 ${
               menuOpen ? "translate-x-0 opacity-100" : "translate-x-8 opacity-0"
             }`}
-            style={{ transitionDelay: menuOpen ? "400ms" : "0ms" }}
+            style={{ transitionDelay: menuOpen ? "420ms" : "0ms" }}
           >
             <a
-              href="/cotizar"
-              className="flex items-center gap-2 text-sm font-medium text-[#2d3a2a] sm:hidden"
-            >
-              <CalendarCheck className="w-4 h-4" />
-              Ver planes
-            </a>
-            <a
-              href={AUDIT_WHATSAPP_URL}
+              href={LANDING_WHATSAPP_URL}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2 text-sm font-medium text-[#2d3a2a] sm:hidden"
-            >
-              <MessageCircle className="w-4 h-4" />
-              WhatsApp
-            </a>
-            <Link
-              href="/cotizar"
               onClick={() => setMenuOpen(false)}
-              className="mt-2 inline-block text-center bg-[#1f2a1d] hover:bg-[#2a3827] text-white text-sm font-semibold px-5 py-3 rounded-full transition-colors"
+              className="inline-flex items-center justify-center gap-2 rounded-full bg-[#1f2a1d] px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#336443]"
             >
-              Pedir presupuesto
-            </Link>
+              Pedir landing page
+              <ArrowRight className="h-4 w-4" />
+            </a>
+            <a
+              href={CONSULT_WHATSAPP_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => setMenuOpen(false)}
+              className="inline-flex items-center justify-center gap-2 rounded-full border border-[#1f2a1d]/15 bg-white px-5 py-3 text-sm font-semibold text-[#1f2a1d] transition-colors hover:bg-[#f5f3ec]"
+            >
+              Escribir por WhatsApp
+              <MessageCircle className="h-4 w-4" />
+            </a>
           </div>
         </div>
       </div>
 
-      {/* Hero copy */}
-      <div className="relative z-10 flex flex-col items-center text-center pt-24 sm:pt-28 md:pt-32 px-4 sm:px-6">
-        <h1
-          className="font-normal leading-[0.95] text-[#336443] text-[2rem] sm:text-4xl md:text-5xl lg:text-[4.75rem] xl:text-[5.25rem] max-w-5xl"
-        >
-          Cerramos la brecha{" "}
-          <span className="text-[#85AB8B]">
-            entre la idea
-            <br className="hidden sm:block" /> y el producto vivo
-          </span>
-        </h1>
-        <p className="mt-6 sm:mt-8 text-[#4b5b47] text-sm sm:text-base md:text-lg leading-relaxed max-w-xl px-2">
-          Convertimos ideas borrosas en producto medible. Diseño, ingeniería e IA bajo un mismo techo —
-          para empresas que no se conforman.
-        </p>
+      <div className="relative z-10 mx-auto flex min-h-[86svh] max-w-6xl flex-col justify-center px-6 pb-24 pt-28 sm:px-8 md:px-10 md:pb-20 md:pt-32">
+        <div className="max-w-4xl">
+          <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-[#336443]/15 bg-white/75 px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-[#336443] backdrop-blur">
+            <Clock3 className="h-3.5 w-3.5" />
+            Landing en 3 dias desde USD 199
+          </div>
+          <h1 className="max-w-5xl text-[2.85rem] font-normal leading-[0.93] text-[#1f2a1d] sm:text-6xl md:text-7xl lg:text-[5.55rem]">
+            Convierte tu presencia digital en más clientes.
+          </h1>
+          <p className="mt-6 max-w-2xl text-base leading-relaxed text-[#3d4f38] sm:text-lg md:text-xl">
+            Creamos landing pages, automatizaciones y productos digitales para que tu negocio
+            explique mejor, capture más leads y venda con menos fricción.
+          </p>
+
+          <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
+            <a
+              href={LANDING_WHATSAPP_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-[#1f2a1d] px-6 py-3 text-sm font-semibold text-white shadow-[0_18px_42px_rgba(31,42,29,0.22)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#336443]"
+            >
+              Pedir landing page
+              <ArrowRight className="h-4 w-4" />
+            </a>
+            <a
+              href="#oferta"
+              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-[#1f2a1d]/15 bg-white/80 px-6 py-3 text-sm font-semibold text-[#1f2a1d] backdrop-blur transition-all duration-300 hover:-translate-y-0.5 hover:bg-white"
+            >
+              Ver planes
+            </a>
+          </div>
+
+          <p className="mt-4 text-sm font-medium text-[#4b5b47]">
+            No sabes qué necesitas? Cuéntame tu caso y te digo el camino más simple.
+          </p>
+        </div>
+
+        <div className="mt-12 grid max-w-4xl grid-cols-1 gap-3 border-t border-[#1f2a1d]/10 pt-6 sm:grid-cols-3">
+          {[
+            ["1", "Lanza una landing clara para campañas, referidos, Instagram o WhatsApp."],
+            ["2", "Captura solicitudes y ordena conversaciones antes de que se enfrien."],
+            ["3", "Escala con automatizaciones, web completa, MVP o sistema interno."],
+          ].map(([number, text]) => (
+            <div key={number} className="flex gap-3 text-sm leading-relaxed text-[#3d4f38]">
+              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#1f2a1d] text-xs font-semibold text-white">
+                {number}
+              </span>
+              <span>{text}</span>
+            </div>
+          ))}
+        </div>
       </div>
 
-      {/* Bottom-left CTA block */}
-      <div className="absolute left-4 right-4 sm:right-auto sm:left-6 md:left-10 bottom-6 sm:bottom-8 md:bottom-10 z-10 max-w-sm">
-        <div className="flex items-center gap-2 text-white/95 mb-3">
-          <CreativvLogo variant="mark-bare" className="h-5 w-5" />
-          <span className="text-xs font-semibold tracking-widest uppercase">
-            Premium studio · Caracas / Remoto
-          </span>
-        </div>
-        <p className="text-white/85 text-xs leading-relaxed mb-6 max-w-xs font-medium sm:font-normal">
-          Entrada clara: diagnostico pagado, piloto en 14 dias o sprint web/producto con alcance cerrado.
-        </p>
-        <div className="flex items-center gap-4 flex-wrap">
-          <a
-            href="/cotizar"
-            className="bg-[#3d5638] sm:bg-white hover:bg-[#2d4228] sm:hover:bg-white/90 text-white sm:text-[#1f2a1d] text-sm font-semibold px-5 sm:px-6 py-2.5 sm:py-3 rounded-full transition-colors shadow-sm"
-          >
-            Ver oferta
-          </a>
-          <a
-            href={AUDIT_WHATSAPP_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-[#3d5638] sm:text-white text-sm font-semibold sm:font-medium hover:opacity-80 transition-opacity"
-          >
-            Escribir por WhatsApp
-          </a>
-        </div>
-      </div>
-
-      {/* Bottom-right link */}
       <button
         type="button"
         onClick={() => setVideoOpen(true)}
-        className="hidden sm:flex absolute right-6 md:right-10 bottom-8 md:bottom-10 z-10 items-center gap-2 text-white/90 text-sm hover:opacity-90 transition-opacity"
-        aria-label="Ver video: ¿Cómo trabajamos?"
+        className="absolute bottom-8 right-6 z-10 hidden items-center gap-2 rounded-full bg-white/20 px-4 py-2 text-sm font-semibold text-white backdrop-blur-md transition-colors hover:bg-white/30 md:right-10 lg:flex"
+        aria-label="Ver video: Como trabajamos"
       >
-        <span className="flex items-center justify-center w-6 h-6 rounded-full bg-white/20 backdrop-blur-sm hover:bg-white/30 transition-colors">
-          <Play className="w-3 h-3 fill-white text-white ml-0.5" />
+        <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white/20">
+          <Play className="ml-0.5 h-3.5 w-3.5 fill-white text-white" />
         </span>
-        <span className="font-medium">¿Cómo trabajamos?</span>
-        <span className="text-white/60">1:33</span>
+        Cómo trabajamos
       </button>
 
-      {/* Video modal */}
       <div
         className={`fixed inset-0 z-50 flex items-center justify-center transition-opacity duration-300 ${
-          videoOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+          videoOpen ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"
         }`}
         onClick={() => setVideoOpen(false)}
         role="dialog"
         aria-modal="true"
         aria-label="Cómo trabajamos"
       >
-        <div className="absolute inset-0 bg-[#1f2a1d]/85 backdrop-blur-md" />
+        <div className="absolute inset-0 bg-[#1f2a1d]/80 backdrop-blur-md" />
         <button
           type="button"
           onClick={(e) => {
             e.stopPropagation();
             setVideoOpen(false);
           }}
-          className="absolute top-4 right-4 sm:top-6 sm:right-6 z-10 flex items-center justify-center w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 text-white transition-colors"
+          className="absolute right-4 top-4 z-10 flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white backdrop-blur-md transition-colors hover:bg-white/20 sm:right-6 sm:top-6"
           aria-label="Cerrar"
         >
-          <X className="w-5 h-5" />
+          <X className="h-5 w-5" />
         </button>
         <div
-          className="relative w-[92vw] max-w-5xl aspect-video rounded-xl overflow-hidden shadow-2xl bg-black"
+          className="relative aspect-video w-[92vw] max-w-5xl overflow-hidden rounded-xl bg-black shadow-2xl"
           onClick={(e) => e.stopPropagation()}
         >
           <video
@@ -290,7 +298,7 @@ export default function Hero() {
             controls
             playsInline
             preload="metadata"
-            className="w-full h-full"
+            className="h-full w-full"
           />
         </div>
       </div>

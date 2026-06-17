@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 
 export const runtime = "edge";
-export const alt = "creativv - Estudio AI de diseno y codigo.";
+export const alt = "creativv - Landing pages, automatizaciones y productos digitales.";
 export const size = {
   width: 1200,
   height: 630,
@@ -58,7 +58,7 @@ export default async function Image() {
             }}
           >
             <span>creativv</span>
-            <span style={{ color: "#a8c97f", fontStyle: "italic" }}>design + code + AI</span>
+            <span style={{ color: "#a8c97f", fontStyle: "italic" }}>más clientes, menos fricción</span>
           </div>
           
           <div
@@ -68,7 +68,7 @@ export default async function Image() {
               marginTop: "40px",
             }}
           >
-            Websites premium, productos digitales y automatizaciones IA.
+            Landing pages desde USD 199, automatizaciones y productos digitales.
           </div>
         </div>
 
@@ -84,8 +84,8 @@ export default async function Image() {
             opacity: 0.5,
           }}
         >
-          <span>PREMIUM STUDIO &middot; CARACAS / REMOTO</span>
-          <span>10.4806° N, 66.9036° W</span>
+          <span>LANDING · AUTOMATIZACION · WEB/PRODUCTO</span>
+          <span>servicioscreativos.online</span>
         </div>
       </div>
     ),

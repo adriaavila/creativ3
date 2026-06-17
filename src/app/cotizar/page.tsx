@@ -1,35 +1,63 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, CheckCircle2, Mail, MessageCircle } from "lucide-react";
 import Colofon from "@/components/landing/Colofon";
 import { CONTACT_EMAIL, whatsappUrl } from "@/lib/contact";
 
+export const metadata: Metadata = {
+  title: "Cotizar landing page, automatización o web/producto",
+  description:
+    "Elige el primer paso para captar mas leads: landing page por USD 199 en 3 dias, automatizacion simple desde USD 499 o web/producto desde USD 699.",
+};
+
 const OPTIONS = [
   {
-    name: "Landing page",
+    name: "Landing Page",
     price: "USD 199",
-    bestFor: "Quieres una presencia online premium, rápida y optimizada para convertir.",
-    delivery: "3 dias",
-    points: ["Diseño UX/UI premium a medida", "Código limpio en Next.js (React)", "Optimización SEO y velocidad de carga"],
+    bestFor:
+      "Quieres una página clara para campañas, referidos, Instagram, WhatsApp o conversaciones de venta.",
+    delivery: "3 días",
+    points: [
+      "Diseño UX/UI premium a medida",
+      "Código limpio en Next.js / React",
+      "Optimización SEO y velocidad",
+      "Responsive design",
+      "Conexión con herramientas de marketing o contacto",
+    ],
     message:
-      "Hola, quiero cotizar la landing page de USD 199 con creativv. Mi negocio es:",
+      "Hola, quiero pedir la landing page de USD 199 en 3 días con creativv. Mi negocio es:",
   },
   {
-    name: "Automatizacion simple",
+    name: "Automatización Simple",
     price: "Desde USD 499",
-    bestFor: "Quieres ahorrar tiempo conectando tus formularios, CRM, bases de datos o APIs.",
-    delivery: "5-10 dias",
-    points: ["1 flujo de automatización activo", "Integración con CRM o base de datos", "Pruebas de estrés y handoff técnico"],
+    bestFor:
+      "Quieres dejar de perder leads o tiempo conectando formularios, CRM, bases de datos o APIs.",
+    delivery: "5–10 días",
+    points: [
+      "1 flujo de automatización activo",
+      "Integración con CRM, base de datos, formulario o API",
+      "Pruebas de estrés",
+      "Handoff técnico",
+    ],
     message:
-      "Hola, quiero cotizar una automatizacion simple con creativv. El proceso que quiero automatizar es:",
+      "Hola, quiero cotizar una automatización simple desde USD 499 con creativv. El proceso que quiero automatizar es:",
   },
   {
-    name: "WEB/ PRODUCTO",
+    name: "Web / Producto",
     price: "Desde USD 699",
-    bestFor: "Necesitas una plataforma web custom, SaaS o MVP completo con código escalable.",
-    delivery: "10-21 dias",
-    points: ["Diseño de interfaz UX/UI completo", "Desarrollo frontend/backend en Next.js", "Dashboard o panel de control"],
+    bestFor:
+      "Necesitas una web completa, MVP, dashboard, sistema interno o producto digital.",
+    delivery: "10–21 días",
+    points: [
+      "Diseño visual + UX completo",
+      "Next.js + base de datos + auth when needed",
+      "Panel de control / dashboard interno when needed",
+      "Integraciones principales",
+      "Responsive design",
+      "Launch-ready delivery",
+    ],
     message:
-      "Hola, quiero cotizar una web o producto completo con creativv. Necesito construir:",
+      "Hola, quiero cotizar una web o producto desde USD 699 con creativv. Necesito construir:",
   },
 ];
 
@@ -43,13 +71,13 @@ export default function CotizarPage() {
               Cotizar con creativv
             </div>
             <h1 className="max-w-3xl text-5xl font-normal leading-[0.95] text-[#336443] sm:text-6xl md:text-7xl">
-              Entra por el problema correcto.
+              Elige el primer paso que puede traerte clientes.
             </h1>
           </div>
           <div className="rounded-lg border border-[#1f2a1d]/10 bg-white p-6 shadow-sm">
             <p className="text-base leading-relaxed text-[#4b5b47]">
-              Para avanzar no necesitas una propuesta enorme. Necesitas una decision limpia:
-              que duele, que vale resolver y cual es el primer entregable que puede pagarse solo.
+              Puedes empezar con una landing clara, automatizar un flujo que ya duele o cotizar una
+              web/producto más robusto. La idea es avanzar con alcance, precio y siguiente paso visibles.
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
               <a
@@ -100,7 +128,7 @@ export default function CotizarPage() {
                 rel="noopener noreferrer"
                 className="mt-8 inline-flex items-center justify-center gap-2 rounded-full bg-[#1f2a1d] px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#336443]"
               >
-                Elegir opcion
+                Elegir opción
                 <ArrowRight className="h-4 w-4" />
               </a>
             </article>
@@ -113,12 +141,12 @@ export default function CotizarPage() {
               <div className="text-xs font-semibold uppercase tracking-widest text-[#85AB8B]">
                 Para cotizar sin humo
               </div>
-              <h2 className="mt-3 text-3xl font-semibold">Manda contexto. Respondemos con criterio.</h2>
+              <h2 className="mt-3 text-3xl font-semibold">Manda contexto. Respondemos con una ruta.</h2>
             </div>
             <div className="grid gap-3 text-sm text-white/75">
               <p>1. Link de tu web, Instagram, producto o proceso actual.</p>
-              <p>2. Meta de los proximos 30 dias: mas leads, mas ventas, ahorro de tiempo o lanzamiento.</p>
-              <p>3. Presupuesto aproximado, urgencia y quien decide.</p>
+              <p>2. Meta de los próximos 30 días: más leads, más ventas, ahorro de tiempo o lanzamiento.</p>
+              <p>3. Presupuesto aproximado, urgencia y quién decide.</p>
             </div>
           </div>
         </section>

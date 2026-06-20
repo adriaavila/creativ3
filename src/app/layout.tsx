@@ -4,7 +4,6 @@ import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 import SiteHeader from "@/components/sections/SiteHeader";
 import RouteTheme from "@/components/sections/RouteTheme";
-import CustomCursor from "@/components/landing/CustomCursor";
 
 const fraunces = Fraunces({
   weight: ["300", "400"],
@@ -19,6 +18,7 @@ const italiana = Italiana({
   subsets: ["latin"],
   variable: "--font-italiana",
   display: "swap",
+  preload: false,
 });
 
 const jetbrains = JetBrains_Mono({
@@ -26,6 +26,7 @@ const jetbrains = JetBrains_Mono({
   subsets: ["latin"],
   variable: "--font-jetbrains",
   display: "swap",
+  preload: false,
 });
 
 const inter = Inter({
@@ -87,7 +88,6 @@ export default function RootLayout({
     >
       <body className="min-h-full overflow-x-hidden antialiased">
         <RouteTheme />
-        <CustomCursor />
         <SiteHeader />
         {children}
         <Analytics />

@@ -58,6 +58,14 @@
     font-family: var(--font-inter), 'Helvetica Neue', Helvetica, Arial, sans-serif;
   }
 
+  /* Editorial display headings — serif headline against Inter body */
+  html.theme-light h1,
+  html.theme-light h2 {
+    font-family: var(--font-fraunces), Georgia, serif;
+    font-weight: 400;
+    letter-spacing: -0.02em;
+  }
+
   /* Noise overlay (Paper grain) */
   html.theme-dark body::before {
     content: "";
@@ -230,12 +238,6 @@
   100% { transform: translateX(120%); opacity: 0; }
 }
 
-/* ─── Cursor glow ──────────────────────────────────────────── */
-@keyframes cursor-glow {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(168,201,127,0); }
-  50%       { box-shadow: 0 0 12px 4px rgba(168,201,127,0.5); }
-}
-
 /* ─── Reduced motion ───────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
   * {
@@ -246,34 +248,8 @@
   }
 }
 
-/* ─── Custom cursor ────────────────────────────────────────── */
-@media (pointer: fine) {
-  html.cursor-hidden,
-  html.cursor-hidden body,
-  html.cursor-hidden a,
-  html.cursor-hidden button,
-  html.cursor-hidden .hover-target {
-    cursor: none;
-  }
-}
-
-html.theme-dark .cc-dot {
-  background: var(--lima);
-  animation: cursor-glow 2s ease-in-out infinite;
-}
-html.theme-dark .cc-ring { border-color: var(--lima); }
-html.theme-light .cc-dot { background: #0a1f2e; }
-html.theme-light .cc-ring { border-color: #0a1f2e; }
-
-/* Hide custom cursor on touch devices */
-@media (pointer: coarse) {
-  .cc-ring, .cc-dot {
-    display: none !important;
-  }
-}
-
 .hover-target {
-  /* Used to detect interactives by cursor */
+  /* Marker class for magnetic/hover effects on other routes */
 }
 
 /* ─── Theme kinetic (light playful) ───────────────────────── */

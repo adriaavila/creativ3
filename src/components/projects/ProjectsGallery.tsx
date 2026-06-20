@@ -117,15 +117,26 @@ export default function ProjectsGallery({
       </div>
 
       <div className={gridClass}>
-        {filteredProjects.map((project, index) => (
+        {filteredProjects.map((project, index) => {
+          const featured = variant === "section" && active === "all" && index === 0;
+          return (
           <article
             key={project.id}
-            className={`group flex min-h-full flex-col rounded-lg border p-3 transition-all duration-300 ${
+            className={`group relative flex min-h-full flex-col rounded-lg border p-3 transition-all duration-300 ${
               isDark
                 ? "border-white/10 bg-white/[0.045] hover:border-white/20 hover:bg-white/[0.075]"
                 : "border-[#1f2a1d]/10 bg-white/75 shadow-sm hover:border-[#1f2a1d]/18 hover:bg-white hover:shadow-lg"
-            }`}
+            } ${featured ? (isDark ? "ring-1 ring-[#a8c97f]/45" : "ring-1 ring-[#336443]/30") : ""}`}
           >
+            {featured ? (
+              <span
+                className={`absolute right-5 top-5 z-10 inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] ${
+                  isDark ? "bg-[#dbe9c3] text-[#101810]" : "bg-[#1f2a1d] text-white"
+                }`}
+              >
+                Destacado
+              </span>
+            ) : null}
             <ProjectImageCarousel
               images={project.images}
               projectName={project.name}
@@ -253,7 +264,8 @@ export default function ProjectsGallery({
               </div>
             </div>
           </article>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

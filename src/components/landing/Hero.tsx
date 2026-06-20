@@ -21,10 +21,9 @@ const BG_VIDEO =
 const PROCESS_VIDEO = "/videos/como-trabajamos.mp4";
 
 const NAV_LINKS = [
-  { href: "#oferta", label: "Planes" },
-  { href: "#funnel", label: "Ruta" },
   { href: "#servicios", label: "Servicios" },
   { href: "#proyectos", label: "Proyectos" },
+  { href: "#oferta", label: "Planes" },
   { href: "#contacto", label: "Contacto" },
 ];
 
@@ -35,6 +34,12 @@ const LANDING_WHATSAPP_URL = whatsappUrl(
 const CONSULT_WHATSAPP_URL = whatsappUrl(
   "Hola, quiero mejorar mi presencia digital para captar mas leads. No se si empezar con landing, automatizacion o web/producto. Mi caso es:"
 );
+
+const HERO_STEPS = [
+  ["1", "Lanza una landing clara para campañas, referidos, Instagram o WhatsApp."],
+  ["2", "Captura solicitudes y ordena conversaciones antes de que se enfríen."],
+  ["3", "Escala con automatizaciones, web completa, MVP o sistema interno."],
+];
 
 export default function Hero() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -206,14 +211,14 @@ export default function Hero() {
         <div className="max-w-4xl">
           <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-[#336443]/15 bg-white/75 px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-[#336443] backdrop-blur">
             <Clock3 className="h-3.5 w-3.5" />
-            Landing en 3 dias desde USD 199
+            Landing en 3 días desde USD 199
           </div>
           <h1 className="max-w-5xl text-[2.85rem] font-normal leading-[0.93] text-[#1f2a1d] sm:text-6xl md:text-7xl lg:text-[5.55rem]">
             Convierte tu presencia digital en más clientes.
           </h1>
           <p className="mt-6 max-w-2xl text-base leading-relaxed text-[#3d4f38] sm:text-lg md:text-xl">
-            Creamos landing pages, automatizaciones y productos digitales para que tu negocio
-            explique mejor, capture más leads y venda con menos fricción.
+            Estudio creativo que diseña landing pages, productos digitales y automatizaciones
+            con foco en una cosa: que tu negocio se vea mejor y venda más.
           </p>
 
           <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -227,24 +232,16 @@ export default function Hero() {
               <ArrowRight className="h-4 w-4" />
             </a>
             <a
-              href="#oferta"
+              href="#proyectos"
               className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-[#1f2a1d]/15 bg-white/80 px-6 py-3 text-sm font-semibold text-[#1f2a1d] backdrop-blur transition-all duration-300 hover:-translate-y-0.5 hover:bg-white"
             >
-              Ver planes
+              Ver proyectos
             </a>
           </div>
-
-          <p className="mt-4 text-sm font-medium text-[#4b5b47]">
-            No sabes qué necesitas? Cuéntame tu caso y te digo el camino más simple.
-          </p>
         </div>
 
         <div className="mt-12 grid max-w-4xl grid-cols-1 gap-3 border-t border-[#1f2a1d]/10 pt-6 sm:grid-cols-3">
-          {[
-            ["1", "Lanza una landing clara para campañas, referidos, Instagram o WhatsApp."],
-            ["2", "Captura solicitudes y ordena conversaciones antes de que se enfrien."],
-            ["3", "Escala con automatizaciones, web completa, MVP o sistema interno."],
-          ].map(([number, text]) => (
+          {HERO_STEPS.map(([number, text]) => (
             <div key={number} className="flex gap-3 text-sm leading-relaxed text-[#3d4f38]">
               <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#1f2a1d] text-xs font-semibold text-white">
                 {number}

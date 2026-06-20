@@ -7,6 +7,7 @@ import {
   SearchCheck,
 } from "lucide-react";
 import { whatsappUrl } from "@/lib/contact";
+import Reveal from "./Reveal";
 
 const OFFERS = [
   {
@@ -22,7 +23,7 @@ const OFFERS = [
       "Código limpio en Next.js / React",
       "Optimización SEO y velocidad",
       "Responsive design",
-      "Conexión con herramientas de marketing o contacto",
+      "Conexión con tus herramientas de contacto",
     ],
     cta: "Pedir landing page",
     message:
@@ -34,8 +35,8 @@ const OFFERS = [
     price: "Desde USD 499",
     timeline: "5–10 días",
     badge: "Upsell natural",
-    forWhom: "Equipos que ya reciben solicitudes, pero pierden leads o repiten trabajo manual.",
-    outcome: "Ordena formularios, CRM, bases de datos, APIs o flujos tipo WhatsApp para responder mejor.",
+    forWhom: "Equipos que ya reciben solicitudes pero pierden leads o repiten trabajo manual.",
+    outcome: "Ordena formularios, CRM, bases de datos o flujos tipo WhatsApp para responder mejor.",
     includes: [
       "1 flujo de automatización activo",
       "Integración con CRM, base de datos, formulario o API",
@@ -53,11 +54,11 @@ const OFFERS = [
     timeline: "10–21 días",
     badge: "Proyecto completo",
     forWhom: "Negocios que necesitan una web completa, MVP, dashboard, sistema interno o producto digital.",
-    outcome: "Lanza un activo más robusto para vender, validar una idea, operar o mejorar la experiencia del cliente.",
+    outcome: "Lanza un activo robusto para vender, validar una idea u operar con más claridad.",
     includes: [
       "Diseño visual + UX completo",
-      "Next.js + base de datos + auth when needed",
-      "Panel de control / dashboard interno when needed",
+      "Next.js + base de datos + auth",
+      "Panel de control / dashboard interno",
       "Integraciones principales",
       "Responsive design",
       "Launch-ready delivery",
@@ -72,21 +73,21 @@ export default function OfertaSection() {
   return (
     <section id="oferta" className="relative w-full bg-[#eef0e7] text-[#1f2a1d] scroll-mt-24">
       <div className="mx-auto max-w-6xl px-6 py-20 md:px-10 md:py-28">
-        <div className="mb-12 grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-end md:mb-16">
+        <Reveal className="mb-12 grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-end md:mb-16">
           <div>
             <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-white px-3.5 py-1.5 text-xs font-semibold uppercase tracking-[0.14em] text-[#336443] shadow-sm">
               <ClipboardList className="h-3.5 w-3.5" />
               Planes claros
             </div>
             <h2 className="max-w-3xl text-4xl font-normal leading-[0.98] text-[#1f2a1d] sm:text-5xl md:text-6xl">
-              Compra el primer activo que puede traerte clientes.
+              Planes claros, precios a la vista.
             </h2>
           </div>
           <p className="max-w-xl text-base leading-relaxed text-[#4b5b47] md:text-lg">
-            La landing page es la entrada rápida. Después conectamos automatizaciones,
-            WhatsApp, CRM o un producto más grande si el negocio lo necesita. Sin esconder precios.
+            La landing es la entrada rápida. Después conectamos automatizaciones, CRM o un producto
+            más grande si el negocio lo necesita. Sin esconder precios.
           </p>
-        </div>
+        </Reveal>
 
         <div className="grid gap-4 lg:grid-cols-3">
           {OFFERS.map((offer, index) => {
@@ -94,8 +95,9 @@ export default function OfertaSection() {
             const featured = index === 0;
 
             return (
-              <article
+              <Reveal
                 key={offer.name}
+                delay={index * 0.1}
                 className={`flex h-full flex-col rounded-lg border p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl md:p-7 ${
                   featured
                     ? "border-[#1f2a1d] bg-[#1f2a1d] text-white"
@@ -179,7 +181,7 @@ export default function OfertaSection() {
                   {offer.cta}
                   <ArrowUpRight className="h-4 w-4" />
                 </a>
-              </article>
+              </Reveal>
             );
           })}
         </div>

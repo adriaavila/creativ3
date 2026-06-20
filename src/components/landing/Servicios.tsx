@@ -6,36 +6,37 @@ import {
   LayoutTemplate,
   Workflow,
 } from "lucide-react";
+import Reveal from "./Reveal";
 
 const SERVICES = [
   {
     icon: LayoutTemplate,
     name: "Landing pages",
-    desc: "Para convertir campañas, referencias o visitas en conversaciones reales.",
+    desc: "Páginas claras para convertir campañas, referidos y visitas en clientes.",
     examples: ["Oferta clara", "SEO base", "Lead capture"],
   },
   {
     icon: Globe2,
-    name: "Websites",
-    desc: "Para explicar mejor tu negocio, construir confianza y darle a ventas una presencia seria.",
-    examples: ["Sitio corporativo", "Páginas por servicio", "Contenido comercial"],
+    name: "Sitios web",
+    desc: "Tu negocio explicado con una presencia seria y bien diseñada.",
+    examples: ["Corporativo", "Por servicio", "Comercial"],
+  },
+  {
+    icon: Boxes,
+    name: "Productos & MVPs",
+    desc: "Apps, SaaS y herramientas internas listas para validar y escalar.",
+    examples: ["MVP", "SaaS", "Portal privado"],
   },
   {
     icon: Workflow,
     name: "Automatizaciones",
-    desc: "Para ordenar leads, responder más rápido y reducir tareas manuales repetitivas.",
+    desc: "Flujos que ordenan leads, responden rápido y quitan trabajo manual.",
     examples: ["Formularios", "CRM", "APIs"],
-  },
-  {
-    icon: Boxes,
-    name: "Apps / MVPs",
-    desc: "Para validar ideas, crear herramientas internas o lanzar productos digitales.",
-    examples: ["MVP", "SaaS milestone", "Portal privado"],
   },
   {
     icon: BarChart3,
     name: "Dashboards",
-    desc: "Para visualizar información, hacer seguimiento de leads y operar con más claridad.",
+    desc: "Paneles para ver leads, operación y métricas con claridad.",
     examples: ["Leads", "Operaciones", "Reportes"],
   },
 ];
@@ -44,7 +45,7 @@ export default function Servicios() {
   return (
     <section id="servicios" className="relative w-full bg-[#f5f3ec] text-[#1f2a1d] scroll-mt-24">
       <div className="mx-auto max-w-6xl px-6 py-20 md:px-10 md:py-28">
-        <div className="mb-12 flex flex-col justify-between gap-6 md:mb-16 md:flex-row md:items-end">
+        <Reveal className="mb-12 flex flex-col justify-between gap-6 md:mb-16 md:flex-row md:items-end">
           <div>
             <div className="mb-4 text-xs font-semibold uppercase tracking-[0.14em] text-[#336443]">
               Servicios
@@ -56,14 +57,14 @@ export default function Servicios() {
           <p className="max-w-sm text-base leading-relaxed text-[#4b5b47] md:text-lg">
             La tecnología importa, pero el cliente compra claridad, velocidad y menos fricción para vender.
           </p>
-        </div>
+        </Reveal>
 
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
-          {SERVICES.map((service) => {
+          {SERVICES.map((service, index) => {
             const Icon = service.icon;
             return (
+              <Reveal key={service.name} delay={index * 0.07} className="h-full">
               <a
-                key={service.name}
                 href="#contacto"
                 className="group flex h-full flex-col rounded-lg border border-[#1f2a1d]/10 bg-white p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-[#336443]/30 hover:shadow-lg"
               >
@@ -90,6 +91,7 @@ export default function Servicios() {
                   ))}
                 </div>
               </a>
+              </Reveal>
             );
           })}
         </div>

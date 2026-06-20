@@ -1,6 +1,7 @@
 import { ArrowUpRight, Mail, MessageCircle } from "lucide-react";
 import { CONTACT_EMAIL, whatsappUrl } from "@/lib/contact";
 import CreativvLogo from "./CreativvLogo";
+import Reveal from "./Reveal";
 
 const CTA_LINKS = [
   {
@@ -31,10 +32,9 @@ const CTA_LINKS = [
 ];
 
 const FOOTER_LINKS = [
-  { label: "Planes", href: "#oferta" },
-  { label: "Ruta", href: "#funnel" },
   { label: "Servicios", href: "#servicios" },
   { label: "Proyectos", href: "#proyectos" },
+  { label: "Planes", href: "#oferta" },
   { label: "Cotizar", href: "/cotizar" },
   { label: "WhatsApp IA", href: "/whatsapp" },
   { label: "Términos", href: "/terminos" },
@@ -48,17 +48,16 @@ export default function Colofon() {
       className="relative w-full overflow-hidden bg-[#f5f3ec] text-[#1f2a1d] scroll-mt-24"
     >
       <div className="mx-auto max-w-6xl px-6 pb-12 pt-20 md:px-10 md:pb-12 md:pt-28">
-        <div className="mb-16 flex flex-col items-start gap-8 md:mb-24">
+        <Reveal className="mb-16 flex flex-col items-start gap-8 md:mb-24">
           <div className="text-xs font-semibold uppercase tracking-[0.14em] text-[#336443]">
             Siguiente paso
           </div>
           <h2 className="max-w-5xl text-5xl font-normal leading-[0.95] text-[#336443] sm:text-6xl md:text-7xl lg:text-[5.8rem]">
-            Cuéntame qué quieres mejorar y te digo el camino más simple.
+            Cuéntame qué quieres construir y empezamos.
           </h2>
           <p className="max-w-2xl text-base leading-relaxed text-[#4b5b47] md:text-lg">
-            Dime si quieres más leads, una página para vender mejor, un flujo de WhatsApp más ordenado
-            o una primera versión de producto. Te digo si conviene empezar con landing, automatización
-            o web/producto.
+            Una página para vender mejor, un producto que validar o un flujo que ordenar. Dime tu
+            caso y te digo el camino más simple para empezar.
           </p>
 
           <div className="grid w-full gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -98,7 +97,7 @@ export default function Colofon() {
               WhatsApp
             </a>
           </div>
-        </div>
+        </Reveal>
 
         <div className="flex flex-col justify-between gap-10 border-t border-[#1f2a1d]/10 pt-10 md:flex-row md:items-end">
           <div>
@@ -106,8 +105,8 @@ export default function Colofon() {
               <CreativvLogo variant="lockup-bare" className="h-9 w-auto" />
             </div>
             <p className="max-w-sm text-xs leading-relaxed text-[#4b5b47]">
-              Creativv crea landing pages, automatizaciones y productos digitales para que tu negocio
-              capture más leads y venda con menos fricción.
+              Creativv es un estudio creativo que diseña landing pages, productos digitales y
+              automatizaciones para que tu negocio se vea mejor y venda más.
             </p>
           </div>
 

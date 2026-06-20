@@ -6,6 +6,7 @@ import {
   PROJECTS_LAST_SYNCED_AT,
 } from "@/lib/projects";
 import { whatsappUrl } from "@/lib/contact";
+import Reveal from "./Reveal";
 
 const PROJECT_CTA = whatsappUrl(
   "Hola, vi los proyectos realizados de creativv y quiero construir algo parecido para mi negocio. Mi caso es:"
@@ -38,7 +39,7 @@ export default function ProyectosShowcase() {
           </div>
         </div>
 
-        <div className="mb-14 grid gap-10 lg:grid-cols-[0.95fr_1.05fr] lg:items-end">
+        <Reveal className="mb-14 grid gap-10 lg:grid-cols-[0.95fr_1.05fr] lg:items-end">
           <div>
             <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-[#dbe9c3] px-3.5 py-1.5 text-xs font-semibold uppercase tracking-[0.14em] text-[#101810]">
               <RadioTower className="h-3.5 w-3.5" />
@@ -72,9 +73,9 @@ export default function ProyectosShowcase() {
               </Link>
             </div>
           </div>
-        </div>
+        </Reveal>
 
-        <div className="mb-10 grid grid-cols-1 gap-3 font-mono text-[11px] uppercase tracking-[0.18em] text-white/55 sm:grid-cols-3">
+        <div className="mb-14 grid grid-cols-1 gap-3 font-mono text-[11px] uppercase tracking-[0.18em] text-white/55 sm:grid-cols-3">
           {[
             {
               icon: Code2,
@@ -91,19 +92,18 @@ export default function ProyectosShowcase() {
               label: "Último sync",
               value: PROJECTS_LAST_SYNCED_AT,
             },
-          ].map((item) => {
+          ].map((item, i) => {
             const Icon = item.icon;
             return (
-              <div
-                key={item.label}
-                className="flex items-center justify-between gap-4 rounded-lg border border-white/10 bg-white/[0.045] px-4 py-4"
-              >
-                <div className="flex items-center gap-3">
-                  <Icon className="h-4 w-4 text-[#dbe9c3]" />
-                  <span>{item.label}</span>
+              <Reveal key={item.label} delay={i * 0.08}>
+                <div className="flex items-center justify-between gap-4 rounded-lg border border-white/10 bg-white/[0.045] px-4 py-4">
+                  <div className="flex items-center gap-3">
+                    <Icon className="h-4 w-4 text-[#dbe9c3]" />
+                    <span>{item.label}</span>
+                  </div>
+                  <span className="text-white">{item.value}</span>
                 </div>
-                <span className="text-white">{item.value}</span>
-              </div>
+              </Reveal>
             );
           })}
         </div>

@@ -54,6 +54,37 @@ export const PROJECT_CATEGORIES: {
 
 export const PORTFOLIO_PROJECTS: PortfolioProject[] = [
   {
+    id: "shopea",
+    name: "Shopea",
+    kind: "Ecommerce por WhatsApp",
+    categories: ["webapp", "web"],
+    description:
+      "Catálogo, checkout y cobro en un solo link. El cliente elige pagar en divisa o bolívares y el pedido cae al WhatsApp con el total correcto.",
+    result:
+      "Convierte un perfil de Instagram o un grupo de WhatsApp en una tienda real, sin fricción ni Marketplace.",
+    stack: ["Next.js", "TypeScript", "Convex", "Clerk"],
+    year: "2026",
+    githubPushedAt: "2026-05-16T00:00:00Z",
+    githubUpdatedLabel: "16 may 2026",
+    images: [
+      {
+        src: "/projects/shopea/01-desktop.jpg",
+        alt: "Landing de Shopea en desktop",
+        label: "Landing",
+      },
+      {
+        src: "/projects/shopea/02-desktop-scroll.jpg",
+        alt: "Shopea: como funciona, pagos y precios",
+        label: "Cómo funciona",
+      },
+      {
+        src: "/projects/shopea/03-mobile.jpg",
+        alt: "Shopea en movil",
+        label: "Mobile",
+      },
+    ],
+  },
+  {
     id: "rei-fm",
     name: "Rei FM",
     kind: "Real estate operations",

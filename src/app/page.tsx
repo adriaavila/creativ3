@@ -1,22 +1,20 @@
 import Hero from "@/components/landing/Hero";
-import PainValueSection from "@/components/landing/PainValueSection";
-import OfertaSection from "@/components/landing/OfertaSection";
-import WhatsAppBanner from "@/components/landing/WhatsAppBanner";
 import Servicios from "@/components/landing/Servicios";
+import LiveBuild from "@/components/landing/LiveBuild";
 import ProyectosShowcase from "@/components/landing/ProyectosShowcase";
-import ProcessSection from "@/components/landing/ProcessSection";
+import OfertaSection from "@/components/landing/OfertaSection";
 import Colofon from "@/components/landing/Colofon";
+import SmoothScroll from "@/components/landing/SmoothScroll";
 
 export default function Home() {
   return (
     <main className="relative bg-[#f5f3ec]">
+      <SmoothScroll />
       <Hero />
-      <PainValueSection />
-      <OfertaSection />
-      <WhatsAppBanner />
       <Servicios />
+      <LiveBuild />
       <ProyectosShowcase />
-      <ProcessSection />
+      <OfertaSection />
       <Colofon />
     </main>
   );

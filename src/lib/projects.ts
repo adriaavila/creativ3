@@ -113,17 +113,17 @@ export const PORTFOLIO_PROJECTS: PortfolioProject[] = [
     images: [
       {
         src: "/projects/rei-fm/01-desktop.jpg",
-        alt: "Vista desktop del dashboard de Rei FM",
+        alt: "Vista desktop del dashboard de rei",
         label: "Dashboard",
       },
       {
         src: "/projects/rei-fm/02-desktop-scroll.jpg",
-        alt: "Vista extendida de la operacion inmobiliaria en Rei FM",
+        alt: "Vista extendida de la operacion inmobiliaria en rei",
         label: "Operacion",
       },
       {
         src: "/projects/rei-fm/03-mobile.jpg",
-        alt: "Vista movil de Rei FM",
+        alt: "Vista movil de rei",
         label: "Mobile",
       },
     ],
@@ -149,17 +149,17 @@ export const PORTFOLIO_PROJECTS: PortfolioProject[] = [
     images: [
       {
         src: "/projects/frontai-landing/01-desktop.jpg",
-        alt: "Hero de FrontAI Landing con interfaz de agente AI",
+        alt: "Hero de Frontia con interfaz de agente AI",
         label: "Hero",
       },
       {
         src: "/projects/frontai-landing/02-desktop-scroll.jpg",
-        alt: "Seccion de problema y solucion en FrontAI Landing",
+        alt: "Seccion de problema y solucion en Frontia",
         label: "Story",
       },
       {
         src: "/projects/frontai-landing/03-mobile.jpg",
-        alt: "Version movil de FrontAI Landing",
+        alt: "Version movil de Frontia",
         label: "Mobile",
       },
     ],

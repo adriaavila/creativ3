@@ -1,0 +1,23 @@
+{
+  "name": "@creativv/growth-agent",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": "24.x"
+  },
+  "scripts": {
+    "dev": "eve dev",
+    "build": "eve build",
+    "start": "eve start",
+    "typecheck": "tsc --noEmit",
+    "eval": "eve eval"
+  },
+  "dependencies": {
+    "@ai-sdk/openai-compatible": "3.0.0-beta.57",
+    "@neondatabase/serverless": "1.1.0",
+    "ai": "7.0.0-beta.178",
+    "eve": "0.11.7",
+    "zod": "4.3.6"
+  }
+}

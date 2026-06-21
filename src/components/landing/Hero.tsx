@@ -22,9 +22,9 @@ const PROCESS_VIDEO = "/videos/como-trabajamos.mp4";
 
 const NAV_LINKS = [
   { href: "#servicios", label: "Servicios" },
-  { href: "#proyectos", label: "Proyectos" },
-  { href: "#oferta", label: "Planes" },
-  { href: "#contacto", label: "Contacto" },
+  { href: "#trabajo", label: "Proyectos" },
+  { href: "#empezar", label: "Planes" },
+  { href: "#empezar", label: "Contacto" },
 ];
 
 const LANDING_WHATSAPP_URL = whatsappUrl(
@@ -91,7 +91,7 @@ export default function Hero() {
         <div className="hidden items-center gap-1 rounded-full border border-white/70 bg-white/80 py-1 pl-6 pr-1 shadow-sm backdrop-blur-md lg:flex">
           {NAV_LINKS.map((link) => (
             <Link
-              key={link.href}
+              key={link.label}
               href={link.href}
               className="px-3 py-2 text-sm font-medium text-[#4b5b47] transition-colors hover:text-[#1f2a1d]"
             >
@@ -110,7 +110,7 @@ export default function Hero() {
 
         <div className="flex items-center gap-3 sm:gap-5">
           <a
-            href="#oferta"
+            href="/cotizar"
             className="hidden items-center gap-2 text-sm font-semibold text-[#2d3a2a] transition-opacity hover:opacity-75 sm:flex"
           >
             <CalendarCheck className="h-4 w-4" />
@@ -164,7 +164,7 @@ export default function Hero() {
           <div className="flex flex-col gap-1">
             {NAV_LINKS.map((link, i) => (
               <Link
-                key={link.href}
+                key={link.label}
                 href={link.href}
                 onClick={() => setMenuOpen(false)}
                 className={`border-b border-[#1f2a1d]/10 py-4 text-2xl font-semibold text-[#1f2a1d] transition-all duration-500 ${
@@ -232,7 +232,7 @@ export default function Hero() {
               <ArrowRight className="h-4 w-4" />
             </a>
             <a
-              href="#proyectos"
+              href="#trabajo"
               className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-[#1f2a1d]/15 bg-white/80 px-6 py-3 text-sm font-semibold text-[#1f2a1d] backdrop-blur transition-all duration-300 hover:-translate-y-0.5 hover:bg-white"
             >
               Ver proyectos

@@ -13,6 +13,10 @@ export type PortfolioProject = {
   categories: ProjectCategory[];
   description: string;
   result: string;
+  businessGoal: "sell_more" | "reduce_costs" | "both";
+  businessOutcome: string;
+  agentRole: string;
+  status: "launched" | "demo" | "prototype" | "improving";
   stack: string[];
   year: string;
   liveUrl?: string;
@@ -62,6 +66,10 @@ export const PORTFOLIO_PROJECTS: PortfolioProject[] = [
       "Catálogo, checkout y cobro en un solo link. El cliente elige pagar en divisa o bolívares y el pedido cae al WhatsApp con el total correcto.",
     result:
       "Convierte un perfil de Instagram o un grupo de WhatsApp en una tienda real, sin fricción ni Marketplace.",
+    businessGoal: "sell_more",
+    businessOutcome: "Ordena catálogo, cobro y pedido para convertir conversaciones en compras completas.",
+    agentRole: "Asistente de catálogo y preparación de pedidos",
+    status: "launched",
     stack: ["Next.js", "TypeScript", "Convex", "Clerk"],
     year: "2026",
     githubPushedAt: "2026-05-16T00:00:00Z",
@@ -86,13 +94,17 @@ export const PORTFOLIO_PROJECTS: PortfolioProject[] = [
   },
   {
     id: "rei-fm",
-    name: "Rei FM",
+    name: "rei",
     kind: "Real estate operations",
     categories: ["webapp"],
     description:
       "Plataforma para administrar propiedades, contratos, propietarios e ingresos sin depender de hojas sueltas.",
     result:
       "Centraliza la operación inmobiliaria: cartera, vencimientos y cobros quedan visibles para decidir más rápido.",
+    businessGoal: "reduce_costs",
+    businessOutcome: "Reúne propiedades, contratos y cobros para reducir seguimiento manual y decisiones tardías.",
+    agentRole: "Copiloto de seguimiento operativo",
+    status: "launched",
     stack: ["Next.js", "TypeScript", "Postgres", "Stripe"],
     year: "2026",
     liveUrl: "https://rei-fm.vercel.app",
@@ -118,13 +130,17 @@ export const PORTFOLIO_PROJECTS: PortfolioProject[] = [
   },
   {
     id: "frontai-landing",
-    name: "FrontAI Landing",
+    name: "Frontia",
     kind: "AI front desk",
     categories: ["web", "automation"],
     description:
-      "Landing bilingue para un agente de front desk que responde llamadas, califica leads, agenda citas y registra seguimiento.",
+      "Agente de front desk con IA que atiende llamadas, califica leads, agenda citas y registra el seguimiento de cada conversacion.",
     result:
       "Convierte una promesa tecnica en una oferta vendible con demo visual, prueba operacional y CTA directo a llamada.",
+    businessGoal: "both",
+    businessOutcome: "Explica un agente complejo con una demostración que conecta atención, agenda y seguimiento.",
+    agentRole: "Agente de front desk",
+    status: "demo",
     stack: ["Next.js", "AI UX", "Vercel", "Motion"],
     year: "2026",
     liveUrl: "https://frontai-landing.vercel.app",
@@ -157,6 +173,10 @@ export const PORTFOLIO_PROJECTS: PortfolioProject[] = [
       "Juego mundialero para crear perfil, armar ligas privadas y competir por predicciones con una identidad visual propia.",
     result:
       "Transforma una quiniela informal en un producto social con onboarding, avatares, tabla y experiencia compartible.",
+    businessGoal: "sell_more",
+    businessOutcome: "Convierte una dinámica informal en un producto compartible con registro y recurrencia.",
+    agentRole: "Moderación y soporte de juego",
+    status: "prototype",
     stack: ["Next.js", "React", "TypeScript", "Game UI"],
     year: "2026",
     liveUrl: "https://parlai-mundial.vercel.app",
@@ -190,6 +210,10 @@ export const PORTFOLIO_PROJECTS: PortfolioProject[] = [
       "Tienda online para una marca de arte, con catalogo visual, narrativa editorial y checkout listo para compra.",
     result:
       "Ordena la experiencia de descubrimiento y compra para que la marca se sienta coleccionable, no generica.",
+    businessGoal: "sell_more",
+    businessOutcome: "Eleva descubrimiento y compra con una experiencia editorial coherente con la marca.",
+    agentRole: "Curador de catálogo",
+    status: "launched",
     stack: ["Next.js", "Stripe", "Tailwind", "Ecommerce"],
     year: "2026",
     liveUrl: "https://artistheway.vercel.app",
@@ -223,6 +247,10 @@ export const PORTFOLIO_PROJECTS: PortfolioProject[] = [
       "App para coaches de running con atletas, planes, sesiones y metricas semanales en una misma superficie.",
     result:
       "Le da al coach una operacion medible: seguimiento por atleta, menos chat disperso y planes faciles de revisar.",
+    businessGoal: "reduce_costs",
+    businessOutcome: "Concentra planes y seguimiento para reducir coordinación dispersa entre coach y atletas.",
+    agentRole: "Asistente de seguimiento semanal",
+    status: "improving",
     stack: ["Next.js", "Supabase", "TypeScript", "Analytics"],
     year: "2026",
     liveUrl: "https://pace-running-three.vercel.app",
@@ -255,6 +283,10 @@ export const PORTFOLIO_PROJECTS: PortfolioProject[] = [
       "Sistema para lavanderias con ordenes, rutas, estados y notificaciones para mantener cada entrega bajo control.",
     result:
       "Convierte el mostrador, el taller y el reparto en un flujo visible donde cada prenda tiene estado y responsable.",
+    businessGoal: "reduce_costs",
+    businessOutcome: "Hace visible cada orden, ruta y responsable para evitar retrabajo y entregas sin contexto.",
+    agentRole: "Operador de estados y notificaciones",
+    status: "launched",
     stack: ["Next.js", "Supabase", "WhatsApp", "Operations"],
     year: "2026",
     liveUrl: "https://soapy-sooty.vercel.app",
@@ -287,6 +319,10 @@ export const PORTFOLIO_PROJECTS: PortfolioProject[] = [
       "Sistema para una escuela de natacion: alumnos, horarios, asistencia, productos y cobros en bolivares y divisa.",
     result:
       "Reemplaza cuadernos y grupos de WhatsApp por una operación clara para profesores, administración y cobranza.",
+    businessGoal: "reduce_costs",
+    businessOutcome: "Unifica alumnos, horarios, asistencia y cobros para reducir administración manual.",
+    agentRole: "Asistente de cobranza y operación",
+    status: "launched",
     stack: ["Next.js", "Supabase", "Stripe", "Case study"],
     year: "2026",
     liveUrl: "https://mistica-app-fawn.vercel.app",
@@ -321,6 +357,10 @@ export const PORTFOLIO_PROJECTS: PortfolioProject[] = [
       "Software para taller mecanico: ordenes de trabajo, clientes, repuestos, estados y seguimiento de servicio.",
     result:
       "Hace trazable cada reparación, desde la recepción hasta la entrega, con menos dependencia de memoria y papel.",
+    businessGoal: "reduce_costs",
+    businessOutcome: "Da trazabilidad a órdenes, repuestos y estados para reducir dependencia de papel y memoria.",
+    agentRole: "Seguimiento de órdenes de trabajo",
+    status: "improving",
     stack: ["Next.js", "Postgres", "Supabase", "CRM"],
     year: "2026",
     liveUrl: "https://taller-samer.vercel.app",
@@ -354,6 +394,10 @@ export const PORTFOLIO_PROJECTS: PortfolioProject[] = [
       "Control de almacen para Vistacampo, pensado para entradas, salidas, existencias y decisiones de reposicion.",
     result:
       "Reduce el inventario invisible: cada movimiento queda registrado y el equipo ve stock critico antes de quedarse corto.",
+    businessGoal: "reduce_costs",
+    businessOutcome: "Registra movimientos y alertas de stock para evitar compras tardías e inventario invisible.",
+    agentRole: "Monitor de inventario crítico",
+    status: "launched",
     stack: ["Next.js", "TypeScript", "Inventory", "Ops"],
     year: "2026",
     liveUrl: "https://almacen-vc.vercel.app",
@@ -387,6 +431,10 @@ export const PORTFOLIO_PROJECTS: PortfolioProject[] = [
       "Agente para conversaciones de WhatsApp SaaS: responde, califica, ordena contexto y prepara el siguiente paso comercial.",
     result:
       "Baja la carga de atencion manual y convierte chats entrantes en oportunidades con estructura.",
+    businessGoal: "both",
+    businessOutcome: "Clasifica conversaciones y prepara próximos pasos sin ocultar cuándo debe intervenir una persona.",
+    agentRole: "Agente de calificación y seguimiento",
+    status: "prototype",
     stack: ["TypeScript", "WhatsApp", "Agents", "Automation"],
     year: "2026",
     sourceUrl: "https://github.com/adriaavila/wasap-creativ",
@@ -396,4 +444,8 @@ export const PORTFOLIO_PROJECTS: PortfolioProject[] = [
   },
 ];
 
-export const FEATURED_PORTFOLIO_PROJECTS = PORTFOLIO_PROJECTS.slice(0, 8);
+const FEATURED_IDS = new Set(["shopea", "rei-fm", "frontai-landing", "mistica", "soapy"]);
+
+export const FEATURED_PORTFOLIO_PROJECTS = PORTFOLIO_PROJECTS.filter((project) =>
+  FEATURED_IDS.has(project.id),
+);

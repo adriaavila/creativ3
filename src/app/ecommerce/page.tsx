@@ -1,13 +1,28 @@
 import type { Metadata } from "next";
 import VerticalLandingPage from "@/components/landing/VerticalLandingPage";
 import { VERTICALS } from "@/lib/verticals";
+import { serviceJsonLd } from "@/lib/seo";
+
+const TITLE = "Tiendas online y automatización para ecommerce";
+const DESCRIPTION =
+  "Landing premium, asistente de ventas y automatización de WhatsApp/email para ecommerce, marcas locales y tiendas con catálogo en Venezuela y LatAm.";
 
 export const metadata: Metadata = {
-  title: "IA y websites para ecommerce",
-  description:
-    "Landing premium, asistente de ventas y automatizacion WhatsApp/email para ecommerce, marcas locales y tiendas con catalogo.",
+  title: TITLE,
+  description: DESCRIPTION,
+  alternates: { canonical: "/ecommerce" },
 };
 
 export default function EcommercePage() {
-  return <VerticalLandingPage vertical={VERTICALS.ecommerce} />;
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(serviceJsonLd(TITLE, DESCRIPTION, "/ecommerce")),
+        }}
+      />
+      <VerticalLandingPage vertical={VERTICALS.ecommerce} />
+    </>
+  );
 }

@@ -11,6 +11,7 @@ export const metadata: Metadata = {
   title: "Proyectos · creativv",
   description:
     "Archivo de proyectos recientes de creativv: webs, web apps y automatizaciones sincronizadas desde GitHub.",
+  alternates: { canonical: "/projects" },
 };
 
 export default function ProjectsIndex() {

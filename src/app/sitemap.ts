@@ -13,7 +13,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/academias",
     "/projects",
     "/automatizar",
-    "/embedded-whatsapp",
+    "/whatsapp",
   ];
 
   return routes.map((route) => ({

@@ -47,6 +47,9 @@ export const metadata: Metadata = {
   description:
     "Creativv diseña landing pages, webs, productos, dashboards, automatizaciones y agentes IA para vender más y reducir el costo de operar.",
   alternates: { canonical: "/" },
+  verification: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION
+    ? { google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION }
+    : undefined,
   keywords: [
     "creativv",
     "landing pages",

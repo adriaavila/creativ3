@@ -1,42 +1,35 @@
 import Link from "next/link";
-import { ArrowRight, CheckCircle2, MessageCircle } from "lucide-react";
-import CreativvLogo from "@/components/landing/CreativvLogo";
+import { ArrowRight, CheckCircle2, MapPin } from "lucide-react";
 import { whatsappUrl } from "@/lib/contact";
 import { VERTICAL_LIST, type Vertical } from "@/lib/verticals";
+import { CITIES, VERTICAL_LABELS, cityVerticalPath } from "@/lib/cities";
 
 type Props = {
   vertical: Vertical;
+  city?: string;
 };
 
-export default function VerticalLandingPage({ vertical }: Props) {
+export default function VerticalLandingPage({ vertical, city }: Props) {
   const Icon = vertical.icon;
+  const label = VERTICAL_LABELS[vertical.slug];
 
   return (
     <main className="min-h-screen bg-[#f5f3ec] text-[#1f2a1d]">
-      <header className="mx-auto flex max-w-6xl items-center justify-between px-6 py-6 md:px-10">
-        <Link href="/" aria-label="creativv" className="flex items-center text-[#1f2a1d]">
-          <CreativvLogo variant="lockup-bare" className="h-8 w-auto" />
-        </Link>
-        <a
-          href={whatsappUrl(vertical.message)}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center gap-2 rounded-full bg-[#1f2a1d] px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#336443]"
-        >
-          <MessageCircle className="h-4 w-4" />
-          Pedir diagnostico
-        </a>
-      </header>
-
-      <section className="mx-auto grid max-w-6xl gap-10 px-6 pb-16 pt-8 md:grid-cols-[1.05fr_0.95fr] md:px-10 md:pb-24 md:pt-16">
+      <section className="mx-auto grid max-w-6xl gap-10 px-6 pb-16 pt-24 md:grid-cols-[1.05fr_0.95fr] md:px-10 md:pb-24 md:pt-28">
         <div>
           <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#336443]/20 bg-white px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-[#336443]">
             <Icon className="h-4 w-4" />
-            {vertical.eyebrow}
+            {city ? `${vertical.eyebrow} · ${city}` : vertical.eyebrow}
           </div>
           <h1 className="max-w-4xl text-5xl font-normal leading-[0.95] text-[#336443] sm:text-6xl md:text-7xl">
             {vertical.title}
           </h1>
+          {city && (
+            <p className="mt-6 max-w-2xl text-base font-medium text-[#336443] md:text-lg">
+              Diseño web, automatización de WhatsApp y agentes IA para {label} en {city}
+              {" "}y toda Venezuela.
+            </p>
+          )}
           <p className="mt-8 max-w-2xl text-base leading-relaxed text-[#4b5b47] md:text-lg">
             {vertical.subtitle}
           </p>
@@ -121,6 +114,32 @@ export default function VerticalLandingPage({ vertical }: Props) {
               ))}
             </div>
           </div>
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-6xl px-6 pb-20 md:px-10">
+        <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-[#336443]">
+          <MapPin className="h-4 w-4" />
+          Disponible para {label} en
+        </div>
+        <div className="mt-4 flex flex-wrap gap-2.5">
+          {CITIES.map((c) => {
+            const active = c.label === city;
+            return (
+              <Link
+                key={c.slug}
+                href={cityVerticalPath(c.slug, vertical.slug)}
+                aria-current={active ? "page" : undefined}
+                className={`rounded-full border px-4 py-2 text-sm font-semibold transition-colors ${
+                  active
+                    ? "border-[#1f2a1d] bg-[#1f2a1d] text-white"
+                    : "border-[#1f2a1d]/10 text-[#336443] hover:bg-[#f5f3ec]"
+                }`}
+              >
+                {label.charAt(0).toUpperCase() + label.slice(1)} en {c.label}
+              </Link>
+            );
+          })}
         </div>
       </section>
     </main>

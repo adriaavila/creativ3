@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, useReducedMotion } from "motion/react";
-import { useEffect, useState, type ReactNode } from "react";
+import { type ReactNode } from "react";
 
 type RevealProps = {
   children: ReactNode;
@@ -18,12 +18,8 @@ type RevealProps = {
  */
 export default function Reveal({ children, delay = 0, y = 24, className }: RevealProps) {
   const reduceRaw = useReducedMotion();
-  // Gate reduced-motion behind mount so the first client render matches SSR
-  // (useReducedMotion reads matchMedia synchronously and would mismatch otherwise).
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
 
-  if (mounted && reduceRaw) {
+  if (reduceRaw) {
     return <div className={className}>{children}</div>;
   }
 

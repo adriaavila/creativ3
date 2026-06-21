@@ -32,20 +32,14 @@ const FRAMES: Frame[] = (() => {
 export default function LiveBuild() {
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { margin: "-20%" });
-  const reduceRaw = useReducedMotion();
-  // Gate reduced-motion behind mount so first client render matches SSR.
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
-  const reduce = mounted && reduceRaw;
+  const reduce = Boolean(useReducedMotion());
   const [stage, setStage] = useState(0);
   const [running, setRunning] = useState(false);
+  const visibleStage = reduce ? STEPS.length : stage;
+  const visibleRunning = reduce ? false : running;
 
   useEffect(() => {
-    if (reduce) {
-      setStage(STEPS.length);
-      setRunning(false);
-      return;
-    }
+    if (reduce) return;
     if (!inView) return;
 
     let idx = 0;
@@ -64,7 +58,7 @@ export default function LiveBuild() {
   }, [inView, reduce]);
 
   // Preview block visibility, driven by stage.
-  const has = (n: number) => stage >= n;
+  const has = (n: number) => visibleStage >= n;
   const block = (visible: boolean) =>
     reduce
       ? { opacity: 1, y: 0 }
@@ -97,8 +91,8 @@ export default function LiveBuild() {
               agente · creativv
             </div>
             {STEPS.map((step, i) => {
-              const done = stage > i;
-              const active = running && stage === i;
+              const done = visibleStage > i;
+              const active = visibleRunning && visibleStage === i;
               const pending = !done && !active;
               return (
                 <div

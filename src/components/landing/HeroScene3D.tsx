@@ -8,9 +8,7 @@ import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPa
 import { OutputPass } from "three/examples/jsm/postprocessing/OutputPass.js";
 import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
 
-const COLOR_INK = 0x0a0d10;
 const COLOR_LIMA = 0xc5f04a;
-const COLOR_LIMA_DIM = 0x6f8b2e;
 
 export default function HeroScene3D() {
   const hostRef = useRef<HTMLDivElement>(null);

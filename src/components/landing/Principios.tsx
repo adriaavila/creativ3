@@ -35,7 +35,7 @@ export default function Principios() {
     if (!containerRef.current) return;
     const cards = containerRef.current.querySelectorAll(".principio-card");
 
-    cards.forEach((card, i) => {
+    cards.forEach((card) => {
       gsap.fromTo(card,
         { y: 50, opacity: 0 },
         {

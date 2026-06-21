@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 
 export const runtime = "edge";
-export const alt = "creativv - Landing pages, automatizaciones y productos digitales.";
+export const alt = "creativv — Vende más. Reduce el costo de operar.";
 export const size = {
   width: 1200,
   height: 630,
@@ -13,15 +13,15 @@ export default async function Image() {
     (
       <div
         style={{
-          background: "#0a1f2e",
+          background: "#f4f0e5",
           width: "100%",
           height: "100%",
           display: "flex",
           flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
+          alignItems: "flex-start",
+          justifyContent: "space-between",
           padding: "80px",
-          color: "#f0ead6",
+          color: "#172016",
           fontFamily: "serif",
         }}
       >
@@ -29,11 +29,11 @@ export default async function Image() {
         <div
           style={{
             position: "absolute",
-            top: "-50%",
-            right: "-20%",
+            top: "-60%",
+            right: "-25%",
             width: "1000px",
             height: "1000px",
-            background: "radial-gradient(circle, rgba(168, 201, 127, 0.24), transparent 60%)",
+            background: "radial-gradient(circle, rgba(104, 148, 87, 0.28), transparent 62%)",
           }}
         />
         
@@ -41,50 +41,51 @@ export default async function Image() {
           style={{
             display: "flex",
             flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
+            alignItems: "flex-start",
+            justifyContent: "flex-start",
             gap: "24px",
             zIndex: 10,
           }}
         >
           <div
             style={{
-              fontSize: 100,
-              lineHeight: 0.9,
-              textAlign: "center",
+              fontSize: 104,
+              lineHeight: 0.86,
+              textAlign: "left",
               display: "flex",
               flexDirection: "column",
-              alignItems: "center",
+              alignItems: "flex-start",
             }}
           >
-            <span>creativv</span>
-            <span style={{ color: "#a8c97f", fontStyle: "italic" }}>más clientes, menos fricción</span>
+            <span>Vende más.</span>
+            <span style={{ color: "#31583a", fontStyle: "italic" }}>Reduce el costo</span>
+            <span>de operar.</span>
           </div>
           
           <div
             style={{
               fontSize: 32,
-              opacity: 0.7,
-              marginTop: "40px",
+              opacity: 0.68,
+              marginTop: "28px",
             }}
           >
-            Landing pages desde USD 199, automatizaciones y productos digitales.
+            Sistemas digitales y agentes IA para convertir demanda en ventas y trabajo manual en operación.
           </div>
         </div>
 
         <div
           style={{
             position: "absolute",
-            bottom: "80px",
+            bottom: "64px",
             display: "flex",
             justifyContent: "space-between",
             width: "100%",
             padding: "0 80px",
             fontSize: 24,
-            opacity: 0.5,
+            opacity: 0.52,
           }}
         >
-          <span>LANDING · AUTOMATIZACION · WEB/PRODUCTO</span>
+          <span>CREATIVV · SISTEMAS + AGENTES IA</span>
           <span>servicioscreativos.online</span>
         </div>
       </div>

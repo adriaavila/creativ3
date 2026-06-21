@@ -1,186 +1,110 @@
-"use client";
+import type { Metadata } from "next";
+import Link from "next/link";
+import { ArrowLeft, ArrowRight, Check, MessageCircle } from "lucide-react";
+import OutcomeFooter from "@/components/landing/OutcomeFooter";
+import { whatsappUrl } from "@/lib/contact";
 
-import React, { useState, useEffect } from "react";
-import Colofon from "@/components/landing/Colofon";
-import { Mic, Loader2, CheckCircle2, Square } from "lucide-react";
-import { motion, AnimatePresence } from "motion/react";
+export const metadata: Metadata = {
+  title: "Automatización para reducir trabajo repetitivo",
+  description:
+    "Calcula el costo de un proceso manual y revisa una automatización con alcance, supervisión y resultados visibles.",
+};
+
+const PROCESS = [
+  ["01", "Medimos", "Personas, horas, pasos y excepciones del flujo actual."],
+  ["02", "Recortamos", "Elegimos una sola repetición costosa para el primer alcance."],
+  ["03", "Conectamos", "Automatizamos con trazabilidad y revisión humana donde importa."],
+];
 
 export default function AutomatizarPage() {
-  const [isRecording, setIsRecording] = useState(false);
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false);
-  const [recordingTime, setRecordingTime] = useState(0);
-
-  useEffect(() => {
-    let interval: NodeJS.Timeout;
-    if (isRecording) {
-      interval = setInterval(() => {
-        setRecordingTime((prev) => prev + 1);
-      }, 1000);
-    }
-    return () => clearInterval(interval);
-  }, [isRecording]);
-
-  const handleMicClick = () => {
-    if (isRecording) {
-      setIsRecording(false);
-      setIsProcessing(true);
-      
-      setTimeout(() => {
-        setIsProcessing(false);
-        setIsSuccess(true);
-      }, 3000);
-    } else {
-      setRecordingTime(0);
-      setIsRecording(true);
-      setIsSuccess(false);
-    }
-  };
-
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
-  };
+  const intake = whatsappUrl(
+    "Hola, quiero revisar una automatización con creativv. El proceso repetitivo es:"
+  );
 
   return (
-    <div className="min-h-screen bg-[#f5f3ec] text-[#1f2a1d] selection:bg-[#85AB8B]/30 selection:text-[#1f2a1d] flex flex-col relative overflow-hidden">
-      <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[url('/noise.png')]" />
-      
-      <main className="flex-1 flex flex-col items-center justify-center pt-32 pb-24 px-6 relative z-10 min-h-[80vh]">
-        <div className="max-w-2xl mx-auto w-full flex flex-col items-center text-center">
-          
-          <AnimatePresence mode="wait">
-            {!isSuccess ? (
-              <motion.div
-                key="recording-ui"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                className="w-full flex flex-col items-center"
-              >
-                <div className="inline-flex mb-8 border border-[#336443]/30 text-[#336443] px-5 py-1.5 rounded-full bg-[#336443]/5 backdrop-blur-xl font-mono tracking-widest text-[10px] uppercase">
-                  Ingeniero de Automatización IA
-                </div>
-                
-                <h1 className="text-4xl md:text-6xl font-normal mb-6 leading-tight">
-                  Elimina el <br />
-                  <span className="text-[#336443] not-italic font-normal tracking-tight">trabajo repetitivo</span>
-                </h1>
-                
-                <p className="text-[#4b5b47] text-lg mb-16 max-w-md mx-auto leading-relaxed font-mono">
-                  Presiona el micrófono y descríbenos ese cuello de botella manual que te roba tiempo. Diseñaremos un flujo automatizado para ti.
-                </p>
+    <>
+      <main className="min-h-screen bg-[#f4f0e5] px-5 pb-24 pt-24 text-[#172016] sm:px-8 lg:px-12 lg:pt-32">
+        <div className="mx-auto max-w-[1380px]">
+          <Link
+            href="/"
+            className="inline-flex items-center gap-2 text-sm font-semibold text-[#53624f] hover:text-[#172016]"
+          >
+            <ArrowLeft className="size-4" /> Volver a inicio
+          </Link>
 
-                <div className="relative flex flex-col items-center justify-center">
-                  {isRecording && (
-                    <>
-                      <motion.div 
-                        initial={{ opacity: 0.8, scale: 1 }}
-                        animate={{ opacity: 0, scale: 2 }}
-                        transition={{ repeat: Infinity, duration: 1.5, ease: "easeOut" }}
-                        className="absolute w-32 h-32 rounded-full bg-[#336443]/30 pointer-events-none"
-                      />
-                      <motion.div 
-                        initial={{ opacity: 0.8, scale: 1 }}
-                        animate={{ opacity: 0, scale: 2.5 }}
-                        transition={{ repeat: Infinity, duration: 1.5, ease: "easeOut", delay: 0.5 }}
-                        className="absolute w-32 h-32 rounded-full bg-[#85AB8B]/30 pointer-events-none"
-                      />
-                    </>
-                  )}
-
-                  <button
-                    onClick={handleMicClick}
-                    disabled={isProcessing}
-                    className={`relative w-32 h-32 rounded-full flex items-center justify-center shadow-2xl transition-all duration-500 z-10
-                      ${isProcessing 
-                        ? 'bg-[#f5f3ec] border border-[#1f2a1d]/15 cursor-wait' 
-                        : isRecording 
-                          ? 'bg-red-500/10 border-red-500 text-red-500 hover:bg-red-500/20' 
-                          : 'bg-[#336443] hover:bg-[#336443]/80 text-white hover:scale-105'
-                      }
-                    `}
-                  >
-                    {isProcessing ? (
-                      <Loader2 className="w-10 h-10 animate-spin text-[#336443]" />
-                    ) : isRecording ? (
-                      <Square className="w-10 h-10 fill-current" />
-                    ) : (
-                      <Mic className="w-12 h-12" />
-                    )}
-                  </button>
-                  
-                  <div className="mt-8 h-8 flex items-center justify-center">
-                    <AnimatePresence mode="wait">
-                      {isProcessing ? (
-                        <motion.span 
-                          key="processing"
-                          initial={{ opacity: 0, y: 5 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: -5 }}
-                          className="font-mono text-sm text-[#336443] animate-pulse"
-                        >
-                          Diseñando arquitectura de flujo...
-                        </motion.span>
-                      ) : isRecording ? (
-                        <motion.div 
-                          key="recording"
-                          initial={{ opacity: 0, y: 5 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: -5 }}
-                          className="flex flex-col items-center"
-                        >
-                          <span className="font-mono text-sm text-red-400 mb-1 animate-pulse">Grabando audio...</span>
-                          <span className="font-mono text-xl text-[#1f2a1d] font-light">{formatTime(recordingTime)}</span>
-                        </motion.div>
-                      ) : (
-                        <motion.span 
-                          key="ready"
-                          initial={{ opacity: 0, y: 5 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: -5 }}
-                          className="font-mono text-sm text-[#4b5b47]/70"
-                        >
-                          Toca para hablar
-                        </motion.span>
-                      )}
-                    </AnimatePresence>
-                  </div>
-                </div>
-              </motion.div>
-            ) : (
-              <motion.div
-                key="success-ui"
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="w-full max-w-md bg-white/30 border border-[#1f2a1d]/10 rounded-[2rem] p-12 flex flex-col items-center relative overflow-hidden"
-              >
-                <div className="absolute -top-32 -right-32 w-64 h-64 bg-green-500/10 rounded-full blur-[80px] pointer-events-none" />
-                
-                <div className="w-20 h-20 bg-green-500/10 rounded-full flex items-center justify-center mb-8">
-                  <CheckCircle2 className="w-10 h-10 text-green-500" />
-                </div>
-                
-                <h2 className="text-3xl font-normal mb-4">Caso Recibido</h2>
-                <p className="text-[#4b5b47] font-mono text-sm leading-relaxed mb-10">
-                  Hemos analizado tu proceso manual. En breve, nuestro equipo te enviará un diagrama de solución automatizada.
-                </p>
-                
-                <button 
-                  onClick={() => setIsSuccess(false)}
-                  className="w-full border border-[#1f2a1d]/15 rounded-full py-4 font-mono text-sm hover:bg-[#1f2a1d] hover:text-[#f5f3ec] transition-colors"
+          <section className="mt-12 grid gap-10 lg:grid-cols-[1.08fr_0.92fr] lg:items-end">
+            <div>
+              <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-[#456241]">
+                Automatización con criterio
+              </div>
+              <h1 className="mt-5 max-w-5xl font-display text-[clamp(4rem,8vw,8.6rem)] leading-[0.82] tracking-[-0.055em]">
+                Menos pasos.
+                <span className="block italic text-[#31583a]">Más capacidad.</span>
+              </h1>
+            </div>
+            <div className="max-w-xl lg:justify-self-end">
+              <p className="text-base leading-7 text-[#53624f] sm:text-lg">
+                Empezamos por medir el trabajo manual. Después diseñamos el flujo más pequeño que puede liberar tiempo sin perder control.
+              </p>
+              <div className="mt-7 flex flex-col gap-3 sm:flex-row">
+                <Link
+                  href="/cotizar"
+                  className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-[#172016] px-6 text-sm font-semibold text-white transition-colors hover:bg-[#31583a]"
                 >
-                  Reportar otro proceso
-                </button>
-              </motion.div>
-            )}
-          </AnimatePresence>
+                  Calcular ahorro <ArrowRight className="size-4" />
+                </Link>
+                <a
+                  href={intake}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-[#172016]/12 bg-white/60 px-6 text-sm font-semibold hover:bg-white"
+                >
+                  <MessageCircle className="size-4" /> Contar el proceso
+                </a>
+              </div>
+            </div>
+          </section>
 
+          <section className="mt-20 overflow-hidden rounded-[2rem] border border-[#172016]/10 bg-[#172016] text-white shadow-[0_36px_100px_rgba(23,32,22,0.2)]">
+            <div className="grid lg:grid-cols-[0.75fr_1.25fr]">
+              <div className="border-b border-white/10 p-7 sm:p-10 lg:border-b-0 lg:border-r">
+                <div className="font-mono text-[9px] uppercase tracking-[0.18em] text-[#b8d397]">Primer alcance</div>
+                <h2 className="mt-5 font-display text-4xl leading-[0.95] sm:text-5xl">
+                  Un flujo completo vale más que diez automatizaciones sueltas.
+                </h2>
+                <p className="mt-6 text-sm leading-6 text-white/48">
+                  Desde USD 499 · 5–10 días · una integración medible de punta a punta.
+                </p>
+              </div>
+              <div className="grid sm:grid-cols-3">
+                {PROCESS.map(([index, title, description]) => (
+                  <article key={index} className="border-b border-white/10 p-7 last:border-b-0 sm:border-b-0 sm:border-r sm:last:border-r-0 sm:p-8">
+                    <div className="font-mono text-[9px] text-[#b8d397]">{index}</div>
+                    <h3 className="mt-8 font-display text-3xl">{title}</h3>
+                    <p className="mt-4 text-sm leading-6 text-white/46">{description}</p>
+                  </article>
+                ))}
+              </div>
+            </div>
+          </section>
+
+          <section className="mt-14 grid gap-3 sm:grid-cols-3">
+            {[
+              "Sin simulaciones ni grabaciones falsas.",
+              "Sin outreach o decisiones automáticas.",
+              "Con estados, errores y responsables visibles.",
+            ].map((item) => (
+              <div key={item} className="flex gap-3 rounded-2xl border border-[#172016]/10 bg-white/60 p-5 text-sm text-[#435140]">
+                <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-[#dbe9c3]">
+                  <Check className="size-3" />
+                </span>
+                {item}
+              </div>
+            ))}
+          </section>
         </div>
       </main>
-
-      <Colofon />
-    </div>
+      <OutcomeFooter />
+    </>
   );
 }

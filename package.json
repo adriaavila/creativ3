@@ -10,7 +10,10 @@
     "meta:diagnostics": "node scripts/meta-embedded-signup-diagnostics.mjs"
   },
   "dependencies": {
+    "@clerk/nextjs": "7.5.7",
+    "@clerk/ui": "^1.20.0",
     "@hookform/resolvers": "^5.2.2",
+    "@neondatabase/serverless": "1.1.0",
     "@vercel/analytics": "^2.0.1",
     "@vercel/speed-insights": "^2.0.0",
     "class-variance-authority": "^0.7.1",

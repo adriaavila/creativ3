@@ -121,8 +121,9 @@ export default function ProjectsGallery({
           const featured = variant === "section" && active === "all" && index === 0;
           return (
           <article
+            id={project.id}
             key={project.id}
-            className={`group relative flex min-h-full flex-col rounded-lg border p-3 transition-all duration-300 ${
+            className={`group relative flex min-h-full scroll-mt-24 flex-col rounded-lg border p-3 transition-all duration-300 ${
               isDark
                 ? "border-white/10 bg-white/[0.045] hover:border-white/20 hover:bg-white/[0.075]"
                 : "border-[#1f2a1d]/10 bg-white/75 shadow-sm hover:border-[#1f2a1d]/18 hover:bg-white hover:shadow-lg"

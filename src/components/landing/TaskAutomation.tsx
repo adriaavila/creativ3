@@ -28,7 +28,7 @@ export default function TaskAutomation() {
 
     const items = listRef.current.querySelectorAll(".task-item");
 
-    items.forEach((item, i) => {
+    items.forEach((item) => {
       gsap.fromTo(item,
         { opacity: 0.2, x: -20 },
         {

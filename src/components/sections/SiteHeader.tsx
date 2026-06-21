@@ -6,11 +6,10 @@ import { useEffect, useState } from "react";
 import CreativvLogo from "@/components/landing/CreativvLogo";
 
 const NAV = [
-  { label: "Oferta", href: "/#oferta" },
-  { label: "Capacidades", href: "/#servicios" },
-  { label: "Prueba", href: "/#proyectos" },
-  { label: "WhatsApp IA", href: "/whatsapp" },
-  { label: "Contacto", href: "/#contacto" },
+  { label: "Trabajo", href: "/#trabajo" },
+  { label: "Sistemas", href: "/#servicios" },
+  { label: "Agentes", href: "/#agentes" },
+  { label: "Empezar", href: "/#empezar" },
 ];
 
 const HIDE_ON = ["/projects/mistica", "/", "/whatsapp"];
@@ -61,7 +60,7 @@ export default function SiteHeader() {
             href="/cotizar"
             className="ml-2 bg-[#1f2a1d] hover:bg-[#2a3827] text-white text-sm font-medium px-5 py-2.5 rounded-full transition-colors"
           >
-            Pedir presupuesto
+            Calcular ahorro
           </Link>
         </div>
 
@@ -102,7 +101,7 @@ export default function SiteHeader() {
               onClick={() => setOpen(false)}
               className="self-start mt-2 bg-[#1f2a1d] hover:bg-[#2a3827] text-white text-sm font-semibold px-5 py-2.5 rounded-full transition-colors"
             >
-              Pedir presupuesto
+              Calcular ahorro
             </Link>
           </div>
         </div>

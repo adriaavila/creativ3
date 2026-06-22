@@ -1,6 +1,6 @@
 import { defineTool } from "eve/tools";
 import { z } from "zod";
-import { database } from "../lib/db.js";
+import { neon } from "@neondatabase/serverless";
 
 export default defineTool({
   description: "Save a personalized outreach draft for human review. This tool never sends messages.",
@@ -13,7 +13,7 @@ export default defineTool({
     content: z.string().min(40).max(3500),
   }),
   async execute({ leadId, channel, kind, content }) {
-    const sql = database();
+    const sql = neon(process.env.DATABASE_URL!);
     const [draft] = await sql`
       INSERT INTO outreach_drafts (lead_id, channel, kind, content, status)
       VALUES (${leadId}, ${channel}, ${kind}, ${content}, 'pending')

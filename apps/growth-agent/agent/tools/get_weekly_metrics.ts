@@ -1,12 +1,12 @@
 import { defineTool } from "eve/tools";
 import { z } from "zod";
-import { database } from "../lib/db.js";
+import { neon } from "@neondatabase/serverless";
 
 export default defineTool({
   description: "Read anonymous aggregate growth metrics from the last seven days for the weekly operations summary.",
   inputSchema: z.object({}),
   async execute() {
-    const sql = database();
+    const sql = neon(process.env.DATABASE_URL!);
     const [totals] = await sql`
       SELECT
         count(DISTINCT r.id)::int AS runs,

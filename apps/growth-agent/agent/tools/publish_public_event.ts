@@ -1,6 +1,6 @@
 import { defineTool } from "eve/tools";
 import { z } from "zod";
-import { database } from "../lib/db.js";
+import { neon } from "@neondatabase/serverless";
 
 export default defineTool({
   description: "Publish one anonymous, non-identifying activity event for the public landing workbench.",
@@ -11,7 +11,7 @@ export default defineTool({
     detail: z.string().min(5).max(180).refine((value) => !/@|\+\d|https?:\/\//i.test(value), "Detail must be anonymous"),
   }),
   async execute({ runId, agent, action, detail }) {
-    const sql = database();
+    const sql = neon(process.env.DATABASE_URL!);
     await sql`
       INSERT INTO public_agent_events (run_id, agent, action, detail, is_public)
       VALUES (${runId}, ${agent}, ${action}, ${detail}, true)

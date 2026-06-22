@@ -1,6 +1,6 @@
 import { defineTool } from "eve/tools";
 import { z } from "zod";
-import { database } from "../lib/db.js";
+import { neon } from "@neondatabase/serverless";
 
 export default defineTool({
   description: "Create a growth run or mark an existing run as running before research starts.",
@@ -10,7 +10,7 @@ export default defineTool({
     maxLeads: z.number().int().min(1).max(10).default(10),
   }),
   async execute({ runId, market, maxLeads }) {
-    const sql = database();
+    const sql = neon(process.env.DATABASE_URL!);
     if (runId) {
       const [run] = await sql`
         UPDATE growth_runs

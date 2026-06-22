@@ -1,6 +1,6 @@
 import { defineTool } from "eve/tools";
 import { z } from "zod";
-import { database } from "../lib/db.js";
+import { neon } from "@neondatabase/serverless";
 
 export default defineTool({
   description: "Complete or fail a growth run with a concise operational summary.",
@@ -11,7 +11,7 @@ export default defineTool({
     error: z.string().max(800).optional(),
   }),
   async execute({ runId, status, summary, error }) {
-    const sql = database();
+    const sql = neon(process.env.DATABASE_URL!);
     await sql`
       UPDATE growth_runs
       SET status = ${status}, summary = ${summary}, error = ${error ?? null},

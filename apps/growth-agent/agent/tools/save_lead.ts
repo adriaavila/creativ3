@@ -1,6 +1,6 @@
 import { defineTool } from "eve/tools";
 import { z } from "zod";
-import { database } from "../lib/db.js";
+import { neon } from "@neondatabase/serverless";
 
 const url = z.string().url().max(500);
 
@@ -20,7 +20,7 @@ export default defineTool({
     leadScore: z.number().int().min(1).max(10),
   }),
   async execute(input) {
-    const sql = database();
+    const sql = neon(process.env.DATABASE_URL!);
     const [count] = await sql`SELECT count(*)::int AS total FROM leads WHERE run_id = ${input.runId}`;
     if (Number(count.total) >= 10) throw new Error("This run already has the maximum of 10 leads");
 

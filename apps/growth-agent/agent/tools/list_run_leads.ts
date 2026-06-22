@@ -1,12 +1,12 @@
 import { defineTool } from "eve/tools";
 import { z } from "zod";
-import { database } from "../lib/db.js";
+import { neon } from "@neondatabase/serverless";
 
 export default defineTool({
   description: "List researched leads for a growth run so personalized drafts can be created.",
   inputSchema: z.object({ runId: z.string().uuid() }),
   async execute({ runId }) {
-    const sql = database();
+    const sql = neon(process.env.DATABASE_URL!);
     const rows = await sql`
       SELECT id, business_name, vertical, evidence, problem_detected, offer_angle, lead_score
       FROM leads

@@ -154,7 +154,7 @@ export default function GrowthOpsClient({
       <div className="mx-auto max-w-[1500px]">
         <header className="flex flex-wrap items-center justify-between gap-5 border-b border-white/10 pb-5">
           <div className="flex items-center gap-4">
-            <Link href="/" className="flex size-10 items-center justify-center rounded-full border border-white/10 bg-white/5" aria-label="Volver al sitio">
+            <Link id="lnk-back-to-ops" href="/ops" className="flex size-10 items-center justify-center rounded-full border border-white/10 bg-white/5" aria-label="Volver al sitio">
               <ArrowLeft className="size-4" />
             </Link>
             <div>

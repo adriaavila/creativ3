@@ -7,13 +7,13 @@ import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
 
 const opencode = createOpenAICompatible({
   name: "opencode",
-  baseURL: "https://opencode.ai/zen/v1",
+  baseURL: "https://opencode.ai/zen/go/v1",
   apiKey: process.env.OPENCODE_API_KEY,
 });
 
 try {
   const { text } = await generateText({
-    model: opencode("claude-sonnet-4-6"),
+    model: opencode("kimi-k2.7-code"),
     prompt: "Reply with exactly: OK",
   });
   console.log("SUCCESS opencode replied:", JSON.stringify(text));

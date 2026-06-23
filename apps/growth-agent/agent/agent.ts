@@ -7,7 +7,10 @@ import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
 // relative imports reached from tools, not the model module referenced by an agent.
 const opencode = createOpenAICompatible({
   name: "opencode",
-  baseURL: "https://opencode.ai/zen/go/v1",
+  // Go subscription endpoint by default; set OPENCODE_BASE_URL=https://opencode.ai/zen/v1
+  // (+ a *-free OPENCODE_MODEL) to fall back to free pay-as-you-go when the Go
+  // monthly quota is exhausted.
+  baseURL: process.env.OPENCODE_BASE_URL ?? "https://opencode.ai/zen/go/v1",
   apiKey: process.env.OPENCODE_API_KEY,
 });
 

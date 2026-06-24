@@ -180,7 +180,7 @@ export default function GrowthOpsClient({
               {running ? <LoaderCircle className="size-4 animate-spin" /> : <Play className="size-4" />}
               Ejecutar ahora
             </button>
-            <UserButton />
+            {process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY && <UserButton />}
           </div>
         </header>
 

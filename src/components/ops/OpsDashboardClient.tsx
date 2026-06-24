@@ -93,7 +93,7 @@ export default function OpsDashboardClient({ stats }: OpsDashboardClientProps) {
               )}
               Ejecutar Diagnóstico
             </button>
-            <UserButton />
+            {process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY && <UserButton />}
           </div>
         </header>
 

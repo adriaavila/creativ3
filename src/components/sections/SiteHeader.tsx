@@ -12,7 +12,7 @@ const NAV = [
   { label: "Empezar", href: "/#empezar" },
 ];
 
-const HIDE_ON = ["/projects/mistica", "/", "/whatsapp"];
+const HIDE_ON = ["/projects/mistica", "/", "/whatsapp", "/ops", "/sign-in"];
 
 export default function SiteHeader() {
   const pathname = usePathname();

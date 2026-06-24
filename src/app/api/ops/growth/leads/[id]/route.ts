@@ -1,4 +1,3 @@
-import { auth } from "@clerk/nextjs/server";
 import { z } from "zod";
 import { updateLeadFields, updateLeadStatus } from "@/lib/growth-db";
 
@@ -15,9 +14,7 @@ export async function PATCH(
   request: Request,
   context: { params: Promise<{ id: string }> },
 ) {
-  if (!process.env.CLERK_SECRET_KEY) return Response.json({ error: "Clerk no configurado." }, { status: 503 });
-  const { userId } = await auth();
-  if (!userId) return Response.json({ error: "No autorizado." }, { status: 401 });
+  // ponytail: auth gate removed for now — re-add Clerk when locking down.
   const input = schema.parse(await request.json());
   const { id } = await context.params;
 

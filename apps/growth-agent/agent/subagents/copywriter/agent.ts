@@ -2,9 +2,10 @@ import { defineAgent } from "eve";
 import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
 
 const opencode = createOpenAICompatible({
-  name: "opencode",
-  baseURL: process.env.OPENCODE_BASE_URL ?? "https://opencode.ai/zen/go/v1",
+  name: "openrouter",
+  baseURL: process.env.OPENCODE_BASE_URL ?? "https://openrouter.ai/api/v1",
   apiKey: process.env.OPENCODE_API_KEY,
+  headers: { "HTTP-Referer": "https://creativ3.app", "X-Title": "Creativv Growth Agent" },
 });
 
 export default defineAgent({

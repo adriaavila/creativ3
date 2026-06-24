@@ -1,20 +1,16 @@
-import { auth } from "@clerk/nextjs/server";
 import { z } from "zod";
 import { getGrowthLeadById } from "@/lib/growth-db";
 
 const schema = z.object({ leadId: z.string().uuid() });
 
 export async function POST(request: Request) {
-  if (!process.env.CLERK_SECRET_KEY) return Response.json({ error: "Clerk no configurado." }, { status: 503 });
-  const { userId } = await auth();
-  if (!userId) return Response.json({ error: "No autorizado." }, { status: 401 });
-
+  // ponytail: auth gate removed for now — re-add Clerk when locking down.
   const host = process.env.GROWTH_AGENT_URL;
+  if (!host) {
+    return Response.json({ error: "Configura GROWTH_AGENT_URL." }, { status: 503 });
+  }
   const username = process.env.GROWTH_AGENT_USERNAME;
   const password = process.env.GROWTH_AGENT_PASSWORD;
-  if (!host || !username || !password) {
-    return Response.json({ error: "Configura GROWTH_AGENT_URL y sus credenciales privadas." }, { status: 503 });
-  }
 
   const { leadId } = schema.parse(await request.json());
 
@@ -33,7 +29,10 @@ export async function POST(request: Request) {
     const response = await fetch(`${host.replace(/\/$/, "")}/eve/v1/session`, {
       method: "POST",
       headers: {
-        authorization: `Basic ${Buffer.from(`${username}:${password}`).toString("base64")}`,
+        // agent runs without auth now; send Basic only if creds are configured
+        ...(username && password
+          ? { authorization: `Basic ${Buffer.from(`${username}:${password}`).toString("base64")}` }
+          : {}),
         "content-type": "application/json",
       },
       body: JSON.stringify({

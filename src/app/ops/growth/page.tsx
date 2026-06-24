@@ -1,4 +1,3 @@
-import { auth } from "@clerk/nextjs/server";
 import GrowthOpsClient from "@/components/ops/GrowthOpsClient";
 import {
   getGrowthLeads,
@@ -10,10 +9,8 @@ import {
 export const dynamic = "force-dynamic";
 
 export default async function GrowthOpsPage() {
-  const clerkConfigured = Boolean(
-    process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY && process.env.CLERK_SECRET_KEY,
-  );
-  if (!clerkConfigured || !isGrowthDatabaseConfigured()) {
+  // ponytail: auth gate removed for now — panel open to anyone with the link. Re-add Clerk when locking down.
+  if (!isGrowthDatabaseConfigured()) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-[#0f1711] p-6 text-white">
         <div className="max-w-xl rounded-2xl border border-white/10 bg-white/[0.04] p-8">
@@ -28,8 +25,6 @@ export default async function GrowthOpsPage() {
     );
   }
 
-  const { userId } = await auth();
-  if (!userId) return null;
   const [runs, leads, drafts] = await Promise.all([
     getGrowthRuns(),
     getGrowthLeads(),

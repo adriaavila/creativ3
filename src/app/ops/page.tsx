@@ -1,4 +1,3 @@
-import { auth } from "@clerk/nextjs/server";
 import { neon } from "@neondatabase/serverless";
 import OpsDashboardClient from "@/components/ops/OpsDashboardClient";
 import { isGrowthDatabaseConfigured } from "@/lib/growth-db";
@@ -11,11 +10,8 @@ export const metadata = {
 };
 
 export default async function OpsPage() {
-  const clerkConfigured = Boolean(
-    process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY && process.env.CLERK_SECRET_KEY,
-  );
-
-  if (!clerkConfigured || !isGrowthDatabaseConfigured()) {
+  // ponytail: auth gate removed for now — open to anyone with the link. Re-add Clerk when locking down.
+  if (!isGrowthDatabaseConfigured()) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-[#0f1711] p-6 text-white">
         <div className="max-w-xl rounded-2xl border border-white/10 bg-white/[0.04] p-8">
@@ -32,9 +28,6 @@ export default async function OpsPage() {
       </main>
     );
   }
-
-  const { userId } = await auth();
-  if (!userId) return null;
 
   let leadsCount = 0;
   let draftsCount = 0;

@@ -444,8 +444,8 @@ export const PORTFOLIO_PROJECTS: PortfolioProject[] = [
   },
 ];
 
-const FEATURED_IDS = new Set(["shopea", "rei-fm", "frontai-landing", "mistica", "soapy"]);
+const FEATURED_IDS = ["rei-fm", "mistica", "frontai-landing", "soapy"] as const;
 
-export const FEATURED_PORTFOLIO_PROJECTS = PORTFOLIO_PROJECTS.filter((project) =>
-  FEATURED_IDS.has(project.id),
-);
+export const FEATURED_PORTFOLIO_PROJECTS = FEATURED_IDS.map((id) =>
+  PORTFOLIO_PROJECTS.find((project) => project.id === id),
+).filter((project): project is PortfolioProject => Boolean(project));

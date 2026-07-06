@@ -74,9 +74,12 @@ export default function GrowthOpsClient({
     const contactarHoy: GrowthLead[] = [];
     const followUp: GrowthLead[] = [];
     const enviarPropuesta: GrowthLead[] = [];
+    const today = new Date().toISOString().slice(0, 10);
     for (const lead of leads) {
       if (lead.status === "replied") enviarPropuesta.push(lead);
       else if (lead.status === "approved" && !lead.lastContactedAt) contactarHoy.push(lead);
+      // Scheduled follow-up that's due (set by the agent's schedule_followup tool).
+      else if (lead.nextActionAt != null && lead.nextActionAt.slice(0, 10) <= today) followUp.push(lead);
       else if (lead.status === "contacted" && isStale(lead.lastContactedAt)) followUp.push(lead);
     }
     return { contactarHoy, followUp, enviarPropuesta };

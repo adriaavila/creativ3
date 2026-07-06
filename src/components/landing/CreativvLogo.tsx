@@ -13,17 +13,16 @@ export default function CreativvLogo({ className, variant = "lockup" }: Props) {
         role="img"
         aria-label="creativv"
       >
-        <rect width="64" height="64" rx="14" fill="currentColor" />
+        <rect width="64" height="64" rx="16" fill="#f5f3ec" />
         <g
-          stroke="#f5f3ec"
-          strokeWidth="4.5"
+          stroke="#1f2a1d"
+          strokeWidth="5.5"
           fill="none"
           strokeLinecap="round"
           strokeLinejoin="round"
         >
-          <path d="M47 21 A16 16 0 1 0 47 43" />
-          <path d="M22 27 L29 40 L36 27" />
-          <path d="M34 27 L41 40 L48 27" opacity="0.55" />
+          <path d="M46 19 A16 16 0 1 0 46 45" />
+          <path d="M21 27 L28 39 L32 32 L36 39 L43 27" />
         </g>
       </svg>
     );
@@ -45,9 +44,8 @@ export default function CreativvLogo({ className, variant = "lockup" }: Props) {
           strokeLinecap="round"
           strokeLinejoin="round"
         >
-          <path d="M47 19 A18 18 0 1 0 47 45" />
-          <path d="M19 26 L28 42 L37 26" />
-          <path d="M33 26 L42 42 L51 26" opacity="0.45" />
+          <path d="M46 19 A16 16 0 1 0 46 45" />
+          <path d="M21 27 L28 39 L32 32 L36 39 L43 27" />
         </g>
       </svg>
     );
@@ -87,17 +85,17 @@ export default function CreativvLogo({ className, variant = "lockup" }: Props) {
         role="img"
         aria-label="creativv"
       >
+        <rect x="2" y="6" width="44" height="44" rx="11" fill="#f5f3ec" />
         <g
-          stroke="currentColor"
-          strokeWidth="3.6"
+          stroke="#1f2a1d"
+          strokeWidth="5.5"
           fill="none"
           strokeLinecap="round"
           strokeLinejoin="round"
-          transform="translate(2,4)"
+          transform="translate(2,6) scale(0.6875)"
         >
-          <path d="M40 14 A14 14 0 1 0 40 34" />
-          <path d="M11 20 L18 33 L25 20" />
-          <path d="M22 20 L29 33 L36 20" opacity="0.45" />
+          <path d="M46 19 A16 16 0 1 0 46 45" />
+          <path d="M21 27 L28 39 L32 32 L36 39 L43 27" />
         </g>
         <text
           x="62"
@@ -124,18 +122,17 @@ export default function CreativvLogo({ className, variant = "lockup" }: Props) {
       aria-label="creativv"
     >
       <g>
-        <rect width="48" height="48" y="4" rx="11" fill="currentColor" />
+        <rect width="48" height="48" y="4" rx="12" fill="#f5f3ec" />
         <g
-          stroke="#f5f3ec"
-          strokeWidth="3.6"
+          stroke="#1f2a1d"
+          strokeWidth="4.1"
           fill="none"
           strokeLinecap="round"
           strokeLinejoin="round"
-          transform="translate(0,4)"
+          transform="translate(0,4) scale(0.75)"
         >
-          <path d="M35 16 A12 12 0 1 0 35 32" />
-          <path d="M17 21 L22 31 L27 21" />
-          <path d="M25.5 21 L30.5 31 L35.5 21" opacity="0.55" />
+          <path d="M46 19 A16 16 0 1 0 46 45" />
+          <path d="M21 27 L28 39 L32 32 L36 39 L43 27" />
         </g>
       </g>
       <text

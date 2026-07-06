@@ -1,20 +1,12 @@
 import { defineAgent } from "eve";
-import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
+import { gateway } from "ai";
 
-// opencode Go subscription: OpenAI-compatible, Bearer auth, bare model ids.
-// NOTE the /go/ path — that's the subscription endpoint; /zen/v1 is pay-as-you-go
-// and returns CreditsError. Inlined (not a shared lib/) because eve only compiles
-// relative imports reached from tools, not the model module referenced by an agent.
-const opencode = createOpenAICompatible({
-  name: "openrouter",
-  baseURL: process.env.OPENCODE_BASE_URL ?? "https://openrouter.ai/api/v1",
-  apiKey: process.env.OPENCODE_API_KEY,
-  headers: { "HTTP-Referer": "https://creativ3.app", "X-Title": "Creativv Growth Agent" },
-});
-
+// Vercel AI Gateway: plain "provider/model" strings, native fallbacks + OTel.
+// Needs AI_GATEWAY_API_KEY (or Vercel OIDC in deploy). Replaced opencode Go,
+// whose key 401s on billing.
 export default defineAgent({
-  model: opencode(process.env.OPENCODE_MODEL ?? "kimi-k2.7-code"),
-  // eve can't look up context-window metadata for custom model ids; supply it.
-  modelContextWindowTokens: 128_000,
+  model: gateway(process.env.GROWTH_MODEL ?? "anthropic/claude-sonnet-4-6"),
+  // eve can't look up context-window metadata for gateway model ids; supply it.
+  modelContextWindowTokens: 200_000,
   compaction: { thresholdPercent: 0.75 },
 });

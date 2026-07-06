@@ -6,7 +6,7 @@ import { ArrowUpRight } from "lucide-react";
 import { track } from "@vercel/analytics";
 import { PORTFOLIO_PROJECTS } from "@/lib/projects";
 
-const FEATURED_IDS = ["shopea", "rei-fm", "frontai-landing", "mistica"];
+const FEATURED_IDS = ["rei-fm", "mistica", "frontai-landing", "soapy"];
 const STATUS_LABEL = {
   launched: "Lanzado",
   demo: "Demo",

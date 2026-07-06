@@ -11,7 +11,7 @@ export function siteJsonLd() {
       "@type": "Organization",
       name: SITE_NAME,
       url: SITE_URL,
-      logo: `${SITE_URL}/logo.png`,
+      logo: `${SITE_URL}/logo.svg`,
       email: CONTACT_EMAIL,
       description:
         "Estudio creativo: landing pages, automatizaciones y productos digitales para captar leads y vender con menos fricción.",

@@ -41,11 +41,11 @@ const instrumentSans = Instrument_Sans({
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.servicioscreativos.online"),
   title: {
-    default: "creativv | Sistemas digitales y agentes IA para negocios",
+    default: "creativv | Aumenta ingresos o reduce costos",
     template: "%s | creativv",
   },
   description:
-    "Creativv diseña landing pages, webs, productos, dashboards, automatizaciones y agentes IA para vender más y reducir el costo de operar.",
+    "Creativv diseña landing pages, sitios web y ecommerce para aumentar ingresos; automatizaciones, dashboards y apps para reducir costos.",
   alternates: { canonical: "/" },
   verification: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION
     ? { google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION }
@@ -64,9 +64,9 @@ export const metadata: Metadata = {
     "WhatsApp",
   ],
   openGraph: {
-    title: "creativv | Vende más y reduce el costo de operar",
+    title: "creativv | Diseño digital para crecer u operar mejor",
     description:
-      "Sistemas digitales y agentes IA para convertir demanda en ventas y trabajo manual en operaciones visibles.",
+      "Landing pages, sitios web y ecommerce para vender más. Automatizaciones, dashboards y apps para operar con menos fricción.",
     url: "https://www.servicioscreativos.online",
     siteName: "creativv",
     locale: "es_VE",
@@ -75,9 +75,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "creativv | Sistemas digitales y agentes IA",
+    title: "creativv | Aumenta ingresos o reduce costos",
     description:
-      "Landing pages, productos, automatizaciones, dashboards y agentes para vender más y operar con menos fricción.",
+      "Estrategia, UX/UI y software diseñados alrededor del resultado que tu negocio necesita.",
     images: ["/opengraph-image"],
   },
 };

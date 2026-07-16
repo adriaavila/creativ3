@@ -4,7 +4,7 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Shield, CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import {
-  META_MESSAGE_ORIGINS,
+  isMetaMessageOrigin,
   type MetaEmbeddedSignupConfig,
   type MetaSignupSession,
 } from "@/lib/meta/embedded-signup";
@@ -61,8 +61,6 @@ type PendingSignup = {
 };
 
 type Status = "idle" | "loading" | "exchanging" | "success" | "error";
-
-const allowedOrigins = new Set<string>(META_MESSAGE_ORIGINS);
 
 export default function EmbeddedWhatsapp() {
   const [config, setConfig] = useState<MetaEmbeddedSignupConfig | null>(null);
@@ -180,7 +178,7 @@ export default function EmbeddedWhatsapp() {
     void bootMetaSdk();
 
     const handleMessage = (event: MessageEvent) => {
-      if (!allowedOrigins.has(event.origin)) return;
+      if (!isMetaMessageOrigin(event.origin)) return;
 
       const signupEvent = parseSignupEvent(event.data);
       if (signupEvent?.type !== "WA_EMBEDDED_SIGNUP") return;

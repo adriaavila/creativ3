@@ -1,7 +1,20 @@
 export const META_MESSAGE_ORIGINS = [
   "https://www.facebook.com",
   "https://web.facebook.com",
+  "https://business.facebook.com",
 ] as const;
+
+export function isMetaMessageOrigin(origin: string) {
+  try {
+    const url = new URL(origin);
+    return (
+      url.protocol === "https:" &&
+      (url.hostname === "facebook.com" || url.hostname.endsWith(".facebook.com"))
+    );
+  } catch {
+    return false;
+  }
+}
 
 // Only these two are grantable by a WhatsApp Embedded Signup config; Meta does
 // not offer business_management there, and requiring it 403s every onboarding.

@@ -91,6 +91,19 @@ export type MetaWhatsAppPhoneProfile = {
   name_status?: string;
 };
 
+export type ResolvedMetaSignupPayload = MetaEmbeddedSignupPayload & {
+  waba_id: string;
+  phone_number_id: string;
+};
+
+type ValidatedMetaSignupPayload = Omit<
+  MetaEmbeddedSignupPayload,
+  "waba_id" | "phone_number_id"
+> & {
+  waba_id?: string;
+  phone_number_id?: string;
+};
+
 type N8nForwardResponse = {
   ok: boolean;
   status: number;
@@ -153,7 +166,7 @@ export function getExchangeEnv() {
 }
 
 export function validateSignupPayload(input: unknown): {
-  payload?: MetaEmbeddedSignupPayload;
+  payload?: ValidatedMetaSignupPayload;
   errors: string[];
 } {
   if (!input || typeof input !== "object") {
@@ -162,7 +175,7 @@ export function validateSignupPayload(input: unknown): {
 
   const value = input as Record<string, unknown>;
   const errors: string[] = [];
-  const required = ["code", "waba_id", "phone_number_id"] as const;
+  const required = ["code"] as const;
 
   for (const key of required) {
     if (typeof value[key] !== "string" || !value[key]?.toString().trim()) {
@@ -178,8 +191,8 @@ export function validateSignupPayload(input: unknown): {
     errors,
     payload: {
       code: value.code as string,
-      waba_id: value.waba_id as string,
-      phone_number_id: value.phone_number_id as string,
+      waba_id: stringOrUndefined(value.waba_id),
+      phone_number_id: stringOrUndefined(value.phone_number_id),
       business_id: stringOrUndefined(value.business_id),
       state: stringOrUndefined(value.state),
       client: stringOrUndefined(value.client),
@@ -260,6 +273,83 @@ export async function getWhatsAppPhoneProfile(
       fields: "id,display_phone_number,verified_name,quality_rating,name_status",
     },
   });
+}
+
+export async function resolveMetaSignupConnection(input: {
+  payload: ValidatedMetaSignupPayload;
+  debugData: MetaDebugTokenData;
+  businessToken: string;
+  graphVersion: string;
+}): Promise<{
+  payload: ResolvedMetaSignupPayload;
+  phoneProfile: MetaWhatsAppPhoneProfile;
+} | null> {
+  if (input.payload.waba_id && input.payload.phone_number_id) {
+    const phoneProfile = await getWhatsAppPhoneProfile(
+      input.payload.phone_number_id,
+      input.businessToken,
+      input.graphVersion,
+    );
+    return {
+      payload: {
+        ...input.payload,
+        waba_id: input.payload.waba_id,
+        phone_number_id: input.payload.phone_number_id,
+      },
+      phoneProfile,
+    };
+  }
+
+  const authorizedWabaIds = new Set<string>();
+  if (input.payload.waba_id) authorizedWabaIds.add(input.payload.waba_id);
+
+  for (const granularScope of input.debugData.granular_scopes ?? []) {
+    if (!granularScope.scope?.startsWith("whatsapp_business_")) continue;
+    for (const targetId of granularScope.target_ids ?? []) authorizedWabaIds.add(targetId);
+  }
+
+  const candidates: Array<{
+    wabaId: string;
+    phone: MetaWhatsAppPhoneProfile;
+  }> = [];
+
+  for (const wabaId of authorizedWabaIds) {
+    try {
+      const response = await graphRequest<{ data?: MetaWhatsAppPhoneProfile[] }>({
+        requestName: "discover_whatsapp_phone_numbers",
+        graphVersion: input.graphVersion,
+        path: `${encodeURIComponent(wabaId)}/phone_numbers`,
+        accessToken: input.businessToken,
+        searchParams: {
+          fields: "id,display_phone_number,verified_name,quality_rating,name_status",
+        },
+      });
+
+      for (const phone of response.data ?? []) {
+        if (!phone.id) continue;
+        candidates.push({ wabaId, phone });
+      }
+    } catch (error) {
+      if (!(error instanceof MetaGraphRequestError)) throw error;
+    }
+  }
+
+  const selected = input.payload.phone_number_id
+    ? candidates.find((candidate) => candidate.phone.id === input.payload.phone_number_id)
+    : candidates.length === 1
+      ? candidates[0]
+      : undefined;
+
+  if (!selected?.phone.id) return null;
+
+  return {
+    payload: {
+      ...input.payload,
+      waba_id: selected.wabaId,
+      phone_number_id: selected.phone.id,
+    },
+    phoneProfile: selected.phone,
+  };
 }
 
 export function buildTokenMetadata(

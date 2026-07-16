@@ -6,8 +6,8 @@ import {
   forwardConnectedAccountToN8n,
   getExchangeEnv,
   getMissingTokenPermissions,
-  getWhatsAppPhoneProfile,
   META_SIGNUP_STATE_COOKIE,
+  resolveMetaSignupConnection,
   safeMetaError,
   subscribeWabaToApp,
   validateSignupPayload,
@@ -74,8 +74,27 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const resolved = await resolveMetaSignupConnection({
+      payload,
+      debugData,
+      businessToken,
+      graphVersion: exchangeEnv.env.graphVersion,
+    });
+
+    if (!resolved) {
+      return NextResponse.json(
+        {
+          error:
+            "Meta authorized the account, but the connected phone number could not be identified automatically.",
+        },
+        { status: 409 },
+      );
+    }
+
+    const connectedPayload = resolved.payload;
+    const phoneProfile = resolved.phoneProfile;
     const subscribeResult = await subscribeWabaToApp(
-      payload.waba_id,
+      connectedPayload.waba_id,
       businessToken,
       exchangeEnv.env.graphVersion,
     );
@@ -84,13 +103,8 @@ export async function POST(req: NextRequest) {
     // Calling POST /{phone-number-id}/register here would take it off the app.
     const connectedAt = new Date().toISOString();
     const tokenMetadata = buildTokenMetadata(tokenExchange, debugData);
-    const phoneProfile = await getWhatsAppPhoneProfile(
-      payload.phone_number_id,
-      businessToken,
-      exchangeEnv.env.graphVersion,
-    );
     const n8nResult = await forwardConnectedAccountToN8n({
-      payload,
+      payload: connectedPayload,
       businessToken,
       tokenMetadata,
       subscribeResult,
@@ -114,7 +128,7 @@ export async function POST(req: NextRequest) {
     }
 
     await upsertWhatsAppConnection({
-      payload,
+      payload: connectedPayload,
       businessToken,
       tokenMetadata,
       phoneProfile,
@@ -125,9 +139,9 @@ export async function POST(req: NextRequest) {
     const response = NextResponse.json({
       ok: true,
       connected_account: {
-        waba_id: payload.waba_id,
-        phone_number_id: payload.phone_number_id,
-        business_id: payload.business_id,
+        waba_id: connectedPayload.waba_id,
+        phone_number_id: connectedPayload.phone_number_id,
+        business_id: connectedPayload.business_id,
         display_phone_number: phoneProfile.display_phone_number,
         verified_name: phoneProfile.verified_name,
         connected_at: connectedAt,

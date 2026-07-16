@@ -75,13 +75,12 @@ export default function EmbeddedWhatsapp() {
   const exchangeStartedRef = useRef(false);
   const signupStateRef = useRef<string>("");
 
-  const exchangeWhenReady = useCallback(async () => {
+  const exchangeWhenReady = useCallback(async (allowServerDiscovery = false) => {
     const pending = pendingSignupRef.current;
     if (
       exchangeStartedRef.current ||
       !pending.code ||
-      !pending.waba_id ||
-      !pending.phone_number_id
+      (!allowServerDiscovery && (!pending.waba_id || !pending.phone_number_id))
     ) {
       return;
     }
@@ -112,9 +111,12 @@ export default function EmbeddedWhatsapp() {
       return;
     }
 
+    const connectedAccount = result.connected_account as
+      | { waba_id?: string; phone_number_id?: string }
+      | undefined;
     setSuccessDetails({
-      waba_id: pending.waba_id,
-      phone_number_id: pending.phone_number_id,
+      waba_id: connectedAccount?.waba_id ?? pending.waba_id,
+      phone_number_id: connectedAccount?.phone_number_id ?? pending.phone_number_id,
     });
     setStatus("success");
   }, []);
@@ -239,16 +241,8 @@ export default function EmbeddedWhatsapp() {
     void exchangeWhenReady();
 
     window.setTimeout(() => {
-      const pending = pendingSignupRef.current;
-      if (
-        !exchangeStartedRef.current &&
-        pending.code &&
-        (!pending.waba_id || !pending.phone_number_id)
-      ) {
-        setStatus("error");
-        setErrorMessage("Meta devolvió el código, pero no llegó el evento con WABA y número.");
-      }
-    }, 24000);
+      void exchangeWhenReady(true);
+    }, 2500);
   };
 
   const launchWhatsAppSignup = () => {

@@ -17,7 +17,10 @@ import {
   XCircle,
   AlertCircle,
   FileText,
+  MessageCircle,
+  RefreshCw,
 } from "lucide-react";
+import type { WhatsAppConnectionView } from "@/lib/whatsapp-connections-db";
 
 type DiagnosticsResult = {
   env: Record<string, boolean>;
@@ -34,12 +37,23 @@ type OpsDashboardClientProps = {
     draftsCount: number;
     runsCount: number;
   };
+  initialWhatsAppConnections: WhatsAppConnectionView[];
+  initialWhatsAppConnectionsError: string | null;
 };
 
-export default function OpsDashboardClient({ stats }: OpsDashboardClientProps) {
+export default function OpsDashboardClient({
+  stats,
+  initialWhatsAppConnections,
+  initialWhatsAppConnectionsError,
+}: OpsDashboardClientProps) {
   const [running, setRunning] = useState(false);
   const [results, setResults] = useState<DiagnosticsResult>(null);
   const [error, setError] = useState<string | null>(null);
+  const [whatsappConnections, setWhatsAppConnections] = useState(initialWhatsAppConnections);
+  const [whatsappConnectionsError, setWhatsAppConnectionsError] = useState(
+    initialWhatsAppConnectionsError,
+  );
+  const [refreshingWhatsApp, setRefreshingWhatsApp] = useState(false);
 
   const runDiagnostics = async () => {
     setRunning(true);
@@ -55,6 +69,29 @@ export default function OpsDashboardClient({ stats }: OpsDashboardClientProps) {
       setError(e instanceof Error ? e.message : String(e));
     } finally {
       setRunning(false);
+    }
+  };
+
+  const refreshWhatsAppConnections = async () => {
+    setRefreshingWhatsApp(true);
+    setWhatsAppConnectionsError(null);
+    try {
+      const response = await fetch("/api/ops/whatsapp-connections", {
+        cache: "no-store",
+      });
+      if (!response.ok) {
+        throw new Error(`La consulta respondió con estado ${response.status}`);
+      }
+      const data = (await response.json()) as { connections: WhatsAppConnectionView[] };
+      setWhatsAppConnections(data.connections);
+    } catch (refreshError) {
+      setWhatsAppConnectionsError(
+        refreshError instanceof Error
+          ? refreshError.message
+          : "No se pudo actualizar la lista.",
+      );
+    } finally {
+      setRefreshingWhatsApp(false);
     }
   };
 
@@ -98,7 +135,7 @@ export default function OpsDashboardClient({ stats }: OpsDashboardClientProps) {
         </header>
 
         {/* Overview Stats */}
-        <section className="mt-8 grid gap-4 sm:grid-cols-3">
+        <section className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
           {[
             {
               label: "Leads Investigados",
@@ -114,6 +151,13 @@ export default function OpsDashboardClient({ stats }: OpsDashboardClientProps) {
               label: "Historial de Runs",
               value: stats.runsCount,
               desc: "Sesiones de adquisición ejecutadas",
+            },
+            {
+              label: "Números WhatsApp",
+              value: whatsappConnections.filter(
+                (connection) => connection.status !== "deauthorized",
+              ).length,
+              desc: "Conexiones registradas por Embedded Signup",
             },
           ].map((item) => (
             <div
@@ -171,16 +215,124 @@ export default function OpsDashboardClient({ stats }: OpsDashboardClientProps) {
                 </div>
                 <div className="mt-6">
                   <a
-                    href="https://developers.facebook.com/"
-                    target="_blank"
-                    rel="noopener noreferrer"
+                    href="#whatsapp-connections"
                     className="inline-flex items-center gap-2 text-sm font-semibold text-[#dbe9c3] transition hover:text-white"
                   >
-                    Meta Developers Console <ArrowRight className="size-4" />
+                    Ver números conectados <ArrowRight className="size-4" />
                   </a>
                 </div>
               </div>
             </div>
+
+            <section
+              id="whatsapp-connections"
+              className="scroll-mt-6 rounded-2xl border border-white/10 bg-white/[0.02] p-6"
+            >
+              <div className="flex flex-wrap items-start justify-between gap-4 border-b border-white/10 pb-4">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <MessageCircle className="size-5 text-[#a9c989]" />
+                    <h2 className="font-display text-xl">Números conectados</h2>
+                  </div>
+                  <p className="mt-2 text-sm text-white/50">
+                    Inventario persistente de números autorizados mediante coexistencia.
+                  </p>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={refreshWhatsAppConnections}
+                    disabled={refreshingWhatsApp}
+                    className="inline-flex min-h-10 items-center gap-2 rounded-full border border-white/10 px-4 text-sm font-semibold text-white/70 transition hover:bg-white/5 hover:text-white disabled:opacity-50"
+                  >
+                    <RefreshCw
+                      className={`size-4 ${refreshingWhatsApp ? "animate-spin" : ""}`}
+                    />
+                    Actualizar
+                  </button>
+                  <Link
+                    href="/embedded-whatsapp"
+                    className="inline-flex min-h-10 items-center gap-2 rounded-full bg-[#dbe9c3] px-4 text-sm font-semibold text-[#172016] transition hover:bg-white"
+                  >
+                    Conectar otro número <ArrowRight className="size-4" />
+                  </Link>
+                </div>
+              </div>
+
+              {whatsappConnectionsError && (
+                <div className="mt-4 flex items-center gap-3 rounded-xl border border-red-500/20 bg-red-500/5 p-4 text-sm text-red-300">
+                  <AlertCircle className="size-5 shrink-0" />
+                  {whatsappConnectionsError}
+                </div>
+              )}
+
+              {whatsappConnections.length === 0 ? (
+                <div className="mt-5 rounded-xl border border-dashed border-white/10 px-5 py-10 text-center">
+                  <p className="text-sm text-white/55">Todavía no hay números conectados.</p>
+                  <Link
+                    href="/embedded-whatsapp"
+                    className="mt-3 inline-flex items-center gap-2 text-sm font-semibold text-[#dbe9c3] hover:text-white"
+                  >
+                    Iniciar el primer onboarding <ArrowRight className="size-4" />
+                  </Link>
+                </div>
+              ) : (
+                <div className="mt-5 overflow-x-auto">
+                  <table className="w-full min-w-[780px] text-left text-sm">
+                    <thead className="font-mono text-[9px] uppercase tracking-[0.16em] text-white/35">
+                      <tr className="border-b border-white/10">
+                        <th className="px-3 py-3 font-medium">Número</th>
+                        <th className="px-3 py-3 font-medium">Nombre verificado</th>
+                        <th className="px-3 py-3 font-medium">Estado</th>
+                        <th className="px-3 py-3 font-medium">Calidad</th>
+                        <th className="px-3 py-3 font-medium">WABA</th>
+                        <th className="px-3 py-3 font-medium">Conectado</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {whatsappConnections.map((connection) => (
+                        <tr
+                          key={`${connection.wabaId}:${connection.phoneNumberId}`}
+                          className="border-b border-white/[0.06] last:border-0"
+                        >
+                          <td className="px-3 py-4">
+                            <div className="font-semibold text-white">
+                              {connection.displayPhoneNumber ?? "Pendiente de Meta"}
+                            </div>
+                            <div className="mt-1 font-mono text-[10px] text-white/35">
+                              ID {connection.phoneNumberId}
+                            </div>
+                          </td>
+                          <td className="px-3 py-4 text-white/65">
+                            {connection.verifiedName ?? "Sin nombre verificado"}
+                          </td>
+                          <td className="px-3 py-4">
+                            <span
+                              className={`rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide ${
+                                connection.status === "deauthorized"
+                                  ? "bg-red-500/10 text-red-300"
+                                  : "bg-[#a9c989]/10 text-[#bfe39b]"
+                              }`}
+                            >
+                              {connection.status}
+                            </span>
+                          </td>
+                          <td className="px-3 py-4 text-white/65">
+                            {connection.qualityRating ?? "Sin dato"}
+                          </td>
+                          <td className="px-3 py-4 font-mono text-[11px] text-white/45">
+                            {connection.wabaId}
+                          </td>
+                          <td className="px-3 py-4 text-white/55">
+                            {formatConnectionDate(connection.connectedAt)}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </section>
 
             {/* Diagnostics Report */}
             <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-6">
@@ -250,8 +402,8 @@ export default function OpsDashboardClient({ stats }: OpsDashboardClientProps) {
                         <Server className="size-5" />
                       </div>
                       <div>
-                        <div className="text-sm font-semibold">Eve IA Growth Agent</div>
-                        <div className="text-xs text-white/50">API daemon en {process.env.NEXT_PUBLIC_GROWTH_AGENT_URL || "localhost:4001"}</div>
+                        <div className="text-sm font-semibold">Growth Agent Runtime</div>
+                        <div className="text-xs text-white/50">Runtime configurable: Eve o Hermes Agent</div>
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
@@ -349,7 +501,7 @@ export default function OpsDashboardClient({ stats }: OpsDashboardClientProps) {
                   { key: "N8N_WEBHOOK_URL", isOptional: false },
                   { key: "META_WEBHOOK_VERIFY_TOKEN", isOptional: false },
                   { key: "APP_URL", isOptional: false },
-                  { key: "N8N_WEBHOOK_SECRET", isOptional: true },
+                  { key: "N8N_WEBHOOK_SECRET", isOptional: false },
                 ].map((item) => {
                   const configured = results ? results.env[item.key] : true; // assume true before run
                   return (
@@ -390,7 +542,7 @@ export default function OpsDashboardClient({ stats }: OpsDashboardClientProps) {
                     id="chk-1"
                   />
                   <label htmlFor="chk-1" className="leading-5">
-                    Permisos de Meta aprobados (`business_management`, `whatsapp_business_management`, `whatsapp_business_messaging`).
+                    App publicada y permisos aprobados (`whatsapp_business_management`, `whatsapp_business_messaging`).
                   </label>
                 </li>
                 <li className="flex items-start gap-2.5">
@@ -430,4 +582,11 @@ export default function OpsDashboardClient({ stats }: OpsDashboardClientProps) {
       </div>
     </main>
   );
+}
+
+function formatConnectionDate(value: string) {
+  return new Intl.DateTimeFormat("es-VE", {
+    dateStyle: "medium",
+    timeStyle: "short",
+  }).format(new Date(value));
 }

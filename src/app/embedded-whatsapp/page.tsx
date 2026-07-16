@@ -124,8 +124,6 @@ export default function EmbeddedWhatsapp() {
   useEffect(() => {
     let cancelled = false;
 
-    signupStateRef.current = getOrCreateSignupState();
-
     async function bootMetaSdk() {
       try {
         const response = await fetch("/api/meta/embedded-signup/config", {
@@ -140,6 +138,7 @@ export default function EmbeddedWhatsapp() {
         if (cancelled) return;
 
         setConfig(metaConfig);
+        signupStateRef.current = metaConfig.state;
 
         const initializeSdk = () => {
           window.FB?.init({
@@ -300,8 +299,7 @@ export default function EmbeddedWhatsapp() {
         setSuccessDetails(null);
         pendingSignupRef.current = {};
         exchangeStartedRef.current = false;
-        window.sessionStorage.removeItem("meta_embedded_signup_state");
-        signupStateRef.current = getOrCreateSignupState();
+        window.location.reload();
       } else {
         setStatus("error");
         setErrorMessage(
@@ -451,21 +449,6 @@ function getSafeAppContext() {
     team_id: safeParam(params, "team_id"),
     account_id: safeParam(params, "account_id"),
   };
-}
-
-function getOrCreateSignupState() {
-  const params = new URLSearchParams(window.location.search);
-  const explicitState = safeParam(params, "state");
-  if (explicitState) return explicitState;
-
-  const existingState = window.sessionStorage.getItem("meta_embedded_signup_state");
-  if (existingState) return existingState;
-
-  const state =
-    window.crypto?.randomUUID?.() ??
-    `meta_${Date.now().toString(36)}_${Math.random().toString(36).slice(2)}`;
-  window.sessionStorage.setItem("meta_embedded_signup_state", state);
-  return state;
 }
 
 function safeParam(params: URLSearchParams, key: string) {

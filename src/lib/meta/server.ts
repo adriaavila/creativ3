@@ -1,3 +1,4 @@
+import crypto from "node:crypto";
 import { META_REQUIRED_PERMISSIONS, type MetaEmbeddedSignupPayload } from "./embedded-signup";
 
 const DEFAULT_GRAPH_VERSION = "v25.0";
@@ -7,7 +8,10 @@ const REQUIRED_EXCHANGE_ENV = [
   "META_APP_SECRET",
   "META_CONFIG_ID",
   "N8N_WEBHOOK_URL",
+  "N8N_WEBHOOK_SECRET",
 ] as const;
+
+export const META_SIGNUP_STATE_COOKIE = "meta_embedded_signup_state";
 
 export const META_ENV_CHECKS = [
   "META_APP_ID",
@@ -17,6 +21,7 @@ export const META_ENV_CHECKS = [
   "META_WEBHOOK_VERIFY_TOKEN",
   "META_WEBHOOK_CALLBACK_URL",
   "N8N_WEBHOOK_URL",
+  "N8N_WEBHOOK_SECRET",
   "APP_URL",
 ] as const;
 
@@ -78,10 +83,25 @@ type SubscribeResponse = {
   success?: boolean;
 };
 
+export type MetaWhatsAppPhoneProfile = {
+  id?: string;
+  display_phone_number?: string;
+  verified_name?: string;
+  quality_rating?: string;
+  name_status?: string;
+};
+
 type N8nForwardResponse = {
   ok: boolean;
   status: number;
   body?: unknown;
+};
+
+export type MetaSignedRequestPayload = {
+  algorithm?: string;
+  issued_at?: number;
+  user_id?: string;
+  [key: string]: unknown;
 };
 
 export function getGraphVersion() {
@@ -226,6 +246,22 @@ export async function subscribeWabaToApp(
   });
 }
 
+export async function getWhatsAppPhoneProfile(
+  phoneNumberId: string,
+  businessToken: string,
+  graphVersion: string,
+) {
+  return graphRequest<MetaWhatsAppPhoneProfile>({
+    requestName: "get_whatsapp_phone_profile",
+    graphVersion,
+    path: encodeURIComponent(phoneNumberId),
+    accessToken: businessToken,
+    searchParams: {
+      fields: "id,display_phone_number,verified_name,quality_rating,name_status",
+    },
+  });
+}
+
 export function buildTokenMetadata(
   exchange: ExchangeResponse,
   debugData: MetaDebugTokenData,
@@ -255,6 +291,72 @@ export function getMissingTokenPermissions(debugData: MetaDebugTokenData) {
   return META_REQUIRED_PERMISSIONS.filter((permission) => !granted.has(permission));
 }
 
+export function verifyMetaSignedRequest(signedRequest: string, appSecret: string) {
+  const [encodedSignature, encodedPayload, ...extraParts] = signedRequest.split(".");
+  if (!encodedSignature || !encodedPayload || extraParts.length > 0) return undefined;
+
+  const received = decodeBase64Url(encodedSignature);
+  const expected = crypto.createHmac("sha256", appSecret).update(encodedPayload).digest();
+  if (
+    received.length !== expected.length ||
+    !crypto.timingSafeEqual(received, expected)
+  ) {
+    return undefined;
+  }
+
+  try {
+    const payload = JSON.parse(
+      decodeBase64Url(encodedPayload).toString("utf8"),
+    ) as MetaSignedRequestPayload;
+
+    if (
+      payload.algorithm &&
+      payload.algorithm.toUpperCase().replace(/[^A-Z0-9]/g, "") !== "HMACSHA256"
+    ) {
+      return undefined;
+    }
+
+    return payload;
+  } catch {
+    return undefined;
+  }
+}
+
+export async function forwardMetaAccountLifecycleToN8n(input: {
+  event: "meta_app_deauthorized" | "meta_user_data_deletion_requested";
+  userId: string;
+  issuedAt?: number;
+  receivedAt: string;
+}) {
+  const url = process.env.N8N_WEBHOOK_URL;
+  const secret = process.env.N8N_WEBHOOK_SECRET;
+
+  if (!url || !secret) {
+    return {
+      ok: false,
+      status: 503,
+      body: { error: "Meta lifecycle forwarding is not configured." },
+    };
+  }
+
+  const response = await fetch(url, {
+    method: "POST",
+    headers: buildN8nHeaders(secret),
+    body: JSON.stringify({
+      event: input.event,
+      user_id: input.userId,
+      issued_at: input.issuedAt,
+      received_at: input.receivedAt,
+    }),
+  });
+
+  return {
+    ok: response.ok,
+    status: response.status,
+    body: await readSafeBody(response),
+  };
+}
+
 export async function forwardConnectedAccountToN8n(input: {
   payload: MetaEmbeddedSignupPayload;
   businessToken: string;
@@ -262,8 +364,6 @@ export async function forwardConnectedAccountToN8n(input: {
   subscribeResult: SubscribeResponse;
   env: NonNullable<ReturnType<typeof getExchangeEnv>["env"]>;
   connectedAt: string;
-  pin?: string;
-  registerResult?: SubscribeResponse;
 }): Promise<N8nForwardResponse> {
   const response = await fetch(input.env.n8nWebhookUrl, {
     method: "POST",
@@ -277,18 +377,13 @@ export async function forwardConnectedAccountToN8n(input: {
         business_token: input.businessToken,
         token_metadata: input.tokenMetadata,
         connected_at: input.connectedAt,
-        pin: input.pin,
         owner: {
           client: input.payload.client,
           user_id: input.payload.user_id,
           team_id: input.payload.team_id,
           account_id: input.payload.account_id,
         },
-        status: input.registerResult?.success
-          ? "registered"
-          : input.subscribeResult.success
-            ? "subscribed"
-            : "connected",
+        status: input.subscribeResult.success ? "subscribed" : "connected",
       },
       signup: {
         code: input.payload.code,
@@ -302,7 +397,6 @@ export async function forwardConnectedAccountToN8n(input: {
         webhook_callback_url: input.env.webhookCallbackUrl,
         app_url: input.env.appUrl,
         subscribe_succeeded: input.subscribeResult.success === true,
-        register_succeeded: input.registerResult?.success === true,
       },
     }),
   });
@@ -456,6 +550,11 @@ function normalizeGraphError(body: unknown): GraphErrorBody | { raw: string } {
     error_subcode: numberOrUndefined(value.error_subcode),
     fbtrace_id: stringOrUndefined(value.fbtrace_id),
   };
+}
+
+function decodeBase64Url(value: string) {
+  const normalized = value.replace(/-/g, "+").replace(/_/g, "/");
+  return Buffer.from(normalized.padEnd(Math.ceil(normalized.length / 4) * 4, "="), "base64");
 }
 
 function sanitizeSession(value: unknown) {

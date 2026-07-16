@@ -1,20 +1,15 @@
-import { clerkMiddleware } from "@clerk/nextjs/server";
-import { NextResponse, type NextFetchEvent, type NextRequest } from "next/server";
+import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+import { NextResponse } from "next/server";
 
-const handler = clerkMiddleware(async (auth) => {
-  await auth.protect();
+const isProtectedRoute = createRouteMatcher(["/ops(.*)", "/api/ops(.*)"]);
+const clerkConfigured = Boolean(process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY && process.env.CLERK_SECRET_KEY);
+
+const protectedProxy = clerkMiddleware(async (auth, request) => {
+  if (isProtectedRoute(request)) await auth.protect();
 });
 
-export default function proxy(request: NextRequest, event: NextFetchEvent) {
-  if (!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY || !process.env.CLERK_SECRET_KEY) {
-    return NextResponse.next();
-  }
-  return handler(request, event);
-}
+export default clerkConfigured ? protectedProxy : () => NextResponse.next();
 
 export const config = {
-  matcher: [
-    "/ops/growth/:path*",
-    "/api/ops/growth/:path*",
-  ],
+  matcher: ["/ops/:path*", "/api/ops/:path*"],
 };

@@ -3,8 +3,9 @@ export const META_MESSAGE_ORIGINS = [
   "https://web.facebook.com",
 ] as const;
 
+// Only these two are grantable by a WhatsApp Embedded Signup config; Meta does
+// not offer business_management there, and requiring it 403s every onboarding.
 export const META_REQUIRED_PERMISSIONS = [
-  "business_management",
   "whatsapp_business_management",
   "whatsapp_business_messaging",
 ] as const;
@@ -38,6 +39,7 @@ export type MetaEmbeddedSignupConfig = {
   configId: string;
   graphVersion: string;
   appUrl?: string;
+  state: string;
   allowedMessageOrigins: readonly string[];
   requiredPermissions: readonly string[];
 };

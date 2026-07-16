@@ -166,9 +166,12 @@ export default function GrowthOutreachPanel({
                 </label>
               </div>
               <label className="mt-4 block text-xs text-white/45">
-                Mensaje
+                Mensaje personalizado de la plantilla
                 <textarea value={message} onChange={(event) => setMessage(event.target.value)} rows={6} placeholder="Escribe un mensaje breve y personalizado basado en la evidencia…" className="mt-1.5 w-full resize-y rounded-xl border border-white/10 bg-black/20 p-3 text-sm leading-6 text-white outline-none focus:border-[#a9c989]/45" />
               </label>
+              <p className="mt-2 text-[11px] leading-5 text-white/35">
+                El primer contacto usa la plantilla de marketing <code className="text-[#dbe9c3]">creativv_growth_intro</code>, requerida por Meta fuera de la ventana de 24 horas. Si sigue en revisión, no se marcará el lead como contactado.
+              </p>
               <label className="mt-4 flex items-start gap-3 rounded-xl border border-white/10 bg-white/[0.025] p-3 text-xs leading-5 text-white/55">
                 <input type="checkbox" checked={confirmed} onChange={(event) => setConfirmed(event.target.checked)} className="mt-0.5" />
                 Confirmo que revisé el mensaje y que el número pertenece públicamente a este negocio. Este envío quedará auditado.
@@ -176,7 +179,7 @@ export default function GrowthOutreachPanel({
               {notice && <div className="mt-4 rounded-xl border border-[#a9c989]/20 bg-[#a9c989]/8 px-4 py-3 text-sm text-[#dbe9c3]">{notice}</div>}
               <button type="button" onClick={() => void sendMessage()} disabled={sending || !confirmed || !phone || message.trim().length < 10} className="mt-4 inline-flex min-h-11 items-center gap-2 rounded-full bg-[#dbe9c3] px-5 text-sm font-semibold text-[#172016] transition hover:bg-white disabled:cursor-not-allowed disabled:opacity-40">
                 {sending ? <LoaderCircle className="size-4 animate-spin" /> : <MessageCircle className="size-4" />}
-                Enviar por WhatsApp
+                Enviar plantilla por WhatsApp
               </button>
             </>
           )}

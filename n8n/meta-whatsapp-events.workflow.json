@@ -1,0 +1,72 @@
+{
+  "id": "WCEv8bH3K2mQpR7x",
+  "name": "Meta WhatsApp Events - Coexistence",
+  "active": true,
+  "nodes": [
+    {
+      "id": "metaWhatsappEventsWebhook",
+      "name": "Webhook Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [-520, 0],
+      "webhookId": "c8de3f57-3303-4465-a48d-3d94b447d9ee",
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "meta/whatsapp-events",
+        "responseMode": "responseNode",
+        "options": {}
+      }
+    },
+    {
+      "id": "validateMetaWhatsappEvent",
+      "name": "Validate Meta WhatsApp Event",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-220, 0],
+      "parameters": {
+        "jsCode": "const expectedSecret = $env.N8N_WEBHOOK_SECRET;\nconst providedSecret = $json.headers?.['x-servicioscreativos-secret'];\n\nif (!expectedSecret || providedSecret !== expectedSecret) {\n  return [{\n    json: {\n      ok: false,\n      error: expectedSecret ? 'Unauthorized.' : 'Workflow secret is not configured.',\n      statusCode: expectedSecret ? 401 : 503,\n    },\n  }];\n}\n\nconst body = $json.body ?? $json;\nconst payload = body.payload;\n\nif (body.event !== 'meta_whatsapp_webhook_received' || !payload || typeof payload !== 'object') {\n  return [{ json: { ok: false, error: 'Invalid Meta WhatsApp event payload.', statusCode: 400 } }];\n}\n\nconst entries = Array.isArray(payload.entry) ? payload.entry : [];\nconst fields = [...new Set(entries.flatMap((entry) =>\n  Array.isArray(entry.changes)\n    ? entry.changes.map((change) => change?.field).filter(Boolean)\n    : []\n))];\n\nreturn [{\n  json: {\n    ok: true,\n    received: true,\n    object: payload.object,\n    entry_count: entries.length,\n    fields,\n    received_at: body.received_at ?? new Date().toISOString(),\n  },\n}];"
+      }
+    },
+    {
+      "id": "returnMetaWhatsappEventResponse",
+      "name": "Return Clean JSON Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [80, 0],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {
+          "responseCode": "={{ $json.statusCode ?? 200 }}"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Webhook Trigger": {
+      "main": [
+        [
+          {
+            "node": "Validate Meta WhatsApp Event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Meta WhatsApp Event": {
+      "main": [
+        [
+          {
+            "node": "Return Clean JSON Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

@@ -14,6 +14,7 @@ META_GRAPH_VERSION=v25.0
 META_WEBHOOK_VERIFY_TOKEN=
 META_WEBHOOK_CALLBACK_URL=https://YOUR_DOMAIN/api/meta/whatsapp/webhook
 N8N_WEBHOOK_URL=https://YOUR_N8N_HOST/webhook/meta/embedded-signup
+N8N_WEBHOOK_SECRET=
 APP_URL=https://YOUR_DOMAIN
 NEXT_PUBLIC_META_APP_ID=
 NEXT_PUBLIC_META_CONFIG_ID=
@@ -25,11 +26,10 @@ Optional:
 
 ```txt
 DATABASE_URL=
-N8N_WEBHOOK_SECRET=
 N8N_WHATSAPP_EVENTS_WEBHOOK_URL=
 ```
 
-`DATABASE_URL` is only required if the app writes connected accounts directly to Postgres. The current production flow stores the connection payload in n8n. `META_APP_SECRET`, connected-account business tokens, webhook secrets, and database URLs must stay server-side.
+`DATABASE_URL` stores the durable connected-number inventory shown in `/ops`. n8n also keeps the connection payload for automation. `META_APP_SECRET`, connected-account business tokens, webhook secrets, and database URLs must stay server-side.
 
 ## Meta Dashboard Checks
 
@@ -39,7 +39,9 @@ N8N_WHATSAPP_EVENTS_WEBHOOK_URL=
 - Graph API version matches `META_GRAPH_VERSION`; the implementation currently defaults to `v25.0` if unset.
 - Facebook Login for Business settings include the production domain in Allowed domains and Valid OAuth redirect URIs.
 - Client OAuth login, Web OAuth login, Enforce HTTPS, Embedded Browser OAuth Login, and strict redirect URI mode are enabled.
-- Required permissions are approved for advanced access: `business_management`, `whatsapp_business_management`, `whatsapp_business_messaging`.
+- The Embedded Signup configuration grants `whatsapp_business_management` and `whatsapp_business_messaging`. Do not request `business_management` in `FB.login`; Meta does not expose it in a WhatsApp Embedded Signup configuration.
+- App Review and access verification are approved for every permission required by the published Tech Provider app.
+- The Meta app is published; unpublished apps do not receive production webhook deliveries.
 - WhatsApp webhook callback URL is public HTTPS: `/api/meta/whatsapp/webhook`.
 - Webhook verify token matches `META_WEBHOOK_VERIFY_TOKEN`.
 - WhatsApp webhook fields include at least `messages` plus any account/template fields needed by operations.
@@ -69,9 +71,23 @@ Expected webhook path:
 https://n8n.servicioscreativos.online/webhook/meta/embedded-signup
 ```
 
-The app backend calls this workflow after the Meta code exchange and WABA subscription. The active workflow validates `code`, `waba_id`, and `phone_number_id`, stores the connected account in n8n workflow static data, and returns clean JSON. It also accepts `meta_embedded_signup_diagnostic` payloads without storing test data.
+The app backend calls this workflow after the Meta code exchange and WABA subscription. The active workflow requires the `x-servicioscreativos-secret` header, validates `code`, `waba_id`, `phone_number_id`, and `business_token`, stores the connected account in n8n workflow static data, and returns clean JSON. It also accepts authenticated `meta_embedded_signup_diagnostic` payloads without storing test data.
+
+The VPS n8n container must define the same `N8N_WEBHOOK_SECRET` used by Vercel. The workflow reads it through `$env.N8N_WEBHOOK_SECRET`.
+
+WhatsApp messages and coexistence-specific webhook fields are forwarded to:
+
+```txt
+https://n8n.servicioscreativos.online/webhook/meta/whatsapp-events
+```
+
+The active `Meta WhatsApp Events - Coexistence` workflow authenticates the Vercel handoff and records each delivery in n8n execution history.
 
 Import `n8n/meta-embedded-signup.workflow.json` only if the workflow needs to be recreated.
+
+## Connected numbers in Ops
+
+After a successful onboarding, the exchange route reads the number's visible profile from Meta and upserts it into `whatsapp_connections`. Open `/ops` and use **Números conectados** to see the display number, verified name, subscription status, quality rating, WABA ID, and connection time. Run `db/migrations/004_whatsapp_connections.sql` when provisioning a database; the application also creates the table idempotently on first use.
 
 Recommended DB table if you later move storage from n8n static data to Postgres:
 

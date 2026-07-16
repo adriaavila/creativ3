@@ -11,6 +11,7 @@ const SERVER_ENV_CHECKS = [
   "META_WEBHOOK_VERIFY_TOKEN",
   "META_WEBHOOK_CALLBACK_URL",
   "N8N_WEBHOOK_URL",
+  "N8N_WEBHOOK_SECRET",
   "APP_URL",
 ];
 
@@ -23,7 +24,6 @@ const PUBLIC_ENV_CHECKS = [
 
 const OPTIONAL_ENV_CHECKS = [
   "DATABASE_URL",
-  "N8N_WEBHOOK_SECRET",
   "N8N_WHATSAPP_EVENTS_WEBHOOK_URL",
 ];
 
@@ -38,12 +38,41 @@ console.log(`Missing public env vars: ${missingPublic.length ? missingPublic.joi
 console.log(`Missing optional env vars: ${missingOptional.length ? missingOptional.join(", ") : "none"}`);
 console.log(`Graph API version configured: ${process.env.META_GRAPH_VERSION ? "yes" : "no"}`);
 console.log(`Meta App Secret server-side only: ${process.env.META_APP_SECRET ? "yes" : "missing"}`);
-console.log("Required permissions: business_management, whatsapp_business_management, whatsapp_business_messaging");
+console.log("Runtime token permissions: whatsapp_business_management, whatsapp_business_messaging");
 
+await checkMetaAppCredentials();
 await checkWebhookUrl();
 await checkN8n();
 
-console.log("Dashboard checks still required manually: Meta allowed domains, Valid OAuth redirect URIs, Business Login configuration ID, webhook field subscriptions, Coolify/Vercel env parity, and n8n workflow activation.");
+console.log("Dashboard checks still required manually: Meta allowed domains, Valid OAuth redirect URIs, Business Login configuration ID, app publication, App Review, and WhatsApp webhook field subscriptions.");
+
+async function checkMetaAppCredentials() {
+  const appId = process.env.META_APP_ID;
+  const appSecret = process.env.META_APP_SECRET;
+  if (!appId || !appSecret) {
+    console.log("Meta App ID/Secret pair valid: not checked (credentials missing)");
+    return;
+  }
+
+  const url = new URL(`https://graph.facebook.com/${normalizedGraphVersion()}/app`);
+  url.searchParams.set("access_token", `${appId}|${appSecret}`);
+
+  const response = await fetch(url, {
+    signal: AbortSignal.timeout(5000),
+  }).catch(() => null);
+
+  if (!response) {
+    console.log("Meta App ID/Secret pair valid: no (Graph API unreachable)");
+    return;
+  }
+
+  const body = await response.json().catch(() => ({}));
+  const idMatches = response.ok && body?.id === appId;
+  const appName = response.ok && typeof body?.name === "string" ? ` (${body.name})` : "";
+  console.log(
+    `Meta App ID/Secret pair valid: ${idMatches ? "yes" : "no"}${appName}${formatStatus(response.status)}`,
+  );
+}
 
 async function checkWebhookUrl() {
   const url = process.env.META_WEBHOOK_CALLBACK_URL;
@@ -140,6 +169,11 @@ function n8nHeaders() {
 
 function formatStatus(status) {
   return typeof status === "number" ? ` (status ${status})` : "";
+}
+
+function normalizedGraphVersion() {
+  const value = process.env.META_GRAPH_VERSION?.trim() || "v25.0";
+  return value.startsWith("v") ? value : `v${value}`;
 }
 
 function loadLocalEnv() {

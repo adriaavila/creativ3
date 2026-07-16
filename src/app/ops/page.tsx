@@ -1,6 +1,9 @@
 import { neon } from "@neondatabase/serverless";
 import OpsDashboardClient from "@/components/ops/OpsDashboardClient";
 import { isGrowthDatabaseConfigured } from "@/lib/growth-db";
+import { getGrowthLeads } from "@/lib/growth-db";
+import type { GrowthLead } from "@/lib/growth-types";
+import { getGrowthPromptRegistry, type GrowthPromptInfo } from "@/lib/growth-prompts";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { isOpsAuthConfigured } from "@/lib/ops-auth";
@@ -45,20 +48,26 @@ export default async function OpsPage() {
   let runsCount = 0;
   let whatsappConnections: WhatsAppConnectionView[] = [];
   let whatsappConnectionsError: string | null = null;
+  let growthLeads: GrowthLead[] = [];
+  let growthPrompts: GrowthPromptInfo[] = [];
 
   try {
     const sql = neon(process.env.DATABASE_URL!);
-    const [leads, drafts, runs, connections] = await Promise.all([
+    const [leads, drafts, runs, connections, researchedLeads, prompts] = await Promise.all([
       sql`SELECT count(*)::int as count FROM leads`,
       sql`SELECT count(*)::int as count FROM outreach_drafts WHERE status = 'pending'`,
       sql`SELECT count(*)::int as count FROM growth_runs`,
       listWhatsAppConnections(),
+      getGrowthLeads(100),
+      getGrowthPromptRegistry(),
     ]);
 
     leadsCount = leads[0]?.count ?? 0;
     draftsCount = drafts[0]?.count ?? 0;
     runsCount = runs[0]?.count ?? 0;
     whatsappConnections = connections;
+    growthLeads = researchedLeads;
+    growthPrompts = prompts;
   } catch (error) {
     console.error("Could not fetch database stats for ops page", error);
     whatsappConnectionsError = "No se pudo cargar el inventario de WhatsApp.";
@@ -73,6 +82,8 @@ export default async function OpsPage() {
       }}
       initialWhatsAppConnections={whatsappConnections}
       initialWhatsAppConnectionsError={whatsappConnectionsError}
+      initialGrowthLeads={growthLeads}
+      growthPrompts={growthPrompts}
     />
   );
 }

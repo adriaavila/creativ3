@@ -21,6 +21,9 @@ import {
   RefreshCw,
 } from "lucide-react";
 import type { WhatsAppConnectionView } from "@/lib/whatsapp-connections-db";
+import type { GrowthLead } from "@/lib/growth-types";
+import type { GrowthPromptInfo } from "@/lib/growth-prompts";
+import GrowthOutreachPanel from "@/components/ops/GrowthOutreachPanel";
 
 type DiagnosticsResult = {
   env: Record<string, boolean>;
@@ -39,12 +42,16 @@ type OpsDashboardClientProps = {
   };
   initialWhatsAppConnections: WhatsAppConnectionView[];
   initialWhatsAppConnectionsError: string | null;
+  initialGrowthLeads: GrowthLead[];
+  growthPrompts: GrowthPromptInfo[];
 };
 
 export default function OpsDashboardClient({
   stats,
   initialWhatsAppConnections,
   initialWhatsAppConnectionsError,
+  initialGrowthLeads,
+  growthPrompts,
 }: OpsDashboardClientProps) {
   const [running, setRunning] = useState(false);
   const [results, setResults] = useState<DiagnosticsResult>(null);
@@ -172,6 +179,8 @@ export default function OpsDashboardClient({
             </div>
           ))}
         </section>
+
+        <GrowthOutreachPanel initialLeads={initialGrowthLeads} prompts={growthPrompts} />
 
         <div className="mt-8 grid gap-6 lg:grid-cols-[1fr_400px]">
           {/* Main Console & Diagnostic Output */}

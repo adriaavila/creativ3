@@ -13,6 +13,8 @@ export default defineTool({
     location: z.string().min(2).max(120),
     websiteUrl: url.optional(),
     instagramUrl: url.optional(),
+    businessPhone: z.string().regex(/^\+[1-9]\d{7,14}$/).optional(),
+    contactSourceUrl: url.optional(),
     sourceUrls: z.array(url).min(1).max(5),
     evidence: z.string().min(20).max(1200),
     problemDetected: z.string().min(10).max(600),
@@ -27,10 +29,12 @@ export default defineTool({
     const [lead] = await sql`
       INSERT INTO leads (
         run_id, business_name, vertical, location, website_url, instagram_url,
+        business_phone, contact_source_url,
         evidence, source_urls, problem_detected, offer_angle, lead_score, status
       ) VALUES (
         ${input.runId}, ${input.businessName}, ${input.vertical}, ${input.location},
-        ${input.websiteUrl ?? null}, ${input.instagramUrl ?? null}, ${input.evidence},
+        ${input.websiteUrl ?? null}, ${input.instagramUrl ?? null},
+        ${input.businessPhone ?? null}, ${input.contactSourceUrl ?? null}, ${input.evidence},
         ${JSON.stringify(input.sourceUrls)}::jsonb, ${input.problemDetected},
         ${input.offerAngle}, ${input.leadScore}, 'researched'
       )

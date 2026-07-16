@@ -38,6 +38,8 @@ export type GrowthLead = {
   location: string;
   websiteUrl: string | null;
   instagramUrl: string | null;
+  businessPhone: string | null;
+  contactSourceUrl: string | null;
   evidence: string;
   sourceUrls: string[];
   problemDetected: string;

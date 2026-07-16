@@ -17,7 +17,7 @@ export const metadata = {
 };
 
 export default async function OpsPage() {
-  if (!isOpsAuthConfigured() || !isGrowthDatabaseConfigured()) {
+  if (!isGrowthDatabaseConfigured()) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-[#0f1711] p-6 text-white">
         <div className="max-w-xl rounded-2xl border border-white/10 bg-white/[0.04] p-8">
@@ -28,15 +28,17 @@ export default async function OpsPage() {
             Ops Dashboard está listo para conectarse.
           </h1>
           <p className="mt-5 text-sm leading-6 text-white/50">
-            Configura Clerk y DATABASE_URL, ejecuta la migración de crecimiento y vuelve a cargar esta ruta.
+            Configura DATABASE_URL, ejecuta las migraciones y vuelve a cargar esta ruta.
           </p>
         </div>
       </main>
     );
   }
 
-  const { userId } = await auth();
-  if (!userId) redirect("/sign-in");
+  if (isOpsAuthConfigured()) {
+    const { userId } = await auth();
+    if (!userId) redirect("/sign-in");
+  }
 
   let leadsCount = 0;
   let draftsCount = 0;

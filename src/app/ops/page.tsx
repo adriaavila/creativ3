@@ -4,9 +4,8 @@ import { isGrowthDatabaseConfigured } from "@/lib/growth-db";
 import { getGrowthLeads } from "@/lib/growth-db";
 import type { GrowthLead } from "@/lib/growth-types";
 import { getGrowthPromptRegistry, type GrowthPromptInfo } from "@/lib/growth-prompts";
-import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
-import { isOpsAuthConfigured } from "@/lib/ops-auth";
+import { authorizeOps } from "@/lib/ops-auth";
 import {
   listWhatsAppConnections,
   type WhatsAppConnectionView,
@@ -38,10 +37,8 @@ export default async function OpsPage() {
     );
   }
 
-  if (isOpsAuthConfigured()) {
-    const { userId } = await auth();
-    if (!userId) redirect("/sign-in");
-  }
+  const authorization = await authorizeOps();
+  if (!authorization.authorized) redirect("/ops-login");
 
   let leadsCount = 0;
   let draftsCount = 0;

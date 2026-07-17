@@ -2,7 +2,6 @@
 
 import { useMemo, useState, type ReactNode } from "react";
 import Link from "next/link";
-import { UserButton } from "@clerk/nextjs";
 import {
   ArrowLeft,
   Check,
@@ -183,7 +182,14 @@ export default function GrowthOpsClient({
               {running ? <LoaderCircle className="size-4 animate-spin" /> : <Play className="size-4" />}
               Ejecutar ahora
             </button>
-            {process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY && <UserButton />}
+            <form action="/api/ops/logout" method="post">
+              <button
+                type="submit"
+                className="rounded-full border border-white/10 px-4 py-2 text-xs font-semibold text-white/60 hover:bg-white/5 hover:text-white"
+              >
+                Salir
+              </button>
+            </form>
           </div>
         </header>
 

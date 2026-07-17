@@ -5,7 +5,6 @@ import "./globals.css";
 import SiteHeader from "@/components/sections/SiteHeader";
 import RouteTheme from "@/components/sections/RouteTheme";
 import { siteJsonLd } from "@/lib/seo";
-import AppProviders from "@/components/providers/AppProviders";
 
 const fraunces = Fraunces({
   weight: ["300", "400"],
@@ -97,12 +96,10 @@ export default function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(siteJsonLd()) }}
         />
-        <AppProviders clerkPublishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}>
-          <RouteTheme />
-          <SiteHeader />
-          {children}
-          <Analytics mode={process.env.VERCEL ? "auto" : "development"} debug={false} />
-        </AppProviders>
+        <RouteTheme />
+        <SiteHeader />
+        {children}
+        <Analytics mode={process.env.VERCEL ? "auto" : "development"} debug={false} />
       </body>
     </html>
   );

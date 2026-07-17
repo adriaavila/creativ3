@@ -5,25 +5,28 @@ import {
   getOutreachDrafts,
   isGrowthDatabaseConfigured,
 } from "@/lib/growth-db";
+import { redirect } from "next/navigation";
+import { authorizeOps, isOpsAuthConfigured } from "@/lib/ops-auth";
 
 export const dynamic = "force-dynamic";
 
 export default async function GrowthOpsPage() {
-  // ponytail: auth gate removed for now — panel open to anyone with the link. Re-add Clerk when locking down.
-  if (!isGrowthDatabaseConfigured()) {
+  if (!isOpsAuthConfigured() || !isGrowthDatabaseConfigured()) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-[#0f1711] p-6 text-white">
         <div className="max-w-xl rounded-2xl border border-white/10 bg-white/[0.04] p-8">
           <div className="font-mono text-[9px] uppercase tracking-[0.18em] text-[#a9c989]">Setup requerido</div>
           <h1 className="mt-4 font-display text-5xl leading-[0.9]">Growth OS está listo para conectarse.</h1>
           <p className="mt-5 text-sm leading-6 text-white/50">
-            Configura Clerk y DATABASE_URL, ejecuta la migración de crecimiento y vuelve a cargar esta ruta.
-            El sitio público funciona mientras tanto con datos marcados como Demo.
+            Configura OPS_ACCESS_PASSWORD, OPS_SESSION_SECRET y DATABASE_URL, ejecuta las migraciones y vuelve a cargar esta ruta.
           </p>
         </div>
       </main>
     );
   }
+
+  const authorization = await authorizeOps();
+  if (!authorization.authorized) redirect("/ops-login");
 
   const [runs, leads, drafts] = await Promise.all([
     getGrowthRuns(),

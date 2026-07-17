@@ -1,6 +1,6 @@
-import { auth } from "@clerk/nextjs/server";
 import { neon } from "@neondatabase/serverless";
 import { getGraphVersion } from "@/lib/meta/server";
+import { authorizeOps } from "@/lib/ops-auth";
 
 export const dynamic = "force-dynamic";
 
@@ -27,14 +27,8 @@ const PUBLIC_ENV_KEYS = [
 ];
 
 export async function POST() {
-  if (!process.env.CLERK_SECRET_KEY) {
-    return Response.json({ error: "Clerk not configured." }, { status: 503 });
-  }
-
-  const { userId } = await auth();
-  if (!userId) {
-    return Response.json({ error: "Unauthorized." }, { status: 401 });
-  }
+  const authorization = await authorizeOps();
+  if (!authorization.authorized) return authorization.response;
 
   // 1. Gather Env Status
   const env: Record<string, boolean> = {};

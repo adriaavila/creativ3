@@ -1,14 +1,30 @@
-import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
-import { NextResponse } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
 
-const isProtectedRoute = createRouteMatcher(["/ops(.*)", "/api/ops(.*)"]);
-const clerkConfigured = Boolean(process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY && process.env.CLERK_SECRET_KEY);
+const COOKIE_NAME = "creativv_ops_session";
 
-const protectedProxy = clerkMiddleware(async (auth, request) => {
-  if (isProtectedRoute(request)) await auth.protect();
-});
+export default function proxy(request: NextRequest) {
+  if (
+    request.nextUrl.pathname === "/api/ops/login" ||
+    request.nextUrl.pathname === "/api/ops/logout"
+  ) {
+    return NextResponse.next();
+  }
 
-export default clerkConfigured ? protectedProxy : () => NextResponse.next();
+  const expected = process.env.OPS_SESSION_SECRET;
+  const authenticated = Boolean(
+    expected && request.cookies.get(COOKIE_NAME)?.value === expected,
+  );
+
+  if (authenticated) return NextResponse.next();
+
+  if (request.nextUrl.pathname.startsWith("/api/ops")) {
+    return new NextResponse(null, { status: 401 });
+  }
+
+  const loginUrl = new URL("/ops-login", request.url);
+  loginUrl.searchParams.set("next", `${request.nextUrl.pathname}${request.nextUrl.search}`);
+  return NextResponse.redirect(loginUrl);
+}
 
 export const config = {
   matcher: ["/ops/:path*", "/api/ops/:path*"],

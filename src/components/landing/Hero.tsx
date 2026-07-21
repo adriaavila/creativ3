@@ -41,8 +41,8 @@ const REVENUE_WHATSAPP_URL = whatsappUrl(
 const HERO_CONTENT = {
   efficiency: {
     eyebrow: "Sistemas operativos · 5–10 días",
-    title: "Convierte horas manuales en capacidad para crecer.",
-    body: "Diseñamos automatizaciones, dashboards y apps que eliminan tareas repetitivas sin quitarte el control. Menos costo de operar; más tiempo para decidir.",
+    title: "Menos horas manuales. Más negocio.",
+    body: "Automatizamos lo repetitivo con dashboards y apps a medida. Recuperas tiempo y capacidad sin perder el control.",
     primaryLabel: "Calcular cuánto pierdo hoy",
     primaryHref: "/cotizar",
     secondaryLabel: "Contar mi proceso",
@@ -62,8 +62,8 @@ const HERO_CONTENT = {
   },
   revenue: {
     eyebrow: "Growth design · listo para convertir",
-    title: "Diseñamos la experiencia que convierte atención en ingresos.",
-    body: "Landing pages, sitios web y ecommerce con estrategia, UX y dirección visual de clase mundial. Tu oferta se entiende, se desea y se vuelve fácil de comprar.",
+    title: "Diseño que convierte visitas en clientes.",
+    body: "Landing pages, sitios web y ecommerce con estrategia y dirección visual de clase mundial. Tu oferta se entiende, se desea, se compra.",
     primaryLabel: "Quiero aumentar ingresos",
     primaryHref: REVENUE_WHATSAPP_URL,
     secondaryLabel: "Ver proyectos que venden",

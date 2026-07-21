@@ -1,0 +1,58 @@
+services:
+  hermes:
+    image: nousresearch/hermes-agent:latest
+    restart: unless-stopped
+    command: gateway run
+    depends_on:
+      waha:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:8642:8642"
+      - "127.0.0.1:9119:9119"
+    volumes:
+      - hermes_data:/opt/data
+    environment:
+      API_SERVER_ENABLED: "true"
+      API_SERVER_HOST: "0.0.0.0"
+      API_SERVER_KEY: ${HERMES_API_KEY}
+      HERMES_DASHBOARD: "1"
+      HERMES_DASHBOARD_HOST: "0.0.0.0"
+      WAHA_URL: http://waha:3000
+      WAHA_API_KEY: ${WAHA_API_KEY}
+      DATABASE_URL: ${DATABASE_URL}
+      POSTIZ_API_URL: ${POSTIZ_API_URL:-https://api.postiz.com}
+      POSTIZ_API_KEY: ${POSTIZ_API_KEY}
+      POSTIZ_DEFAULT_INTEGRATION: ${POSTIZ_DEFAULT_INTEGRATION}
+    networks: [agents]
+    deploy:
+      resources:
+        limits:
+          cpus: "2.0"
+          memory: 4G
+
+  waha:
+    image: devlikeapro/waha:latest
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:3000:3000"
+    volumes:
+      - waha_sessions:/app/.sessions
+    environment:
+      WAHA_API_KEY: ${WAHA_API_KEY_HASH}
+      WHATSAPP_HOOK_URL: ${WAHA_WEBHOOK_URL}
+      WHATSAPP_HOOK_EVENTS: session.status,message.ack
+      WHATSAPP_HOOK_HMAC_KEY: ${WAHA_WEBHOOK_HMAC_KEY}
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"fetch('http://localhost:3000/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))\""]
+      interval: 15s
+      timeout: 5s
+      retries: 8
+    networks: [agents]
+
+networks:
+  agents:
+    driver: bridge
+
+volumes:
+  hermes_data:
+  waha_sessions:

@@ -115,7 +115,7 @@ export default function FeaturedSystems({ intent = "efficiency" }: FeaturedSyste
                       isRevenue ? "bg-[#a8402a]/92" : "bg-[#172016]/90"
                     }`}
                   >
-                    {project.businessGoal === "sell_more"
+                    {project.businessGoal === "increase_revenue"
                       ? "Vender más"
                       : project.businessGoal === "reduce_costs"
                         ? "Reducir costos"

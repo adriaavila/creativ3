@@ -5,6 +5,8 @@ import {
   getOutreachDrafts,
   isGrowthDatabaseConfigured,
 } from "@/lib/growth-db";
+import { getMarketingSnapshot } from "@/lib/postiz";
+import { getWahaSnapshot } from "@/lib/waha";
 import { redirect } from "next/navigation";
 import { authorizeOps, isOpsAuthConfigured } from "@/lib/ops-auth";
 
@@ -28,11 +30,12 @@ export default async function GrowthOpsPage() {
   const authorization = await authorizeOps();
   if (!authorization.authorized) redirect("/ops-login");
 
-  const [runs, leads, drafts] = await Promise.all([
+  const [runs, leads, drafts, marketing, waha] = await Promise.all([
     getGrowthRuns(),
     getGrowthLeads(),
     getOutreachDrafts(),
+    getMarketingSnapshot(),
+    getWahaSnapshot(),
   ]);
-  return <GrowthOpsClient initialRuns={runs} initialLeads={leads} initialDrafts={drafts} />;
+  return <GrowthOpsClient initialRuns={runs} initialLeads={leads} initialDrafts={drafts} marketing={marketing} waha={waha} />;
 }
-

@@ -4,6 +4,7 @@ import { useMemo, useState, type ReactNode } from "react";
 import Link from "next/link";
 import {
   ArrowLeft,
+  BarChart3,
   Check,
   Copy,
   ExternalLink,
@@ -11,11 +12,15 @@ import {
   LoaderCircle,
   Play,
   RefreshCw,
+  TrendingDown,
+  TrendingUp,
   X,
 } from "lucide-react";
 import type { DraftKind, GrowthLead, GrowthRun, OutreachDraft } from "@/lib/growth-types";
+import type { MarketingSnapshot, PostizMetric, PostizPost } from "@/lib/postiz";
+import type { WahaSnapshot } from "@/lib/waha";
 
-type Tab = "hoy" | "runs" | "leads" | "drafts";
+type Tab = "hoy" | "marketing" | "runs" | "leads" | "drafts";
 
 const RUN_LABELS = {
   queued: "En cola",
@@ -40,10 +45,14 @@ export default function GrowthOpsClient({
   initialRuns,
   initialLeads,
   initialDrafts,
+  marketing,
+  waha,
 }: {
   initialRuns: GrowthRun[];
   initialLeads: GrowthLead[];
   initialDrafts: OutreachDraft[];
+  marketing: MarketingSnapshot;
+  waha: WahaSnapshot;
 }) {
   const [tab, setTab] = useState<Tab>("hoy");
   const [drafts, setDrafts] = useState(initialDrafts);
@@ -141,6 +150,7 @@ export default function GrowthOpsClient({
       headers: { "content-type": "application/json" },
       body: JSON.stringify({
         nextAction: lead.nextAction,
+        nextActionAt: lead.nextActionAt?.slice(0, 10) ?? null,
         closeProbability: lead.closeProbability,
         potentialValue: lead.potentialValue,
       }),
@@ -214,14 +224,14 @@ export default function GrowthOpsClient({
         )}
 
         <div className="mt-7 flex gap-1 rounded-xl border border-white/10 bg-white/[0.025] p-1.5">
-          {(["hoy", "runs", "leads", "drafts"] as Tab[]).map((item) => (
+          {(["hoy", "marketing", "runs", "leads", "drafts"] as Tab[]).map((item) => (
             <button
               key={item}
               type="button"
               onClick={() => setTab(item)}
               className={`rounded-lg px-4 py-2 text-sm font-semibold capitalize ${tab === item ? "bg-white text-[#172016]" : "text-white/50 hover:text-white"}`}
             >
-              {item === "hoy" ? "Hoy" : item === "runs" ? "Runs" : item === "leads" ? "Leads" : "Borradores"}
+              {item === "hoy" ? "Hoy" : item === "marketing" ? "Marketing" : item === "runs" ? "Runs" : item === "leads" ? "Leads" : "Borradores"}
             </button>
           ))}
         </div>
@@ -258,6 +268,8 @@ export default function GrowthOpsClient({
             </div>
           )}
 
+          {tab === "marketing" && <MarketingPanel snapshot={marketing} waha={waha} />}
+
           {tab === "runs" && (
             <div className="grid gap-3">
               {initialRuns.length === 0 ? <Empty text="Todavía no hay runs. Ejecuta el agente cuando Neon y Eve estén conectados." /> : initialRuns.map((run) => (
@@ -291,7 +303,7 @@ export default function GrowthOpsClient({
                   <div className="mt-4 rounded-xl bg-[#dbe9c3] p-4 text-sm leading-5 text-[#172016]">{lead.offerAngle}</div>
                   <p className="mt-4 text-xs leading-5 text-white/38">Evidencia: {lead.evidence}</p>
 
-                  <div className="mt-5 grid grid-cols-3 gap-2">
+                  <div className="mt-5 grid grid-cols-2 gap-2 lg:grid-cols-4">
                     <label className="flex flex-col gap-1 text-[10px] uppercase tracking-wide text-white/35">
                       Prob. cierre %
                       <input
@@ -316,6 +328,15 @@ export default function GrowthOpsClient({
                         type="text"
                         value={lead.nextAction ?? ""}
                         onChange={(e) => patchLead(lead.id, { nextAction: e.target.value === "" ? null : e.target.value })}
+                        className="rounded-lg border border-white/10 bg-black/20 px-2 py-1.5 text-sm text-white/80 outline-none focus:border-[#a9c989]/45"
+                      />
+                    </label>
+                    <label className="flex flex-col gap-1 text-[10px] uppercase tracking-wide text-white/35">
+                      Fecha
+                      <input
+                        type="date"
+                        value={lead.nextActionAt?.slice(0, 10) ?? ""}
+                        onChange={(e) => patchLead(lead.id, { nextActionAt: e.target.value ? `${e.target.value}T00:00:00.000Z` : null })}
                         className="rounded-lg border border-white/10 bg-black/20 px-2 py-1.5 text-sm text-white/80 outline-none focus:border-[#a9c989]/45"
                       />
                     </label>
@@ -424,4 +445,237 @@ function DayBucket({
 
 function Empty({ text }: { text: string }) {
   return <div className="rounded-2xl border border-dashed border-white/12 p-10 text-center text-sm text-white/38 lg:col-span-2">{text}</div>;
+}
+
+const compact = new Intl.NumberFormat("es-VE", { notation: "compact", maximumFractionDigits: 1 });
+
+const POST_STATE_LABELS: Record<string, string> = {
+  QUEUE: "Programado",
+  PUBLISHED: "Publicado",
+  DRAFT: "Borrador",
+  ERROR: "Error",
+};
+
+function MetricChip({ metric }: { metric: PostizMetric }) {
+  const up = metric.percentageChange >= 0;
+  return (
+    <div className="rounded-xl border border-white/8 bg-black/15 px-3 py-2">
+      <div className="font-mono text-[9px] uppercase tracking-[0.12em] text-white/38">{metric.label}</div>
+      <div className="mt-1 flex items-baseline gap-2">
+        <span className="font-display text-xl text-[#dbe9c3]">{compact.format(metric.value)}</span>
+        <span className={`inline-flex items-center gap-0.5 text-[10px] font-semibold ${up ? "text-[#a9c989]" : "text-[#e0a394]"}`}>
+          {up ? <TrendingUp className="size-3" /> : <TrendingDown className="size-3" />}
+          {Math.abs(metric.percentageChange).toFixed(0)}%
+        </span>
+      </div>
+    </div>
+  );
+}
+
+function PostRow({ post }: { post: PostizPost }) {
+  const [metrics, setMetrics] = useState<PostizMetric[] | "loading" | "missing" | "error" | null>(null);
+
+  const loadMetrics = async () => {
+    setMetrics("loading");
+    try {
+      const response = await fetch(`/api/ops/growth/marketing/posts/${post.id}`);
+      if (!response.ok) return setMetrics("error");
+      const payload = await response.json();
+      setMetrics(payload.missing ? "missing" : payload.metrics);
+    } catch {
+      setMetrics("error");
+    }
+  };
+
+  return (
+    <li className="rounded-xl border border-white/8 bg-black/15 px-4 py-3">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-2">
+            <span className="font-mono text-[9px] uppercase tracking-[0.15em] text-[#a9c989]">{post.integration?.identifier ?? "canal"}</span>
+            <span className="rounded-full bg-white/8 px-2 py-0.5 text-[10px] text-white/55">{POST_STATE_LABELS[post.state] ?? post.state}</span>
+            <time className="font-mono text-[10px] text-white/35">{post.publishDate ? new Date(post.publishDate).toLocaleString("es-VE", { dateStyle: "short", timeStyle: "short" }) : ""}</time>
+          </div>
+          <p className="mt-1.5 line-clamp-2 text-sm leading-5 text-white/65">{post.content.replace(/<[^>]+>/g, "") || "(sin texto)"}</p>
+        </div>
+        <div className="flex items-center gap-2">
+          {post.releaseURL && (
+            <a href={post.releaseURL} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 rounded-full border border-white/10 px-3 py-1.5 text-xs text-white/55 hover:text-white">
+              Ver <ExternalLink className="size-3" />
+            </a>
+          )}
+          {post.state === "PUBLISHED" && metrics === null && (
+            <button type="button" onClick={() => void loadMetrics()} className="inline-flex items-center gap-1.5 rounded-full border border-[#a9c989]/30 px-3 py-1.5 text-xs font-semibold text-[#dbe9c3]">
+              <BarChart3 className="size-3.5" /> Métricas
+            </button>
+          )}
+          {metrics === "loading" && <LoaderCircle className="size-4 animate-spin text-white/45" />}
+        </div>
+      </div>
+      {metrics === "missing" && <p className="mt-3 text-xs text-white/40">La plataforma no devolvió el ID publicado. Conéctalo desde Postiz para ver métricas.</p>}
+      {metrics === "error" && <p className="mt-3 text-xs text-[#e0a394]">No se pudieron cargar las métricas.</p>}
+      {Array.isArray(metrics) && (
+        metrics.length === 0
+          ? <p className="mt-3 text-xs text-white/40">Sin métricas todavía.</p>
+          : <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">{metrics.map((metric) => <MetricChip key={metric.label} metric={metric} />)}</div>
+      )}
+    </li>
+  );
+}
+
+function MarketingPanel({ snapshot, waha }: { snapshot: MarketingSnapshot; waha: WahaSnapshot }) {
+  if (!snapshot.configured) {
+    return (
+      <div className="grid gap-5">
+        <ChannelRuntimePanel postizConfigured={false} waha={waha} />
+        <div className="rounded-2xl border border-white/10 bg-white/[0.035] p-8">
+          <div className="font-mono text-[9px] uppercase tracking-[0.18em] text-[#a9c989]">Setup requerido</div>
+          <h2 className="mt-3 font-display text-3xl">Conecta Postiz para medir marketing.</h2>
+          <p className="mt-4 max-w-xl text-sm leading-6 text-white/50">
+            Agrega <code className="rounded bg-black/30 px-1.5 py-0.5 text-[#dbe9c3]">POSTIZ_API_KEY</code> en las variables de entorno
+            (Settings → API en tu cuenta de Postiz) y recarga. Verás canales conectados (IG, LinkedIn…),
+            calendario de publicaciones y métricas por canal y por post.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (snapshot.error) {
+    return (
+      <div className="grid gap-5">
+        <ChannelRuntimePanel postizConfigured waha={waha} />
+        <div className="rounded-2xl border border-[#e0a394]/25 bg-[#e0a394]/8 p-6 text-sm text-[#e0a394]">
+          Postiz no pudo cargar sus métricas. Revisa la conexión y credenciales del servidor.
+        </div>
+      </div>
+    );
+  }
+
+  const now = new Date(snapshot.fetchedAt).getTime();
+  const published = snapshot.posts.filter((post) => post.state === "PUBLISHED");
+  const upcoming = snapshot.posts
+    .filter((post) => post.state !== "PUBLISHED" && post.state !== "ERROR" && new Date(post.publishDate).getTime() >= now)
+    .sort((a, b) => a.publishDate.localeCompare(b.publishDate));
+  const impressions = snapshot.channels
+    .flatMap((channel) => channel.metrics)
+    .filter((metric) => /impression|impresion|view|vista|reach|alcance/i.test(metric.label))
+    .reduce((sum, metric) => sum + metric.value, 0);
+
+  return (
+    <div className="grid gap-5">
+      <ChannelRuntimePanel postizConfigured={snapshot.configured} waha={waha} />
+      <div className="grid gap-3 sm:grid-cols-4">
+        {[
+          ["Canales", snapshot.channels.length],
+          ["Publicados 30d", published.length],
+          ["Programados", upcoming.length],
+          ["Impresiones 30d", compact.format(impressions)],
+        ].map(([label, value]) => (
+          <div key={label} className="rounded-2xl border border-white/10 bg-white/[0.035] p-5">
+            <div className="font-mono text-[9px] uppercase tracking-[0.18em] text-white/38">{label}</div>
+            <div className="mt-3 font-display text-4xl text-[#dbe9c3]">{value}</div>
+          </div>
+        ))}
+      </div>
+
+      <div className="grid gap-4 lg:grid-cols-2">
+        {snapshot.channels.length === 0 ? (
+          <Empty text="No hay canales conectados en Postiz. Conecta Instagram y LinkedIn desde la app de Postiz." />
+        ) : (
+          snapshot.channels.map((channel) => (
+            <article key={channel.id} className="rounded-2xl border border-white/10 bg-white/[0.035] p-5">
+              <div className="flex items-center gap-3">
+                {channel.picture ? (
+                  // eslint-disable-next-line @next/next/no-img-element -- avatar externo de Postiz
+                  <img src={channel.picture} alt="" className="size-10 rounded-full object-cover" />
+                ) : (
+                  <span className="flex size-10 items-center justify-center rounded-full border border-[#a9c989]/25 font-display text-lg text-[#dbe9c3]">{channel.name.slice(0, 1)}</span>
+                )}
+                <div>
+                  <h2 className="font-display text-2xl">{channel.name}</h2>
+                  <div className="font-mono text-[9px] uppercase tracking-[0.15em] text-[#a9c989]">
+                    {channel.identifier}{channel.disabled ? " · desactivado" : ""}
+                  </div>
+                </div>
+              </div>
+              {channel.metrics.length === 0 ? (
+                <p className="mt-4 text-xs text-white/38">Sin métricas disponibles para este canal.</p>
+              ) : (
+                <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3">
+                  {channel.metrics.map((metric) => <MetricChip key={metric.label} metric={metric} />)}
+                </div>
+              )}
+            </article>
+          ))
+        )}
+      </div>
+
+      <div className="rounded-2xl border border-white/10 bg-white/[0.035] p-5">
+        <div className="flex items-baseline justify-between">
+          <h2 className="font-display text-2xl text-[#dbe9c3]">Próximas publicaciones</h2>
+          <span className="font-mono text-[10px] uppercase tracking-[0.15em] text-white/35">{upcoming.length} programadas</span>
+        </div>
+        {upcoming.length === 0 ? (
+          <p className="mt-4 text-sm text-white/35">Nada programado. Agenda desde Postiz o pide contenido al agente.</p>
+        ) : (
+          <ul className="mt-4 grid gap-2">{upcoming.map((post) => <PostRow key={post.id} post={post} />)}</ul>
+        )}
+      </div>
+
+      <div className="rounded-2xl border border-white/10 bg-white/[0.035] p-5">
+        <div className="flex items-baseline justify-between">
+          <h2 className="font-display text-2xl text-[#dbe9c3]">Publicado (últimos 30 días)</h2>
+          <span className="font-mono text-[10px] uppercase tracking-[0.15em] text-white/35">{published.length} posts</span>
+        </div>
+        {published.length === 0 ? (
+          <p className="mt-4 text-sm text-white/35">Todavía no hay publicaciones en este período.</p>
+        ) : (
+          <ul className="mt-4 grid gap-2">{published.map((post) => <PostRow key={post.id} post={post} />)}</ul>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function ChannelRuntimePanel({ postizConfigured, waha }: { postizConfigured: boolean; waha: WahaSnapshot }) {
+  return (
+    <div className="grid gap-3 lg:grid-cols-2">
+      <article className="rounded-2xl border border-white/10 bg-white/[0.035] p-5">
+        <div className="font-mono text-[9px] uppercase tracking-[0.18em] text-[#a9c989]">Redes sociales</div>
+        <div className="mt-3 flex items-center justify-between gap-4">
+          <div>
+            <h2 className="font-display text-2xl">Postiz</h2>
+            <p className="mt-1 text-xs leading-5 text-white/40">LinkedIn, Instagram y otros canales con calendario y métricas.</p>
+          </div>
+          <span className={`rounded-full px-3 py-1.5 text-xs ${postizConfigured ? "bg-[#a9c989]/15 text-[#dbe9c3]" : "bg-white/8 text-white/45"}`}>
+            {postizConfigured ? "Conectado" : "Sin configurar"}
+          </span>
+        </div>
+      </article>
+
+      <article className="rounded-2xl border border-white/10 bg-white/[0.035] p-5">
+        <div className="font-mono text-[9px] uppercase tracking-[0.18em] text-[#a9c989]">WhatsApp publishing</div>
+        <div className="mt-3 flex items-start justify-between gap-4">
+          <div>
+            <h2 className="font-display text-2xl">WAHA</h2>
+            <p className="mt-1 text-xs leading-5 text-white/40">Status y Channels aprobados. Sin outreach masivo ni envío directo autónomo.</p>
+            {waha.error && <p className="mt-2 text-xs text-[#e0a394]">{waha.error}</p>}
+            {waha.sessions.length > 0 && (
+              <div className="mt-3 flex flex-wrap gap-2">
+                {waha.sessions.map((session) => (
+                  <span key={session.name} className="rounded-full border border-white/10 px-2.5 py-1 font-mono text-[9px] uppercase tracking-[0.12em] text-white/55">
+                    {session.name} · {session.status}{session.engine ? ` · ${session.engine}` : ""}
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+          <span className={`shrink-0 rounded-full px-3 py-1.5 text-xs ${waha.configured && !waha.error ? "bg-[#a9c989]/15 text-[#dbe9c3]" : "bg-white/8 text-white/45"}`}>
+            {!waha.configured ? "Sin configurar" : waha.error ? "Con error" : "Conectado"}
+          </span>
+        </div>
+      </article>
+    </div>
+  );
 }

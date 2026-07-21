@@ -1,5 +1,6 @@
 import { neon } from "@neondatabase/serverless";
 import { getGraphVersion } from "@/lib/meta/server";
+import { getGrowthAgentRuntime } from "@/lib/growth-agent-runtime";
 import { authorizeOps } from "@/lib/ops-auth";
 
 export const dynamic = "force-dynamic";
@@ -17,6 +18,12 @@ const SERVER_ENV_KEYS = [
   "GROWTH_AGENT_URL",
   "GROWTH_AGENT_USERNAME",
   "GROWTH_AGENT_PASSWORD",
+  "GROWTH_AGENT_RUNTIME",
+  "HERMES_API_URL",
+  "HERMES_API_KEY",
+  "POSTIZ_API_KEY",
+  "WAHA_URL",
+  "WAHA_API_KEY",
 ];
 
 const PUBLIC_ENV_KEYS = [
@@ -51,21 +58,27 @@ export async function POST() {
 
   // 3. Diagnose Growth Agent
   let growthAgentStatus = { ok: false, error: "Not configured", statusText: "" };
-  if (process.env.GROWTH_AGENT_URL) {
+  const agentRuntime = getGrowthAgentRuntime();
+  const agentHost = agentRuntime === "hermes" ? process.env.HERMES_API_URL : process.env.GROWTH_AGENT_URL;
+  if (agentHost) {
     try {
       const start = Date.now();
-      // Test endpoint by doing a fast fetch
-      const res = await fetch(`${process.env.GROWTH_AGENT_URL.replace(/\/$/, "")}/eve/v1/session`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Basic ${Buffer.from(
-            `${process.env.GROWTH_AGENT_USERNAME || ""}:${process.env.GROWTH_AGENT_PASSWORD || ""}`
-          ).toString("base64")}`,
-        },
-        body: JSON.stringify({ message: "PING_TEST_DIAGNOSTIC_DISEABLE_OUTREACH" }),
-        signal: AbortSignal.timeout(4000),
-      }).catch((err) => err);
+      const res = agentRuntime === "hermes"
+        ? await fetch(`${agentHost.replace(/\/$/, "")}/v1/capabilities`, {
+            headers: { Authorization: `Bearer ${process.env.HERMES_API_KEY ?? ""}` },
+            signal: AbortSignal.timeout(4000),
+          }).catch((err) => err)
+        : await fetch(`${agentHost.replace(/\/$/, "")}/eve/v1/session`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Basic ${Buffer.from(
+                `${process.env.GROWTH_AGENT_USERNAME || ""}:${process.env.GROWTH_AGENT_PASSWORD || ""}`
+              ).toString("base64")}`,
+            },
+            body: JSON.stringify({ message: "PING_TEST_DIAGNOSTIC_DISABLE_OUTREACH" }),
+            signal: AbortSignal.timeout(4000),
+          }).catch((err) => err);
 
       if (res instanceof Response) {
         // We expect either a successful 202/200 or some response showing it responded.
@@ -74,7 +87,7 @@ export async function POST() {
           growthAgentStatus = {
             ok: true,
             error: "",
-            statusText: `Reachable (status ${res.status}, ${Date.now() - start}ms)`,
+            statusText: `${agentRuntime} reachable (status ${res.status}, ${Date.now() - start}ms)`,
           };
         } else {
           growthAgentStatus = {

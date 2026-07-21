@@ -8,7 +8,7 @@ const DARK_ROUTES = ["/projects/mistica"];
 export default function RouteTheme() {
   const pathname = usePathname();
   const isDark =
-    !!pathname && DARK_ROUTES.some((p) => pathname.startsWith(p));
+    pathname === "/" || (!!pathname && DARK_ROUTES.some((p) => pathname.startsWith(p)));
   const isLight = !isDark;
 
   useEffect(() => {

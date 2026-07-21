@@ -25,6 +25,19 @@ export default defineTool({
       GROUP BY vertical
       ORDER BY total DESC, average_score DESC
     `;
-    return { totals, verticals };
+    const funnel = await sql`
+      SELECT status, count(*)::int AS total
+      FROM leads
+      WHERE created_at >= now() - interval '7 days'
+      GROUP BY status
+      ORDER BY total DESC
+    `;
+    return {
+      totals,
+      verticals,
+      funnel,
+      northStar: "qualified conversations per week",
+      note: "Compare researched → approved → contacted → replied → meeting_booked → won by campaign.",
+    };
   },
 });

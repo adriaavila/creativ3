@@ -221,7 +221,7 @@ const PRICING = [
     features: [
       "Todo lo de Growth",
       "Funnel completo desde Instagram/anuncios",
-      "Hermes Agent para asesoria, envios y resumenes",
+      "Hermes Agent para orquestacion, borradores y resumenes",
       "Dashboard mas avanzado",
       "Segmentacion de leads",
       "Reporte semanal",
@@ -939,7 +939,7 @@ export default function WhatsAppRevenuePage() {
                 Growth System por $249 setup + $69/mes
               </div>
               <p className="mt-3 text-sm text-white/55">
-                Incluye asesoria, envios asistidos y resumenes de chats de WhatsApp durante el lanzamiento.
+                Incluye asesoria, contenido y envios aprobados, mas resumenes de chats de WhatsApp durante el lanzamiento.
               </p>
               <div className="mt-6 grid gap-2">
                 {HERMES_SERVICES.map((service) => (

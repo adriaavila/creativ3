@@ -5,8 +5,11 @@
 - The public web app calls the Eve HTTP channel server-to-server. Never expose credentials to the browser.
 - Weekday research runs at 13:00 UTC (09:00 Caracas). Weekly summary runs Friday at 21:00 UTC.
 - The agent can research, score, persist, draft, and update state. It has no outreach-sending tool.
+- The active strategy is one 14-day campaign at a time. Initial experiment: `reduce_costs × ecommerce × WhatsApp/operations automation`.
+- Postiz handles approved social scheduling and analytics. WAHA is reserved for approved WhatsApp Status/Channel content; never bulk direct outreach.
 - Use `pnpm --filter @creativv/growth-agent build` before deployment and trigger `daily-research` from Eve's dev schedule endpoint during local verification.
 - Model runs through **Vercel AI Gateway** (`gateway("anthropic/claude-sonnet-4-6")` in each `agent.ts`; override per env with `GROWTH_MODEL`). Requires `AI_GATEWAY_API_KEY`.
+- Eve remains the current runtime. The production migration to Hermes Agent is documented in `ops/agents/README.md`; run both in shadow mode before cutover.
 
 ## Evaluating the agents
 

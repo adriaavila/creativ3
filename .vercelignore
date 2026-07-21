@@ -2,3 +2,7 @@
 .docs
 .next
 node_modules
+apps/growth-agent/.workflow-data
+apps/growth-agent/.eve
+apps/growth-agent/.output
+ops/agents/data

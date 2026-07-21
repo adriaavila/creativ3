@@ -42,7 +42,7 @@ const PLANS = {
     setupAmount: 24900,
     recurringAmount: 6900,
     description:
-      "Growth System founder LATAM — precio especial con Hermes Agent para asesoría, envíos y resúmenes.",
+      "Growth System founder LATAM — Hermes Agent para orquestación, borradores, envíos aprobados y resúmenes.",
   },
 } as const;
 

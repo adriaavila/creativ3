@@ -2,4 +2,4 @@
 cron: "0 14 * * 1,3,5"
 ---
 
-Generate this period's social content. Review the week's verified leads, recurring problems, and wins, then delegate to the `content` subagent to produce 1–3 short posts (LinkedIn thesis/how-to/case, optionally X) grounded only in verifiable signals. The subagent queues each as a Postiz draft scheduled in the future for human review. Invent no metrics. Never publish directly. Publish one anonymous Project Operator event noting how many drafts were queued.
+Generate content for the active 14-day campaign only. Review verified leads, recurring problems, and wins, then delegate to `content` to produce one core idea adapted into 1–3 channel-specific pieces. Queue social posts in Postiz with a human-review window. Prepare WhatsApp Status/Channel variants, but publish them through WAHA only after the content item is explicitly approved. Never send direct or bulk outreach. Include the campaign UTM. Invent no metrics. Publish one anonymous Project Operator event with draft and publication counts.

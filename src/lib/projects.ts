@@ -13,7 +13,7 @@ export type PortfolioProject = {
   categories: ProjectCategory[];
   description: string;
   result: string;
-  businessGoal: "sell_more" | "reduce_costs" | "both";
+  businessGoal: "increase_revenue" | "reduce_costs" | "both";
   businessOutcome: string;
   agentRole: string;
   status: "launched" | "demo" | "prototype" | "improving";
@@ -66,7 +66,7 @@ export const PORTFOLIO_PROJECTS: PortfolioProject[] = [
       "Catálogo, checkout y cobro en un solo link. El cliente elige pagar en divisa o bolívares y el pedido cae al WhatsApp con el total correcto.",
     result:
       "Convierte un perfil de Instagram o un grupo de WhatsApp en una tienda real, sin fricción ni Marketplace.",
-    businessGoal: "sell_more",
+    businessGoal: "increase_revenue",
     businessOutcome: "Ordena catálogo, cobro y pedido para convertir conversaciones en compras completas.",
     agentRole: "Asistente de catálogo y preparación de pedidos",
     status: "launched",
@@ -173,7 +173,7 @@ export const PORTFOLIO_PROJECTS: PortfolioProject[] = [
       "Juego mundialero para crear perfil, armar ligas privadas y competir por predicciones con una identidad visual propia.",
     result:
       "Transforma una quiniela informal en un producto social con onboarding, avatares, tabla y experiencia compartible.",
-    businessGoal: "sell_more",
+    businessGoal: "increase_revenue",
     businessOutcome: "Convierte una dinámica informal en un producto compartible con registro y recurrencia.",
     agentRole: "Moderación y soporte de juego",
     status: "prototype",
@@ -210,7 +210,7 @@ export const PORTFOLIO_PROJECTS: PortfolioProject[] = [
       "Tienda online para una marca de arte, con catalogo visual, narrativa editorial y checkout listo para compra.",
     result:
       "Ordena la experiencia de descubrimiento y compra para que la marca se sienta coleccionable, no generica.",
-    businessGoal: "sell_more",
+    businessGoal: "increase_revenue",
     businessOutcome: "Eleva descubrimiento y compra con una experiencia editorial coherente con la marca.",
     agentRole: "Curador de catálogo",
     status: "launched",

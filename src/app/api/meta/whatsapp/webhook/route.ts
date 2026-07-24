@@ -58,7 +58,15 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid JSON payload." }, { status: 400 });
   }
 
-  const forwarded = await forwardWebhookEvent(payload);
+  // n8n is a downstream consumer, not a dependency. Meta disables a webhook
+  // subscription after sustained non-2xx replies, so an n8n outage must never
+  // turn into a 500 here.
+  const forwarded = await forwardWebhookEvent(payload).catch((error) => ({
+    enabled: true,
+    ok: false,
+    status: 0,
+    error: error instanceof Error ? error.message : "n8n forward failed",
+  }));
 
   return NextResponse.json({
     ok: true,
@@ -89,6 +97,7 @@ async function forwardWebhookEvent(payload: unknown) {
       payload,
       received_at: new Date().toISOString(),
     }),
+    signal: AbortSignal.timeout(5000),
   });
 
   return {

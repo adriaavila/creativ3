@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { deregisterPhoneNumber, getExchangeEnv, safeMetaError } from "@/lib/meta/server";
+import { authorizeOps } from "@/lib/ops-auth";
 
 export async function POST(req: NextRequest) {
+  const authorization = await authorizeOps();
+  if (!authorization.authorized) return authorization.response;
+
   let input: unknown;
 
   try {

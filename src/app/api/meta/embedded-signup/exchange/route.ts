@@ -103,38 +103,52 @@ export async function POST(req: NextRequest) {
     // Calling POST /{phone-number-id}/register here would take it off the app.
     const connectedAt = new Date().toISOString();
     const tokenMetadata = buildTokenMetadata(tokenExchange, debugData);
-    const n8nResult = await forwardConnectedAccountToN8n({
-      payload: connectedPayload,
-      businessToken,
-      tokenMetadata,
-      subscribeResult,
-      env: exchangeEnv.env,
-      connectedAt,
-    });
+    const status = subscribeResult.success ? "subscribed" : "connected";
 
-    if (!n8nResult.ok) {
+    // Meta has already authorized and subscribed the number by this point, so a
+    // downstream outage must not fail the onboarding — the client would be left
+    // connected on Meta's side with nothing recorded here. Postgres is the source
+    // of truth for /ops, n8n is the automation consumer; only losing BOTH is fatal.
+    const [dbResult, n8nResult] = await Promise.all([
+      upsertWhatsAppConnection({
+        payload: connectedPayload,
+        businessToken,
+        tokenMetadata,
+        phoneProfile,
+        status,
+        connectedAt,
+      }).then(
+        () => ({ ok: true, error: undefined as string | undefined }),
+        (error: unknown) => ({ ok: false, error: errorText(error) }),
+      ),
+      forwardConnectedAccountToN8n({
+        payload: connectedPayload,
+        businessToken,
+        tokenMetadata,
+        subscribeResult,
+        env: exchangeEnv.env,
+        connectedAt,
+      }).catch((error: unknown) => ({
+        ok: false,
+        status: 0,
+        body: { error: errorText(error) },
+      })),
+    ]);
+
+    if (!dbResult.ok && !n8nResult.ok) {
       return NextResponse.json(
         {
-          error: "Connected account was authorized, but n8n storage failed.",
+          error:
+            "Meta authorized the number, but it could not be stored in any backend. Retry once storage is back.",
+          waba_id: connectedPayload.waba_id,
+          phone_number_id: connectedPayload.phone_number_id,
           waba_subscribe_succeeded: subscribeResult.success === true,
-          n8n: {
-            reached: true,
-            status: n8nResult.status,
-            body: n8nResult.body,
-          },
+          database: { ok: false, error: dbResult.error },
+          n8n: { ok: false, status: n8nResult.status },
         },
         { status: 502 },
       );
     }
-
-    await upsertWhatsAppConnection({
-      payload: connectedPayload,
-      businessToken,
-      tokenMetadata,
-      phoneProfile,
-      status: subscribeResult.success ? "subscribed" : "connected",
-      connectedAt,
-    });
 
     const response = NextResponse.json({
       ok: true,
@@ -145,12 +159,13 @@ export async function POST(req: NextRequest) {
         display_phone_number: phoneProfile.display_phone_number,
         verified_name: phoneProfile.verified_name,
         connected_at: connectedAt,
-        status: subscribeResult.success ? "subscribed" : "connected",
+        status,
       },
       token_metadata: tokenMetadata,
       waba_subscribe_succeeded: subscribeResult.success === true,
+      database: { ok: dbResult.ok },
       n8n: {
-        reached: true,
+        reached: n8nResult.ok,
         status: n8nResult.status,
       },
       test_message: {
@@ -177,7 +192,10 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const message = error instanceof Error ? error.message : "Unknown exchange error.";
-    return NextResponse.json({ error: message }, { status: 500 });
+    return NextResponse.json({ error: errorText(error) }, { status: 500 });
   }
+}
+
+function errorText(error: unknown) {
+  return error instanceof Error ? error.message : "Unknown exchange error.";
 }

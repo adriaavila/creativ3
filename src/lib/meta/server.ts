@@ -438,6 +438,7 @@ export async function forwardMetaAccountLifecycleToN8n(input: {
       issued_at: input.issuedAt,
       received_at: input.receivedAt,
     }),
+    signal: AbortSignal.timeout(8000),
   });
 
   return {
@@ -489,6 +490,7 @@ export async function forwardConnectedAccountToN8n(input: {
         subscribe_succeeded: input.subscribeResult.success === true,
       },
     }),
+    signal: AbortSignal.timeout(8000),
   });
 
   return {

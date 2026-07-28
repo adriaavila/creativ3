@@ -4,15 +4,31 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import CreativvLogo from "@/components/landing/CreativvLogo";
+import { MessageCircle } from "lucide-react";
+import { whatsappUrl } from "@/lib/contact";
 
 const NAV = [
-  { label: "Trabajo", href: "/#trabajo" },
-  { label: "Sistemas", href: "/#servicios" },
-  { label: "Agentes", href: "/#agentes" },
-  { label: "Empezar", href: "/#empezar" },
+  { label: "Proyectos", href: "/#proyectos" },
+  { label: "Servicios", href: "/#servicios" },
+  { label: "WhatsApp IA", href: "/whatsapp" },
+  { label: "Planes", href: "/#oferta" },
+  { label: "Archivo", href: "/projects" },
 ];
 
-const HIDE_ON = ["/projects/mistica", "/", "/whatsapp", "/ops", "/sign-in"];
+// App dashboards and internal flows hide marketing header
+const HIDE_ON = [
+  "/",
+  "/ops",
+  "/whatsapp",
+  "/sign-in",
+  "/conectar-whatsapp",
+  "/pago",
+  "/embedded-whatsapp",
+];
+
+const DIRECT_WHATSAPP_CTA = whatsappUrl(
+  "Hola creativv, quiero cotizar un proyecto. Mi negocio es:"
+);
 
 export default function SiteHeader() {
   const pathname = usePathname();
@@ -27,13 +43,13 @@ export default function SiteHeader() {
   }, []);
 
   if (pathname === "/") return null;
-  if (pathname && HIDE_ON.some((p) => p !== "/" && pathname.startsWith(p))) return null;
+  if (pathname && HIDE_ON.some((p) => p !== "/" && pathname === p)) return null;
 
   return (
     <header
       className={`fixed top-0 inset-x-0 z-[60] transition-all duration-300 ${
         scrolled
-          ? "bg-[#f5f3ec]/85 backdrop-blur-xl border-b border-[#1f2a1d]/10"
+          ? "bg-[#0a0f0b]/85 backdrop-blur-xl border-b border-white/10"
           : "bg-transparent border-b border-transparent"
       }`}
     >
@@ -41,42 +57,48 @@ export default function SiteHeader() {
         <Link
           href="/"
           aria-label="creativv"
-          className="flex items-center text-[#1f2a1d]"
+          className="flex items-center text-white"
         >
-          <CreativvLogo variant="lockup-bare" className="h-7 sm:h-8 w-auto" />
+          <CreativvLogo variant="lockup-bare" theme="dark" className="h-7 sm:h-8 w-auto text-white" />
         </Link>
 
-        <div className="hidden lg:flex items-center gap-1 bg-white/70 backdrop-blur-md rounded-full pl-6 pr-1 py-1 shadow-sm border border-white/60">
+        <div className="hidden lg:flex items-center gap-1 bg-white/[0.05] backdrop-blur-md rounded-full pl-6 pr-1 py-1 shadow-sm border border-white/10">
           {NAV.map((link) => (
             <Link
               key={link.href}
               href={link.href}
-              className="text-sm px-3 py-2 font-medium text-[#4b5b47] hover:text-[#1f2a1d] transition-colors"
+              className="text-sm px-3 py-2 font-medium text-white/70 hover:text-white transition-colors"
             >
               {link.label}
             </Link>
           ))}
-          <Link
-            href="/cotizar"
-            className="ml-2 bg-[#1f2a1d] hover:bg-[#2a3827] text-white text-sm font-medium px-5 py-2.5 rounded-full transition-colors"
+          <a
+            href={DIRECT_WHATSAPP_CTA}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="ml-2 inline-flex items-center gap-2 bg-[#31583a] hover:bg-[#3d6e48] border border-[#a9c989]/30 text-white text-sm font-semibold px-5 py-2.5 rounded-full transition-all duration-300 hover:scale-[1.02] shadow-lg shadow-[#31583a]/20"
           >
-            Calcular ahorro
-          </Link>
+            <MessageCircle className="w-4 h-4 text-[#a9c989]" />
+            Hablemos
+          </a>
         </div>
 
         <div className="lg:hidden flex items-center gap-3">
-          <Link
-            href="/cotizar"
-            className="hidden sm:inline-flex bg-[#1f2a1d] hover:bg-[#2a3827] text-white text-xs font-medium px-4 py-2 rounded-full transition-colors"
+          <a
+            href={DIRECT_WHATSAPP_CTA}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hidden sm:inline-flex items-center gap-1.5 bg-[#31583a] hover:bg-[#3d6e48] border border-[#a9c989]/30 text-white text-xs font-semibold px-4 py-2 rounded-full transition-colors"
           >
-            Presupuesto
-          </Link>
+            <MessageCircle className="w-3.5 h-3.5 text-[#a9c989]" />
+            WhatsApp
+          </a>
           <button
             type="button"
             aria-label={open ? "Cerrar menú" : "Abrir menú"}
             aria-expanded={open}
             onClick={() => setOpen((v) => !v)}
-            className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-white/70 backdrop-blur-md border border-white/60 text-[#1f2a1d] hover:bg-white/90 transition-colors"
+            className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-white/10 backdrop-blur-md border border-white/10 text-white hover:bg-white/20 transition-colors"
           >
             <span aria-hidden="true" className="text-lg leading-none">{open ? "×" : "≡"}</span>
           </button>
@@ -84,25 +106,28 @@ export default function SiteHeader() {
       </nav>
 
       {open && (
-        <div className="lg:hidden bg-white/95 backdrop-blur-xl border-t border-[#1f2a1d]/10">
-          <div className="px-6 py-6 flex flex-col gap-2 text-sm text-[#1f2a1d]">
+        <div className="lg:hidden bg-[#0a0f0b]/95 backdrop-blur-xl border-t border-white/10">
+          <div className="px-6 py-6 flex flex-col gap-2 text-sm text-white">
             {NAV.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
                 onClick={() => setOpen(false)}
-                className="py-2 font-medium hover:text-[#336443] transition-colors"
+                className="py-2 font-medium text-white/80 hover:text-white transition-colors"
               >
                 {item.label}
               </Link>
             ))}
-            <Link
-              href="/cotizar"
+            <a
+              href={DIRECT_WHATSAPP_CTA}
+              target="_blank"
+              rel="noopener noreferrer"
               onClick={() => setOpen(false)}
-              className="self-start mt-2 bg-[#1f2a1d] hover:bg-[#2a3827] text-white text-sm font-semibold px-5 py-2.5 rounded-full transition-colors"
+              className="self-start mt-2 inline-flex items-center gap-2 bg-[#31583a] hover:bg-[#3d6e48] border border-[#a9c989]/30 text-white text-sm font-semibold px-5 py-2.5 rounded-full transition-colors"
             >
-              Calcular ahorro
-            </Link>
+              <MessageCircle className="w-4 h-4 text-[#a9c989]" />
+              Hablemos por WhatsApp
+            </a>
           </div>
         </div>
       )}

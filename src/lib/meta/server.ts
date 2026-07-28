@@ -525,21 +525,31 @@ export async function sendPreparedTextMessage(input: {
   });
 }
 
-export async function registerPhoneNumber(input: {
+export async function sendTemplateMessage(input: {
   phoneNumberId: string;
   businessToken: string;
-  pin: string;
+  to: string;
+  templateName: string;
+  languageCode: string;
+  components?: unknown[];
   graphVersion?: string;
 }) {
-  return graphRequest<SubscribeResponse>({
-    requestName: "register_phone_number",
+  return graphRequest({
+    requestName: "send_template_message",
     graphVersion: input.graphVersion ?? getGraphVersion(),
-    path: `${encodeURIComponent(input.phoneNumberId)}/register`,
+    path: `${encodeURIComponent(input.phoneNumberId)}/messages`,
     method: "POST",
     accessToken: input.businessToken,
     body: {
       messaging_product: "whatsapp",
-      pin: input.pin,
+      recipient_type: "individual",
+      to: input.to,
+      type: "template",
+      template: {
+        name: input.templateName,
+        language: { code: input.languageCode },
+        ...(input.components ? { components: input.components } : {}),
+      },
     },
   });
 }

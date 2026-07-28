@@ -1,6 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
-
-const COOKIE_NAME = "creativv_ops_session";
+import { OPS_COOKIE_NAME, verifyOpsSessionToken } from "@/lib/ops-session";
 
 export default function proxy(request: NextRequest) {
   if (
@@ -10,10 +9,9 @@ export default function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
-  const expected = process.env.OPS_SESSION_SECRET;
-  const authenticated = Boolean(
-    expected && request.cookies.get(COOKIE_NAME)?.value === expected,
-  );
+  const secret = process.env.OPS_SESSION_SECRET;
+  const token = request.cookies.get(OPS_COOKIE_NAME)?.value;
+  const authenticated = Boolean(secret && verifyOpsSessionToken(token, secret));
 
   if (authenticated) return NextResponse.next();
 

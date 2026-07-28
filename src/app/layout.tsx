@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Fraunces, Italiana, Instrument_Sans, JetBrains_Mono } from "next/font/google";
+import { Fraunces, Italiana, Instrument_Sans, JetBrains_Mono, Geist } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 import SiteHeader from "@/components/sections/SiteHeader";
@@ -34,6 +34,18 @@ const instrumentSans = Instrument_Sans({
   weight: ["400", "500", "600", "700"],
   subsets: ["latin"],
   variable: "--font-instrument-sans",
+  display: "swap",
+});
+
+// Grotesque for the studio landing. Cabinet Grotesk (the face in the reference
+// asset pack) only ships via Fontshare's runtime @import — a render-blocking
+// external request with no next/font optimisation. Geist is the same modern
+// grotesque genre, self-hosted by next/font, zero external requests. Swap in
+// Cabinet Grotesk with next/font/local if you download its woff2 files.
+const geist = Geist({
+  weight: ["400", "500", "600"],
+  subsets: ["latin"],
+  variable: "--font-grotesk",
   display: "swap",
 });
 
@@ -86,12 +98,19 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // No `h-full` on <html>: a fixed 100%-height root makes the document a
+  // viewport-height scroller with the body overflowing it, which breaks
+  // ScrollTrigger's start/end measurement. `min-h-screen` on <body> gives the
+  // same full-viewport floor without pinning the root's height.
   return (
     <html
       lang="es"
-      className={`${fraunces.variable} ${italiana.variable} ${jetbrains.variable} ${instrumentSans.variable} theme-dark h-full`}
+      className={`${fraunces.variable} ${italiana.variable} ${jetbrains.variable} ${instrumentSans.variable} ${geist.variable} theme-dark`}
     >
-      <body className="min-h-full overflow-x-hidden antialiased">
+      {/* relative: GSAP ScrollTrigger's documented requirement whenever overflow
+          is set on <body> — without it, offset math against the window
+          scroller silently no-ops instead of erroring. */}
+      <body className="relative min-h-screen overflow-x-hidden antialiased">
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(siteJsonLd()) }}

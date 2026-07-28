@@ -1,5 +1,10 @@
 import crypto from "node:crypto";
 import { NextRequest, NextResponse } from "next/server";
+import {
+  insertMessage,
+  updateMessageStatusByWaId,
+  upsertConversation,
+} from "@/lib/whatsapp-inbox-db";
 
 function verifySignature(rawBody: string, header: string | null, appSecret: string) {
   if (!header?.startsWith("sha256=")) return false;
@@ -58,9 +63,15 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid JSON payload." }, { status: 400 });
   }
 
-  // n8n is a downstream consumer, not a dependency. Meta disables a webhook
-  // subscription after sustained non-2xx replies, so an n8n outage must never
-  // turn into a 500 here.
+  // Persist before acking so /ops/inbox reflects the event immediately. Each change
+  // is isolated in its own try/catch — a parse miss on one entry must never sink the
+  // whole webhook (Meta disables the subscription after sustained non-2xx replies).
+  const inboxResult = await persistWebhookPayload(payload).catch((error) => ({
+    ok: false,
+    error: error instanceof Error ? error.message : "inbox persistence failed",
+  }));
+
+  // n8n is a downstream consumer, not a dependency — fire-and-forget, never blocks the ack.
   const forwarded = await forwardWebhookEvent(payload).catch((error) => ({
     enabled: true,
     ok: false,
@@ -71,8 +82,129 @@ export async function POST(req: NextRequest) {
   return NextResponse.json({
     ok: true,
     received: true,
+    inbox: inboxResult,
     forwarded,
   });
+}
+
+type MetaInboundMessage = {
+  id?: string;
+  from?: string;
+  timestamp?: string;
+  type?: string;
+  text?: { body?: string };
+  [key: string]: unknown;
+};
+
+type MetaChange = {
+  field?: string;
+  value?: {
+    metadata?: { phone_number_id?: string };
+    contacts?: Array<{ wa_id?: string; profile?: { name?: string } }>;
+    messages?: MetaInboundMessage[];
+    statuses?: Array<{ id?: string; status?: string; recipient_id?: string }>;
+    // smb_app_state_sync's exact shape is sparsely documented for coexistence —
+    // handled best-effort below, wrapped so a shape mismatch never throws.
+    [key: string]: unknown;
+  };
+};
+
+function extractMessageBody(message: MetaInboundMessage): string | null {
+  return message.text?.body ?? null;
+}
+
+async function persistWebhookPayload(payload: unknown) {
+  const entries = (payload as { entry?: Array<{ changes?: MetaChange[] }> })?.entry ?? [];
+  let persisted = 0;
+  const errors: string[] = [];
+
+  for (const entry of entries) {
+    for (const change of entry.changes ?? []) {
+      try {
+        persisted += await persistChange(change);
+      } catch (error) {
+        errors.push(error instanceof Error ? error.message : "unknown change error");
+      }
+    }
+  }
+
+  return { ok: errors.length === 0, persisted, errors: errors.length ? errors : undefined };
+}
+
+async function persistChange(change: MetaChange): Promise<number> {
+  const value = change.value;
+  const phoneNumberId = value?.metadata?.phone_number_id;
+  if (!phoneNumberId) return 0;
+
+  let count = 0;
+
+  // `messages` (inbound) and `smb_message_echoes` (outbound, sent from the owner's
+  // phone under coexistence) share the same `value.messages[]` shape — only
+  // direction/source differ. `history` batches are also this shape; ON CONFLICT
+  // DO NOTHING on wa_message_id makes replays and history backfill idempotent.
+  if (change.field === "messages" || change.field === "smb_message_echoes" || change.field === "history") {
+    const direction = change.field === "smb_message_echoes" ? "out" : "in";
+    const source = change.field === "smb_message_echoes" ? "phone" : "api";
+
+    for (const message of value?.messages ?? []) {
+      const contactWaId = message.from;
+      if (!contactWaId) continue;
+      const contactName = value?.contacts?.find((c) => c.wa_id === contactWaId)?.profile?.name ?? null;
+      const occurredAt = message.timestamp
+        ? new Date(Number(message.timestamp) * 1000).toISOString()
+        : new Date().toISOString();
+
+      const conversation = await upsertConversation({
+        channelKind: "cloud_api",
+        channelKey: phoneNumberId,
+        contactWaId,
+        contactName,
+        direction,
+        occurredAt,
+      });
+
+      const inserted = await insertMessage({
+        conversationId: conversation.id,
+        waMessageId: message.id ?? null,
+        direction,
+        source,
+        msgType: message.type ?? "text",
+        body: extractMessageBody(message),
+        payload: message,
+      });
+      if (inserted) count += 1;
+    }
+  }
+
+  if (change.field === "messages") {
+    for (const status of value?.statuses ?? []) {
+      if (!status.id || !status.status) continue;
+      await updateMessageStatusByWaId(status.id, status.status);
+      count += 1;
+    }
+  }
+
+  // smb_app_state_sync updates contact display names outside of a message event.
+  // Best-effort: Meta's public docs don't pin down this coexistence-only field's
+  // shape as precisely as `messages`/`statuses` — verify against a captured
+  // payload before depending on it further.
+  if (change.field === "smb_app_state_sync") {
+    const syncEntries = (value as { state_sync?: Array<{ wa_id?: string; contact_name?: string }> })
+      ?.state_sync ?? [];
+    for (const entry of syncEntries) {
+      if (!entry.wa_id) continue;
+      await upsertConversation({
+        channelKind: "cloud_api",
+        channelKey: phoneNumberId,
+        contactWaId: entry.wa_id,
+        contactName: entry.contact_name ?? null,
+        direction: "out",
+      });
+      count += 1;
+    }
+  }
+
+  return count;
 }
 
 async function forwardWebhookEvent(payload: unknown) {

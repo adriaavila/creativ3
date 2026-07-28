@@ -1,9 +1,19 @@
 type Props = {
   className?: string;
   variant?: "mark" | "mark-bare" | "wordmark" | "lockup" | "lockup-bare";
+  theme?: "light" | "dark" | "auto";
 };
 
-export default function CreativvLogo({ className, variant = "lockup" }: Props) {
+export default function CreativvLogo({
+  className,
+  variant = "lockup",
+  theme = "auto",
+}: Props) {
+  const isDark = theme === "dark";
+  const badgeBg = isDark ? "#243222" : "#f5f3ec";
+  const iconStroke = isDark ? "#dbe9c3" : "#1f2a1d";
+  const dotFill = isDark ? "#dbe9c3" : "#336443";
+
   if (variant === "mark") {
     return (
       <svg
@@ -13,9 +23,9 @@ export default function CreativvLogo({ className, variant = "lockup" }: Props) {
         role="img"
         aria-label="creativv"
       >
-        <rect width="64" height="64" rx="16" fill="#f5f3ec" />
+        <rect width="64" height="64" rx="16" fill={badgeBg} />
         <g
-          stroke="#1f2a1d"
+          stroke={iconStroke}
           strokeWidth="5.5"
           fill="none"
           strokeLinecap="round"
@@ -39,7 +49,7 @@ export default function CreativvLogo({ className, variant = "lockup" }: Props) {
       >
         <g
           stroke="currentColor"
-          strokeWidth="5"
+          strokeWidth="5.5"
           fill="none"
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -63,15 +73,15 @@ export default function CreativvLogo({ className, variant = "lockup" }: Props) {
         <text
           x="0"
           y="33"
-          fontFamily="var(--font-inter), Inter, Helvetica, Arial, sans-serif"
+          fontFamily="var(--font-grotesk), var(--font-instrument-sans), Inter, sans-serif"
           fontSize="34"
-          fontWeight="600"
+          fontWeight="700"
           letterSpacing="-1.3"
           fill="currentColor"
         >
           creativv
         </text>
-        <circle cx="208" cy="11" r="3.2" fill="currentColor" />
+        <circle cx="206" cy="11" r="3.5" fill={dotFill} />
       </svg>
     );
   }
@@ -85,9 +95,9 @@ export default function CreativvLogo({ className, variant = "lockup" }: Props) {
         role="img"
         aria-label="creativv"
       >
-        <rect x="2" y="6" width="44" height="44" rx="11" fill="#f5f3ec" />
+        <rect x="2" y="6" width="44" height="44" rx="12" fill={badgeBg} />
         <g
-          stroke="#1f2a1d"
+          stroke={iconStroke}
           strokeWidth="5.5"
           fill="none"
           strokeLinecap="round"
@@ -98,17 +108,17 @@ export default function CreativvLogo({ className, variant = "lockup" }: Props) {
           <path d="M21 27 L28 39 L32 32 L36 39 L43 27" />
         </g>
         <text
-          x="62"
+          x="60"
           y="37"
-          fontFamily="var(--font-inter), Inter, Helvetica, Arial, sans-serif"
+          fontFamily="var(--font-grotesk), var(--font-instrument-sans), Inter, sans-serif"
           fontSize="32"
-          fontWeight="600"
+          fontWeight="700"
           letterSpacing="-1.2"
           fill="currentColor"
         >
           creativv
         </text>
-        <circle cx="248" cy="14" r="2.8" fill="currentColor" />
+        <circle cx="246" cy="14" r="3.2" fill={dotFill} />
       </svg>
     );
   }
@@ -121,32 +131,31 @@ export default function CreativvLogo({ className, variant = "lockup" }: Props) {
       role="img"
       aria-label="creativv"
     >
-      <g>
-        <rect width="48" height="48" y="4" rx="12" fill="#f5f3ec" />
-        <g
-          stroke="#1f2a1d"
-          strokeWidth="4.1"
-          fill="none"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          transform="translate(0,4) scale(0.75)"
-        >
-          <path d="M46 19 A16 16 0 1 0 46 45" />
-          <path d="M21 27 L28 39 L32 32 L36 39 L43 27" />
-        </g>
+      <rect width="48" height="48" y="4" rx="13" fill={badgeBg} />
+      <g
+        stroke={iconStroke}
+        strokeWidth="4.5"
+        fill="none"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        transform="translate(0,4) scale(0.75)"
+      >
+        <path d="M46 19 A16 16 0 1 0 46 45" />
+        <path d="M21 27 L28 39 L32 32 L36 39 L43 27" />
       </g>
       <text
         x="62"
         y="37"
-        fontFamily="var(--font-inter), Inter, Helvetica, Arial, sans-serif"
+        fontFamily="var(--font-grotesk), var(--font-instrument-sans), Inter, sans-serif"
         fontSize="32"
-        fontWeight="600"
+        fontWeight="700"
         letterSpacing="-1.2"
         fill="currentColor"
       >
         creativv
       </text>
-      <circle cx="248" cy="14" r="2.8" fill="currentColor" />
+      <circle cx="248" cy="14" r="3.2" fill={dotFill} />
     </svg>
   );
 }
+

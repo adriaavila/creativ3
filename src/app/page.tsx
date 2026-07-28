@@ -1,35 +1,41 @@
 import type { Metadata } from "next";
-import ProductHome from "@/components/product-home/ProductHome";
+import StudioHome from "@/components/home/StudioHome";
 
 export const metadata: Metadata = {
-  title: "Web, apps, automatización e IA para negocios",
+  title: "creativv | Productos y Experimentos de Adri Ávila",
   description:
-    "Creamos websites cinematográficos, aplicaciones y sistemas inteligentes para ayudar a tu negocio a vender, responder y operar mejor.",
+    "Conecto lo que observo con productos que pueden existir. Productos digitales, sistemas y experimentos por Adri Ávila.",
   alternates: { canonical: "/" },
   keywords: [
-    "diseño web para negocios",
-    "aplicaciones web",
-    "automatización",
-    "inteligencia artificial para negocios",
-    "WhatsApp ventas",
-    "prototipos de aplicaciones",
+    "creativv",
+    "Adri Ávila",
+    "productos digitales",
+    "REI",
+    "Shopea",
+    "Frontia",
+    "Mística",
+    "Soapy",
+    "experimentos",
   ],
   openGraph: {
-    title: "Creativv | Experiencias digitales que convierten",
+    title: "creativv | Conecto lo que observo con productos que pueden existir",
     description:
-      "Web, apps, automatización e IA diseñados alrededor del resultado que tu negocio necesita.",
+      "Creativv es el lugar donde convierto observaciones del mercado en productos digitales, sistemas y experimentos.",
     url: "/",
     type: "website",
     locale: "es_VE",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Creativv | Experiencias digitales que convierten",
+    title: "creativv | Productos y experimentos de Adri Ávila",
     description:
-      "Creamos experiencias digitales para vender, responder y operar mejor.",
+      "Creativv es el lugar donde convierto observaciones del mercado en productos digitales, sistemas y experimentos.",
   },
 };
 
 export default function Home() {
-  return <ProductHome />;
+  return <StudioHome />;
 }
+
+
+

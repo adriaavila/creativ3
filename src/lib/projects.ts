@@ -60,14 +60,14 @@ export const PORTFOLIO_PROJECTS: PortfolioProject[] = [
   {
     id: "shopea",
     name: "Shopea",
-    kind: "Ecommerce por WhatsApp",
+    kind: "Una forma más simple de vender por WhatsApp.",
     categories: ["webapp", "web"],
     description:
-      "Catálogo, checkout y cobro en un solo link. El cliente elige pagar en divisa o bolívares y el pedido cae al WhatsApp con el total correcto.",
+      "Catálogo, checkout y pagos en distintas monedas dentro de una experiencia construida alrededor de cómo realmente compran las personas.",
     result:
-      "Convierte un perfil de Instagram o un grupo de WhatsApp en una tienda real, sin fricción ni Marketplace.",
+      "Shopea conecta el descubrimiento de un producto con la conversación donde ocurre la venta.",
     businessGoal: "increase_revenue",
-    businessOutcome: "Ordena catálogo, cobro y pedido para convertir conversaciones en compras completas.",
+    businessOutcome: "Shopea conecta el descubrimiento de un producto con la conversación donde ocurre la venta.",
     agentRole: "Asistente de catálogo y preparación de pedidos",
     status: "launched",
     stack: ["Next.js", "TypeScript", "Convex", "Clerk"],
@@ -94,20 +94,20 @@ export const PORTFOLIO_PROJECTS: PortfolioProject[] = [
   },
   {
     id: "rei-fm",
-    name: "rei",
-    kind: "Real estate operations",
+    name: "REI",
+    kind: "Una nueva infraestructura para el mercado inmobiliario.",
     categories: ["webapp"],
     description:
-      "Plataforma para administrar propiedades, contratos, propietarios e ingresos sin depender de hojas sueltas.",
+      "Marketplace, CRM, administración de propiedades, portal de residentes y procesamiento de documentos con IA supervisada.",
     result:
-      "Centraliza la operación inmobiliaria: cartera, vencimientos y cobros quedan visibles para decidir más rápido.",
+      "REI conecta las distintas partes de una operación inmobiliaria que normalmente viven separadas.",
     businessGoal: "reduce_costs",
-    businessOutcome: "Reúne propiedades, contratos y cobros para reducir seguimiento manual y decisiones tardías.",
+    businessOutcome: "REI conecta las distintas partes de una operación inmobiliaria que normalmente viven separadas.",
     agentRole: "Copiloto de seguimiento operativo",
     status: "launched",
     stack: ["Next.js", "TypeScript", "Postgres", "Stripe"],
     year: "2026",
-    liveUrl: "https://rei-fm.vercel.app",
+    liveUrl: "https://reiprop.tech",
     githubPushedAt: "2026-05-25T13:39:30Z",
     githubUpdatedLabel: "25 may 2026",
     images: [
@@ -131,14 +131,14 @@ export const PORTFOLIO_PROJECTS: PortfolioProject[] = [
   {
     id: "frontai-landing",
     name: "Frontia",
-    kind: "AI front desk",
+    kind: "Conversaciones que se convierten en acciones.",
     categories: ["web", "automation"],
     description:
-      "Agente de front desk con IA que atiende llamadas, califica leads, agenda citas y registra el seguimiento de cada conversacion.",
+      "Un agente de voz con IA que atiende, entiende, califica y organiza cada interacción.",
     result:
-      "Convierte una promesa tecnica en una oferta vendible con demo visual, prueba operacional y CTA directo a llamada.",
+      "Frontia conecta una llamada con el siguiente paso del proceso comercial.",
     businessGoal: "both",
-    businessOutcome: "Explica un agente complejo con una demostración que conecta atención, agenda y seguimiento.",
+    businessOutcome: "Frontia conecta una llamada con el siguiente paso del proceso comercial.",
     agentRole: "Agente de front desk",
     status: "demo",
     stack: ["Next.js", "AI UX", "Vercel", "Motion"],
@@ -277,14 +277,14 @@ export const PORTFOLIO_PROJECTS: PortfolioProject[] = [
   {
     id: "soapy",
     name: "Soapy",
-    kind: "Laundry operations",
+    kind: "Cada orden conectada de principio a fin.",
     categories: ["webapp", "automation"],
     description:
-      "Sistema para lavanderias con ordenes, rutas, estados y notificaciones para mantener cada entrega bajo control.",
+      "Recepción, estados, rutas, notificaciones y entregas dentro de una sola experiencia operativa.",
     result:
-      "Convierte el mostrador, el taller y el reparto en un flujo visible donde cada prenda tiene estado y responsable.",
+      "Soapy conecta cada parte del servicio para que nada se pierda en el camino.",
     businessGoal: "reduce_costs",
-    businessOutcome: "Hace visible cada orden, ruta y responsable para evitar retrabajo y entregas sin contexto.",
+    businessOutcome: "Soapy conecta cada parte del servicio para que nada se pierda en el camino.",
     agentRole: "Operador de estados y notificaciones",
     status: "launched",
     stack: ["Next.js", "Supabase", "WhatsApp", "Operations"],
@@ -313,14 +313,14 @@ export const PORTFOLIO_PROJECTS: PortfolioProject[] = [
   {
     id: "mistica",
     name: "Mística",
-    kind: "Wellness SaaS",
+    kind: "La operación detrás de una experiencia de bienestar.",
     categories: ["webapp"],
     description:
-      "Sistema para una escuela de natacion: alumnos, horarios, asistencia, productos y cobros en bolivares y divisa.",
+      "Alumnos, horarios, asistencia, productos y pagos dentro de un sistema creado para una escuela de natación.",
     result:
-      "Reemplaza cuadernos y grupos de WhatsApp por una operación clara para profesores, administración y cobranza.",
+      "Mística conecta la experiencia de cada alumno con la operación que la hace posible.",
     businessGoal: "reduce_costs",
-    businessOutcome: "Unifica alumnos, horarios, asistencia y cobros para reducir administración manual.",
+    businessOutcome: "Mística conecta la experiencia de cada alumno con la operación que la hace posible.",
     agentRole: "Asistente de cobranza y operación",
     status: "launched",
     stack: ["Next.js", "Supabase", "Stripe", "Case study"],

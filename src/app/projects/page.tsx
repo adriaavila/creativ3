@@ -22,26 +22,26 @@ export default function ProjectsIndex() {
 
   return (
     <>
-      <main className="relative z-10 min-h-screen bg-[#f5f3ec] px-6 pb-28 pt-28 text-[#1f2a1d] sm:px-10 sm:pt-36">
+      <main className="relative z-10 min-h-screen bg-[#0a0f0b] px-6 pb-28 pt-28 text-white selection:bg-[#31583a] selection:text-white sm:px-10 sm:pt-36">
         <div className="mx-auto max-w-7xl">
-          <div className="mb-16 flex items-start justify-between gap-6 font-mono text-xs tracking-wide text-[#4b5b47] sm:text-sm">
-            <Link href="/" className="transition-colors hover:text-[#1f2a1d]">
+          <div className="mb-16 flex items-start justify-between gap-6 font-mono text-xs tracking-wide text-white/70 sm:text-sm">
+            <Link href="/" className="transition-colors text-[#a9c989] hover:text-white">
               Volver a inicio
             </Link>
-            <span>PROYECTOS · GITHUB SYNC</span>
+            <span className="text-[#a9c989]">PROYECTOS · GITHUB SYNC</span>
           </div>
 
           <section className="mb-14 grid grid-cols-1 gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-end">
             <div>
               <h1
-                className="font-normal leading-[0.92] tracking-tight"
+                className="font-display font-normal leading-[0.92] tracking-tight text-white"
                 style={{ fontSize: "clamp(52px, 9vw, 150px)" }}
               >
                 Proyectos
                 <br />
-                <span className="italic text-[#336443]">con pulso.</span>
+                <span className="italic text-[#a9c989]">con pulso.</span>
               </h1>
-              <p className="mt-7 max-w-2xl text-base leading-relaxed text-[#4b5b47] sm:text-lg">
+              <p className="mt-7 max-w-2xl text-base leading-relaxed text-white/70 sm:text-lg">
                 Si hay push reciente, entra al radar. Este archivo mezcla lo
                 último de GitHub con descripción curada, categoría por tipo de
                 trabajo y capturas reales de cada producto.
@@ -56,12 +56,12 @@ export default function ProjectsIndex() {
               ].map(([label, value]) => (
                 <div
                   key={label}
-                  className="rounded-lg border border-[#1f2a1d]/10 bg-white/70 p-4"
+                  className="rounded-2xl border border-white/10 bg-white/[0.04] p-4 text-white"
                 >
-                  <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-[#4b5b47]/65">
+                  <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-[#a9c989]">
                     {label}
                   </div>
-                  <div className="mt-2 text-2xl font-semibold tracking-tight text-[#1f2a1d]">
+                  <div className="mt-2 text-2xl font-semibold tracking-tight text-white">
                     {value}
                   </div>
                 </div>
@@ -71,15 +71,15 @@ export default function ProjectsIndex() {
 
           <ProjectsGallery
             projects={PORTFOLIO_PROJECTS}
-            tone="light"
+            tone="dark"
             variant="page"
           />
 
-          <div className="mt-20 border-t border-[#1f2a1d]/10 pt-8 font-mono text-sm text-[#4b5b47]">
+          <div className="mt-20 border-t border-white/10 pt-8 font-mono text-sm text-white/70">
             Tu proyecto puede ser el siguiente.{" "}
             <Link
               href="/cotizar"
-              className="font-semibold text-[#336443] transition-colors hover:text-[#1f2a1d]"
+              className="font-semibold text-[#a9c989] transition-colors hover:text-white"
             >
               Pedir diagnóstico
             </Link>

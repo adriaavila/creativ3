@@ -23,6 +23,7 @@ import type { WhatsAppConnectionView } from "@/lib/whatsapp-connections-db";
 import type { GrowthLead } from "@/lib/growth-types";
 import type { GrowthPromptInfo } from "@/lib/growth-prompts";
 import GrowthOutreachPanel from "@/components/ops/GrowthOutreachPanel";
+import { DISPLAY_TIGHT, GLASS_HEADER, TapButton } from "@/components/ops/apple";
 
 type DiagnosticsResult = {
   env: Record<string, boolean>;
@@ -102,10 +103,13 @@ export default function OpsDashboardClient({
   };
 
   return (
-    <main className="min-h-screen bg-[#0f1711] px-4 py-5 text-white sm:px-7 lg:px-10">
-      <div className="mx-auto max-w-[1400px]">
-        {/* Header */}
-        <header className="flex flex-wrap items-center justify-between gap-5 border-b border-white/10 pb-5">
+    <main className="min-h-screen bg-[#0f1711] text-white">
+      <div className="mx-auto max-w-[1400px] px-4 pb-5 sm:px-7 lg:px-10">
+        {/* Header: translucent material, content scrolls underneath rather than
+            being clipped by an opaque strip. */}
+        <header
+          className={`sticky top-0 z-30 -mx-4 flex flex-wrap items-center justify-between gap-5 px-4 py-4 sm:-mx-7 sm:px-7 lg:-mx-10 lg:px-10 ${GLASS_HEADER}`}
+        >
           <div className="flex items-center gap-4">
             <Link
               href="/"
@@ -118,11 +122,18 @@ export default function OpsDashboardClient({
               <div className="font-mono text-[9px] uppercase tracking-[0.18em] text-[#a9c989]">
                 Panel de Administración
               </div>
-              <h1 className="mt-1 font-display text-3xl">Creativv Systems Ops</h1>
+              <h1 className={`mt-1 font-display text-3xl ${DISPLAY_TIGHT}`}>Creativv Systems Ops</h1>
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <button
+            <Link
+              href="/ops/inbox"
+              className="inline-flex min-h-10 items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 text-sm font-medium text-white/80 transition hover:bg-white/10 hover:text-white"
+            >
+              <MessageCircle className="size-4" />
+              Inbox
+            </Link>
+            <TapButton
               id="btn-run-diagnostics"
               type="button"
               disabled={running}
@@ -135,14 +146,14 @@ export default function OpsDashboardClient({
                 <Activity className="size-4" />
               )}
               Ejecutar Diagnóstico
-            </button>
+            </TapButton>
             <form action="/api/ops/logout" method="post">
-              <button
+              <TapButton
                 type="submit"
                 className="rounded-full border border-white/10 px-4 py-2 text-xs font-semibold text-white/60 hover:bg-white/5 hover:text-white"
               >
                 Salir
-              </button>
+              </TapButton>
             </form>
           </div>
         </header>
@@ -254,7 +265,7 @@ export default function OpsDashboardClient({
                   </p>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                  <button
+                  <TapButton
                     type="button"
                     onClick={refreshWhatsAppConnections}
                     disabled={refreshingWhatsApp}
@@ -264,7 +275,7 @@ export default function OpsDashboardClient({
                       className={`size-4 ${refreshingWhatsApp ? "animate-spin" : ""}`}
                     />
                     Actualizar
-                  </button>
+                  </TapButton>
                   <Link
                     href="/embedded-whatsapp"
                     className="inline-flex min-h-10 items-center gap-2 rounded-full bg-[#dbe9c3] px-4 text-sm font-semibold text-[#172016] transition hover:bg-white"

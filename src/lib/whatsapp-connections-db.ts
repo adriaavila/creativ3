@@ -1,9 +1,9 @@
 import { neon, type NeonQueryFunction } from "@neondatabase/serverless";
 import type { MetaEmbeddedSignupPayload } from "@/lib/meta/embedded-signup";
 import type { TokenMetadata } from "@/lib/meta/server";
+import { decryptToken, encryptToken } from "@/lib/crypto/token-cipher";
 
 let sqlClient: NeonQueryFunction<false, false> | null = null;
-let schemaReady: Promise<void> | null = null;
 
 export type WhatsAppPhoneProfile = {
   id?: string;
@@ -35,49 +35,6 @@ function getSql() {
   return sqlClient;
 }
 
-async function ensureSchema() {
-  if (!schemaReady) {
-    schemaReady = (async () => {
-      const sql = getSql();
-      await sql`
-        CREATE TABLE IF NOT EXISTS whatsapp_connections (
-          waba_id text NOT NULL,
-          phone_number_id text NOT NULL,
-          business_id text,
-          business_token text,
-          meta_user_id text,
-          display_phone_number text,
-          verified_name text,
-          quality_rating text,
-          name_status text,
-          status text NOT NULL DEFAULT 'connected',
-          client text,
-          owner_user_id text,
-          team_id text,
-          account_id text,
-          token_metadata jsonb NOT NULL DEFAULT '{}'::jsonb,
-          connected_at timestamptz NOT NULL,
-          last_synced_at timestamptz,
-          updated_at timestamptz NOT NULL DEFAULT now(),
-          PRIMARY KEY (waba_id, phone_number_id)
-        )
-      `;
-      await sql`
-        CREATE INDEX IF NOT EXISTS whatsapp_connections_status_idx
-        ON whatsapp_connections(status, connected_at DESC)
-      `;
-      await sql`
-        CREATE INDEX IF NOT EXISTS whatsapp_connections_meta_user_idx
-        ON whatsapp_connections(meta_user_id)
-      `;
-    })().catch((error) => {
-      schemaReady = null;
-      throw error;
-    });
-  }
-  await schemaReady;
-}
-
 export async function upsertWhatsAppConnection(input: {
   payload: MetaEmbeddedSignupPayload;
   businessToken: string;
@@ -86,8 +43,8 @@ export async function upsertWhatsAppConnection(input: {
   status: string;
   connectedAt: string;
 }) {
-  await ensureSchema();
   const sql = getSql();
+  const encryptedToken = encryptToken(input.businessToken);
   await sql`
     INSERT INTO whatsapp_connections (
       waba_id, phone_number_id, business_id, business_token, meta_user_id,
@@ -99,7 +56,7 @@ export async function upsertWhatsAppConnection(input: {
       ${input.payload.waba_id},
       ${input.payload.phone_number_id},
       ${input.payload.business_id ?? null},
-      ${input.businessToken},
+      ${encryptedToken},
       ${input.tokenMetadata.user_id ?? null},
       ${input.phoneProfile.display_phone_number ?? null},
       ${input.phoneProfile.verified_name ?? null},
@@ -137,7 +94,6 @@ export async function upsertWhatsAppConnection(input: {
 }
 
 export async function listWhatsAppConnections(): Promise<WhatsAppConnectionView[]> {
-  await ensureSchema();
   const sql = getSql();
   const rows = await sql`
     SELECT waba_id, phone_number_id, business_id, display_phone_number,
@@ -165,7 +121,6 @@ export async function listWhatsAppConnections(): Promise<WhatsAppConnectionView[
 }
 
 export async function markWhatsAppConnectionsDeauthorized(metaUserId: string) {
-  await ensureSchema();
   const sql = getSql();
   await sql`
     UPDATE whatsapp_connections
@@ -176,10 +131,46 @@ export async function markWhatsAppConnectionsDeauthorized(metaUserId: string) {
 }
 
 export async function deleteWhatsAppConnectionsForMetaUser(metaUserId: string) {
-  await ensureSchema();
   const sql = getSql();
   await sql`
     DELETE FROM whatsapp_connections
     WHERE meta_user_id = ${metaUserId}
   `;
+}
+
+/** Decrypts and returns the live business token for a connection, or null if not connected. */
+export async function getWhatsAppConnectionToken(
+  wabaId: string,
+  phoneNumberId: string,
+): Promise<string | null> {
+  const sql = getSql();
+  const rows = await sql`
+    SELECT business_token
+    FROM whatsapp_connections
+    WHERE waba_id = ${wabaId} AND phone_number_id = ${phoneNumberId}
+  `;
+  const raw = rows[0]?.business_token;
+  if (!raw) return null;
+  return decryptToken(String(raw));
+}
+
+/**
+ * Same as getWhatsAppConnectionToken but keyed by phone_number_id alone — the
+ * inbox (wa_conversations.channel_key) only carries the phone number id, not the
+ * waba_id. A phone number id is only ever attached to one WABA in practice.
+ */
+export async function getWhatsAppConnectionTokenByPhoneNumberId(
+  phoneNumberId: string,
+): Promise<string | null> {
+  const sql = getSql();
+  const rows = await sql`
+    SELECT business_token
+    FROM whatsapp_connections
+    WHERE phone_number_id = ${phoneNumberId} AND status != 'deauthorized'
+    ORDER BY updated_at DESC
+    LIMIT 1
+  `;
+  const raw = rows[0]?.business_token;
+  if (!raw) return null;
+  return decryptToken(String(raw));
 }

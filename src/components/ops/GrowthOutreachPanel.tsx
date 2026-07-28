@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { Bot, CheckCircle2, ExternalLink, LoaderCircle, MessageCircle, Search } from "lucide-react";
 import type { GrowthPromptInfo } from "@/lib/growth-prompts";
 import type { GrowthLead } from "@/lib/growth-types";
+import { TapButton } from "@/components/ops/apple";
 
 export default function GrowthOutreachPanel({
   initialLeads,
@@ -177,10 +178,10 @@ export default function GrowthOutreachPanel({
                 Confirmo que revisé el mensaje y que el número pertenece públicamente a este negocio. Este envío quedará auditado.
               </label>
               {notice && <div className="mt-4 rounded-xl border border-[#a9c989]/20 bg-[#a9c989]/8 px-4 py-3 text-sm text-[#dbe9c3]">{notice}</div>}
-              <button type="button" onClick={() => void sendMessage()} disabled={sending || !confirmed || !phone || message.trim().length < 10} className="mt-4 inline-flex min-h-11 items-center gap-2 rounded-full bg-[#dbe9c3] px-5 text-sm font-semibold text-[#172016] transition hover:bg-white disabled:cursor-not-allowed disabled:opacity-40">
+              <TapButton type="button" onClick={() => void sendMessage()} disabled={sending || !confirmed || !phone || message.trim().length < 10} className="mt-4 inline-flex min-h-11 items-center gap-2 rounded-full bg-[#dbe9c3] px-5 text-sm font-semibold text-[#172016] transition hover:bg-white disabled:cursor-not-allowed disabled:opacity-40">
                 {sending ? <LoaderCircle className="size-4 animate-spin" /> : <MessageCircle className="size-4" />}
                 Enviar plantilla por WhatsApp
-              </button>
+              </TapButton>
             </>
           )}
         </div>

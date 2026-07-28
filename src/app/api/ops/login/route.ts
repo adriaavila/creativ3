@@ -1,6 +1,6 @@
 import { timingSafeEqual } from "node:crypto";
 import { NextResponse } from "next/server";
-import { OPS_COOKIE_NAME } from "@/lib/ops-auth";
+import { issueOpsSessionToken, OPS_COOKIE_NAME } from "@/lib/ops-auth";
 
 export const runtime = "nodejs";
 
@@ -29,7 +29,7 @@ export async function POST(request: Request) {
   }
 
   const response = NextResponse.redirect(new URL(nextPath, request.url), 303);
-  response.cookies.set(OPS_COOKIE_NAME, sessionSecret, {
+  response.cookies.set(OPS_COOKIE_NAME, issueOpsSessionToken(), {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "strict",

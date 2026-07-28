@@ -19,6 +19,7 @@ import {
 import type { DraftKind, GrowthLead, GrowthRun, OutreachDraft } from "@/lib/growth-types";
 import type { MarketingSnapshot, PostizMetric, PostizPost } from "@/lib/postiz";
 import type { WahaSnapshot } from "@/lib/waha";
+import { DISPLAY_TIGHT, GLASS_HEADER, TapButton } from "@/components/ops/apple";
 
 type Tab = "hoy" | "marketing" | "runs" | "leads" | "drafts";
 
@@ -162,28 +163,30 @@ export default function GrowthOpsClient({
     setLeads((items) => items.map((item) => (item.id === id ? { ...item, ...patch } : item)));
 
   return (
-    <main className="min-h-screen bg-[#0f1711] px-4 py-5 text-white sm:px-7 lg:px-10">
-      <div className="mx-auto max-w-[1500px]">
-        <header className="flex flex-wrap items-center justify-between gap-5 border-b border-white/10 pb-5">
+    <main className="min-h-screen bg-[#0f1711] text-white">
+      <div className="mx-auto max-w-[1500px] px-4 pb-5 sm:px-7 lg:px-10">
+        <header
+          className={`sticky top-0 z-30 -mx-4 flex flex-wrap items-center justify-between gap-5 px-4 py-4 sm:-mx-7 sm:px-7 lg:-mx-10 lg:px-10 ${GLASS_HEADER}`}
+        >
           <div className="flex items-center gap-4">
             <Link id="lnk-back-to-ops" href="/ops" className="flex size-10 items-center justify-center rounded-full border border-white/10 bg-white/5" aria-label="Volver al sitio">
               <ArrowLeft className="size-4" />
             </Link>
             <div>
               <div className="font-mono text-[9px] uppercase tracking-[0.18em] text-[#a9c989]">Operación privada</div>
-              <h1 className="mt-1 font-display text-3xl">Creativv Growth OS</h1>
+              <h1 className={`mt-1 font-display text-3xl ${DISPLAY_TIGHT}`}>Creativv Growth OS</h1>
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <button
+            <TapButton
               type="button"
               onClick={() => window.location.reload()}
               className="flex size-10 items-center justify-center rounded-full border border-white/10 bg-white/5 hover:bg-white/10"
               aria-label="Actualizar datos"
             >
               <RefreshCw className="size-4" />
-            </button>
-            <button
+            </TapButton>
+            <TapButton
               type="button"
               disabled={running}
               onClick={() => void startRun()}
@@ -191,14 +194,14 @@ export default function GrowthOpsClient({
             >
               {running ? <LoaderCircle className="size-4 animate-spin" /> : <Play className="size-4" />}
               Ejecutar ahora
-            </button>
+            </TapButton>
             <form action="/api/ops/logout" method="post">
-              <button
+              <TapButton
                 type="submit"
                 className="rounded-full border border-white/10 px-4 py-2 text-xs font-semibold text-white/60 hover:bg-white/5 hover:text-white"
               >
                 Salir
-              </button>
+              </TapButton>
             </form>
           </div>
         </header>
@@ -244,7 +247,7 @@ export default function GrowthOpsClient({
                 hint="Aprobados, aún sin contactar"
                 leads={buckets.contactarHoy}
                 action={(lead) => (
-                  <button type="button" onClick={() => void markContacted(lead)} className="rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-[#172016]">Marcar contactado</button>
+                  <TapButton type="button" onClick={() => void markContacted(lead)} className="rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-[#172016]">Marcar contactado</TapButton>
                 )}
               />
               <DayBucket
@@ -252,7 +255,7 @@ export default function GrowthOpsClient({
                 hint="Contactados hace +3 días sin respuesta"
                 leads={buckets.followUp}
                 action={() => (
-                  <button type="button" onClick={() => setTab("drafts")} className="rounded-full border border-white/15 px-3 py-1.5 text-xs font-semibold text-white/70">Ver follow-ups</button>
+                  <TapButton type="button" onClick={() => setTab("drafts")} className="rounded-full border border-white/15 px-3 py-1.5 text-xs font-semibold text-white/70">Ver follow-ups</TapButton>
                 )}
               />
               <DayBucket
@@ -348,12 +351,12 @@ export default function GrowthOpsClient({
                         Fuente <ExternalLink className="size-3" />
                       </a>
                     ))}
-                    <button type="button" onClick={() => void saveLeadFields(lead)} className="rounded-full border border-white/15 px-3 py-1.5 text-xs font-semibold text-white/70">Guardar pipeline</button>
+                    <TapButton type="button" onClick={() => void saveLeadFields(lead)} className="rounded-full border border-white/15 px-3 py-1.5 text-xs font-semibold text-white/70">Guardar pipeline</TapButton>
                     <button type="button" disabled={busyLead === lead.id} onClick={() => void generateProposal(lead)} className="inline-flex items-center gap-1.5 rounded-full border border-[#a9c989]/30 px-3 py-1.5 text-xs font-semibold text-[#dbe9c3] disabled:opacity-50">
                       {busyLead === lead.id ? <LoaderCircle className="size-3.5 animate-spin" /> : <FileText className="size-3.5" />} Propuesta
                     </button>
                     {lead.status !== "contacted" && (
-                      <button type="button" onClick={() => void markContacted(lead)} className="rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-[#172016]">Marcar contacto manual</button>
+                      <TapButton type="button" onClick={() => void markContacted(lead)} className="rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-[#172016]">Marcar contacto manual</TapButton>
                     )}
                   </div>
                 </article>
@@ -388,9 +391,9 @@ export default function GrowthOpsClient({
                             className="mt-4 w-full resize-y rounded-xl border border-white/10 bg-black/15 p-4 text-sm leading-6 text-white/75 outline-none focus:border-[#a9c989]/45"
                           />
                           <div className="mt-4 flex flex-wrap gap-2">
-                            <button type="button" onClick={() => void saveDraft(draft, "approved")} className="inline-flex items-center gap-2 rounded-full bg-[#dbe9c3] px-4 py-2 text-xs font-semibold text-[#172016]"><Check className="size-3.5" /> Aprobar</button>
-                            <button type="button" onClick={() => void saveDraft(draft, "rejected")} className="inline-flex items-center gap-2 rounded-full border border-white/12 px-4 py-2 text-xs font-semibold text-white/60"><X className="size-3.5" /> Rechazar</button>
-                            <button type="button" onClick={() => navigator.clipboard.writeText(draft.content)} className="inline-flex items-center gap-2 rounded-full border border-white/12 px-4 py-2 text-xs font-semibold text-white/60"><Copy className="size-3.5" /> Copiar</button>
+                            <TapButton type="button" onClick={() => void saveDraft(draft, "approved")} className="inline-flex items-center gap-2 rounded-full bg-[#dbe9c3] px-4 py-2 text-xs font-semibold text-[#172016]"><Check className="size-3.5" /> Aprobar</TapButton>
+                            <TapButton type="button" onClick={() => void saveDraft(draft, "rejected")} className="inline-flex items-center gap-2 rounded-full border border-white/12 px-4 py-2 text-xs font-semibold text-white/60"><X className="size-3.5" /> Rechazar</TapButton>
+                            <TapButton type="button" onClick={() => navigator.clipboard.writeText(draft.content)} className="inline-flex items-center gap-2 rounded-full border border-white/12 px-4 py-2 text-xs font-semibold text-white/60"><Copy className="size-3.5" /> Copiar</TapButton>
                           </div>
                         </article>
                       ))}

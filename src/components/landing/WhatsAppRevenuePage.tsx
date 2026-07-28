@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import { whatsappUrl } from "@/lib/contact";
 import CreativvLogo from "./CreativvLogo";
+import Colofon from "./Colofon";
 
 const AUDIT_MESSAGE =
   "Hola, quiero una auditoria gratis para convertir mas mensajes de WhatsApp en clientes.";
@@ -32,7 +33,7 @@ const DEMO_MESSAGE =
   "Hola, quiero ver una demo del Sistema WhatsApp Revenue en 7 dias.";
 
 const FOUNDER_MESSAGE =
-  "Hola, quiero reservar un cupo founder LATAM del Growth System por $249 setup + $69/mes.";
+  "Hola, quiero reservar un cupo de los primeros 5 negocios para el Growth System ($199 setup + $69/mes).";
 
 const NAV_LINKS = [
   { href: "#sistema", label: "Sistema" },
@@ -183,9 +184,9 @@ const HERMES_SERVICES = [
 
 const PRICING = [
   {
-    id: "whatsapp_starter",
-    name: "Starter Sprint",
-    price: "$149 setup + $49/mes",
+    id: "starter",
+    name: "Starter",
+    price: "$99 setup + $39/mes",
     bestFor: "Negocios pequenos que quieren responder mejor y recuperar leads basicos.",
     cta: "Empezar con Starter",
     features: [
@@ -197,9 +198,9 @@ const PRICING = [
     ],
   },
   {
-    id: "whatsapp_growth",
-    name: "Growth System",
-    price: "$299 setup + $89/mes",
+    id: "growth",
+    name: "Growth",
+    price: "$199 setup + $69/mes",
     bestFor: "Negocios que quieren calificar leads, agendar mejor y tener mas control.",
     cta: "Quiero el Growth System",
     recommended: true,
@@ -213,9 +214,9 @@ const PRICING = [
     ],
   },
   {
-    id: "whatsapp_premium",
-    name: "Premium Revenue System",
-    price: "$699 setup + $179/mes",
+    id: "premium",
+    name: "Premium",
+    price: "$399 setup + $129/mes",
     bestFor: "Negocios con mas volumen, anuncios o equipo comercial.",
     cta: "Aplicar a Premium",
     features: [
@@ -869,11 +870,11 @@ export default function WhatsAppRevenuePage() {
             </div>
             <button
               type="button"
-              onClick={() => handleCheckout("whatsapp_founder")}
-              disabled={loadingPlan === "whatsapp_founder"}
+              onClick={() => handleCheckout("growth")}
+              disabled={loadingPlan === "growth"}
               className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-[#c57b39] px-5 py-3 text-sm font-semibold text-white transition-all hover:-translate-y-0.5 hover:bg-[#ad6729] disabled:cursor-wait disabled:opacity-70"
             >
-              {loadingPlan === "whatsapp_founder" ? "Abriendo pago..." : "Pagar sprint"}
+              {loadingPlan === "growth" ? "Abriendo pago..." : "Empezar con Growth"}
               <Zap className="h-4 w-4" />
             </button>
           </div>
@@ -955,11 +956,11 @@ export default function WhatsAppRevenuePage() {
                 </PrimaryButton>
                 <button
                   type="button"
-                  onClick={() => handleCheckout("whatsapp_founder")}
-                  disabled={loadingPlan === "whatsapp_founder"}
+                  onClick={() => handleCheckout("growth")}
+                  disabled={loadingPlan === "growth"}
                   className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-white/18 px-5 py-3 text-sm font-semibold text-white transition-all hover:-translate-y-0.5 hover:bg-white/10 disabled:cursor-wait disabled:opacity-70"
                 >
-                  {loadingPlan === "whatsapp_founder" ? "Abriendo pago..." : "Pagar sprint"}
+                  {loadingPlan === "growth" ? "Abriendo pago..." : "Empezar con Growth"}
                   <ArrowRight className="h-4 w-4" />
                 </button>
               </div>
@@ -1078,21 +1079,7 @@ export default function WhatsAppRevenuePage() {
         </div>
       </section>
 
-      <footer className="bg-[#173322] pb-24 text-white md:pb-10">
-        <div className="mx-auto flex max-w-6xl flex-col gap-8 px-6 py-10 md:flex-row md:items-end md:justify-between md:px-10">
-          <div>
-            <CreativvLogo variant="lockup-bare" className="h-9 w-auto text-white" />
-            <p className="mt-4 max-w-sm text-sm leading-relaxed text-white/58">
-              Sistema WhatsApp Revenue en 7 dias por Servicios Creativos.
-            </p>
-          </div>
-          <div className="flex flex-wrap gap-4 text-sm text-white/64">
-            <a href="/terminos" className="hover:text-white">Terminos</a>
-            <a href="/privacidad" className="hover:text-white">Privacidad</a>
-            <a href="/embedded-whatsapp" className="hover:text-white">WhatsApp Business</a>
-          </div>
-        </div>
-      </footer>
+      <Colofon />
 
       <div className="fixed inset-x-0 bottom-0 z-40 border-t border-[#173322]/10 bg-[#fffdf7]/95 p-3 shadow-[0_-18px_50px_rgba(23,51,34,0.1)] backdrop-blur md:hidden">
         <a

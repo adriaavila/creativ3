@@ -1,6 +1,10 @@
 import Link from "next/link";
 import { ArrowRight, ArrowUpRight, Check, Mail, MessageCircle } from "lucide-react";
 import CreativvLogo from "@/components/landing/CreativvLogo";
+import WhatsAppBanner from "@/components/landing/WhatsAppBanner";
+import ProyectosShowcase from "@/components/landing/ProyectosShowcase";
+import OfertaSection from "@/components/landing/OfertaSection";
+import Colofon from "@/components/landing/Colofon";
 import { CONTACT_EMAIL, whatsappUrl } from "@/lib/contact";
 import { PORTFOLIO_PROJECTS } from "@/lib/projects";
 import CinematicStage from "./CinematicStage";
@@ -162,9 +166,20 @@ export default function ProductHome() {
       <ProductHeader evaluationUrl={CONTACT_URL} />
 
       <main>
+        {/* Nuevo Hero Cinematográfico */}
         <CinematicStage contactUrl={CONTACT_URL} />
 
+        {/* Funnel & Oferta de WhatsApp */}
+        <WhatsAppBanner />
+
+        {/* Vitrina de Proyectos Realizados con capturas reales y sync GitHub */}
+        <ProyectosShowcase />
+
+        {/* Muestra detallada de casos de estudio y pruebas de producto */}
         <ProjectProof projects={PROOF_PROJECTS} evaluationUrl={CONTACT_URL} />
+
+        {/* Planes y Precios Transparentes */}
+        <OfertaSection />
 
         <section className={styles.complementarySection} aria-labelledby="complementary-title">
           <div className={styles.container}>
@@ -244,27 +259,6 @@ export default function ProductHome() {
           </div>
         </section>
 
-        <section className={styles.studioSection} aria-labelledby="studio-title">
-          <div className={styles.container}>
-            <div className={styles.studioGrid}>
-              <p className={styles.eyebrow}>Por qué Creativv</p>
-              <div>
-                <h2 id="studio-title">Un estudio independiente para negocios que necesitan avanzar.</h2>
-                <p>
-                  Trabajamos directamente contigo para entender el problema, proponer una solución realista y
-                  construir una primera versión con rapidez.
-                </p>
-              </div>
-              <ul>
-                <li>Menos intermediarios.</li>
-                <li>Más claridad.</li>
-                <li>Más velocidad.</li>
-                <li>Una solución alrededor de tu negocio.</li>
-              </ul>
-            </div>
-          </div>
-        </section>
-
         <section id="preguntas" className={styles.faqSection} aria-labelledby="faq-title">
           <div className={styles.container}>
             <div className={styles.faqLayout}>
@@ -280,57 +274,10 @@ export default function ProductHome() {
             </div>
           </div>
         </section>
-
-        <section id="contacto" className={styles.finalCtaSection} aria-labelledby="contact-title">
-          <div className={styles.container}>
-            <div className={styles.finalCta}>
-              <p className={styles.eyebrow}>La siguiente mejora empieza aquí</p>
-              <h2 id="contact-title">¿Qué parte de tu negocio debería funcionar mejor?</h2>
-              <p>
-                Cuéntanos qué quieres vender, automatizar, validar o mejorar. Te responderemos con una primera fase
-                y una estimación realista.
-              </p>
-              <div>
-                <a href={CONTACT_URL} target="_blank" rel="noopener noreferrer" className={styles.primaryButton}>
-                  Hablemos por WhatsApp <MessageCircle aria-hidden="true" />
-                </a>
-                <a href={PROPOSAL_URL} target="_blank" rel="noopener noreferrer" className={styles.secondaryButton}>
-                  Solicitar una propuesta <ArrowRight aria-hidden="true" />
-                </a>
-              </div>
-              <small>No necesitas saber exactamente qué tecnología utilizar.</small>
-            </div>
-          </div>
-        </section>
       </main>
 
-      <footer className={styles.footer}>
-        <div className={styles.container}>
-          <div className={styles.footerTop}>
-            <div className={styles.footerBrand}>
-              <CreativvLogo variant="mark-bare" className={styles.brandMark} />
-              <span>creativv</span>
-            </div>
-            <nav aria-label="Navegación del pie de página">
-              <a href="#servicios">Servicios</a>
-              <a href="#proceso">Proceso</a>
-              <a href="#proyectos">Proyectos</a>
-              <a href="#preguntas">Preguntas</a>
-            </nav>
-            <div className={styles.footerContact}>
-              <a href={CONTACT_URL} target="_blank" rel="noopener noreferrer">
-                <MessageCircle aria-hidden="true" /> WhatsApp
-              </a>
-              <a href={`mailto:${CONTACT_EMAIL}`}><Mail aria-hidden="true" /> {CONTACT_EMAIL}</a>
-            </div>
-          </div>
-          <div className={styles.footerBottom}>
-            <span>© {new Date().getFullYear()} Creativv</span>
-            <div><Link href="/privacidad">Privacidad</Link><Link href="/terminos">Términos</Link></div>
-            <span>ServiciosCreativos.online</span>
-          </div>
-        </div>
-      </footer>
+      <Colofon />
     </div>
   );
 }
+

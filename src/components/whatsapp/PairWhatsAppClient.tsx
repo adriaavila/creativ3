@@ -55,17 +55,17 @@ export default function PairWhatsAppClient({ stripeSessionId }: { stripeSessionI
   }, [stripeSessionId]);
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-[#0a0f0b] px-6 py-20 text-white selection:bg-[#31583a] selection:text-white">
+    <main className="flex min-h-screen items-center justify-center bg-[#08090a] px-6 py-20 text-white selection:bg-[#0a0a0a] selection:text-white">
       <div className="w-full max-w-md">
         <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-8 text-white shadow-2xl shadow-black/50">
-          <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-[#a9c989]">
+          <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-[#c5f04a]">
             Activación
           </p>
           <h1 className="mt-3 text-3xl font-display leading-tight tracking-[-0.02em] text-white">Conectá tu WhatsApp</h1>
 
           {loading && (
             <div className="mt-8 flex items-center gap-2 text-sm text-white/70">
-              <Loader2 className="size-4 animate-spin text-[#a9c989]" /> Preparando tu sesión…
+              <Loader2 className="size-4 animate-spin text-[#c5f04a]" /> Preparando tu sesión…
             </div>
           )}
 
@@ -106,7 +106,7 @@ export default function PairWhatsAppClient({ stripeSessionId }: { stripeSessionI
               initial={reduceMotion ? false : { opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               transition={SETTLE}
-              className="mt-6 flex items-start gap-2 rounded-2xl border border-[#a9c989]/30 bg-[#31583a]/20 p-4 text-sm text-[#a9c989]"
+              className="mt-6 flex items-start gap-2 rounded-2xl border border-[#c5f04a]/30 bg-[#0a0a0a]/20 p-4 text-sm text-[#c5f04a]"
             >
               <CheckCircle2 className="mt-0.5 size-4 shrink-0" />
               <p>Listo. Tu número quedó conectado — ya podemos recibir y responder mensajes.</p>
@@ -120,7 +120,7 @@ export default function PairWhatsAppClient({ stripeSessionId }: { stripeSessionI
           )}
 
           <div className="mt-8 flex items-start gap-2 border-t border-white/10 pt-5 text-xs leading-relaxed text-white/50">
-            <ShieldAlert className="mt-0.5 size-3.5 shrink-0 text-[#a9c989]" />
+            <ShieldAlert className="mt-0.5 size-3.5 shrink-0 text-[#c5f04a]" />
             <p>
               Este canal usa una conexión <strong>no oficial</strong> de WhatsApp (vinculación por
               QR, sin la API de Meta). Es más rápido de activar, pero WhatsApp puede restringir el

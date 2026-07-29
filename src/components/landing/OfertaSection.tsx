@@ -27,7 +27,7 @@ const OFFERS = [
     ],
     cta: "Pedir landing page",
     message:
-      "Hola, quiero pedir la landing page de USD 199 en 3 días con creativv. Mi negocio es:",
+      "Hola, quiero pedir la landing page de USD 199 en 3 días con Releva. Mi negocio es:",
   },
   {
     icon: Rocket,
@@ -45,7 +45,7 @@ const OFFERS = [
     ],
     cta: "Cotizar automatización",
     message:
-      "Hola, quiero cotizar una automatización simple desde USD 499 con creativv. El proceso que quiero automatizar es:",
+      "Hola, quiero cotizar una automatización simple desde USD 499 con Releva. El proceso que quiero automatizar es:",
   },
   {
     icon: Gauge,
@@ -65,25 +65,25 @@ const OFFERS = [
     ],
     cta: "Cotizar web/producto",
     message:
-      "Hola, quiero cotizar una web o producto desde USD 699 con creativv. Lo que necesito construir es:",
+      "Hola, quiero cotizar una web o producto desde USD 699 con Releva. Lo que necesito construir es:",
   },
 ];
 
 export default function OfertaSection() {
   return (
-    <section id="oferta" className="relative w-full bg-[#eef0e7] text-[#1f2a1d] scroll-mt-24">
+    <section id="oferta" className="relative w-full bg-[#f3f3f3] text-[#0a0a0a] scroll-mt-24">
       <div className="mx-auto max-w-6xl px-6 py-20 md:px-10 md:py-28">
         <Reveal className="mb-12 grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-end md:mb-16">
           <div>
-            <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-white px-3.5 py-1.5 text-xs font-semibold uppercase tracking-[0.14em] text-[#336443] shadow-sm">
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-white px-3.5 py-1.5 text-xs font-semibold uppercase tracking-[0.14em] text-[#1c1d20] shadow-sm">
               <ClipboardList className="h-3.5 w-3.5" />
               Planes claros
             </div>
-            <h2 className="max-w-3xl text-4xl font-normal leading-[0.98] text-[#1f2a1d] sm:text-5xl md:text-6xl">
+            <h2 className="max-w-3xl text-4xl font-normal leading-[0.98] text-[#0a0a0a] sm:text-5xl md:text-6xl">
               Planes claros, precios a la vista.
             </h2>
           </div>
-          <p className="max-w-xl text-base leading-relaxed text-[#4b5b47] md:text-lg">
+          <p className="max-w-xl text-base leading-relaxed text-[#6b6b6b] md:text-lg">
             La landing es la entrada rápida. Después conectamos automatizaciones, CRM o un producto
             más grande si el negocio lo necesita. Sin esconder precios.
           </p>
@@ -100,21 +100,21 @@ export default function OfertaSection() {
                 delay={index * 0.1}
                 className={`flex h-full flex-col rounded-lg border p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl md:p-7 ${
                   featured
-                    ? "border-[#1f2a1d] bg-[#1f2a1d] text-white"
-                    : "border-[#1f2a1d]/10 bg-white text-[#1f2a1d] hover:border-[#336443]/30"
+                    ? "border-[#0a0a0a] bg-[#0a0a0a] text-white"
+                    : "border-[#0a0a0a]/10 bg-white text-[#0a0a0a] hover:border-[#1c1d20]/30"
                 }`}
               >
                 <div className="mb-7 flex items-start justify-between gap-4">
                   <div
                     className={`flex h-11 w-11 items-center justify-center rounded-lg ${
-                      featured ? "bg-[#dbe9c3] text-[#1f2a1d]" : "bg-[#1f2a1d] text-white"
+                      featured ? "bg-[#c5f04a] text-[#0a0a0a]" : "bg-[#0a0a0a] text-white"
                     }`}
                   >
                     <Icon className="h-5 w-5" />
                   </div>
                   <span
                     className={`rounded-full px-3 py-1 text-xs font-semibold ${
-                      featured ? "bg-white/10 text-[#dbe9c3]" : "bg-[#85AB8B]/15 text-[#336443]"
+                      featured ? "bg-white/10 text-[#c5f04a]" : "bg-[#a1a1a3]/15 text-[#1c1d20]"
                     }`}
                   >
                     {offer.timeline}
@@ -123,30 +123,30 @@ export default function OfertaSection() {
 
                 <div
                   className={`mb-3 text-xs font-semibold uppercase tracking-[0.14em] ${
-                    featured ? "text-[#dbe9c3]" : "text-[#336443]"
+                    featured ? "text-[#c5f04a]" : "text-[#1c1d20]"
                   }`}
                 >
                   {offer.badge}
                 </div>
                 <h3 className="text-2xl font-semibold">{offer.name}</h3>
-                <div className={`mt-2 text-2xl font-semibold ${featured ? "text-white" : "text-[#336443]"}`}>
+                <div className={`mt-2 text-2xl font-semibold ${featured ? "text-white" : "text-[#1c1d20]"}`}>
                   {offer.price}
                 </div>
 
                 <div className="mt-6 grid gap-4">
                   <div>
-                    <div className={`text-xs font-semibold uppercase tracking-[0.12em] ${featured ? "text-white/60" : "text-[#4b5b47]/70"}`}>
+                    <div className={`text-xs font-semibold uppercase tracking-[0.12em] ${featured ? "text-white/60" : "text-[#6b6b6b]/70"}`}>
                       Para quién
                     </div>
-                    <p className={`mt-2 text-sm leading-relaxed ${featured ? "text-white/80" : "text-[#4b5b47]"}`}>
+                    <p className={`mt-2 text-sm leading-relaxed ${featured ? "text-white/80" : "text-[#6b6b6b]"}`}>
                       {offer.forWhom}
                     </p>
                   </div>
                   <div>
-                    <div className={`text-xs font-semibold uppercase tracking-[0.12em] ${featured ? "text-white/60" : "text-[#4b5b47]/70"}`}>
+                    <div className={`text-xs font-semibold uppercase tracking-[0.12em] ${featured ? "text-white/60" : "text-[#6b6b6b]/70"}`}>
                       Resultado
                     </div>
-                    <p className={`mt-2 text-sm leading-relaxed ${featured ? "text-white/80" : "text-[#4b5b47]"}`}>
+                    <p className={`mt-2 text-sm leading-relaxed ${featured ? "text-white/80" : "text-[#6b6b6b]"}`}>
                       {offer.outcome}
                     </p>
                   </div>
@@ -156,11 +156,11 @@ export default function OfertaSection() {
                   {offer.includes.map((item) => (
                     <div
                       key={item}
-                      className={`flex gap-2 text-sm ${featured ? "text-white/80" : "text-[#4b5b47]"}`}
+                      className={`flex gap-2 text-sm ${featured ? "text-white/80" : "text-[#6b6b6b]"}`}
                     >
                       <CheckCircle2
                         className={`mt-0.5 h-4 w-4 shrink-0 ${
-                          featured ? "text-[#dbe9c3]" : "text-[#336443]"
+                          featured ? "text-[#c5f04a]" : "text-[#1c1d20]"
                         }`}
                       />
                       <span>{item}</span>
@@ -174,8 +174,8 @@ export default function OfertaSection() {
                   rel="noopener noreferrer"
                   className={`mt-8 inline-flex min-h-12 items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-semibold transition-all duration-300 hover:-translate-y-0.5 ${
                     featured
-                      ? "bg-[#dbe9c3] text-[#1f2a1d] hover:bg-white"
-                      : "bg-[#1f2a1d] text-white hover:bg-[#336443]"
+                      ? "bg-[#c5f04a] text-[#0a0a0a] hover:bg-white"
+                      : "bg-[#0a0a0a] text-white hover:bg-[#1c1d20]"
                   }`}
                 >
                   {offer.cta}

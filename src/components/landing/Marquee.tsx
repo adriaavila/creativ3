@@ -175,13 +175,13 @@ function MarqueeRow({ band }: { band: Band }) {
           font-size: clamp(48px, 10vw, 140px);
           letter-spacing: -0.04em;
           line-height: 1;
-          color: #1a1a1f;
+          color: #111214;
           padding: 0 40px;
         }
         .marquee-giant .dot {
           width: 14px; height: 14px;
           border-radius: 50%;
-          background: #ff8a4c;
+          background: #8a8a8a;
           margin: 0 28px;
         }
         .marquee-outline > div > span {
@@ -194,13 +194,13 @@ function MarqueeRow({ band }: { band: Band }) {
           letter-spacing: -0.03em;
           line-height: 1;
           color: transparent;
-          -webkit-text-stroke: 2px #1a1a1f;
+          -webkit-text-stroke: 2px #111214;
           padding: 0 36px;
         }
         .marquee-outline .dot {
           width: 14px; height: 14px;
           border-radius: 50%;
-          border: 2px solid #1a1a1f;
+          border: 2px solid #111214;
           margin: 0 24px;
         }
         .marquee-pill > div > span {
@@ -209,8 +209,8 @@ function MarqueeRow({ band }: { band: Band }) {
           font-family: var(--font-jetbrains);
           font-weight: 500;
           font-size: 14px;
-          background: #1a1a1f;
-          color: #f7f1e3;
+          background: #111214;
+          color: #f3f3f3;
           padding: 10px 22px;
           border-radius: 999px;
           margin: 0 6px;
@@ -222,7 +222,7 @@ function MarqueeRow({ band }: { band: Band }) {
           font-weight: 500;
           font-size: 14px;
           background: transparent;
-          color: #1a1a1f;
+          color: #111214;
           border: 1px solid rgba(26,26,31,0.25);
           padding: 10px 22px;
           border-radius: 999px;
@@ -235,7 +235,7 @@ function MarqueeRow({ band }: { band: Band }) {
           font-weight: 700;
           font-size: clamp(24px, 5vw, 52px);
           letter-spacing: -0.02em;
-          color: #f7f1e3;
+          color: #f3f3f3;
           padding: 0 28px;
         }
         .marquee-dark .sep {

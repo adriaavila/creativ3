@@ -99,28 +99,28 @@ export default function OutcomeServices({ intent = "efficiency" }: OutcomeServic
   return (
     <section
       id="servicios"
-      className={`scroll-mt-6 px-5 py-24 text-[#172016] transition-colors duration-700 sm:px-8 lg:px-12 lg:py-32 ${
-        isRevenue ? "bg-[#f3d8ca]" : "bg-[#e9eee2]"
+      className={`scroll-mt-6 px-5 py-24 text-[#0a0a0a] transition-colors duration-700 sm:px-8 lg:px-12 lg:py-32 ${
+        isRevenue ? "bg-[#d4d4d4]" : "bg-[#ebebeb]"
       }`}
     >
       <div key={intent} className="landing-intent-enter mx-auto max-w-[1440px]">
-        <div className="grid gap-8 border-b border-[#172016]/12 pb-12 lg:grid-cols-[1.15fr_0.85fr] lg:items-end">
+        <div className="grid gap-8 border-b border-[#0a0a0a]/12 pb-12 lg:grid-cols-[1.15fr_0.85fr] lg:items-end">
           <div>
             <div
               className={`font-mono text-[10px] uppercase tracking-[0.2em] ${
-                isRevenue ? "text-[#a83e28]" : "text-[#456241]"
+                isRevenue ? "text-[#4a4b4f]" : "text-[#26272b]"
               }`}
             >
               {copy.eyebrow}
             </div>
             <h2 className="mt-4 max-w-4xl font-display text-[clamp(3.2rem,6.5vw,7rem)] leading-[0.88] tracking-[-0.04em]">
               {copy.title}
-              <span className={`block italic ${isRevenue ? "text-[#b9472d]" : "text-[#31583a]"}`}>
+              <span className={`block italic ${isRevenue ? "text-[#4a4b4f]" : "text-[#0a0a0a]"}`}>
                 {copy.accent}
               </span>
             </h2>
           </div>
-          <p className="max-w-xl text-base leading-7 text-[#555d51] sm:text-lg lg:justify-self-end">
+          <p className="max-w-xl text-base leading-7 text-[#4a4b4f] sm:text-lg lg:justify-self-end">
             {copy.body}
           </p>
         </div>
@@ -135,13 +135,13 @@ export default function OutcomeServices({ intent = "efficiency" }: OutcomeServic
                 href={service.href}
                 target={isExternal ? "_blank" : undefined}
                 rel={isExternal ? "noopener noreferrer" : undefined}
-                className={`group grid gap-5 border-b border-[#172016]/12 py-8 transition-all duration-300 sm:grid-cols-[70px_1fr_auto] sm:items-center lg:grid-cols-[90px_0.8fr_1.25fr_180px] lg:py-9 ${
-                  isRevenue ? "hover:bg-[#fff8f1]/45" : "hover:bg-white/35"
+                className={`group grid gap-5 border-b border-[#0a0a0a]/12 py-8 transition-all duration-300 sm:grid-cols-[70px_1fr_auto] sm:items-center lg:grid-cols-[90px_0.8fr_1.25fr_180px] lg:py-9 ${
+                  isRevenue ? "hover:bg-[#ffffff]/45" : "hover:bg-white/35"
                 }`}
               >
                 <span
                   className={`font-mono text-[10px] tracking-[0.18em] ${
-                    isRevenue ? "text-[#ad543e]" : "text-[#71806d]"
+                    isRevenue ? "text-[#6b6b6b]" : "text-[#6b6b6b]"
                   }`}
                 >
                   {service.index}
@@ -151,31 +151,31 @@ export default function OutcomeServices({ intent = "efficiency" }: OutcomeServic
                   <span
                     className={`mt-3 inline-flex rounded-full border px-3 py-1 font-mono text-[8px] uppercase tracking-[0.13em] ${
                       isRevenue
-                        ? "border-[#b9472d]/15 bg-[#fff8f1]/55 text-[#9f3b27]"
-                        : "border-[#31583a]/15 bg-[#f7f8f2]/70 text-[#31583a]"
+                        ? "border-[#4a4b4f]/15 bg-[#ffffff]/55 text-[#4a4b4f]"
+                        : "border-[#0a0a0a]/15 bg-[#f3f3f3]/70 text-[#0a0a0a]"
                     }`}
                   >
                     {service.goal}
                   </span>
                 </div>
                 <div className="sm:col-span-2 lg:col-span-1">
-                  <p className="text-sm leading-6 text-[#465044] sm:text-base">{service.result}</p>
-                  <p className="mt-2 font-mono text-[9px] uppercase tracking-[0.14em] text-[#737a70]">
+                  <p className="text-sm leading-6 text-[#26272b] sm:text-base">{service.result}</p>
+                  <p className="mt-2 font-mono text-[9px] uppercase tracking-[0.14em] text-[#4a4b4f]">
                     {service.examples}
                   </p>
                 </div>
                 <div className="flex items-center justify-between gap-6 sm:justify-end lg:block lg:text-right">
                   <div>
-                    <div className="font-mono text-[8px] uppercase tracking-[0.14em] text-[#7b8178]">
+                    <div className="font-mono text-[8px] uppercase tracking-[0.14em] text-[#6b6b6b]">
                       {service.detail}
                     </div>
-                    <div className="mt-1 text-sm font-semibold text-[#303c2f]">{service.time}</div>
+                    <div className="mt-1 text-sm font-semibold text-[#1c1d20]">{service.time}</div>
                   </div>
                   <span
                     className={`flex size-10 items-center justify-center rounded-full border transition-all duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 ${
                       isRevenue
-                        ? "border-[#b9472d]/20 text-[#a53f29] group-hover:bg-[#b9472d] group-hover:text-white"
-                        : "border-[#31583a]/20 text-[#31583a] group-hover:bg-[#31583a] group-hover:text-white"
+                        ? "border-[#4a4b4f]/20 text-[#4a4b4f] group-hover:bg-[#4a4b4f] group-hover:text-white"
+                        : "border-[#0a0a0a]/20 text-[#0a0a0a] group-hover:bg-[#0a0a0a] group-hover:text-white"
                     } lg:ml-auto lg:mt-4`}
                   >
                     <ArrowUpRight className="size-4" />

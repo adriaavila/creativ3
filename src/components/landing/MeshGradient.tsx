@@ -13,14 +13,14 @@ type Props = {
 const DEFAULT_COLORS = [
   "rgba(255, 138, 76, 0.55)",
   "rgba(168, 201, 127, 0.50)",
-  "rgba(42, 110, 160, 0.45)",
+  "rgba(197, 240, 74, 0.45)",
   "rgba(200, 148, 100, 0.40)",
 ];
 
 export default function MeshGradient({
   className = "",
   colors = DEFAULT_COLORS,
-  base = "#f7f1e3",
+  base = "#f3f3f3",
   speed = 0.45,
   blobRadius = 0.45,
 }: Props) {

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import RelevaLogo from "@/components/brand/RelevaLogo";
 import {
   Activity,
   ArrowLeft,
@@ -20,6 +21,7 @@ import {
   RefreshCw,
 } from "lucide-react";
 import type { WhatsAppConnectionView } from "@/lib/whatsapp-connections-db";
+import type { NextStepSummary } from "@/lib/whatsapp-inbox-db";
 import type { GrowthLead } from "@/lib/growth-types";
 import type { GrowthPromptInfo } from "@/lib/growth-prompts";
 import GrowthOutreachPanel from "@/components/ops/GrowthOutreachPanel";
@@ -40,6 +42,7 @@ type OpsDashboardClientProps = {
     draftsCount: number;
     runsCount: number;
   };
+  nextStep: NextStepSummary;
   initialWhatsAppConnections: WhatsAppConnectionView[];
   initialWhatsAppConnectionsError: string | null;
   initialGrowthLeads: GrowthLead[];
@@ -48,6 +51,7 @@ type OpsDashboardClientProps = {
 
 export default function OpsDashboardClient({
   stats,
+  nextStep,
   initialWhatsAppConnections,
   initialWhatsAppConnectionsError,
   initialGrowthLeads,
@@ -103,7 +107,7 @@ export default function OpsDashboardClient({
   };
 
   return (
-    <main className="min-h-screen bg-[#0f1711] text-white">
+    <main className="min-h-screen bg-[#08090a] text-white">
       <div className="mx-auto max-w-[1400px] px-4 pb-5 sm:px-7 lg:px-10">
         {/* Header: translucent material, content scrolls underneath rather than
             being clipped by an opaque strip. */}
@@ -118,11 +122,12 @@ export default function OpsDashboardClient({
             >
               <ArrowLeft className="size-4" />
             </Link>
+            <RelevaLogo variant="mark-bare" className="h-6 w-auto text-white" />
             <div>
-              <div className="font-mono text-[9px] uppercase tracking-[0.18em] text-[#a9c989]">
+              <div className="font-mono text-[9px] uppercase tracking-[0.18em] text-[#c5f04a]">
                 Panel de Administración
               </div>
-              <h1 className={`mt-1 font-display text-3xl ${DISPLAY_TIGHT}`}>Creativv Systems Ops</h1>
+              <h1 className={`mt-1 font-display text-3xl ${DISPLAY_TIGHT}`}>Releva Systems Ops</h1>
             </div>
           </div>
           <div className="flex items-center gap-3">
@@ -138,7 +143,7 @@ export default function OpsDashboardClient({
               type="button"
               disabled={running}
               onClick={runDiagnostics}
-              className="inline-flex min-h-10 items-center gap-2 rounded-full bg-[#dbe9c3] px-5 text-sm font-semibold text-[#172016] transition hover:bg-white disabled:opacity-50"
+              className="inline-flex min-h-10 items-center gap-2 rounded-full bg-[#c5f04a] px-5 text-sm font-semibold text-[#0a0a0a] transition hover:bg-white disabled:opacity-50"
             >
               {running ? (
                 <LoaderCircle className="size-4 animate-spin" />
@@ -161,6 +166,15 @@ export default function OpsDashboardClient({
         {/* Overview Stats */}
         <section className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
           {[
+            {
+              // The number the Revenue Desk is sold and billed on — see
+              // db/migrations/008_conversation_outcomes.sql.
+              label: "Chats con siguiente paso",
+              value: nextStep.share === null ? "—" : `${nextStep.share}%`,
+              desc:
+                `${nextStep.citas} citas este mes · mes anterior ` +
+                (nextStep.prevShare === null ? "sin datos" : `${nextStep.prevShare}%`),
+            },
             {
               label: "Leads Investigados",
               value: stats.leadsCount,
@@ -191,7 +205,7 @@ export default function OpsDashboardClient({
               <div className="font-mono text-[9px] uppercase tracking-[0.18em] text-white/40">
                 {item.label}
               </div>
-              <div className="mt-3 font-display text-4xl text-[#dbe9c3]">{item.value}</div>
+              <div className="mt-3 font-display text-4xl text-[#c5f04a]">{item.value}</div>
               <p className="mt-2 text-xs text-white/50">{item.desc}</p>
             </div>
           ))}
@@ -206,7 +220,7 @@ export default function OpsDashboardClient({
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="flex flex-col justify-between rounded-2xl border border-white/10 bg-white/[0.035] p-6 transition duration-300 hover:bg-white/[0.05]">
                 <div>
-                  <div className="inline-flex size-10 items-center justify-center rounded-xl bg-[#a9c989]/10 text-[#a9c989]">
+                  <div className="inline-flex size-10 items-center justify-center rounded-xl bg-[#c5f04a]/10 text-[#c5f04a]">
                     <Play className="size-5" />
                   </div>
                   <h3 className="mt-4 font-display text-xl">Growth OS Agent Console</h3>
@@ -220,7 +234,7 @@ export default function OpsDashboardClient({
                   <Link
                     id="lnk-growth-os"
                     href="/ops/growth"
-                    className="inline-flex items-center gap-2 text-sm font-semibold text-[#dbe9c3] transition hover:text-white"
+                    className="inline-flex items-center gap-2 text-sm font-semibold text-[#c5f04a] transition hover:text-white"
                   >
                     Abrir consola de crecimiento <ArrowRight className="size-4" />
                   </Link>
@@ -229,7 +243,7 @@ export default function OpsDashboardClient({
 
               <div className="flex flex-col justify-between rounded-2xl border border-white/10 bg-white/[0.035] p-6 transition duration-300 hover:bg-white/[0.05]">
                 <div>
-                  <div className="inline-flex size-10 items-center justify-center rounded-xl bg-[#a9c989]/10 text-[#a9c989]">
+                  <div className="inline-flex size-10 items-center justify-center rounded-xl bg-[#c5f04a]/10 text-[#c5f04a]">
                     <Webhook className="size-5" />
                   </div>
                   <h3 className="mt-4 font-display text-xl">WhatsApp Embedded Signup</h3>
@@ -242,7 +256,7 @@ export default function OpsDashboardClient({
                 <div className="mt-6">
                   <a
                     href="#whatsapp-connections"
-                    className="inline-flex items-center gap-2 text-sm font-semibold text-[#dbe9c3] transition hover:text-white"
+                    className="inline-flex items-center gap-2 text-sm font-semibold text-[#c5f04a] transition hover:text-white"
                   >
                     Ver números conectados <ArrowRight className="size-4" />
                   </a>
@@ -257,7 +271,7 @@ export default function OpsDashboardClient({
               <div className="flex flex-wrap items-start justify-between gap-4 border-b border-white/10 pb-4">
                 <div>
                   <div className="flex items-center gap-2">
-                    <MessageCircle className="size-5 text-[#a9c989]" />
+                    <MessageCircle className="size-5 text-[#c5f04a]" />
                     <h2 className="font-display text-xl">Números conectados</h2>
                   </div>
                   <p className="mt-2 text-sm text-white/50">
@@ -278,7 +292,7 @@ export default function OpsDashboardClient({
                   </TapButton>
                   <Link
                     href="/embedded-whatsapp"
-                    className="inline-flex min-h-10 items-center gap-2 rounded-full bg-[#dbe9c3] px-4 text-sm font-semibold text-[#172016] transition hover:bg-white"
+                    className="inline-flex min-h-10 items-center gap-2 rounded-full bg-[#c5f04a] px-4 text-sm font-semibold text-[#0a0a0a] transition hover:bg-white"
                   >
                     Conectar otro número <ArrowRight className="size-4" />
                   </Link>
@@ -297,7 +311,7 @@ export default function OpsDashboardClient({
                   <p className="text-sm text-white/55">Todavía no hay números conectados.</p>
                   <Link
                     href="/embedded-whatsapp"
-                    className="mt-3 inline-flex items-center gap-2 text-sm font-semibold text-[#dbe9c3] hover:text-white"
+                    className="mt-3 inline-flex items-center gap-2 text-sm font-semibold text-[#c5f04a] hover:text-white"
                   >
                     Iniciar el primer onboarding <ArrowRight className="size-4" />
                   </Link>
@@ -337,7 +351,7 @@ export default function OpsDashboardClient({
                               className={`rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide ${
                                 connection.status === "deauthorized"
                                   ? "bg-red-500/10 text-red-300"
-                                  : "bg-[#a9c989]/10 text-[#bfe39b]"
+                                  : "bg-[#c5f04a]/10 text-[#c5f04a]"
                               }`}
                             >
                               {connection.status}
@@ -380,13 +394,13 @@ export default function OpsDashboardClient({
 
               {!results && !running && !error && (
                 <div className="mt-6 py-10 text-center text-sm text-white/40">
-                  Haz clic en <span className="text-[#dbe9c3] font-semibold">&quot;Ejecutar Diagnóstico&quot;</span> para comprobar la conexión con la base de datos, el agente de IA Eve y n8n.
+                  Haz clic en <span className="text-[#c5f04a] font-semibold">&quot;Ejecutar Diagnóstico&quot;</span> para comprobar la conexión con la base de datos, el agente de IA Eve y n8n.
                 </div>
               )}
 
               {running && (
                 <div className="mt-6 flex flex-col items-center justify-center py-10 text-sm text-white/50">
-                  <LoaderCircle className="size-8 animate-spin text-[#a9c989]" />
+                  <LoaderCircle className="size-8 animate-spin text-[#c5f04a]" />
                   <span className="mt-4 font-mono text-xs">Pingeando servidores y servicios...</span>
                 </div>
               )}
@@ -396,7 +410,7 @@ export default function OpsDashboardClient({
                   {/* Neon Database */}
                   <div className="flex items-start justify-between rounded-xl bg-white/[0.02] p-4">
                     <div className="flex gap-3">
-                      <div className="mt-0.5 text-[#a9c989]">
+                      <div className="mt-0.5 text-[#c5f04a]">
                         <Database className="size-5" />
                       </div>
                       <div>
@@ -407,8 +421,8 @@ export default function OpsDashboardClient({
                     <div className="flex items-center gap-2">
                       {results.database.ok ? (
                         <>
-                          <span className="font-mono text-xs text-[#a9c989]">{results.database.error}</span>
-                          <CheckCircle2 className="size-5 text-[#a9c989]" />
+                          <span className="font-mono text-xs text-[#c5f04a]">{results.database.error}</span>
+                          <CheckCircle2 className="size-5 text-[#c5f04a]" />
                         </>
                       ) : (
                         <>
@@ -424,7 +438,7 @@ export default function OpsDashboardClient({
                   {/* Growth Agent */}
                   <div className="flex items-start justify-between rounded-xl bg-white/[0.02] p-4">
                     <div className="flex gap-3">
-                      <div className="mt-0.5 text-[#a9c989]">
+                      <div className="mt-0.5 text-[#c5f04a]">
                         <Server className="size-5" />
                       </div>
                       <div>
@@ -435,8 +449,8 @@ export default function OpsDashboardClient({
                     <div className="flex items-center gap-2">
                       {results.growthAgent.ok ? (
                         <>
-                          <span className="font-mono text-xs text-[#a9c989]">{results.growthAgent.statusText}</span>
-                          <CheckCircle2 className="size-5 text-[#a9c989]" />
+                          <span className="font-mono text-xs text-[#c5f04a]">{results.growthAgent.statusText}</span>
+                          <CheckCircle2 className="size-5 text-[#c5f04a]" />
                         </>
                       ) : (
                         <>
@@ -452,7 +466,7 @@ export default function OpsDashboardClient({
                   {/* n8n Webhook */}
                   <div className="flex items-start justify-between rounded-xl bg-white/[0.02] p-4">
                     <div className="flex gap-3">
-                      <div className="mt-0.5 text-[#a9c989]">
+                      <div className="mt-0.5 text-[#c5f04a]">
                         <Webhook className="size-5" />
                       </div>
                       <div>
@@ -463,8 +477,8 @@ export default function OpsDashboardClient({
                     <div className="flex items-center gap-2">
                       {results.n8n.ok ? (
                         <>
-                          <span className="font-mono text-xs text-[#a9c989]">{results.n8n.statusText}</span>
-                          <CheckCircle2 className="size-5 text-[#a9c989]" />
+                          <span className="font-mono text-xs text-[#c5f04a]">{results.n8n.statusText}</span>
+                          <CheckCircle2 className="size-5 text-[#c5f04a]" />
                         </>
                       ) : (
                         <>
@@ -480,7 +494,7 @@ export default function OpsDashboardClient({
                   {/* Meta Webhook Callback */}
                   <div className="flex items-start justify-between rounded-xl bg-white/[0.02] p-4">
                     <div className="flex gap-3">
-                      <div className="mt-0.5 text-[#a9c989]">
+                      <div className="mt-0.5 text-[#c5f04a]">
                         <Webhook className="size-5" />
                       </div>
                       <div>
@@ -491,8 +505,8 @@ export default function OpsDashboardClient({
                     <div className="flex items-center gap-2">
                       {results.callbackUrl.ok ? (
                         <>
-                          <span className="font-mono text-xs text-[#a9c989]">{results.callbackUrl.statusText}</span>
-                          <CheckCircle2 className="size-5 text-[#a9c989]" />
+                          <span className="font-mono text-xs text-[#c5f04a]">{results.callbackUrl.statusText}</span>
+                          <CheckCircle2 className="size-5 text-[#c5f04a]" />
                         </>
                       ) : (
                         <>
@@ -514,7 +528,7 @@ export default function OpsDashboardClient({
             {/* Env Status */}
             <div className="rounded-2xl border border-white/10 bg-white/[0.025] p-6">
               <div className="flex items-center gap-2 border-b border-white/10 pb-4">
-                <Key className="size-4 text-[#a9c989]" />
+                <Key className="size-4 text-[#c5f04a]" />
                 <h3 className="font-display text-md font-semibold">Variables de Entorno</h3>
               </div>
               <ul className="mt-4 space-y-3 font-mono text-xs">
@@ -537,7 +551,7 @@ export default function OpsDashboardClient({
                       </span>
                       {results ? (
                         configured ? (
-                          <span className="rounded bg-[#a9c989]/10 px-1.5 py-0.5 text-[10px] text-[#a9c989]">
+                          <span className="rounded bg-[#c5f04a]/10 px-1.5 py-0.5 text-[10px] text-[#c5f04a]">
                             LISTO
                           </span>
                         ) : (
@@ -555,16 +569,16 @@ export default function OpsDashboardClient({
             </div>
 
             {/* Checklist */}
-            <div className="rounded-2xl border border-white/10 bg-[#0c120d] p-6">
+            <div className="rounded-2xl border border-white/10 bg-[#08090a] p-6">
               <div className="flex items-center gap-2 border-b border-white/10 pb-4">
-                <FileText className="size-4 text-[#a9c989]" />
+                <FileText className="size-4 text-[#c5f04a]" />
                 <h3 className="font-display text-md font-semibold">Verificación Manual</h3>
               </div>
               <ul className="mt-4 space-y-4 text-xs text-white/70">
                 <li className="flex items-start gap-2.5">
                   <input
                     type="checkbox"
-                    className="mt-0.5 rounded border-white/20 bg-transparent text-[#a9c989] focus:ring-[#a9c989]/30"
+                    className="mt-0.5 rounded border-white/20 bg-transparent text-[#c5f04a] focus:ring-[#c5f04a]/30"
                     id="chk-1"
                   />
                   <label htmlFor="chk-1" className="leading-5">
@@ -574,7 +588,7 @@ export default function OpsDashboardClient({
                 <li className="flex items-start gap-2.5">
                   <input
                     type="checkbox"
-                    className="mt-0.5 rounded border-white/20 bg-transparent text-[#a9c989] focus:ring-[#a9c989]/30"
+                    className="mt-0.5 rounded border-white/20 bg-transparent text-[#c5f04a] focus:ring-[#c5f04a]/30"
                     id="chk-2"
                   />
                   <label htmlFor="chk-2" className="leading-5">
@@ -584,7 +598,7 @@ export default function OpsDashboardClient({
                 <li className="flex items-start gap-2.5">
                   <input
                     type="checkbox"
-                    className="mt-0.5 rounded border-white/20 bg-transparent text-[#a9c989] focus:ring-[#a9c989]/30"
+                    className="mt-0.5 rounded border-white/20 bg-transparent text-[#c5f04a] focus:ring-[#c5f04a]/30"
                     id="chk-3"
                   />
                   <label htmlFor="chk-3" className="leading-5">
@@ -594,7 +608,7 @@ export default function OpsDashboardClient({
                 <li className="flex items-start gap-2.5">
                   <input
                     type="checkbox"
-                    className="mt-0.5 rounded border-white/20 bg-transparent text-[#a9c989] focus:ring-[#a9c989]/30"
+                    className="mt-0.5 rounded border-white/20 bg-transparent text-[#c5f04a] focus:ring-[#c5f04a]/30"
                     id="chk-4"
                   />
                   <label htmlFor="chk-4" className="leading-5">

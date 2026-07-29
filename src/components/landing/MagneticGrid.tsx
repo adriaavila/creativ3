@@ -19,7 +19,7 @@ export default function MagneticGrid({
   gap = 8,
   maxDist = 140,
   strength = 22,
-  accent = "#ff8a4c",
+  accent = "#8a8a8a",
 }: Props) {
   const gridRef = useRef<HTMLDivElement>(null);
 

@@ -43,18 +43,18 @@ const SERVICES = [
 
 export default function Servicios() {
   return (
-    <section id="servicios" className="relative w-full bg-[#f5f3ec] text-[#1f2a1d] scroll-mt-24">
+    <section id="servicios" className="relative w-full bg-[#ffffff] text-[#0a0a0a] scroll-mt-24">
       <div className="mx-auto max-w-6xl px-6 py-20 md:px-10 md:py-28">
         <Reveal className="mb-12 flex flex-col justify-between gap-6 md:mb-16 md:flex-row md:items-end">
           <div>
-            <div className="mb-4 text-xs font-semibold uppercase tracking-[0.14em] text-[#336443]">
+            <div className="mb-4 text-xs font-semibold uppercase tracking-[0.14em] text-[#1c1d20]">
               Servicios
             </div>
-            <h2 className="max-w-3xl text-4xl font-normal leading-[0.98] text-[#336443] sm:text-5xl md:text-6xl">
+            <h2 className="max-w-3xl text-4xl font-normal leading-[0.98] text-[#1c1d20] sm:text-5xl md:text-6xl">
               Lo que construimos, explicado por el resultado de negocio.
             </h2>
           </div>
-          <p className="max-w-sm text-base leading-relaxed text-[#4b5b47] md:text-lg">
+          <p className="max-w-sm text-base leading-relaxed text-[#6b6b6b] md:text-lg">
             La tecnología importa, pero el cliente compra claridad, velocidad y menos fricción para vender.
           </p>
         </Reveal>
@@ -66,25 +66,25 @@ export default function Servicios() {
               <Reveal key={service.name} delay={index * 0.07} className="h-full">
               <a
                 href="#contacto"
-                className="group flex h-full flex-col rounded-lg border border-[#1f2a1d]/10 bg-white p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-[#336443]/30 hover:shadow-lg"
+                className="group flex h-full flex-col rounded-lg border border-[#0a0a0a]/10 bg-white p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-[#1c1d20]/30 hover:shadow-lg"
               >
                 <div className="mb-7 flex items-start justify-between gap-4">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#1f2a1d] text-white">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#0a0a0a] text-white">
                     <Icon className="h-5 w-5" />
                   </div>
-                  <ArrowUpRight className="h-5 w-5 text-[#4b5b47] transition-all duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-[#1f2a1d]" />
+                  <ArrowUpRight className="h-5 w-5 text-[#6b6b6b] transition-all duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-[#0a0a0a]" />
                 </div>
-                <h3 className="text-xl font-semibold tracking-tight text-[#1f2a1d]">
+                <h3 className="text-xl font-semibold tracking-tight text-[#0a0a0a]">
                   {service.name}
                 </h3>
-                <p className="mt-3 flex-1 text-sm leading-relaxed text-[#4b5b47]">
+                <p className="mt-3 flex-1 text-sm leading-relaxed text-[#6b6b6b]">
                   {service.desc}
                 </p>
                 <div className="mt-7 flex flex-wrap gap-2">
                   {service.examples.map((example) => (
                     <span
                       key={example}
-                      className="rounded-full bg-[#85AB8B]/15 px-3 py-1 text-xs font-medium text-[#336443]"
+                      className="rounded-full bg-[#a1a1a3]/15 px-3 py-1 text-xs font-medium text-[#1c1d20]"
                     >
                       {example}
                     </span>

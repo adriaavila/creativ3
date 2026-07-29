@@ -53,15 +53,15 @@ export default function ProjectImageCarousel({
       <div
         className={`relative aspect-[16/10] w-full overflow-hidden rounded-lg border ${
           isDark
-            ? "border-white/10 bg-[#07151f] text-white"
-            : "border-[#1f2a1d]/10 bg-[#eef1e8] text-[#1f2a1d]"
+            ? "border-white/10 bg-[#08090a] text-white"
+            : "border-[#0a0a0a]/10 bg-[#ebebeb] text-[#0a0a0a]"
         }`}
       >
         <div
           className={`absolute inset-0 ${
             isDark
               ? "bg-[linear-gradient(rgba(255,255,255,0.055)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.055)_1px,transparent_1px)]"
-              : "bg-[linear-gradient(rgba(31,42,29,0.08)_1px,transparent_1px),linear-gradient(90deg,rgba(31,42,29,0.08)_1px,transparent_1px)]"
+              : "bg-[linear-gradient(rgba(10, 10, 10,0.08)_1px,transparent_1px),linear-gradient(90deg,rgba(10, 10, 10,0.08)_1px,transparent_1px)]"
           } bg-[size:28px_28px]`}
         />
         <div className="relative flex h-full flex-col justify-between p-5">
@@ -80,7 +80,7 @@ export default function ProjectImageCarousel({
                 className={`rounded-lg border px-3 py-3 text-center ${
                   isDark
                     ? "border-white/12 bg-white/[0.06]"
-                    : "border-[#1f2a1d]/10 bg-white/70"
+                    : "border-[#0a0a0a]/10 bg-white/70"
                 }`}
               >
                 <div className="font-mono text-[10px] uppercase tracking-[0.16em] opacity-60">
@@ -96,7 +96,7 @@ export default function ProjectImageCarousel({
                     <div
                       key={`line-${index}`}
                       className={`h-px ${
-                        isDark ? "bg-white/25" : "bg-[#1f2a1d]/20"
+                        isDark ? "bg-white/25" : "bg-[#0a0a0a]/20"
                       }`}
                     />,
                   ],
@@ -109,7 +109,7 @@ export default function ProjectImageCarousel({
                 className={`rounded-md border px-2 py-1 font-mono text-[10px] uppercase tracking-[0.12em] ${
                   isDark
                     ? "border-white/10 bg-white/[0.06] text-white/70"
-                    : "border-[#1f2a1d]/10 bg-white/70 text-[#4b5b47]"
+                    : "border-[#0a0a0a]/10 bg-white/70 text-[#6b6b6b]"
                 }`}
               >
                 {item}
@@ -150,7 +150,7 @@ export default function ProjectImageCarousel({
       <div
         className={`absolute inset-x-0 bottom-0 h-28 ${
           isDark
-            ? "bg-gradient-to-t from-[#06151f]/85 to-transparent"
+            ? "bg-gradient-to-t from-[#050506]/85 to-transparent"
             : "bg-gradient-to-t from-black/45 to-transparent"
         }`}
       />

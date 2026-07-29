@@ -504,7 +504,7 @@ const CARDS = [
       </>
     ),
     body: "Arma su pedido y decide: ¿divisa o bolívares? El total se actualiza al instante. Ve los métodos de pago que tú configuraste: Pago Móvil, Zelle, Binance, efectivo. Cero malentendidos.",
-    bg: "#e6d5b3",
+    bg: "#d4d4d4",
     visual: <CheckoutToggle />,
   },
   {

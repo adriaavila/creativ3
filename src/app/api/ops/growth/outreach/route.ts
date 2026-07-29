@@ -49,7 +49,7 @@ export async function POST(request: Request) {
   const signature = createHmac("sha256", secret).update(serialized).digest("hex");
   const webhookUrl =
     process.env.GROWTH_OUTREACH_WEBHOOK_URL ??
-    "https://n8n.servicioscreativos.online/webhook/ops/growth-outreach";
+    "https://n8n.frontia.app/webhook/ops/growth-outreach";
 
   try {
     const response = await fetch(webhookUrl, {

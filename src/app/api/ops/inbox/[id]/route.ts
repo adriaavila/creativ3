@@ -1,6 +1,11 @@
 import { z } from "zod";
 import { authorizeOps } from "@/lib/ops-auth";
-import { getConversationById, listMessages, setConversationAssignedMode } from "@/lib/whatsapp-inbox-db";
+import {
+  getConversationById,
+  listMessages,
+  setConversationAssignedMode,
+  setConversationOutcome,
+} from "@/lib/whatsapp-inbox-db";
 
 export const runtime = "nodejs";
 
@@ -20,7 +25,12 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
   return Response.json({ conversation, messages });
 }
 
-const patchSchema = z.object({ assignedMode: z.enum(["human", "ai"]) });
+// Both fields optional so the inbox can patch either one alone. `outcome: null`
+// un-marks a conversation — distinct from omitting the key, which leaves it be.
+const patchSchema = z.object({
+  assignedMode: z.enum(["human", "ai"]).optional(),
+  outcome: z.enum(["cita", "cotizacion", "descarte"]).nullable().optional(),
+});
 
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const authorization = await authorizeOps();
@@ -32,6 +42,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   }
 
   const input = patchSchema.parse(await request.json());
-  await setConversationAssignedMode(conversationId, input.assignedMode);
+  if (input.assignedMode) await setConversationAssignedMode(conversationId, input.assignedMode);
+  if (input.outcome !== undefined) await setConversationOutcome(conversationId, input.outcome);
   return Response.json({ ok: true });
 }

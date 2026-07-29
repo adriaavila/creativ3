@@ -1,35 +1,43 @@
 import Stripe from "stripe";
 import { NextRequest, NextResponse } from "next/server";
 
-// Prices reflect real AI cost per conversation (Sonnet 5 for qualifying/negotiating
-// turns, Haiku 4.5 for FAQ — see src/lib/whatsapp-ai.ts) plus a sub-$50/mo fixed
-// infra floor, not the old flat $49–$179 guesswork. See the pricing note in
+// One product — the Desk — at three price points by client size, plus a cohort
+// discount for the first 5. Not three feature tiers: the cheap tier buys feedback
+// and a documented case, not a lesser system.
+//
+// The floor under these numbers is real AI cost per conversation (Sonnet 5 for
+// qualifying/negotiating turns, Haiku 4.5 for FAQ — see src/lib/whatsapp-ai.ts)
+// plus a sub-$50/mo fixed infra cost. See the pricing note in
 // docs/whatsapp-dual-channel-plan.md for the full cost breakdown.
+//
+// Results-based billing (piso + cita atribuida) is quoted per contract and settled
+// off Stripe — it needs the 30-day baseline from migration 008 first.
 const PLANS = {
   starter: {
-    name: "Starter",
+    name: "Desk Cohorte",
     currency: "usd",
-    setupAmount: 9900, // $99
-    recurringAmount: 3900, // $39/mo
-    description: "WhatsApp por WAHA — FAQ automatizado, seguimiento básico, mini base de leads.",
+    setupAmount: 39000, // $390
+    recurringAmount: 7900, // $79/mo
+    description:
+      "El Desk completo a precio de cohorte, para los primeros 5 negocios: feedback semanal y permiso para documentar el proceso a cambio.",
     defaultChannel: "waha" as const,
   },
   growth: {
-    name: "Growth",
+    name: "Desk",
     currency: "usd",
-    setupAmount: 19900, // $199
-    recurringAmount: 6900, // $69/mo
+    setupAmount: 69000, // $690
+    recurringAmount: 12900, // $129/mo
     description:
-      "Calificación de leads, landing/cotizador, dashboard y scripts. Elegís canal: WAHA o Cloud API.",
+      "Inbox comercial, respuestas sugeridas con IA aprobadas por vos, calificación, landing/cotizador y tu línea base medida a los 30 días.",
     defaultChannel: "waha" as const,
   },
   premium: {
-    name: "Premium",
+    name: "Desk Empresa",
     currency: "usd",
-    setupAmount: 39900, // $399
-    recurringAmount: 12900, // $129/mo
+    setupAmount: 149000, // $1,490
+    recurringAmount: 29000, // $290/mo
     description:
-      "Funnel completo, dashboard avanzado, segmentación y respuesta con IA supervisada. Cloud API recomendado, WAHA de respaldo.",
+      "Varias sedes o números, funnel completo desde anuncios, Hermes Agent y reporte semanal. Habilita el Sprint a Resultado. Cloud API recomendado, WAHA de respaldo.",
     defaultChannel: "cloud_api" as const,
   },
 } as const;

@@ -61,7 +61,7 @@ export default function QuoteConfigurator() {
   const annualPotential = monthlyPotential * 12;
   const paybackMonths = monthlyPotential > 0 ? 499 / monthlyPotential : 0;
 
-  const summary = `Hola, quiero revisar una automatización con creativv. Mi estimación es: ${values.people} personas, ${values.weeklyHours} horas semanales por persona en tareas repetitivas, costo de ${usd.format(values.hourlyCost)}/hora y ${values.automatable}% potencialmente automatizable. La calculadora estima ${number.format(recoveredHours)} horas recuperables al mes y un valor potencial de ${usd.format(monthlyPotential)} mensuales. Quiero validar estos supuestos.`;
+  const summary = `Hola, quiero revisar una automatización con Releva. Mi estimación es: ${values.people} personas, ${values.weeklyHours} horas semanales por persona en tareas repetitivas, costo de ${usd.format(values.hourlyCost)}/hora y ${values.automatable}% potencialmente automatizable. La calculadora estima ${number.format(recoveredHours)} horas recuperables al mes y un valor potencial de ${usd.format(monthlyPotential)} mensuales. Quiero validar estos supuestos.`;
 
   const update = (key: keyof CalculatorState, next: number) => {
     setValues((current) => ({ ...current, [key]: next }));
@@ -78,7 +78,7 @@ export default function QuoteConfigurator() {
               setValues(preset.values);
               track("savings_preset_selected", { preset: preset.label });
             }}
-            className="group rounded-full border border-white/10 bg-white/[0.04] px-4 py-2.5 text-left transition-all hover:-translate-y-0.5 hover:border-[#a9c989]/30 hover:bg-white/[0.08]"
+            className="group rounded-full border border-white/10 bg-white/[0.04] px-4 py-2.5 text-left transition-all hover:-translate-y-0.5 hover:border-[#c5f04a]/30 hover:bg-white/[0.08]"
           >
             <span className="block text-xs font-semibold text-white">{preset.label}</span>
             <span className="hidden text-[10px] text-white/50 sm:block">{preset.description}</span>
@@ -98,10 +98,10 @@ export default function QuoteConfigurator() {
         <section className="rounded-[1.75rem] border border-white/10 bg-white/[0.04] p-5 text-white shadow-2xl shadow-black/40 sm:p-8">
           <div className="mb-8 flex items-start justify-between gap-5 border-b border-white/10 pb-6">
             <div>
-              <div className="font-mono text-[9px] uppercase tracking-[0.18em] text-[#a9c989]">Tus números</div>
+              <div className="font-mono text-[9px] uppercase tracking-[0.18em] text-[#c5f04a]">Tus números</div>
               <h2 className="mt-2 font-display text-3xl leading-none text-white sm:text-4xl">¿Cuánto cuesta repetirlo?</h2>
             </div>
-            <span className="hidden rounded-full border border-[#a9c989]/30 bg-[#31583a]/30 px-3 py-1.5 font-mono text-xs font-semibold text-[#a9c989] sm:block">
+            <span className="hidden rounded-full border border-[#c5f04a]/30 bg-[#0a0a0a]/30 px-3 py-1.5 font-mono text-xs font-semibold text-[#c5f04a] sm:block">
               Resultado en vivo
             </span>
           </div>
@@ -155,14 +155,14 @@ export default function QuoteConfigurator() {
           </div>
         </section>
 
-        <aside className="overflow-hidden rounded-[1.75rem] border border-[#a9c989]/30 bg-[#0f1711] text-white shadow-2xl shadow-black/50 lg:sticky lg:top-24">
+        <aside className="overflow-hidden rounded-[1.75rem] border border-[#c5f04a]/30 bg-[#08090a] text-white shadow-2xl shadow-black/50 lg:sticky lg:top-24">
           <div className="border-b border-white/10 p-6 sm:p-8">
             <div className="flex items-center justify-between gap-4">
-              <div className="font-mono text-[9px] uppercase tracking-[0.18em] text-[#a9c989]">Capacidad recuperable</div>
-              <Sparkles className="size-4 text-[#a9c989]" />
+              <div className="font-mono text-[9px] uppercase tracking-[0.18em] text-[#c5f04a]">Capacidad recuperable</div>
+              <Sparkles className="size-4 text-[#c5f04a]" />
             </div>
             <div aria-live="polite" aria-atomic="true">
-              <div className="mt-5 font-display text-[clamp(3.4rem,7vw,6rem)] leading-[0.8] tracking-[-0.05em] text-[#a9c989]">
+              <div className="mt-5 font-display text-[clamp(3.4rem,7vw,6rem)] leading-[0.8] tracking-[-0.05em] text-[#c5f04a]">
                 {number.format(recoveredHours)} h
               </div>
               <span className="sr-only">recuperables al mes</span>
@@ -172,15 +172,15 @@ export default function QuoteConfigurator() {
             </p>
             <div className="mt-6 h-2 overflow-hidden rounded-full bg-white/10">
               <div
-                className="h-full rounded-full bg-[#a9c989] transition-[width] duration-500"
+                className="h-full rounded-full bg-[#c5f04a] transition-[width] duration-500"
                 style={{ width: `${values.automatable}%` }}
               />
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-px bg-white/10">
-            <Metric label="Costo manual / mes" value={usd.format(monthlyCost)} icon={<Clock3 className="size-3.5 text-[#a9c989]" />} />
-            <Metric label="Valor recuperable / mes" value={usd.format(monthlyPotential)} icon={<TrendingDown className="size-3.5 text-[#a9c989]" />} />
+            <Metric label="Costo manual / mes" value={usd.format(monthlyCost)} icon={<Clock3 className="size-3.5 text-[#c5f04a]" />} />
+            <Metric label="Valor recuperable / mes" value={usd.format(monthlyPotential)} icon={<TrendingDown className="size-3.5 text-[#c5f04a]" />} />
             <Metric label="Potencial / año" value={usd.format(annualPotential)} />
             <Metric
               label="Retorno desde USD 499"
@@ -197,10 +197,10 @@ export default function QuoteConfigurator() {
                 people: values.people,
                 monthly_potential: Math.round(monthlyPotential),
               })}
-              className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-[#31583a] px-6 text-sm font-semibold text-white border border-[#a9c989]/30 shadow-lg shadow-[#31583a]/20 transition-all hover:bg-[#3d6e48]"
+              className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-[#0a0a0a] px-6 text-sm font-semibold text-white border border-[#c5f04a]/30 shadow-lg shadow-[#0a0a0a]/20 transition-all hover:bg-[#26272b]"
             >
               Validar este ahorro
-              <ArrowRight className="size-4 text-[#a9c989]" />
+              <ArrowRight className="size-4 text-[#c5f04a]" />
             </a>
             <p className="mt-4 text-center text-[10px] leading-4 text-white/40">
               Estimación orientativa. Validamos proceso, excepciones y alcance antes de proponer una inversión.
@@ -212,7 +212,7 @@ export default function QuoteConfigurator() {
       <section className="mt-16">
         <div className="mb-7 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
           <div>
-            <div className="font-mono text-[9px] uppercase tracking-[0.18em] text-[#a9c989]">Formas de empezar</div>
+            <div className="font-mono text-[9px] uppercase tracking-[0.18em] text-[#c5f04a]">Formas de empezar</div>
             <h2 className="mt-3 font-display text-4xl leading-none text-white sm:text-5xl">Del cálculo a un sistema real.</h2>
           </div>
           <p className="max-w-lg text-sm leading-6 text-white/70">
@@ -224,10 +224,10 @@ export default function QuoteConfigurator() {
             <article key={name} className="rounded-[1.3rem] border border-white/10 bg-white/[0.04] p-6 text-white">
               <div className="flex items-center justify-between gap-3 font-mono text-[9px] uppercase tracking-[0.15em] text-white/50">
                 <span>{delivery}</span>
-                <Check className="size-3.5 text-[#a9c989]" />
+                <Check className="size-3.5 text-[#c5f04a]" />
               </div>
               <h3 className="mt-6 font-display text-3xl leading-none text-white">{name}</h3>
-              <div className="mt-3 text-sm font-semibold text-[#a9c989]">{price}</div>
+              <div className="mt-3 text-sm font-semibold text-[#c5f04a]">{price}</div>
               <p className="mt-5 text-sm leading-6 text-white/60">{result}</p>
             </article>
           ))}
@@ -270,8 +270,8 @@ function CalculatorField({
           <span className="block text-sm font-semibold text-white">{label}</span>
           <span className="mt-1 block text-xs leading-5 text-white/60">{hint}</span>
         </label>
-        <div className="flex shrink-0 items-center rounded-xl border border-white/10 bg-black/40 px-3 focus-within:border-[#a9c989]/50">
-          {prefix && <span className="text-sm font-semibold text-[#a9c989]">{prefix}</span>}
+        <div className="flex shrink-0 items-center rounded-xl border border-white/10 bg-black/40 px-3 focus-within:border-[#c5f04a]/50">
+          {prefix && <span className="text-sm font-semibold text-[#c5f04a]">{prefix}</span>}
           <input
             id={`${id}-number`}
             type="number"
@@ -295,7 +295,7 @@ function CalculatorField({
         onChange={(event) => onChange(Number(event.target.value))}
         aria-label={`Ajustar ${label.toLowerCase()}`}
         aria-valuetext={`${value} ${suffix}`}
-        className="savings-range mt-4 w-full accent-[#a9c989]"
+        className="savings-range mt-4 w-full accent-[#c5f04a]"
         style={{ "--range-progress": `${progress}%` } as React.CSSProperties}
       />
       <div className="mt-1.5 flex justify-between font-mono text-[8px] uppercase tracking-[0.12em] text-white/40">
@@ -308,7 +308,7 @@ function CalculatorField({
 
 function Metric({ label, value, icon }: { label: string; value: string; icon?: React.ReactNode }) {
   return (
-    <div className="bg-[#0f1711] p-5 sm:p-6">
+    <div className="bg-[#08090a] p-5 sm:p-6">
       <div className="flex items-center gap-2 text-[10px] text-white/40">
         {icon}
         {label}

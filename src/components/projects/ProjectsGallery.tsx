@@ -60,7 +60,7 @@ export default function ProjectsGallery({
     <div className="space-y-8">
       <div
         className={`flex flex-col gap-4 border-b pb-6 ${
-          isDark ? "border-white/10" : "border-[#1f2a1d]/10"
+          isDark ? "border-white/10" : "border-[#0a0a0a]/10"
         }`}
       >
         <div className="flex flex-wrap gap-2">
@@ -83,11 +83,11 @@ export default function ProjectsGallery({
                 className={`inline-flex items-center gap-2 rounded-md border px-3.5 py-2 text-sm font-semibold transition-colors ${
                   selected
                     ? isDark
-                      ? "border-white bg-white text-[#1f2a1d]"
-                      : "border-[#1f2a1d] bg-[#1f2a1d] text-white"
+                      ? "border-white bg-white text-[#0a0a0a]"
+                      : "border-[#0a0a0a] bg-[#0a0a0a] text-white"
                     : isDark
                       ? "border-white/10 bg-white/[0.04] text-white/70 hover:border-white/25 hover:text-white"
-                      : "border-[#1f2a1d]/10 bg-white/65 text-[#4b5b47] hover:border-[#1f2a1d]/20 hover:text-[#1f2a1d]"
+                      : "border-[#0a0a0a]/10 bg-white/65 text-[#6b6b6b] hover:border-[#0a0a0a]/20 hover:text-[#0a0a0a]"
                 }`}
               >
                 <Icon className="h-4 w-4" />
@@ -96,7 +96,7 @@ export default function ProjectsGallery({
                   className={`font-mono text-[11px] ${
                     selected
                       ? isDark
-                        ? "text-[#4b5b47]"
+                        ? "text-[#6b6b6b]"
                         : "text-white/70"
                       : "opacity-60"
                   }`}
@@ -109,7 +109,7 @@ export default function ProjectsGallery({
         </div>
         <p
           className={`max-w-2xl text-sm leading-relaxed ${
-            isDark ? "text-white/60" : "text-[#4b5b47]"
+            isDark ? "text-white/60" : "text-[#6b6b6b]"
           }`}
         >
           {activeCategory?.description}
@@ -126,13 +126,13 @@ export default function ProjectsGallery({
             className={`group relative flex min-h-full scroll-mt-24 flex-col rounded-lg border p-3 transition-all duration-300 ${
               isDark
                 ? "border-white/10 bg-white/[0.045] hover:border-white/20 hover:bg-white/[0.075]"
-                : "border-[#1f2a1d]/10 bg-white/75 shadow-sm hover:border-[#1f2a1d]/18 hover:bg-white hover:shadow-lg"
-            } ${featured ? (isDark ? "ring-1 ring-[#a8c97f]/45" : "ring-1 ring-[#336443]/30") : ""}`}
+                : "border-[#0a0a0a]/10 bg-white/75 shadow-sm hover:border-[#0a0a0a]/18 hover:bg-white hover:shadow-lg"
+            } ${featured ? (isDark ? "ring-1 ring-[#c5f04a]/45" : "ring-1 ring-[#1c1d20]/30") : ""}`}
           >
             {featured ? (
               <span
                 className={`absolute right-5 top-5 z-10 inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] ${
-                  isDark ? "bg-[#dbe9c3] text-[#101810]" : "bg-[#1f2a1d] text-white"
+                  isDark ? "bg-[#c5f04a] text-[#111214]" : "bg-[#0a0a0a] text-white"
                 }`}
               >
                 Destacado
@@ -150,7 +150,7 @@ export default function ProjectsGallery({
                 <div className="space-y-2">
                   <div
                     className={`font-mono text-[11px] uppercase tracking-[0.18em] ${
-                      isDark ? "text-[#a8c97f]" : "text-[#336443]"
+                      isDark ? "text-[#c5f04a]" : "text-[#1c1d20]"
                     }`}
                   >
                     {String(index + 1).padStart(2, "0")} · {project.kind}
@@ -162,7 +162,7 @@ export default function ProjectsGallery({
                         className={`rounded-md px-2 py-1 text-[11px] font-semibold ${
                           isDark
                             ? "bg-white/[0.07] text-white/70"
-                            : "bg-[#85AB8B]/15 text-[#3d5638]"
+                            : "bg-[#a1a1a3]/15 text-[#26272b]"
                         }`}
                       >
                         {CATEGORY_NAMES[category]}
@@ -172,7 +172,7 @@ export default function ProjectsGallery({
                 </div>
                 <span
                   className={`font-mono text-[10px] uppercase tracking-[0.16em] ${
-                    isDark ? "text-white/45" : "text-[#4b5b47]/65"
+                    isDark ? "text-white/45" : "text-[#6b6b6b]/65"
                   }`}
                 >
                   GitHub · {project.githubUpdatedLabel}
@@ -181,14 +181,14 @@ export default function ProjectsGallery({
 
               <h3
                 className={`text-2xl font-semibold tracking-tight md:text-3xl ${
-                  isDark ? "text-white" : "text-[#1f2a1d]"
+                  isDark ? "text-white" : "text-[#0a0a0a]"
                 }`}
               >
                 {project.name}
               </h3>
               <p
                 className={`mt-3 text-sm leading-relaxed ${
-                  isDark ? "text-white/65" : "text-[#4b5b47]"
+                  isDark ? "text-white/65" : "text-[#6b6b6b]"
                 }`}
               >
                 {project.description}
@@ -196,8 +196,8 @@ export default function ProjectsGallery({
               <p
                 className={`mt-4 border-l pl-4 text-sm leading-relaxed ${
                   isDark
-                    ? "border-[#a8c97f]/35 text-white/78"
-                    : "border-[#336443]/30 text-[#263623]"
+                    ? "border-[#c5f04a]/35 text-white/78"
+                    : "border-[#1c1d20]/30 text-[#1c1d20]"
                 }`}
               >
                 {project.result}
@@ -210,7 +210,7 @@ export default function ProjectsGallery({
                     className={`rounded-md border px-2.5 py-1 text-xs font-medium ${
                       isDark
                         ? "border-white/10 bg-white/[0.05] text-white/65"
-                        : "border-[#1f2a1d]/10 bg-[#f5f3ec] text-[#4b5b47]"
+                        : "border-[#0a0a0a]/10 bg-[#ffffff] text-[#6b6b6b]"
                     }`}
                   >
                     {item}
@@ -226,8 +226,8 @@ export default function ProjectsGallery({
                     rel="noopener noreferrer"
                     className={`inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm font-semibold transition-colors ${
                       isDark
-                        ? "bg-white text-[#1f2a1d] hover:bg-[#a8c97f]"
-                        : "bg-[#1f2a1d] text-white hover:bg-[#336443]"
+                        ? "bg-white text-[#0a0a0a] hover:bg-[#c5f04a]"
+                        : "bg-[#0a0a0a] text-white hover:bg-[#1c1d20]"
                     }`}
                   >
                     <ExternalLink className="h-4 w-4" />
@@ -240,7 +240,7 @@ export default function ProjectsGallery({
                     className={`inline-flex items-center gap-2 rounded-md border px-3 py-2 text-sm font-semibold transition-colors ${
                       isDark
                         ? "border-white/15 text-white/75 hover:border-white/30 hover:text-white"
-                        : "border-[#1f2a1d]/15 text-[#1f2a1d] hover:border-[#1f2a1d]/30"
+                        : "border-[#0a0a0a]/15 text-[#0a0a0a] hover:border-[#0a0a0a]/30"
                     }`}
                   >
                     <ArrowUpRight className="h-4 w-4" />
@@ -255,7 +255,7 @@ export default function ProjectsGallery({
                     className={`inline-flex items-center gap-2 rounded-md border px-3 py-2 text-sm font-semibold transition-colors ${
                       isDark
                         ? "border-white/15 text-white/75 hover:border-white/30 hover:text-white"
-                        : "border-[#1f2a1d]/15 text-[#1f2a1d] hover:border-[#1f2a1d]/30"
+                        : "border-[#0a0a0a]/15 text-[#0a0a0a] hover:border-[#0a0a0a]/30"
                     }`}
                   >
                     <Code2 className="h-4 w-4" />

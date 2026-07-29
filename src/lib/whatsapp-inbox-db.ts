@@ -9,6 +9,8 @@ export type MessageDirection = "in" | "out";
 export type MessageSource = "api" | "phone" | "ai";
 export type ConversationStatus = "open" | "snoozed" | "closed";
 export type AssignedMode = "human" | "ai";
+/** Commercial result of the conversation — migration 008. Null = not marked yet. */
+export type ConversationOutcome = "cita" | "cotizacion" | "descarte";
 
 export type WaConversation = {
   id: number;
@@ -18,6 +20,8 @@ export type WaConversation = {
   contactName: string | null;
   status: ConversationStatus;
   assignedMode: AssignedMode;
+  outcome: ConversationOutcome | null;
+  outcomeAt: string | null;
   lastMessageAt: string | null;
   lastInboundAt: string | null;
   createdAt: string;
@@ -68,6 +72,8 @@ function mapConversation(row: any): WaConversation {
     contactName: row.contact_name ? String(row.contact_name) : null,
     status: row.status,
     assignedMode: row.assigned_mode,
+    outcome: row.outcome ?? null,
+    outcomeAt: row.outcome_at ? new Date(String(row.outcome_at)).toISOString() : null,
     lastMessageAt: row.last_message_at ? new Date(String(row.last_message_at)).toISOString() : null,
     lastInboundAt: row.last_inbound_at ? new Date(String(row.last_inbound_at)).toISOString() : null,
     createdAt: new Date(String(row.created_at)).toISOString(),
@@ -157,6 +163,62 @@ export async function setConversationAssignedMode(id: number, mode: AssignedMode
   await sql`
     UPDATE wa_conversations SET assigned_mode = ${mode}, updated_at = now() WHERE id = ${id}
   `;
+}
+
+/** Marks (or, with null, un-marks) the commercial result of a conversation. */
+export async function setConversationOutcome(
+  id: number,
+  outcome: ConversationOutcome | null,
+): Promise<void> {
+  const sql = getSql();
+  await sql`
+    UPDATE wa_conversations
+    SET outcome = ${outcome},
+        outcome_at = ${outcome === null ? null : new Date().toISOString()},
+        updated_at = now()
+    WHERE id = ${id}
+  `;
+}
+
+export type NextStepSummary = {
+  share: number | null; // % of this month's conversations that ended marked
+  citas: number; // citas marked this month — the billable unit
+  prevShare: number | null; // same share last month, the baseline to beat
+};
+
+/** Null rather than 0% for an empty month: "no data" and "nobody replied" are not the same claim. */
+export function outcomeShare(marked: number, total: number): number | null {
+  if (total <= 0) return null;
+  return Math.round((marked / total) * 100);
+}
+
+/**
+ * This month vs last — the baseline comparison the results-based pricing is
+ * argued from. Unmarked conversations count against the share, never for it.
+ */
+export async function getNextStepSummary(): Promise<NextStepSummary> {
+  const sql = getSql();
+  // ponytail: month buckets in UTC. Venezuela is UTC-4, so the first 4h of a
+  // month land in the previous bucket. Add `AT TIME ZONE 'America/Caracas'` if a
+  // close month ever decides an invoice.
+  const rows = await sql`
+    SELECT
+      count(*) FILTER (WHERE last_message_at >= date_trunc('month', now()))::int AS cur_total,
+      count(outcome) FILTER (WHERE last_message_at >= date_trunc('month', now()))::int AS cur_marked,
+      count(*) FILTER (
+        WHERE last_message_at >= date_trunc('month', now()) AND outcome = 'cita'
+      )::int AS cur_citas,
+      count(*) FILTER (WHERE last_message_at < date_trunc('month', now()))::int AS prev_total,
+      count(outcome) FILTER (WHERE last_message_at < date_trunc('month', now()))::int AS prev_marked
+    FROM wa_conversations
+    WHERE last_message_at >= date_trunc('month', now()) - interval '1 month'
+  `;
+  const row = rows[0] ?? {};
+  return {
+    share: outcomeShare(Number(row.cur_marked ?? 0), Number(row.cur_total ?? 0)),
+    citas: Number(row.cur_citas ?? 0),
+    prevShare: outcomeShare(Number(row.prev_marked ?? 0), Number(row.prev_total ?? 0)),
+  };
 }
 
 /**

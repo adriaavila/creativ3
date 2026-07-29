@@ -14,8 +14,11 @@
   --color-papiro-soft: var(--papiro-soft);
   --color-guayoyo: var(--guayoyo);
 
-  --font-display: var(--font-fraunces);
-  --font-editorial: var(--font-italiana);
+  /* Releva is one grotesque, at every size. `font-display` is used on ~40
+     headings across the app; repointing the token retires the serif everywhere
+     in one line rather than editing each call site. */
+  --font-display: var(--font-grotesk);
+  --font-editorial: var(--font-grotesk);
   --font-mono: var(--font-jetbrains);
   --font-body: var(--font-instrument-sans);
   --color-background: var(--background);
@@ -35,32 +38,41 @@
 }
 
 :root {
-  --noche: #0a1f2e;
-  --noche-deep: #06151f;
-  --noche-rise: #12293a;
-  --ink: #0a0d10;
-  --ink-rise: #13181d;
-  --cobalto: #2a6ea0;
-  --monte: #2d5f3f;
-  --lima: #a8c97f;
-  --lima-electric: #c5f04a;
-  --papiro: #f0ead6;
-  --papiro-soft: #d4cdb8;
-  --guayoyo: #c89464;
-  --background: #fffdf7;
-  --foreground: #172016;
+  /* ── Releva ────────────────────────────────────────────────────
+     One neutral ramp, one accent. The old palette carried navy, sage,
+     forest green, cream and terracotta at once; the waveform mark only
+     works if nothing else in the frame competes with it.
+
+     The legacy names stay — 400+ call sites reference them — but they now
+     all point into the neutral ramp, so the whole app moves together.
+     --lima / --lima-electric are the single accent: background under
+     black type, or a mark. Never text on white (1.6:1). */
+  --noche: #08090a;
+  --noche-deep: #050506;
+  --noche-rise: #111214;
+  --ink: #0a0a0a;
+  --ink-rise: #131315;
+  --cobalto: #c5f04a;
+  --monte: #1c1d20;
+  --lima: #c5f04a;
+  --lima-electric: #d9f77e;
+  --papiro: #f5f5f4;
+  --papiro-soft: #a1a1a3;
+  --guayoyo: #8a8a8a;
+  --background: #ffffff;
+  --foreground: #0a0a0a;
   --card: #ffffff;
-  --card-foreground: #172016;
-  --primary: #172016;
+  --card-foreground: #0a0a0a;
+  --primary: #0a0a0a;
   --primary-foreground: #ffffff;
-  --secondary: #edf1e8;
-  --secondary-foreground: #172016;
-  --muted: #eef1ea;
-  --muted-foreground: #667362;
-  --border: rgba(23, 32, 22, 0.12);
-  --input: rgba(23, 32, 22, 0.12);
-  --ring: #456b48;
-  --destructive: #a24234;
+  --secondary: #f3f3f3;
+  --secondary-foreground: #0a0a0a;
+  --muted: #f3f3f3;
+  --muted-foreground: #6b6b6b;
+  --border: rgba(10, 10, 10, 0.1);
+  --input: rgba(10, 10, 10, 0.1);
+  --ring: #0a0a0a;
+  --destructive: #c0392b;
   --radius: 0.9rem;
 
   /* ── Studio landing palette ────────────────────────────────
@@ -79,7 +91,34 @@
   --studio-muted-text: #6b6b6b;
   --studio-surface: #f3f3f3;
   --studio-hairline: #ebebeb;
-  --studio-shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 8px 24px rgba(0, 0, 0, 0.04);
+  --studio-shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 8px 24px rgba(0, 0, 0, 0.06);
+  /* Single accent. #c5f04a fails contrast as text on white, so it is only ever
+     a background under black type or a mark behind it — never a text colour. */
+  --studio-accent: #c5f04a;
+}
+
+/* Highlighter mark behind display type. A gradient rather than an absolutely
+   positioned bar: it redraws per line, so a wrap never leaves the mark hanging
+   past the last word. */
+.studio-mark {
+  /* Band, not underline: the display line-height is 0.94, so the line box
+     bottom sits near the baseline — start the mark above it or it reads as a
+     detached rule. */
+  background-image: linear-gradient(
+    to top,
+    transparent 0.08em,
+    var(--studio-accent) 0.08em,
+    var(--studio-accent) 0.42em,
+    transparent 0.42em
+  );
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+
+/* Marquee edges fade instead of hard-cutting at the container. */
+.studio-marquee-mask {
+  mask-image: linear-gradient(90deg, transparent 0, black 6%, black 94%, transparent 100%);
+  -webkit-mask-image: linear-gradient(90deg, transparent 0, black 6%, black 94%, transparent 100%);
 }
 
 /* ─── Custom scrollbar ─────────────────────────────────────── */
@@ -96,22 +135,25 @@
   }
 
   html.theme-dark body {
-    font-family: var(--font-fraunces), Georgia, serif;
+    font-family: var(--font-grotesk), 'Helvetica Neue', Helvetica, Arial, sans-serif;
   }
 
   html.theme-light,
   html.theme-light body {
-    background-color: #f5f3ec;
-    color: #1f2a1d;
-    font-family: var(--font-instrument-sans), 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    background-color: #ffffff;
+    color: #0a0a0a;
+    font-family: var(--font-grotesk), 'Helvetica Neue', Helvetica, Arial, sans-serif;
   }
 
-  /* Editorial display headings — serif headline against Inter body */
+  /* Display headings — same grotesque as the body, separated by weight and
+     tracking instead of by typeface. Tracking tightens as type grows. */
   html.theme-light h1,
-  html.theme-light h2 {
-    font-family: var(--font-fraunces), Georgia, serif;
-    font-weight: 400;
-    letter-spacing: -0.02em;
+  html.theme-dark h1,
+  html.theme-light h2,
+  html.theme-dark h2 {
+    font-family: var(--font-grotesk), 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-weight: 500;
+    letter-spacing: -0.032em;
   }
 
   /* ── Studio landing ─────────────────────────────────────────
@@ -166,26 +208,40 @@
     inset: 0;
     pointer-events: none;
     z-index: 40;
-    background: radial-gradient(circle, transparent 30%, rgba(6, 21, 31, 0.85) 150%);
+    background: radial-gradient(circle, transparent 30%, rgba(5, 5, 6, 0.85) 150%);
+  }
+
+  /* The studio landing is a light page. RouteTheme stamps theme-dark on <html>
+     for every route, so without this the grain and the navy vignette above sit
+     on top of white and grey the whole thing out. */
+  html.theme-dark body:has(.studio)::before,
+  html.theme-dark body:has(.studio)::after {
+    content: none;
   }
 }
 
 .outcome-paper-grid {
   background-image:
-    linear-gradient(rgba(23, 32, 22, 0.032) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(23, 32, 22, 0.032) 1px, transparent 1px);
+    linear-gradient(rgba(10, 10, 10, 0.032) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(10, 10, 10, 0.032) 1px, transparent 1px);
   background-size: 72px 72px;
   mask-image: linear-gradient(to bottom, black 0%, rgba(0, 0, 0, 0.4) 72%, transparent 100%);
 }
 
 ::selection {
-  background: #cfe3b1;
-  color: #172016;
+  background: #c5f04a;
+  color: #0a0a0a;
 }
 
 :focus-visible {
-  outline: 2px solid #456b48;
+  outline: 2px solid #0a0a0a;
   outline-offset: 3px;
+}
+
+/* On dark chrome the black ring vanishes — the accent is the only thing that
+   clears 3:1 against both #08090a and white. */
+html.theme-dark :focus-visible {
+  outline-color: #c5f04a;
 }
 
 .savings-range {
@@ -201,10 +257,10 @@
   border-radius: 999px;
   background: linear-gradient(
     to right,
-    #31583a 0%,
-    #31583a var(--range-progress),
-    #e0e6da var(--range-progress),
-    #e0e6da 100%
+    #0a0a0a 0%,
+    #0a0a0a var(--range-progress),
+    #d4d4d4 var(--range-progress),
+    #d4d4d4 100%
   );
 }
 
@@ -213,31 +269,31 @@
   height: 1.25rem;
   margin-top: -0.425rem;
   appearance: none;
-  border: 3px solid #fffdf7;
+  border: 3px solid #ffffff;
   border-radius: 999px;
-  background: #172016;
-  box-shadow: 0 2px 10px rgba(23, 32, 22, 0.24);
+  background: #0a0a0a;
+  box-shadow: 0 2px 10px rgba(10, 10, 10, 0.24);
 }
 
 .savings-range::-moz-range-track {
   height: 0.4rem;
   border-radius: 999px;
-  background: #e0e6da;
+  background: #d4d4d4;
 }
 
 .savings-range::-moz-range-progress {
   height: 0.4rem;
   border-radius: 999px;
-  background: #31583a;
+  background: #0a0a0a;
 }
 
 .savings-range::-moz-range-thumb {
   width: 1rem;
   height: 1rem;
-  border: 3px solid #fffdf7;
+  border: 3px solid #ffffff;
   border-radius: 999px;
-  background: #172016;
-  box-shadow: 0 2px 10px rgba(23, 32, 22, 0.24);
+  background: #0a0a0a;
+  box-shadow: 0 2px 10px rgba(10, 10, 10, 0.24);
 }
 
 /* ─── Text utilities ───────────────────────────────────────── */
@@ -317,8 +373,8 @@
 
 /* ─── Glow border ──────────────────────────────────────────── */
 @keyframes border-glow {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(42,110,160,0); }
-  50%       { box-shadow: 0 0 32px 4px rgba(42,110,160,0.35); }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(197, 240, 74,0); }
+  50%       { box-shadow: 0 0 32px 4px rgba(197, 240, 74,0.35); }
 }
 .glow-border {
   animation: border-glow 3s ease-in-out infinite;
@@ -336,7 +392,7 @@
   left: 0;
   right: 0;
   height: 2px;
-  background: linear-gradient(90deg, transparent 0%, rgba(42,110,160,0.6) 50%, transparent 100%);
+  background: linear-gradient(90deg, transparent 0%, rgba(197, 240, 74,0.6) 50%, transparent 100%);
   animation: scan-sweep 8s linear infinite;
   pointer-events: none;
 }
@@ -429,7 +485,7 @@
     -webkit-backdrop-filter: none !important;
   }
   html.theme-dark .backdrop-blur-xl {
-    background-color: #0f1711 !important;
+    background-color: #08090a !important;
   }
 }
 
@@ -438,7 +494,7 @@
   .backdrop-blur-xl {
     backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;
-    background-color: #0f1711 !important;
+    background-color: #08090a !important;
     border-color: rgba(255, 255, 255, 0.4) !important;
   }
 }
@@ -449,10 +505,10 @@
 
 /* ─── Theme kinetic (light playful) ───────────────────────── */
 .theme-kinetic {
-  color: #1a1a1f;
+  color: #111214;
 }
 .theme-kinetic ::selection {
-  background: #ff8a4c;
-  color: #1a1a1f;
+  background: #8a8a8a;
+  color: #111214;
 }
 html.theme-dark .theme-kinetic ~ * { /* no-op selector to scope */ }

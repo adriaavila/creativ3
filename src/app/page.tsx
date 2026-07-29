@@ -1,41 +1,51 @@
 import type { Metadata } from "next";
-import StudioHome from "@/components/home/StudioHome";
+import StudioHome, { STUDIO_FAQS } from "@/components/home/StudioHome";
+import { faqJsonLd } from "@/lib/seo";
+
+const TITLE = "Releva | Webs y automatizaciones que traen clientes";
+const DESCRIPTION =
+  "Landings, tiendas y automatizaciones con IA para negocios. Primer entregable en 3 días, precio cerrado desde USD 199.";
 
 export const metadata: Metadata = {
-  title: "creativv | Productos y Experimentos de Adri Ávila",
-  description:
-    "Conecto lo que observo con productos que pueden existir. Productos digitales, sistemas y experimentos por Adri Ávila.",
+  title: TITLE,
+  description: DESCRIPTION,
   alternates: { canonical: "/" },
   keywords: [
-    "creativv",
+    "Releva",
+    "landing page",
+    "automatizacion con IA",
+    "agente WhatsApp",
+    "desarrollo web Next.js",
+    "dashboard a medida",
+    "MVP",
     "Adri Ávila",
-    "productos digitales",
-    "REI",
-    "Shopea",
-    "Frontia",
-    "Mística",
-    "Soapy",
-    "experimentos",
   ],
   openGraph: {
-    title: "creativv | Conecto lo que observo con productos que pueden existir",
-    description:
-      "Creativv es el lugar donde convierto observaciones del mercado en productos digitales, sistemas y experimentos.",
+    title: TITLE,
+    description: DESCRIPTION,
     url: "/",
     type: "website",
     locale: "es_VE",
   },
   twitter: {
     card: "summary_large_image",
-    title: "creativv | Productos y experimentos de Adri Ávila",
-    description:
-      "Creativv es el lugar donde convierto observaciones del mercado en productos digitales, sistemas y experimentos.",
+    title: TITLE,
+    description: DESCRIPTION,
   },
 };
 
 export default function Home() {
-  return <StudioHome />;
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(
+            faqJsonLd(STUDIO_FAQS.map((f) => ({ q: f.question, a: f.answer }))),
+          ),
+        }}
+      />
+      <StudioHome />
+    </>
+  );
 }
-
-
-

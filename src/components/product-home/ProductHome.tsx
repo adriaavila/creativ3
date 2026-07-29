@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { ArrowRight, ArrowUpRight, Check, Mail, MessageCircle } from "lucide-react";
-import CreativvLogo from "@/components/landing/CreativvLogo";
+import RelevaLogo from "@/components/brand/RelevaLogo";
 import WhatsAppBanner from "@/components/landing/WhatsAppBanner";
 import ProyectosShowcase from "@/components/landing/ProyectosShowcase";
 import OfertaSection from "@/components/landing/OfertaSection";
@@ -128,8 +128,8 @@ const structuredData = {
   "@graph": [
     {
       "@type": "ProfessionalService",
-      name: "Creativv",
-      url: "https://www.servicioscreativos.online",
+      name: "Releva",
+      url: "https://servicios.frontia.app",
       email: CONTACT_EMAIL,
       description:
         "Estudio independiente de websites, aplicaciones, automatización e inteligencia artificial para negocios.",
@@ -137,7 +137,7 @@ const structuredData = {
     },
     {
       "@type": "ItemList",
-      name: "Servicios principales de Creativv",
+      name: "Servicios principales de Releva",
       itemListElement: [
         "WhatsApp Sales Experience",
         "Cinematic Launch Page",

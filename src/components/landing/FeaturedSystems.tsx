@@ -47,8 +47,8 @@ export default function FeaturedSystems({ intent = "efficiency" }: FeaturedSyste
   return (
     <section
       id="trabajo"
-      className={`scroll-mt-6 px-5 py-24 text-[#172016] transition-colors duration-700 sm:px-8 lg:px-12 lg:py-36 ${
-        isRevenue ? "bg-[#fff8f1]" : "bg-[#fffdf7]"
+      className={`scroll-mt-6 px-5 py-24 text-[#0a0a0a] transition-colors duration-700 sm:px-8 lg:px-12 lg:py-36 ${
+        isRevenue ? "bg-[#ffffff]" : "bg-[#ffffff]"
       }`}
     >
       <div key={intent} className="landing-intent-enter mx-auto max-w-[1440px]">
@@ -56,26 +56,26 @@ export default function FeaturedSystems({ intent = "efficiency" }: FeaturedSyste
           <div>
             <div
               className={`font-mono text-[10px] uppercase tracking-[0.2em] ${
-                isRevenue ? "text-[#b9472d]" : "text-[#456241]"
+                isRevenue ? "text-[#4a4b4f]" : "text-[#26272b]"
               }`}
             >
               {copy.eyebrow}
             </div>
             <h2 className="mt-4 max-w-4xl font-display text-[clamp(3.2rem,7vw,7.8rem)] leading-[0.86] tracking-[-0.045em]">
               {copy.title}
-              <span className={`block italic ${isRevenue ? "text-[#b9472d]" : "text-[#31583a]"}`}>
+              <span className={`block italic ${isRevenue ? "text-[#4a4b4f]" : "text-[#0a0a0a]"}`}>
                 {copy.accent}
               </span>
             </h2>
           </div>
           <div className="max-w-xl lg:justify-self-end">
-            <p className="text-base leading-7 text-[#5b5d54] sm:text-lg">{copy.body}</p>
+            <p className="text-base leading-7 text-[#6b6b6b] sm:text-lg">{copy.body}</p>
             <Link
               href="/projects"
               className={`mt-6 inline-flex items-center gap-2 text-sm font-semibold underline underline-offset-4 ${
                 isRevenue
-                  ? "text-[#a23c27] decoration-[#b9472d]/25"
-                  : "text-[#31583a] decoration-[#31583a]/25"
+                  ? "text-[#4a4b4f] decoration-[#4a4b4f]/25"
+                  : "text-[#0a0a0a] decoration-[#0a0a0a]/25"
               }`}
             >
               Explorar archivo completo <ArrowUpRight className="size-4" />
@@ -93,8 +93,8 @@ export default function FeaturedSystems({ intent = "efficiency" }: FeaturedSyste
               }`}
             >
               <div
-                className={`group relative aspect-[16/10] overflow-hidden rounded-[1.6rem] border border-[#172016]/10 shadow-[0_30px_90px_rgba(23,32,22,0.12)] ${
-                  isRevenue ? "bg-[#efcbbb]" : "bg-[#e8eadf]"
+                className={`group relative aspect-[16/10] overflow-hidden rounded-[1.6rem] border border-[#0a0a0a]/10 shadow-[0_30px_90px_rgba(10, 10, 10,0.12)] ${
+                  isRevenue ? "bg-[#d4d4d4]" : "bg-[#ebebeb]"
                 }`}
               >
                 {project.images[0] ? (
@@ -107,12 +107,12 @@ export default function FeaturedSystems({ intent = "efficiency" }: FeaturedSyste
                   />
                 ) : null}
                 <div className="absolute left-4 top-4 flex gap-2 font-mono text-[9px] uppercase tracking-[0.16em]">
-                  <span className="rounded-full bg-[#fffdf7]/92 px-3 py-1.5 text-[#172016] backdrop-blur">
+                  <span className="rounded-full bg-[#ffffff]/92 px-3 py-1.5 text-[#0a0a0a] backdrop-blur">
                     {STATUS_LABEL[project.status]}
                   </span>
                   <span
                     className={`rounded-full px-3 py-1.5 text-white backdrop-blur ${
-                      isRevenue ? "bg-[#a8402a]/92" : "bg-[#172016]/90"
+                      isRevenue ? "bg-[#4a4b4f]/92" : "bg-[#0a0a0a]/90"
                     }`}
                   >
                     {project.businessGoal === "increase_revenue"
@@ -127,25 +127,25 @@ export default function FeaturedSystems({ intent = "efficiency" }: FeaturedSyste
               <div className="max-w-xl">
                 <div
                   className={`font-mono text-[10px] uppercase tracking-[0.18em] ${
-                    isRevenue ? "text-[#a34b36]" : "text-[#587151]"
+                    isRevenue ? "text-[#4a4b4f]" : "text-[#4a4b4f]"
                   }`}
                 >
                   {String(index + 1).padStart(2, "0")} · {project.kind}
                 </div>
                 <h3 className="mt-4 font-display text-5xl leading-[0.9] sm:text-6xl">{project.name}</h3>
-                <p className="mt-6 text-base leading-7 text-[#5b5d54]">{project.businessOutcome}</p>
-                <div className="mt-7 border-y border-[#172016]/10 py-5">
-                  <div className="font-mono text-[9px] uppercase tracking-[0.18em] text-[#797a72]">
+                <p className="mt-6 text-base leading-7 text-[#6b6b6b]">{project.businessOutcome}</p>
+                <div className="mt-7 border-y border-[#0a0a0a]/10 py-5">
+                  <div className="font-mono text-[9px] uppercase tracking-[0.18em] text-[#6b6b6b]">
                     {isRevenue ? "Decisión de experiencia" : "Capa inteligente"}
                   </div>
-                  <p className="mt-2 text-sm font-medium text-[#273526]">{project.agentRole}</p>
+                  <p className="mt-2 text-sm font-medium text-[#1c1d20]">{project.agentRole}</p>
                 </div>
                 <div className="mt-6 flex flex-wrap gap-2">
                   {project.stack.slice(0, 4).map((item) => (
                     <span
                       key={item}
-                      className={`rounded-full border border-[#172016]/10 px-3 py-1.5 text-xs text-[#565d52] ${
-                        isRevenue ? "bg-[#f8e9df]" : "bg-[#f4f0e5]"
+                      className={`rounded-full border border-[#0a0a0a]/10 px-3 py-1.5 text-xs text-[#4a4b4f] ${
+                        isRevenue ? "bg-[#ebebeb]" : "bg-[#f3f3f3]"
                       }`}
                     >
                       {item}
@@ -160,7 +160,7 @@ export default function FeaturedSystems({ intent = "efficiency" }: FeaturedSyste
                       rel="noopener noreferrer"
                       onClick={() => track("portfolio_project_visited", { project: project.id, destination: "live" })}
                       className={`inline-flex min-h-11 items-center gap-2 rounded-full px-5 text-sm font-semibold text-white transition-colors ${
-                        isRevenue ? "bg-[#b9472d] hover:bg-[#913520]" : "bg-[#172016] hover:bg-[#31583a]"
+                        isRevenue ? "bg-[#4a4b4f] hover:bg-[#4a4b4f]" : "bg-[#0a0a0a] hover:bg-[#0a0a0a]"
                       }`}
                     >
                       Abrir sistema <ArrowUpRight className="size-4" />
@@ -170,7 +170,7 @@ export default function FeaturedSystems({ intent = "efficiency" }: FeaturedSyste
                     <Link
                       href={project.caseStudyUrl}
                       onClick={() => track("portfolio_project_visited", { project: project.id, destination: "case_study" })}
-                      className="inline-flex min-h-11 items-center gap-2 rounded-full border border-[#172016]/12 px-5 text-sm font-semibold"
+                      className="inline-flex min-h-11 items-center gap-2 rounded-full border border-[#0a0a0a]/12 px-5 text-sm font-semibold"
                     >
                       Ver caso
                     </Link>

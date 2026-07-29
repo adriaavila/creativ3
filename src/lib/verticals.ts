@@ -23,7 +23,7 @@ export const VERTICALS: Record<VerticalSlug, Vertical> = {
     eyebrow: "Clinicas esteticas, wellness y salud privada",
     title: "Que cada consulta llegue con intención, contexto y próximo paso.",
     subtitle:
-      "creativv convierte tu web, agenda y WhatsApp en un sistema comercial que educa, filtra y prepara al paciente antes de que recepción intervenga.",
+      "Releva convierte tu web, agenda y WhatsApp en un sistema comercial que educa, filtra y prepara al paciente antes de que recepción intervenga.",
     pain: [
       "Instagram genera interes, pero WhatsApp absorbe preguntas repetidas todo el dia.",
       "Los leads preguntan precio, desaparecen y nadie sabe donde se rompio el proceso.",
@@ -37,7 +37,7 @@ export const VERTICALS: Record<VerticalSlug, Vertical> = {
     pilot: "Piloto recomendado: intake WhatsApp + agenda + reporte diario en 14 dias.",
     proof: "Para clinicas con ticket medio/alto, agenda activa o tratamientos que necesitan confianza antes de precio.",
     message:
-      "Hola, tengo una clinica/servicio wellness. Quiero ver si creativv puede mejorar mis leads, agenda y WhatsApp.",
+      "Hola, tengo una clinica/servicio wellness. Quiero ver si Releva puede mejorar mis leads, agenda y WhatsApp.",
   },
   inmobiliarias: {
     slug: "inmobiliarias",
@@ -81,7 +81,7 @@ export const VERTICALS: Record<VerticalSlug, Vertical> = {
     pilot: "Piloto recomendado: asistente de ventas + seguimiento WhatsApp/email en 14 dias.",
     proof: "Para marcas que ya venden por Instagram, Shopify, Tiendanube, WhatsApp o catalogo.",
     message:
-      "Hola, tengo un ecommerce/marca. Quiero mejorar conversion, respuestas y seguimiento con creativv.",
+      "Hola, tengo un ecommerce/marca. Quiero mejorar conversion, respuestas y seguimiento con Releva.",
   },
   academias: {
     slug: "academias",
@@ -89,7 +89,7 @@ export const VERTICALS: Record<VerticalSlug, Vertical> = {
     eyebrow: "Academias, clases, coaches y servicios recurrentes",
     title: "Convierte interesados en alumnos antes de que se enfrie la motivacion.",
     subtitle:
-      "creativv arma paginas, reservas y automatizaciones que explican planes, responden dudas y llevan a la persona correcta hacia prueba, cupo o pago.",
+      "Releva arma paginas, reservas y automatizaciones que explican planes, responden dudas y llevan a la persona correcta hacia prueba, cupo o pago.",
     pain: [
       "Horarios, precios, cupos y condiciones se responden una y otra vez.",
       "La marca digital se ve mas pequena que la experiencia real.",
@@ -103,7 +103,7 @@ export const VERTICALS: Record<VerticalSlug, Vertical> = {
     pilot: "Piloto recomendado: intake + reserva/prueba + seguimiento en 14 dias.",
     proof: "Para academias, coaches y programas con ingresos recurrentes o cupos limitados.",
     message:
-      "Hola, tengo una academia/servicio recurrente. Quiero captar mas interesados y ordenar reservas con creativv.",
+      "Hola, tengo una academia/servicio recurrente. Quiero captar mas interesados y ordenar reservas con Releva.",
   },
 };
 

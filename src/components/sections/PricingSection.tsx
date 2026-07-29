@@ -227,7 +227,7 @@ export default function PricingSection() {
                   display: "flex",
                   alignItems: "center",
                   gap: 14,
-                  color: "#e89a82",
+                  color: "#a1a1a3",
                 }}
               >
                 <CheckIcon />

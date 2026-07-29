@@ -82,14 +82,14 @@ export default function GrowthOutreachPanel({
       <div className="flex flex-wrap items-start justify-between gap-4 border-b border-white/10 pb-5">
         <div>
           <div className="flex items-center gap-2">
-            <Bot className="size-5 text-[#a9c989]" />
+            <Bot className="size-5 text-[#c5f04a]" />
             <h2 className="font-display text-2xl">Growth Agent Command Center</h2>
           </div>
           <p className="mt-2 text-sm text-white/50">
             Prompts activos, leads investigados y contacto manual auditado por WhatsApp.
           </p>
         </div>
-        <span className="rounded-full bg-[#a9c989]/10 px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.14em] text-[#bfe39b]">
+        <span className="rounded-full bg-[#c5f04a]/10 px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.14em] text-[#c5f04a]">
           {leads.length} leads · {prompts.length} prompts
         </span>
       </div>
@@ -116,7 +116,7 @@ export default function GrowthOutreachPanel({
                   onClick={() => selectLead(lead)}
                   className={`w-full rounded-xl border p-4 text-left transition ${
                     lead.id === selectedId
-                      ? "border-[#a9c989]/40 bg-[#a9c989]/8"
+                      ? "border-[#c5f04a]/40 bg-[#c5f04a]/8"
                       : "border-white/[0.07] bg-white/[0.02] hover:border-white/15"
                   }`}
                 >
@@ -127,7 +127,7 @@ export default function GrowthOutreachPanel({
                         {lead.vertical} · score {lead.leadScore}
                       </div>
                     </div>
-                    {lead.businessPhone && <MessageCircle className="size-4 text-[#a9c989]" />}
+                    {lead.businessPhone && <MessageCircle className="size-4 text-[#c5f04a]" />}
                   </div>
                   <p className="mt-3 line-clamp-2 text-xs leading-5 text-white/45">{lead.problemDetected}</p>
                 </button>
@@ -143,7 +143,7 @@ export default function GrowthOutreachPanel({
             <>
               <div className="flex flex-wrap items-start justify-between gap-4">
                 <div>
-                  <div className="font-mono text-[9px] uppercase tracking-[0.15em] text-[#a9c989]">{selected.status}</div>
+                  <div className="font-mono text-[9px] uppercase tracking-[0.15em] text-[#c5f04a]">{selected.status}</div>
                   <h3 className="mt-2 font-display text-3xl">{selected.businessName}</h3>
                   <p className="mt-2 max-w-2xl text-sm leading-6 text-white/50">{selected.offerAngle}</p>
                 </div>
@@ -159,26 +159,26 @@ export default function GrowthOutreachPanel({
               <div className="mt-5 grid gap-3 sm:grid-cols-2">
                 <label className="text-xs text-white/45">
                   WhatsApp público del negocio
-                  <input value={phone} onChange={(event) => setPhone(event.target.value)} placeholder="+58412…" className="mt-1.5 w-full rounded-xl border border-white/10 bg-black/20 px-3 py-2.5 text-sm text-white outline-none focus:border-[#a9c989]/45" />
+                  <input value={phone} onChange={(event) => setPhone(event.target.value)} placeholder="+58412…" className="mt-1.5 w-full rounded-xl border border-white/10 bg-black/20 px-3 py-2.5 text-sm text-white outline-none focus:border-[#c5f04a]/45" />
                 </label>
                 <label className="text-xs text-white/45">
                   URL donde se verificó el contacto
-                  <input value={sourceUrl} onChange={(event) => setSourceUrl(event.target.value)} placeholder="https://…" className="mt-1.5 w-full rounded-xl border border-white/10 bg-black/20 px-3 py-2.5 text-sm text-white outline-none focus:border-[#a9c989]/45" />
+                  <input value={sourceUrl} onChange={(event) => setSourceUrl(event.target.value)} placeholder="https://…" className="mt-1.5 w-full rounded-xl border border-white/10 bg-black/20 px-3 py-2.5 text-sm text-white outline-none focus:border-[#c5f04a]/45" />
                 </label>
               </div>
               <label className="mt-4 block text-xs text-white/45">
                 Mensaje personalizado de la plantilla
-                <textarea value={message} onChange={(event) => setMessage(event.target.value)} rows={6} placeholder="Escribe un mensaje breve y personalizado basado en la evidencia…" className="mt-1.5 w-full resize-y rounded-xl border border-white/10 bg-black/20 p-3 text-sm leading-6 text-white outline-none focus:border-[#a9c989]/45" />
+                <textarea value={message} onChange={(event) => setMessage(event.target.value)} rows={6} placeholder="Escribe un mensaje breve y personalizado basado en la evidencia…" className="mt-1.5 w-full resize-y rounded-xl border border-white/10 bg-black/20 p-3 text-sm leading-6 text-white outline-none focus:border-[#c5f04a]/45" />
               </label>
               <p className="mt-2 text-[11px] leading-5 text-white/35">
-                El primer contacto usa la plantilla de marketing <code className="text-[#dbe9c3]">creativv_growth_intro</code>, requerida por Meta fuera de la ventana de 24 horas. Si sigue en revisión, no se marcará el lead como contactado.
+                El primer contacto usa la plantilla de marketing <code className="text-[#c5f04a]">creativv_growth_intro</code>, requerida por Meta fuera de la ventana de 24 horas. Si sigue en revisión, no se marcará el lead como contactado.
               </p>
               <label className="mt-4 flex items-start gap-3 rounded-xl border border-white/10 bg-white/[0.025] p-3 text-xs leading-5 text-white/55">
                 <input type="checkbox" checked={confirmed} onChange={(event) => setConfirmed(event.target.checked)} className="mt-0.5" />
                 Confirmo que revisé el mensaje y que el número pertenece públicamente a este negocio. Este envío quedará auditado.
               </label>
-              {notice && <div className="mt-4 rounded-xl border border-[#a9c989]/20 bg-[#a9c989]/8 px-4 py-3 text-sm text-[#dbe9c3]">{notice}</div>}
-              <TapButton type="button" onClick={() => void sendMessage()} disabled={sending || !confirmed || !phone || message.trim().length < 10} className="mt-4 inline-flex min-h-11 items-center gap-2 rounded-full bg-[#dbe9c3] px-5 text-sm font-semibold text-[#172016] transition hover:bg-white disabled:cursor-not-allowed disabled:opacity-40">
+              {notice && <div className="mt-4 rounded-xl border border-[#c5f04a]/20 bg-[#c5f04a]/8 px-4 py-3 text-sm text-[#c5f04a]">{notice}</div>}
+              <TapButton type="button" onClick={() => void sendMessage()} disabled={sending || !confirmed || !phone || message.trim().length < 10} className="mt-4 inline-flex min-h-11 items-center gap-2 rounded-full bg-[#c5f04a] px-5 text-sm font-semibold text-[#0a0a0a] transition hover:bg-white disabled:cursor-not-allowed disabled:opacity-40">
                 {sending ? <LoaderCircle className="size-4 animate-spin" /> : <MessageCircle className="size-4" />}
                 Enviar plantilla por WhatsApp
               </TapButton>
@@ -189,7 +189,7 @@ export default function GrowthOutreachPanel({
 
       <div className="mt-5 rounded-xl border border-white/10 bg-black/10 p-4">
         <div className="flex items-center gap-2">
-          <CheckCircle2 className="size-4 text-[#a9c989]" />
+          <CheckCircle2 className="size-4 text-[#c5f04a]" />
           <h3 className="text-sm font-semibold">System prompts activos</h3>
         </div>
         <div className="mt-3 grid gap-2 lg:grid-cols-2">
@@ -201,7 +201,7 @@ export default function GrowthOutreachPanel({
                     <div className="text-sm font-semibold">{prompt.name}</div>
                     <p className="mt-1 text-xs text-white/40">{prompt.role}</p>
                   </div>
-                  <span className="font-mono text-[9px] text-white/25 group-open:text-[#a9c989]">VER</span>
+                  <span className="font-mono text-[9px] text-white/25 group-open:text-[#c5f04a]">VER</span>
                 </div>
               </summary>
               <div className="mt-4 border-t border-white/10 pt-4">

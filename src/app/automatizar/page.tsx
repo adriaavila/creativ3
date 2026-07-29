@@ -18,28 +18,28 @@ const PROCESS = [
 
 export default function AutomatizarPage() {
   const intake = whatsappUrl(
-    "Hola, quiero revisar una automatización con creativv. El proceso repetitivo es:"
+    "Hola, quiero revisar una automatización con Releva. El proceso repetitivo es:"
   );
 
   return (
     <>
-      <main className="min-h-screen bg-[#0a0f0b] px-5 pb-24 pt-24 text-white selection:bg-[#31583a] selection:text-white sm:px-8 lg:px-12 lg:pt-32">
+      <main className="min-h-screen bg-[#08090a] px-5 pb-24 pt-24 text-white selection:bg-[#0a0a0a] selection:text-white sm:px-8 lg:px-12 lg:pt-32">
         <div className="mx-auto max-w-[1380px]">
           <Link
             href="/"
-            className="inline-flex items-center gap-2 text-sm font-semibold text-[#a9c989] hover:text-white transition-colors"
+            className="inline-flex items-center gap-2 text-sm font-semibold text-[#c5f04a] hover:text-white transition-colors"
           >
             <ArrowLeft className="size-4" /> Volver a inicio
           </Link>
 
           <section className="mt-12 grid gap-10 lg:grid-cols-[1.08fr_0.92fr] lg:items-end">
             <div>
-              <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-[#a9c989]">
+              <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-[#c5f04a]">
                 Automatización con criterio
               </div>
               <h1 className="mt-5 max-w-5xl font-display text-[clamp(4rem,8vw,8.6rem)] leading-[0.82] tracking-[-0.055em] text-white">
                 Menos pasos.
-                <span className="block italic text-[#a9c989]">Más capacidad.</span>
+                <span className="block italic text-[#c5f04a]">Más capacidad.</span>
               </h1>
             </div>
             <div className="max-w-xl lg:justify-self-end">
@@ -49,9 +49,9 @@ export default function AutomatizarPage() {
               <div className="mt-7 flex flex-col gap-3 sm:flex-row">
                 <Link
                   href="/cotizar"
-                  className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-[#31583a] px-6 text-sm font-semibold text-white border border-[#a9c989]/30 shadow-lg shadow-[#31583a]/20 transition-all hover:bg-[#3d6e48]"
+                  className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-[#0a0a0a] px-6 text-sm font-semibold text-white border border-[#c5f04a]/30 shadow-lg shadow-[#0a0a0a]/20 transition-all hover:bg-[#26272b]"
                 >
-                  Calcular ahorro <ArrowRight className="size-4 text-[#a9c989]" />
+                  Calcular ahorro <ArrowRight className="size-4 text-[#c5f04a]" />
                 </Link>
                 <a
                   href={intake}
@@ -59,16 +59,16 @@ export default function AutomatizarPage() {
                   rel="noopener noreferrer"
                   className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-white/15 bg-white/[0.05] px-6 text-sm font-semibold text-white transition-colors hover:bg-white/10"
                 >
-                  <MessageCircle className="size-4 text-[#a9c989]" /> Contar el proceso
+                  <MessageCircle className="size-4 text-[#c5f04a]" /> Contar el proceso
                 </a>
               </div>
             </div>
           </section>
 
-          <section className="mt-20 overflow-hidden rounded-[2rem] border border-white/10 bg-[#0f1711] text-white shadow-2xl shadow-black/50">
+          <section className="mt-20 overflow-hidden rounded-[2rem] border border-white/10 bg-[#08090a] text-white shadow-2xl shadow-black/50">
             <div className="grid lg:grid-cols-[0.75fr_1.25fr]">
               <div className="border-b border-white/10 p-7 sm:p-10 lg:border-b-0 lg:border-r">
-                <div className="font-mono text-[9px] uppercase tracking-[0.18em] text-[#a9c989]">Primer alcance</div>
+                <div className="font-mono text-[9px] uppercase tracking-[0.18em] text-[#c5f04a]">Primer alcance</div>
                 <h2 className="mt-5 font-display text-4xl leading-[0.95] text-white sm:text-5xl">
                   Un flujo completo vale más que diez automatizaciones sueltas.
                 </h2>
@@ -79,7 +79,7 @@ export default function AutomatizarPage() {
               <div className="grid sm:grid-cols-3">
                 {PROCESS.map(([index, title, description]) => (
                   <article key={index} className="border-b border-white/10 p-7 last:border-b-0 sm:border-b-0 sm:border-r sm:last:border-r-0 sm:p-8">
-                    <div className="font-mono text-[9px] text-[#a9c989]">{index}</div>
+                    <div className="font-mono text-[9px] text-[#c5f04a]">{index}</div>
                     <h3 className="mt-8 font-display text-3xl text-white">{title}</h3>
                     <p className="mt-4 text-sm leading-6 text-white/50">{description}</p>
                   </article>
@@ -95,7 +95,7 @@ export default function AutomatizarPage() {
               "Con estados, errores y responsables visibles.",
             ].map((item) => (
               <div key={item} className="flex gap-3 rounded-2xl border border-white/10 bg-white/[0.04] p-5 text-sm text-white/80">
-                <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-[#31583a] text-[#a9c989]">
+                <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-[#0a0a0a] text-[#c5f04a]">
                   <Check className="size-3" />
                 </span>
                 {item}

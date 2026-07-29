@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 import { CITIES, cityVerticalPath } from "@/lib/cities";
 import { VERTICAL_LIST } from "@/lib/verticals";
 
-const BASE_URL = "https://www.servicioscreativos.online";
+const BASE_URL = "https://servicios.frontia.app";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import CreativvLogo from "@/components/landing/CreativvLogo";
+import RelevaLogo from "@/components/brand/RelevaLogo";
 import { MessageCircle } from "lucide-react";
 import { whatsappUrl } from "@/lib/contact";
 
@@ -19,6 +19,7 @@ const NAV = [
 const HIDE_ON = [
   "/",
   "/ops",
+  "/ops-login",
   "/whatsapp",
   "/sign-in",
   "/conectar-whatsapp",
@@ -27,7 +28,7 @@ const HIDE_ON = [
 ];
 
 const DIRECT_WHATSAPP_CTA = whatsappUrl(
-  "Hola creativv, quiero cotizar un proyecto. Mi negocio es:"
+  "Hola Releva, quiero cotizar un proyecto. Mi negocio es:"
 );
 
 export default function SiteHeader() {
@@ -49,17 +50,17 @@ export default function SiteHeader() {
     <header
       className={`fixed top-0 inset-x-0 z-[60] transition-all duration-300 ${
         scrolled
-          ? "bg-[#0a0f0b]/85 backdrop-blur-xl border-b border-white/10"
+          ? "bg-[#08090a]/85 backdrop-blur-xl border-b border-white/10"
           : "bg-transparent border-b border-transparent"
       }`}
     >
       <nav className="max-w-6xl mx-auto flex items-center justify-between px-4 sm:px-6 md:px-10 h-16 sm:h-[72px]">
         <Link
           href="/"
-          aria-label="creativv"
+          aria-label="Releva"
           className="flex items-center text-white"
         >
-          <CreativvLogo variant="lockup-bare" theme="dark" className="h-7 sm:h-8 w-auto text-white" />
+          <RelevaLogo variant="lockup-bare" theme="dark" className="h-7 sm:h-8 w-auto text-white" />
         </Link>
 
         <div className="hidden lg:flex items-center gap-1 bg-white/[0.05] backdrop-blur-md rounded-full pl-6 pr-1 py-1 shadow-sm border border-white/10">
@@ -76,9 +77,9 @@ export default function SiteHeader() {
             href={DIRECT_WHATSAPP_CTA}
             target="_blank"
             rel="noopener noreferrer"
-            className="ml-2 inline-flex items-center gap-2 bg-[#31583a] hover:bg-[#3d6e48] border border-[#a9c989]/30 text-white text-sm font-semibold px-5 py-2.5 rounded-full transition-all duration-300 hover:scale-[1.02] shadow-lg shadow-[#31583a]/20"
+            className="ml-2 inline-flex items-center gap-2 bg-[#0a0a0a] hover:bg-[#26272b] border border-[#c5f04a]/30 text-white text-sm font-semibold px-5 py-2.5 rounded-full transition-all duration-300 hover:scale-[1.02] shadow-lg shadow-[#0a0a0a]/20"
           >
-            <MessageCircle className="w-4 h-4 text-[#a9c989]" />
+            <MessageCircle className="w-4 h-4 text-[#c5f04a]" />
             Hablemos
           </a>
         </div>
@@ -88,9 +89,9 @@ export default function SiteHeader() {
             href={DIRECT_WHATSAPP_CTA}
             target="_blank"
             rel="noopener noreferrer"
-            className="hidden sm:inline-flex items-center gap-1.5 bg-[#31583a] hover:bg-[#3d6e48] border border-[#a9c989]/30 text-white text-xs font-semibold px-4 py-2 rounded-full transition-colors"
+            className="hidden sm:inline-flex items-center gap-1.5 bg-[#0a0a0a] hover:bg-[#26272b] border border-[#c5f04a]/30 text-white text-xs font-semibold px-4 py-2 rounded-full transition-colors"
           >
-            <MessageCircle className="w-3.5 h-3.5 text-[#a9c989]" />
+            <MessageCircle className="w-3.5 h-3.5 text-[#c5f04a]" />
             WhatsApp
           </a>
           <button
@@ -106,7 +107,7 @@ export default function SiteHeader() {
       </nav>
 
       {open && (
-        <div className="lg:hidden bg-[#0a0f0b]/95 backdrop-blur-xl border-t border-white/10">
+        <div className="lg:hidden bg-[#08090a]/95 backdrop-blur-xl border-t border-white/10">
           <div className="px-6 py-6 flex flex-col gap-2 text-sm text-white">
             {NAV.map((item) => (
               <Link
@@ -123,9 +124,9 @@ export default function SiteHeader() {
               target="_blank"
               rel="noopener noreferrer"
               onClick={() => setOpen(false)}
-              className="self-start mt-2 inline-flex items-center gap-2 bg-[#31583a] hover:bg-[#3d6e48] border border-[#a9c989]/30 text-white text-sm font-semibold px-5 py-2.5 rounded-full transition-colors"
+              className="self-start mt-2 inline-flex items-center gap-2 bg-[#0a0a0a] hover:bg-[#26272b] border border-[#c5f04a]/30 text-white text-sm font-semibold px-5 py-2.5 rounded-full transition-colors"
             >
-              <MessageCircle className="w-4 h-4 text-[#a9c989]" />
+              <MessageCircle className="w-4 h-4 text-[#c5f04a]" />
               Hablemos por WhatsApp
             </a>
           </div>

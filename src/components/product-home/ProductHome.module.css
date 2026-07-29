@@ -1,14 +1,14 @@
 .site {
-  --eclipse: #05070c;
-  --midnight: #07182d;
-  --lapis: #153f8f;
-  --mineral: #376edb;
-  --porcelain: #efe8da;
-  --paper: #f7f3e9;
-  --stone: #d5c7ae;
-  --brass: #b9964b;
-  --coral: #a9482f;
-  --ink: #10151d;
+  --eclipse: #08090a;
+  --midnight: #111214;
+  --lapis: #26272b;
+  --mineral: #6b6b6b;
+  --porcelain: #ebebeb;
+  --paper: #ebebeb;
+  --stone: #a1a1a3;
+  --brass: #6b6b6b;
+  --coral: #4a4b4f;
+  --ink: #08090a;
   --line-dark: rgba(239, 232, 218, 0.16);
   --line-light: rgba(16, 21, 29, 0.16);
   min-height: 100vh;
@@ -308,7 +308,7 @@
   pointer-events: none;
   background:
     linear-gradient(110deg, transparent 20%, rgba(185, 150, 75, 0.28) 20.4%, transparent 21%),
-    linear-gradient(140deg, #03050a 6%, #071327 45%, #03050a 94%);
+    linear-gradient(140deg, #08090a 6%, #08090a 45%, #08090a 94%);
   box-shadow: 0 0 80px rgba(0, 0, 0, 0.78), inset 0 0 0 1px rgba(185, 150, 75, 0.17);
   will-change: transform;
 }
@@ -849,7 +849,7 @@
   min-height: 600px;
   overflow: hidden;
   border-right: 1px solid var(--line-dark);
-  background: #0b1019;
+  background: #08090a;
 }
 
 .projectProofImage {
@@ -870,7 +870,7 @@
   gap: 6px;
   padding: 0 1rem;
   border-bottom: 1px solid var(--line-dark);
-  background: #080c13;
+  background: #08090a;
 }
 
 .projectProofChrome span {

@@ -16,7 +16,7 @@ export default function HomeExperience() {
 
   return (
     <div data-landing-intent={intent}>
-      <main className="relative bg-[#f4f0e5]">
+      <main className="relative bg-[#f3f3f3]">
         <SmoothScroll />
         <Hero intent={intent} onIntentChange={setIntent} />
         <WhatsAppBanner />

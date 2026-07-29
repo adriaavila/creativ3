@@ -28,11 +28,11 @@ export const SPRING_MOMENTUM = { type: "spring" as const, bounce: 0.2, duration:
  * opaque strip. The brighter top border is the light catching the material edge.
  */
 export const GLASS_SURFACE =
-  "bg-[#0f1711]/70 backdrop-blur-xl backdrop-saturate-150 border-t border-white/[0.06]";
+  "bg-[#08090a]/70 backdrop-blur-xl backdrop-saturate-150 border-t border-white/[0.06]";
 
 /** Same material for sticky headers, where the divider belongs on the bottom edge. */
 export const GLASS_HEADER =
-  "bg-[#0f1711]/70 backdrop-blur-xl backdrop-saturate-150 border-b border-white/10";
+  "bg-[#08090a]/70 backdrop-blur-xl backdrop-saturate-150 border-b border-white/10";
 
 /** Type scale: tracking is size-specific — tighten as it grows, never one value for all. */
 export const DISPLAY_TIGHT = "tracking-[-0.02em]";

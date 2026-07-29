@@ -6,16 +6,16 @@ import InboxClient from "@/components/ops/InboxClient";
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Inbox WhatsApp | Creativv Ops",
+  title: "Inbox WhatsApp | Releva Ops",
   description: "Bandeja unificada de conversaciones de WhatsApp (Cloud API + WAHA).",
 };
 
 export default async function OpsInboxPage() {
   if (!isOpsAuthConfigured() || !process.env.DATABASE_URL) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-[#0f1711] p-6 text-white">
+      <main className="flex min-h-screen items-center justify-center bg-[#08090a] p-6 text-white">
         <div className="max-w-xl rounded-2xl border border-white/10 bg-white/[0.04] p-8">
-          <div className="font-mono text-[9px] uppercase tracking-[0.18em] text-[#a9c989]">
+          <div className="font-mono text-[9px] uppercase tracking-[0.18em] text-[#c5f04a]">
             Setup requerido
           </div>
           <h1 className="mt-4 font-display text-5xl leading-[0.9]">

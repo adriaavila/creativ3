@@ -8,9 +8,9 @@ import {
 } from "@/lib/projects";
 
 export const metadata: Metadata = {
-  title: "Proyectos · creativv",
+  title: "Proyectos · Releva",
   description:
-    "Archivo de proyectos recientes de creativv: webs, web apps y automatizaciones sincronizadas desde GitHub.",
+    "Archivo de proyectos recientes de Releva: webs, web apps y automatizaciones sincronizadas desde GitHub.",
   alternates: { canonical: "/projects" },
 };
 
@@ -22,13 +22,13 @@ export default function ProjectsIndex() {
 
   return (
     <>
-      <main className="relative z-10 min-h-screen bg-[#0a0f0b] px-6 pb-28 pt-28 text-white selection:bg-[#31583a] selection:text-white sm:px-10 sm:pt-36">
+      <main className="relative z-10 min-h-screen bg-[#08090a] px-6 pb-28 pt-28 text-white selection:bg-[#0a0a0a] selection:text-white sm:px-10 sm:pt-36">
         <div className="mx-auto max-w-7xl">
           <div className="mb-16 flex items-start justify-between gap-6 font-mono text-xs tracking-wide text-white/70 sm:text-sm">
-            <Link href="/" className="transition-colors text-[#a9c989] hover:text-white">
+            <Link href="/" className="transition-colors text-[#c5f04a] hover:text-white">
               Volver a inicio
             </Link>
-            <span className="text-[#a9c989]">PROYECTOS · GITHUB SYNC</span>
+            <span className="text-[#c5f04a]">PROYECTOS · GITHUB SYNC</span>
           </div>
 
           <section className="mb-14 grid grid-cols-1 gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-end">
@@ -39,7 +39,7 @@ export default function ProjectsIndex() {
               >
                 Proyectos
                 <br />
-                <span className="italic text-[#a9c989]">con pulso.</span>
+                <span className="italic text-[#c5f04a]">con pulso.</span>
               </h1>
               <p className="mt-7 max-w-2xl text-base leading-relaxed text-white/70 sm:text-lg">
                 Si hay push reciente, entra al radar. Este archivo mezcla lo
@@ -58,7 +58,7 @@ export default function ProjectsIndex() {
                   key={label}
                   className="rounded-2xl border border-white/10 bg-white/[0.04] p-4 text-white"
                 >
-                  <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-[#a9c989]">
+                  <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-[#c5f04a]">
                     {label}
                   </div>
                   <div className="mt-2 text-2xl font-semibold tracking-tight text-white">
@@ -79,7 +79,7 @@ export default function ProjectsIndex() {
             Tu proyecto puede ser el siguiente.{" "}
             <Link
               href="/cotizar"
-              className="font-semibold text-[#a9c989] transition-colors hover:text-white"
+              className="font-semibold text-[#c5f04a] transition-colors hover:text-white"
             >
               Pedir diagnóstico
             </Link>

@@ -10,20 +10,21 @@ import {
   listWhatsAppConnections,
   type WhatsAppConnectionView,
 } from "@/lib/whatsapp-connections-db";
+import { getNextStepSummary, type NextStepSummary } from "@/lib/whatsapp-inbox-db";
 
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Ops Central | Creativv",
-  description: "Panel de administración y diagnóstico de sistemas creativv.",
+  title: "Ops Central | Releva",
+  description: "Panel de administración y diagnóstico de sistemas Releva.",
 };
 
 export default async function OpsPage() {
   if (!isGrowthDatabaseConfigured()) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-[#0f1711] p-6 text-white">
+      <main className="flex min-h-screen items-center justify-center bg-[#08090a] p-6 text-white">
         <div className="max-w-xl rounded-2xl border border-white/10 bg-white/[0.04] p-8">
-          <div className="font-mono text-[9px] uppercase tracking-[0.18em] text-[#a9c989]">
+          <div className="font-mono text-[9px] uppercase tracking-[0.18em] text-[#c5f04a]">
             Setup requerido
           </div>
           <h1 className="mt-4 font-display text-5xl leading-[0.9]">
@@ -47,6 +48,13 @@ export default async function OpsPage() {
   let whatsappConnectionsError: string | null = null;
   let growthLeads: GrowthLead[] = [];
   let growthPrompts: GrowthPromptInfo[] = [];
+  // Migration 008 may not have run yet on a given environment — a missing column
+  // must not take the whole dashboard down, so this one resolves separately.
+  const nextStep: NextStepSummary = await getNextStepSummary().catch(() => ({
+    share: null,
+    citas: 0,
+    prevShare: null,
+  }));
 
   try {
     const sql = neon(process.env.DATABASE_URL!);
@@ -77,6 +85,7 @@ export default async function OpsPage() {
         draftsCount,
         runsCount,
       }}
+      nextStep={nextStep}
       initialWhatsAppConnections={whatsappConnections}
       initialWhatsAppConnectionsError={whatsappConnectionsError}
       initialGrowthLeads={growthLeads}

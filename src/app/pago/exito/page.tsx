@@ -33,13 +33,13 @@ export default async function PagoExitoPage({
       : null;
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-[#f5f3ec] px-6 py-32 text-[#1f2a1d]">
+    <main className="flex min-h-screen items-center justify-center bg-[#ffffff] px-6 py-32 text-[#0a0a0a]">
       <div className="flex w-full max-w-xl flex-col items-center gap-8 text-center">
-        <div className="flex size-20 items-center justify-center rounded-full border border-[#1f2a1d]/15 bg-white">
+        <div className="flex size-20 items-center justify-center rounded-full border border-[#0a0a0a]/15 bg-white">
           <svg width="32" height="32" viewBox="0 0 32 32" fill="none" aria-hidden="true">
             <path
               d="M6 16L13 23L26 9"
-              stroke="#336443"
+              stroke="#1c1d20"
               strokeWidth="2.5"
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -48,13 +48,13 @@ export default async function PagoExitoPage({
         </div>
 
         <div>
-          <div className="mb-4 font-mono text-xs uppercase tracking-widest text-[#336443]">
+          <div className="mb-4 font-mono text-xs uppercase tracking-widest text-[#1c1d20]">
             Pago confirmado
           </div>
           <h1 className="mb-4 text-4xl font-normal tracking-[-0.02em] sm:text-6xl">
-            Plan <em className="italic text-[#336443]">{planName}</em> activo.
+            Plan <em className="italic text-[#1c1d20]">{planName}</em> activo.
           </h1>
-          <p className="mx-auto max-w-sm font-mono text-sm leading-relaxed text-[#4b5b47]">
+          <p className="mx-auto max-w-sm font-mono text-sm leading-relaxed text-[#6b6b6b]">
             {isCloudApi
               ? "Falta un paso: conectá tu número por el canal oficial de Meta."
               : "Falta un paso: vinculá tu WhatsApp escaneando un código QR."}
@@ -65,31 +65,31 @@ export default async function PagoExitoPage({
           {activationHref ? (
             <Link
               href={activationHref}
-              className="inline-flex items-center justify-center gap-2 rounded-full bg-[#336443] px-8 py-3 font-mono text-sm text-white transition-colors duration-300 hover:bg-[#1f2a1d]"
+              className="inline-flex items-center justify-center gap-2 rounded-full bg-[#1c1d20] px-8 py-3 font-mono text-sm text-white transition-colors duration-300 hover:bg-[#0a0a0a]"
             >
               Conectar mi WhatsApp <ArrowRight className="size-4" aria-hidden="true" />
             </Link>
           ) : (
             <a
               href={`mailto:${CONTACT_EMAIL}`}
-              className="rounded-full bg-[#336443] px-8 py-3 font-mono text-sm text-white transition-colors duration-300 hover:bg-[#1f2a1d]"
+              className="rounded-full bg-[#1c1d20] px-8 py-3 font-mono text-sm text-white transition-colors duration-300 hover:bg-[#0a0a0a]"
             >
               Escribinos para activar
             </a>
           )}
           <Link
             href="/"
-            className="rounded-full border border-[#1f2a1d]/15 px-8 py-3 font-mono text-sm transition-colors duration-300 hover:bg-[#1f2a1d] hover:text-[#f5f3ec]"
+            className="rounded-full border border-[#0a0a0a]/15 px-8 py-3 font-mono text-sm transition-colors duration-300 hover:bg-[#0a0a0a] hover:text-[#ffffff]"
           >
             Volver al inicio
           </Link>
         </div>
 
-        <p className="font-mono text-xs text-[#4b5b47]/60">
+        <p className="font-mono text-xs text-[#6b6b6b]/60">
           ¿Algún problema? Escribinos a{" "}
           <a
             href={`mailto:${CONTACT_EMAIL}`}
-            className="underline underline-offset-2 transition-colors hover:text-[#1f2a1d]"
+            className="underline underline-offset-2 transition-colors hover:text-[#0a0a0a]"
           >
             {CONTACT_EMAIL}
           </a>

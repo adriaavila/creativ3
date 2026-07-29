@@ -1,7 +1,7 @@
 import { CONTACT_EMAIL, WHATSAPP_NUMBER } from "@/lib/contact";
 
-export const SITE_URL = "https://www.servicioscreativos.online";
-export const SITE_NAME = "creativv";
+export const SITE_URL = "https://servicios.frontia.app";
+export const SITE_NAME = "Releva";
 
 // Organization + WebSite — emitted once in the root layout.
 export function siteJsonLd() {

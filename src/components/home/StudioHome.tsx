@@ -1,105 +1,164 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowUpRight, Check, Mail, MessageCircle, Plus } from "lucide-react";
-import CreativvLogo from "@/components/landing/CreativvLogo";
-import ProjectImageCarousel from "@/components/projects/ProjectImageCarousel";
+import { ArrowRight, ArrowUpRight, Check, Mail, MessageCircle, Plus } from "lucide-react";
+import RelevaLogo from "@/components/brand/RelevaLogo";
+import Waveform from "@/components/brand/Waveform";
 import { CONTACT_EMAIL, whatsappUrl } from "@/lib/contact";
-import { PORTFOLIO_PROJECTS } from "@/lib/projects";
-import HeroHands from "./HeroHands";
-import ManifiestoMotionType from "./ManifiestoMotionType";
 
 const CONTACT_URL = whatsappUrl(
-  "Hola creativv, vi su sitio y quiero hablar de un proyecto. Lo que necesito construir es:",
+  "Hola Releva, vi su sitio y quiero cotizar un proyecto. Mi negocio es:",
 );
 
-const CURATED_PRODUCTS = [
+const NAV = [
+  ["Servicios", "#servicios"],
+  ["Trabajo", "#trabajo"],
+  ["Proceso", "#proceso"],
+  ["Precios", "#precios"],
+  ["FAQ", "#preguntas"],
+] as const;
+
+const TRUST = [
+  "Primer entregable en 3 días",
+  "Precio cerrado, sin sorpresas",
+  "+10 productos en producción",
+] as const;
+
+const SERVICES = [
   {
-    id: "rei-fm",
+    id: "vender",
+    kicker: "Aumentar ingresos",
+    title: "Web que vende",
+    description:
+      "Landing pages, sitios y ecommerce diseñados alrededor de una sola acción: que el visitante escriba, compre o agende.",
+    bullets: [
+      "Landing de campaña lista en 3 días",
+      "Ecommerce y catálogo con checkout",
+      "Captura de leads directa a WhatsApp",
+      "SEO técnico y velocidad real",
+    ],
+  },
+  {
+    id: "operar",
+    kicker: "Reducir costos",
+    title: "Automatización con IA",
+    description:
+      "Los procesos manuales que hoy consumen horas de tu equipo pasan a ejecutarse solos, con supervisión humana donde importa.",
+    bullets: [
+      "Agentes de WhatsApp y voz",
+      "Flujos n8n + integraciones API",
+      "Leads clasificados y enrutados",
+      "Reportes automáticos al equipo",
+    ],
+  },
+  {
+    id: "producto",
+    kicker: "Construir",
+    title: "Producto a medida",
+    description:
+      "Cuando la hoja de cálculo ya no alcanza: sistemas operativos, dashboards y SaaS construidos sobre tu forma real de trabajar.",
+    bullets: [
+      "MVP funcional, no maqueta",
+      "Next.js + base de datos + auth",
+      "Panel de administración",
+      "Listo para producción",
+    ],
+  },
+] as const;
+
+const WORK = [
+  {
     name: "REI",
-    subtitle: "Una nueva infraestructura para el mercado inmobiliario.",
-    description:
-      "Marketplace, CRM, administración de propiedades, portal de residentes y procesamiento de documentos con IA supervisada.",
-    highlight:
-      "REI conecta las distintas partes de una operación inmobiliaria que normalmente viven separadas.",
-    cta: "Explorar REI →",
+    kind: "Infraestructura inmobiliaria",
+    outcome:
+      "Marketplace, CRM, administración de propiedades y procesamiento de documentos con IA en un solo sistema.",
+    image: "/projects/rei-fm/01-desktop.jpg",
     link: "https://reiprop.tech",
-    isExternal: true,
+    tags: ["Next.js", "Neon", "IA"],
   },
   {
-    id: "shopea",
     name: "Shopea",
-    subtitle: "Una forma más simple de vender por WhatsApp.",
-    description:
-      "Catálogo, checkout y pagos en distintas monedas dentro de una experiencia construida alrededor de cómo realmente compran las personas.",
-    highlight:
-      "Shopea conecta el descubrimiento de un producto con la conversación donde ocurre la venta.",
-    cta: "Explorar Shopea →",
+    kind: "Comercio por WhatsApp",
+    outcome:
+      "Catálogo, checkout y pagos en varias monedas conectados a la conversación donde realmente ocurre la venta.",
+    image: "/projects/shopea/01-desktop.jpg",
     link: "https://shopea.vercel.app",
-    isExternal: true,
+    tags: ["Ecommerce", "WhatsApp", "Pagos"],
   },
   {
-    id: "frontai-landing",
     name: "Frontia",
-    subtitle: "Conversaciones que se convierten en acciones.",
-    description:
-      "Un agente de voz con IA que atiende, entiende, califica y organiza cada interacción.",
-    highlight:
-      "Frontia conecta una llamada con el siguiente paso del proceso comercial.",
-    cta: "Explorar Frontia →",
+    kind: "Agente de voz con IA",
+    outcome:
+      "Atiende llamadas, califica al interesado y deja el siguiente paso comercial listo para el equipo.",
+    image: "/projects/frontai-landing/01-desktop.jpg",
     link: "https://frontai-landing.vercel.app",
-    isExternal: true,
+    tags: ["Voz", "IA", "CRM"],
   },
   {
-    id: "mistica",
     name: "Mística",
-    subtitle: "La operación detrás de una experiencia de bienestar.",
-    description:
-      "Alumnos, horarios, asistencia, productos y pagos dentro de un sistema creado para una escuela de natación.",
-    highlight:
-      "Mística conecta la experiencia de cada alumno con la operación que la hace posible.",
-    cta: "Explorar Mística →",
+    kind: "Operación de escuela",
+    outcome:
+      "Alumnos, horarios, asistencia, productos y pagos de una escuela de natación dentro de un solo panel.",
+    image: "/projects/mistica/01-desktop.jpg",
     link: "/projects/mistica",
-    isExternal: false,
+    tags: ["Dashboard", "Pagos"],
   },
   {
-    id: "soapy",
     name: "Soapy",
-    subtitle: "Cada orden conectada de principio a fin.",
-    description:
-      "Recepción, estados, rutas, notificaciones y entregas dentro de una sola experiencia operativa.",
-    highlight:
-      "Soapy conecta cada parte del servicio para que nada se pierda en el camino.",
-    cta: "Explorar Soapy →",
+    kind: "Logística de servicio",
+    outcome:
+      "Recepción, estados, rutas, notificaciones y entregas conectadas de principio a fin, sin órdenes perdidas.",
+    image: "/projects/soapy/01-desktop.jpg",
     link: "https://soapy-sooty.vercel.app",
-    isExternal: true,
+    tags: ["Operaciones", "Rutas"],
   },
+  {
+    name: "Almacén VC",
+    kind: "Control de inventario",
+    outcome:
+      "Movimientos y alertas de stock que evitan compras tardías e inventario invisible.",
+    image: "/projects/almacen-vc/01-desktop.jpg",
+    link: "https://almacen-vc.vercel.app",
+    tags: ["Inventario", "Alertas"],
+  },
+] as const;
+
+const MARQUEE = [
+  "REI",
+  "Shopea",
+  "Frontia",
+  "Mística",
+  "Soapy",
+  "Almacén VC",
+  "Taller Samer",
+  "Pace Running",
+  "Artistheway",
 ] as const;
 
 const PROCESS_STEPS = [
   {
     num: "01",
-    title: "Entendemos tu objetivo",
-    desc: "Identificamos el problema de negocio, el usuario final y la acción clave que necesitamos conseguir.",
+    title: "Entendemos el objetivo",
+    desc: "El problema de negocio, el usuario final y la acción que necesitamos conseguir.",
   },
   {
     num: "02",
-    title: "Elegimos el plan correcto",
-    desc: "Definimos el alcance óptimo y el primer entregable funcional sin inflar costos ni tiempo.",
+    title: "Cerramos alcance y precio",
+    desc: "Definimos el primer entregable útil sin inflar costos ni tiempo. Precio cerrado antes de empezar.",
   },
   {
     num: "03",
-    title: "Diseñamos y desarrollamos",
-    desc: "Creamos la interfaz visual UX/UI y construimos el software con tecnologías modernas.",
+    title: "Diseñamos y construimos",
+    desc: "Interfaz a medida y software real con tecnologías modernas, no plantillas.",
   },
   {
     num: "04",
-    title: "Lanzamos",
-    desc: "Publicamos la versión funcional y medimos la interacción y recepción real de los usuarios.",
+    title: "Lanzamos y medimos",
+    desc: "Publicamos la versión funcional y observamos cómo la usan de verdad.",
   },
   {
     num: "05",
-    title: "Mejoramos o automatizamos",
-    desc: "Escalamos con evidencia conectando automatizaciones, CRM, IA o agregando nuevas funciones.",
+    title: "Escalamos con evidencia",
+    desc: "Conectamos automatizaciones, CRM o IA cuando los datos dicen que toca.",
   },
 ] as const;
 
@@ -107,9 +166,10 @@ const PRICING_PLANS = [
   {
     name: "Landing Page",
     price: "USD 199",
-    timeline: "Entregable en 3 días",
+    priceNote: "pago único",
+    timeline: "Entrega en 3 días",
     badge: "Primer paso rápido",
-    description: "Página clara y moderna para campañas, Instagram, WhatsApp o validar tu oferta.",
+    description: "Página clara para campañas, Instagram, WhatsApp o validar una oferta.",
     features: [
       "Diseño UX/UI a medida",
       "Desarrollo Next.js ultra rápido",
@@ -117,81 +177,94 @@ const PRICING_PLANS = [
       "Captura de leads directa por WhatsApp",
     ],
     cta: "Pedir landing page",
-    msg: "Hola, quiero pedir la landing page de USD 199 en 3 días con creativv.",
+    msg: "Hola, quiero pedir la landing page de USD 199 en 3 días con Releva.",
     featured: false,
   },
   {
-    name: "Automatización Simple",
-    price: "Desde USD 499",
+    name: "Automatización",
+    price: "USD 499",
+    priceNote: "desde",
     timeline: "5 – 10 días",
-    badge: "Eficiencia operativa",
-    description: "Para equipos que reciben clientes pero pierden tiempo en seguimiento manual.",
+    badge: "Más elegido",
+    description: "Para equipos que reciben clientes pero pierden horas en seguimiento manual.",
     features: [
       "Flujo de automatización n8n / API",
-      "Integración WhatsApp + CRM + Formulario",
+      "Integración WhatsApp + CRM + formulario",
       "Gestión automática de leads",
       "Documentación y pruebas",
     ],
     cta: "Cotizar automatización",
-    msg: "Hola, quiero cotizar una automatización simple desde USD 499 con creativv.",
+    msg: "Hola, quiero cotizar una automatización simple desde USD 499 con Releva.",
     featured: true,
   },
   {
     name: "Web / Producto",
-    price: "Desde USD 699",
+    price: "USD 699",
+    priceNote: "desde",
     timeline: "10 – 21 días",
     badge: "Proyecto completo",
     description: "Aplicación web completa, MVP, SaaS, dashboard o plataforma a medida.",
     features: [
       "Diseño de interfaz completo",
-      "Next.js + Base de datos + Autenticación",
-      "Panel de administración / Dashboard",
+      "Next.js + base de datos + autenticación",
+      "Panel de administración",
       "Lanzamiento listo para producción",
     ],
     cta: "Cotizar web o producto",
-    msg: "Hola, quiero cotizar un producto digital completo desde USD 699 con creativv.",
+    msg: "Hola, quiero cotizar un producto digital completo desde USD 699 con Releva.",
     featured: false,
   },
 ] as const;
 
-const STUDIO_FAQS = [
+const PLAN_INCLUDES = [
+  "Precio cerrado antes de empezar",
+  "Comunicación directa por WhatsApp",
+  "Código y accesos tuyos",
+  "Una ronda de ajustes incluida",
+] as const;
+
+export const STUDIO_FAQS = [
   {
-    question: "¿Qué tipo de proyectos construyen en Creativv?",
+    question: "¿Cuánto tarda realmente un proyecto?",
     answer:
-      "Construimos productos digitales completos, aplicaciones web, prototipos de alta fidelidad, sistemas de gestión, agentes de atención con IA e integraciones operativas con WhatsApp.",
+      "Una landing page sale en 3 días. Una automatización entre 5 y 10. Un producto completo entre 10 y 21 días, con entregas parciales que puedes ver funcionando desde la primera semana.",
   },
   {
-    question: "¿Cuánto tarda el desarrollo de un proyecto?",
+    question: "¿Necesito tener los requerimientos técnicos definidos?",
     answer:
-      "Una landing page o prototipo esencial puede estar listo en 1 a 2 semanas. Sistemas más complejos o SaaS se organizan en ciclos continuos de sprint.",
+      "No. Empezamos por el problema de negocio, el flujo actual y el objetivo. De ahí sale la arquitectura y el alcance. Si ya traes especificaciones, mejor: acortamos la primera etapa.",
   },
   {
-    question: "¿Necesito tener todos los requerimientos técnicos definidos?",
+    question: "¿Cómo se usa la inteligencia artificial?",
     answer:
-      "No. Empezamos analizando el problema de negocio, el flujo actual y el objetivo. A partir de allí definimos la arquitectura y el alcance óptimo.",
+      "De forma útil y supervisada: clasificación automática de leads, agentes de atención por voz o chat, procesamiento de documentos y flujos n8n. Siempre queda claro cuándo debe intervenir una persona.",
   },
   {
-    question: "¿Cómo se integra la Inteligencia Artificial?",
+    question: "¿Qué pasa después del lanzamiento?",
     answer:
-      "La usamos de forma útil y supervisada: clasificación automática de leads, agentes de atención por voz o chat, procesamiento inteligente de documentos y flujos n8n.",
+      "El código y los accesos son tuyos. Puedes seguir solo o mantener un acuerdo mensual de mejoras. No hay dependencia obligatoria ni licencias escondidas.",
+  },
+  {
+    question: "¿Cómo se paga?",
+    answer:
+      "50% para arrancar y 50% contra entrega. Transferencia, USD o pago con tarjeta. El precio se cierra antes de escribir la primera línea de código.",
   },
 ] as const;
 
 export default function StudioHome() {
   return (
-    <div className="studio min-h-screen bg-white text-black antialiased selection:bg-neutral-900 selection:text-white">
+    <div className="studio min-h-screen bg-white text-black antialiased selection:bg-[#c5f04a] selection:text-black">
       <StudioHeader />
 
       <main>
-        <HeroHands contactUrl={CONTACT_URL} />
-
-        <ObservarSection />
-        <ProductosSection />
-        <ExperimentosSection />
-        <StudioProcessSection />
-        <StudioPreciosSection />
-        <StudioFaqSection />
-        <PensarSection />
+        <Hero />
+        <LogoMarquee />
+        <ServicesSection />
+        <WorkSection />
+        <ProcessSection />
+        <PricingSection />
+        <FaqSection />
+        <FinalCta />
       </main>
 
       <StudioFooter />
@@ -199,57 +272,35 @@ export default function StudioHome() {
   );
 }
 
+/* ── Chrome ──────────────────────────────────────────────────────────── */
+
 function StudioHeader() {
   return (
-    <header
-      className="sticky top-0 z-50 border-b bg-white/85 backdrop-blur-xl backdrop-saturate-150"
-      style={{ borderColor: "var(--studio-hairline)" }}
-    >
-      <nav className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-3.5 sm:px-8">
-        <Link href="/" aria-label="creativv" className="flex items-center text-black">
-          <CreativvLogo variant="lockup-bare" className="h-7 sm:h-8 w-auto text-black" />
+    <header className="sticky top-0 z-50 border-b border-[var(--studio-hairline)] bg-white/80 backdrop-blur-xl backdrop-saturate-150">
+      <nav className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-3 sm:px-8">
+        <Link href="/" aria-label="Releva" className="flex shrink-0 items-center text-black">
+          <RelevaLogo variant="lockup-bare" className="h-7 w-auto text-black sm:h-[30px]" />
         </Link>
 
-        <div
-          className="hidden items-center gap-1 rounded-full px-2 py-1 md:flex"
-          style={{ background: "var(--studio-surface)" }}
-        >
-          {[
-            ["Manifiesto", "#observar"],
-            ["Productos", "#productos"],
-            ["Experimentos", "#experimentos"],
-            ["Proceso", "#proceso"],
-            ["Precios", "#precios"],
-            ["FAQ", "#preguntas"],
-            ["Archivo", "/projects"],
-          ].map(([label, href]) =>
-            href.startsWith("/") ? (
-              <Link
-                key={href}
-                href={href}
-                className="rounded-full px-3.5 py-1.5 text-[14px] font-medium transition-colors hover:bg-white text-neutral-600 hover:text-black"
-              >
-                {label}
-              </Link>
-            ) : (
-              <a
-                key={href}
-                href={href}
-                className="rounded-full px-3.5 py-1.5 text-[14px] font-medium transition-colors hover:bg-white text-neutral-600 hover:text-black"
-              >
-                {label}
-              </a>
-            )
-          )}
+        <div className="hidden items-center gap-0.5 md:flex">
+          {NAV.map(([label, href]) => (
+            <a
+              key={href}
+              href={href}
+              className="rounded-full px-3.5 py-2 text-[14px] font-medium text-neutral-600 transition-colors hover:bg-[var(--studio-surface)] hover:text-black"
+            >
+              {label}
+            </a>
+          ))}
         </div>
 
         <a
           href={CONTACT_URL}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-2 rounded-full bg-black py-1.5 pl-1.5 pr-4 text-[14px] font-medium text-white transition-transform duration-200 active:scale-[0.97]"
+          className="inline-flex shrink-0 items-center gap-2 rounded-full bg-black px-5 py-2.5 text-[14px] font-semibold text-white transition-transform duration-200 hover:bg-neutral-800 active:scale-[0.97]"
         >
-          <Image src="/hero/arrow-circle.svg" alt="" width={24} height={24} className="invert" />
+          <MessageCircle className="h-4 w-4" aria-hidden />
           Hablemos
         </a>
       </nav>
@@ -257,201 +308,227 @@ function StudioHeader() {
   );
 }
 
-function SectionLabel({ children }: { children: React.ReactNode }) {
+/* ── Hero ────────────────────────────────────────────────────────────── */
+
+function Hero() {
   return (
-    <p
-      className="text-[11px] font-semibold uppercase tracking-[0.2em]"
-      style={{ color: "var(--studio-muted)" }}
-    >
-      {children}
-    </p>
-  );
-}
+    <section id="inicio" className="relative overflow-hidden border-b border-[var(--studio-hairline)]">
+      {/* Soft light behind the copy — one gradient, no 3D, no scroll-jack. */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 top-[-30%] h-[70%] opacity-70"
+        style={{
+          background:
+            "radial-gradient(60% 60% at 30% 60%, rgba(197,240,74,0.28) 0%, rgba(197,240,74,0) 70%)",
+        }}
+      />
 
-function ObservarSection() {
-  return (
-    <section
-      id="observar"
-      className="scroll-mt-20 border-y py-24 sm:py-32"
-      style={{ borderColor: "var(--studio-hairline)", background: "var(--studio-surface)" }}
-    >
-      <ManifiestoMotionType />
-    </section>
-  );
-}
+      <div className="relative mx-auto grid max-w-6xl gap-14 px-5 pb-20 pt-16 sm:px-8 sm:pb-24 sm:pt-24 lg:grid-cols-12 lg:gap-10">
+        <div className="lg:col-span-7 lg:pt-4">
+          <span className="inline-flex items-center gap-2 rounded-full border border-[var(--studio-hairline)] bg-white px-3.5 py-1.5 text-[13px] font-medium text-neutral-700">
+            <span className="h-1.5 w-1.5 rounded-full bg-[#c5f04a]" aria-hidden />
+            Disponible para nuevos proyectos
+          </span>
 
-function ProductosSection() {
-  return (
-    <section id="productos" className="mx-auto max-w-6xl scroll-mt-20 px-5 py-24 sm:px-8 sm:py-32">
-      <SectionLabel>Portfolio</SectionLabel>
-      <h2 className="mt-4 text-[clamp(2.2rem,4.5vw,3.8rem)] font-bold tracking-tight text-black">
-        Productos
-      </h2>
+          <h1 className="mt-6 text-[clamp(2.4rem,4.4vw,3.9rem)] font-semibold text-black">
+            Tu web y tus procesos,{" "}
+            {/* Gradient highlight instead of an absolute bar: it re-draws per
+                line, so a wrap never leaves the mark hanging past the text. */}
+            <span className="studio-mark">trabajando para vender.</span>
+          </h1>
 
-      <div className="mt-14 space-y-16">
-        {CURATED_PRODUCTS.map((prod, index) => {
-          const portfolioItem = PORTFOLIO_PROJECTS.find((p) => p.id === prod.id);
-          const images = portfolioItem?.images || [];
-          const stack = portfolioItem?.stack || [];
+          <p className="mt-6 max-w-xl text-[17px] leading-relaxed text-neutral-600 sm:text-[19px]">
+            Diseñamos y construimos landings, tiendas y automatizaciones con IA que
+            convierten visitas en conversaciones y quitan trabajo manual de tu equipo.
+            Primer entregable en 3 días, con precio cerrado.
+          </p>
 
-          return (
-            <article
-              key={prod.id}
-              className="group overflow-hidden rounded-3xl border transition-all duration-300 hover:shadow-xl bg-white"
-              style={{ borderColor: "var(--studio-hairline)" }}
+          <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
+            <a
+              href={CONTACT_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center gap-2 rounded-full bg-black px-7 py-4 text-[16px] font-semibold text-white transition-all hover:bg-neutral-800 active:scale-[0.98]"
             >
-              <div className="grid grid-cols-1 lg:grid-cols-12">
-                {images.length > 0 && (
-                  <div className="p-3 bg-[#f8f8f8] border-b lg:border-b-0 lg:border-r border-[#ebebeb] lg:col-span-6 flex items-center justify-center">
-                    <ProjectImageCarousel
-                      images={images}
-                      projectName={prod.name}
-                      stack={stack}
-                      tone="light"
-                    />
-                  </div>
-                )}
+              Escríbenos por WhatsApp
+              <ArrowRight className="h-4 w-4" aria-hidden />
+            </a>
+            <a
+              href="#precios"
+              className="inline-flex items-center justify-center gap-2 rounded-full border border-neutral-300 px-7 py-4 text-[16px] font-semibold text-black transition-colors hover:border-black"
+            >
+              Ver precios
+            </a>
+          </div>
 
-                <div className={`flex flex-col justify-between p-8 sm:p-10 ${images.length > 0 ? "lg:col-span-6" : "lg:col-span-12"}`}>
-                  <div>
-                    <div className="flex items-center justify-between gap-4">
-                      <span className="font-mono text-[12px] font-semibold uppercase tracking-widest text-neutral-400">
-                        Producto 0{index + 1}
-                      </span>
-                    </div>
-
-                    <h3 className="mt-3 text-[32px] sm:text-[38px] font-bold tracking-tight text-black">
-                      {prod.name}
-                    </h3>
-                    <p className="mt-2 text-[18px] font-semibold leading-snug text-neutral-900">
-                      {prod.subtitle}
-                    </p>
-
-                    <p className="mt-4 text-[15px] sm:text-[16px] leading-relaxed text-neutral-600">
-                      {prod.description}
-                    </p>
-
-                    <div className="mt-6 rounded-2xl bg-[#f8f8f8] p-4 text-[14px] font-medium leading-relaxed text-neutral-800 border border-[#eee]">
-                      {prod.highlight}
-                    </div>
-                  </div>
-
-                  <div className="mt-8 flex items-center justify-between gap-4 pt-4 border-t border-neutral-100">
-                    <div className="flex flex-wrap gap-1.5">
-                      {stack.map((item) => (
-                        <span
-                          key={item}
-                          className="rounded-full px-3 py-1 text-[12px] font-medium"
-                          style={{ background: "var(--studio-surface)", color: "var(--studio-muted-text)" }}
-                        >
-                          {item}
-                        </span>
-                      ))}
-                    </div>
-
-                    {prod.isExternal ? (
-                      <a
-                        href={prod.link}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1.5 text-[15px] font-bold text-black underline underline-offset-4 transition-colors hover:text-neutral-600 shrink-0"
-                      >
-                        {prod.cta}
-                      </a>
-                    ) : (
-                      <Link
-                        href={prod.link}
-                        className="inline-flex items-center gap-1.5 text-[15px] font-bold text-black underline underline-offset-4 transition-colors hover:text-neutral-600 shrink-0"
-                      >
-                        {prod.cta}
-                      </Link>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </article>
-          );
-        })}
-      </div>
-    </section>
-  );
-}
-
-function ExperimentosSection() {
-  return (
-    <section
-      id="experimentos"
-      className="scroll-mt-20 border-t py-24 sm:py-32"
-      style={{ borderColor: "var(--studio-hairline)", background: "var(--studio-surface)" }}
-    >
-      <div className="mx-auto max-w-6xl px-5 sm:px-8">
-        <SectionLabel>Exploraciones</SectionLabel>
-        <h2 className="mt-4 text-[clamp(2.2rem,4.5vw,3.8rem)] font-bold tracking-tight text-black">
-          Experimentos
-        </h2>
-        <p className="mt-3 text-[20px] sm:text-[24px] font-semibold text-neutral-900 leading-snug max-w-3xl">
-          Algunas conexiones necesitan construirse para poder entenderse.
-        </p>
-
-        <div className="mt-8 max-w-3xl space-y-4 text-[16px] sm:text-[18px] leading-relaxed text-neutral-700">
-          <p>
-            También desarrollo ideas pequeñas, prototipos e interfaces para explorar nuevas formas de usar software e inteligencia artificial.
-          </p>
-          <p>
-            No todos los experimentos necesitan convertirse en empresas.
-          </p>
-          <p>
-            Algunos existen para descubrir una interacción, aprender una tecnología o encontrar la siguiente pregunta.
-          </p>
+          <ul className="mt-9 flex flex-wrap gap-x-6 gap-y-2.5">
+            {TRUST.map((item) => (
+              <li key={item} className="flex items-center gap-2 text-[14px] font-medium text-neutral-700">
+                <Check className="h-4 w-4 shrink-0 text-black" aria-hidden />
+                {item}
+              </li>
+            ))}
+          </ul>
         </div>
 
-        <div className="mt-10">
-          <Link
-            href="/projects"
-            className="inline-flex items-center gap-2 rounded-full bg-black px-7 py-3.5 text-[15px] font-semibold text-white transition-all hover:scale-105 active:scale-[0.97]"
-          >
-            Ver experimentos →
-          </Link>
+        <div className="lg:col-span-5 lg:pt-8">
+          <HeroShowcase />
         </div>
       </div>
     </section>
   );
 }
 
-function StudioProcessSection() {
+function HeroShowcase() {
+  return (
+    <div className="relative mx-auto max-w-lg lg:max-w-none">
+      <BrowserFrame
+        src="/projects/rei-fm/01-desktop.jpg"
+        alt="Panel de REI, la plataforma inmobiliaria construida por Releva"
+        url="reiprop.tech"
+        priority
+      />
+
+      <div className="absolute -bottom-10 -left-6 hidden w-[25%] overflow-hidden rounded-[22px] border border-[var(--studio-hairline)] bg-white p-1.5 shadow-[0_20px_50px_rgba(0,0,0,0.14)] sm:block lg:-left-10">
+        <div className="relative aspect-[9/16] overflow-hidden rounded-[16px] bg-[var(--studio-surface)]">
+          <Image
+            src="/projects/shopea/03-mobile.jpg"
+            alt="Shopea en móvil: catálogo y checkout por WhatsApp"
+            fill
+            sizes="200px"
+            className="object-cover object-top"
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function BrowserFrame({
+  src,
+  alt,
+  url,
+  priority = false,
+}: {
+  src: string;
+  alt: string;
+  url: string;
+  priority?: boolean;
+}) {
+  return (
+    <div className="overflow-hidden rounded-[20px] border border-[var(--studio-hairline)] bg-white shadow-[0_24px_70px_rgba(0,0,0,0.10)]">
+      <div className="flex items-center gap-2 border-b border-[var(--studio-hairline)] bg-[var(--studio-surface)] px-4 py-2.5">
+        <span className="flex gap-1.5" aria-hidden>
+          <span className="h-2.5 w-2.5 rounded-full bg-neutral-300" />
+          <span className="h-2.5 w-2.5 rounded-full bg-neutral-300" />
+          <span className="h-2.5 w-2.5 rounded-full bg-neutral-300" />
+        </span>
+        <span className="mx-auto rounded-full bg-white px-3 py-0.5 font-mono text-[11px] text-neutral-500">
+          {url}
+        </span>
+      </div>
+      <div className="relative aspect-[16/10] bg-[var(--studio-surface)]">
+        <Image
+          src={src}
+          alt={alt}
+          fill
+          priority={priority}
+          sizes="(max-width: 1024px) 100vw, 620px"
+          className="object-cover object-top"
+        />
+      </div>
+    </div>
+  );
+}
+
+/* ── Proof strip ─────────────────────────────────────────────────────── */
+
+function LogoMarquee() {
   return (
     <section
-      id="proceso"
-      className="scroll-mt-20 border-t py-24 sm:py-32 bg-white"
-      style={{ borderColor: "var(--studio-hairline)" }}
+      aria-label="Productos en producción"
+      className="border-b border-[var(--studio-hairline)] bg-[var(--studio-surface)] py-7"
     >
-      <div className="mx-auto max-w-6xl px-5 sm:px-8">
-        <SectionLabel>Proceso</SectionLabel>
-        <h2 className="mt-4 text-[clamp(2.2rem,4.5vw,3.8rem)] font-bold tracking-tight text-black">
-          Rápido, práctico y con el primer entregable claro.
-        </h2>
-        <p className="mt-3 text-[18px] sm:text-[20px] text-neutral-600 max-w-2xl">
-          Un flujo directo en 5 etapas para pasar de la idea a una solución en producción.
+      <div className="mx-auto flex max-w-6xl flex-col gap-4 px-5 sm:px-8">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[var(--studio-muted-text)]">
+          Productos construidos y en producción
         </p>
+        {/* Marquee: duplicated list translated -50%, so the seam never shows. */}
+        <div className="studio-marquee-mask overflow-hidden">
+          <ul className="flex w-max animate-[project-marquee_38s_linear_infinite] items-center gap-10 pr-10">
+            {[...MARQUEE, ...MARQUEE].map((name, i) => (
+              <li
+                key={`${name}-${i}`}
+                aria-hidden={i >= MARQUEE.length}
+                className="whitespace-nowrap text-[20px] font-semibold tracking-tight text-neutral-500 sm:text-[24px]"
+              >
+                {name}
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </section>
+  );
+}
 
-        <div className="mt-14 grid grid-cols-1 md:grid-cols-5 gap-4">
-          {PROCESS_STEPS.map((step) => (
+/* ── Sections ────────────────────────────────────────────────────────── */
+
+function SectionHead({
+  label,
+  title,
+  lead,
+  align = "left",
+}: {
+  label: string;
+  title: string;
+  lead?: string;
+  align?: "left" | "center";
+}) {
+  return (
+    <div className={align === "center" ? "mx-auto max-w-2xl text-center" : "max-w-3xl"}>
+      <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[var(--studio-muted-text)]">
+        {label}
+      </p>
+      <h2 className="mt-4 text-[clamp(2rem,4vw,3.2rem)] font-semibold text-black">{title}</h2>
+      {lead ? (
+        <p className="mt-4 text-[17px] leading-relaxed text-neutral-600 sm:text-[19px]">{lead}</p>
+      ) : null}
+    </div>
+  );
+}
+
+function ServicesSection() {
+  return (
+    <section id="servicios" className="scroll-mt-20 border-b border-[var(--studio-hairline)] py-20 sm:py-28">
+      <div className="mx-auto max-w-6xl px-5 sm:px-8">
+        <SectionHead
+          label="Servicios"
+          title="Dos formas de mover el negocio: vender más u operar con menos."
+          lead="Cada proyecto empieza por decidir cuál de las dos necesitas primero. Nunca las dos a la vez."
+        />
+
+        <div className="mt-14 grid gap-5 md:grid-cols-3">
+          {SERVICES.map((service) => (
             <article
-              key={step.num}
-              className="flex flex-col justify-between rounded-3xl border p-6 bg-white transition-all duration-200 hover:shadow-md"
-              style={{ borderColor: "var(--studio-hairline)" }}
+              key={service.id}
+              className="flex flex-col rounded-3xl border border-[var(--studio-hairline)] bg-white p-7 transition-shadow duration-200 hover:shadow-[var(--studio-shadow)]"
             >
-              <div>
-                <span className="font-mono text-[13px] font-semibold uppercase tracking-widest text-neutral-400">
-                  {step.num}
-                </span>
-                <h3 className="mt-4 text-[20px] font-bold text-black leading-snug">
-                  {step.title}
-                </h3>
-                <p className="mt-3 text-[14px] leading-relaxed text-neutral-600">
-                  {step.desc}
-                </p>
-              </div>
+              <span className="inline-flex w-fit rounded-full bg-[var(--studio-surface)] px-3 py-1 text-[12px] font-semibold uppercase tracking-wide text-neutral-700">
+                {service.kicker}
+              </span>
+              <h3 className="mt-5 text-[24px] font-semibold text-black">{service.title}</h3>
+              <p className="mt-3 text-[15px] leading-relaxed text-neutral-600">
+                {service.description}
+              </p>
+              <ul className="mt-6 space-y-2.5 border-t border-[var(--studio-hairline)] pt-6">
+                {service.bullets.map((bullet) => (
+                  <li key={bullet} className="flex gap-2.5 text-[14px] font-medium text-neutral-700">
+                    <Check className="mt-0.5 h-4 w-4 shrink-0 text-black" aria-hidden />
+                    {bullet}
+                  </li>
+                ))}
+              </ul>
             </article>
           ))}
         </div>
@@ -460,117 +537,247 @@ function StudioProcessSection() {
   );
 }
 
-function StudioPreciosSection() {
+function WorkSection() {
+  return (
+    <section
+      id="trabajo"
+      className="scroll-mt-20 border-b border-[var(--studio-hairline)] bg-[var(--studio-surface)] py-20 sm:py-28"
+    >
+      <div className="mx-auto max-w-6xl px-5 sm:px-8">
+        <div className="flex flex-wrap items-end justify-between gap-6">
+          <SectionHead
+            label="Trabajo"
+            title="Sistemas reales, funcionando hoy."
+            lead="No maquetas. Cada uno está en producción con usuarios usándolo."
+          />
+          <Link
+            href="/projects"
+            className="inline-flex items-center gap-1.5 rounded-full border border-neutral-300 px-5 py-2.5 text-[14px] font-semibold text-black transition-colors hover:border-black"
+          >
+            Ver todo el archivo
+            <ArrowUpRight className="h-4 w-4" aria-hidden />
+          </Link>
+        </div>
+
+        <div className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {WORK.map((project) => {
+            const external = project.link.startsWith("http");
+            const Card = (
+              <>
+                <div className="relative aspect-[16/11] overflow-hidden bg-white">
+                  <Image
+                    src={project.image}
+                    alt={`${project.name} — ${project.kind}`}
+                    fill
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 380px"
+                    className="object-cover object-top transition-transform duration-500 group-hover:scale-[1.03]"
+                  />
+                </div>
+                <div className="flex flex-1 flex-col p-6">
+                  <div className="flex items-baseline justify-between gap-3">
+                    <h3 className="text-[21px] font-semibold text-black">{project.name}</h3>
+                    <span className="text-[13px] font-medium text-neutral-500">{project.kind}</span>
+                  </div>
+                  <p className="mt-3 flex-1 text-[14px] leading-relaxed text-neutral-600">
+                    {project.outcome}
+                  </p>
+                  <div className="mt-5 flex flex-wrap items-center gap-1.5">
+                    {project.tags.map((tag) => (
+                      <span
+                        key={tag}
+                        className="rounded-full bg-[var(--studio-surface)] px-2.5 py-1 text-[12px] font-medium text-[var(--studio-muted-text)]"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                    <ArrowUpRight
+                      className="ml-auto h-4 w-4 text-neutral-400 transition-colors group-hover:text-black"
+                      aria-hidden
+                    />
+                  </div>
+                </div>
+              </>
+            );
+
+            const className =
+              "group flex flex-col overflow-hidden rounded-3xl border border-[var(--studio-hairline)] bg-white transition-shadow duration-200 hover:shadow-[var(--studio-shadow)]";
+
+            return external ? (
+              <a
+                key={project.name}
+                href={project.link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={className}
+              >
+                {Card}
+              </a>
+            ) : (
+              <Link key={project.name} href={project.link} className={className}>
+                {Card}
+              </Link>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function ProcessSection() {
+  return (
+    <section id="proceso" className="scroll-mt-20 border-b border-[var(--studio-hairline)] py-20 sm:py-28">
+      <div className="mx-auto max-w-6xl px-5 sm:px-8">
+        <SectionHead
+          label="Proceso"
+          title="De la idea a producción en cinco pasos."
+          lead="Sin discovery de tres semanas ni presentaciones de 40 láminas."
+        />
+
+        <ol className="mt-14 grid gap-px overflow-hidden rounded-3xl border border-[var(--studio-hairline)] bg-[var(--studio-hairline)] md:grid-cols-5">
+          {PROCESS_STEPS.map((step) => (
+            <li key={step.num} className="flex flex-col bg-white p-6">
+              <span className="font-mono text-[13px] font-semibold tracking-widest text-neutral-400">
+                {step.num}
+              </span>
+              <h3 className="mt-4 text-[18px] font-semibold leading-snug text-black">
+                {step.title}
+              </h3>
+              <p className="mt-3 text-[14px] leading-relaxed text-neutral-600">{step.desc}</p>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </section>
+  );
+}
+
+function PricingSection() {
   return (
     <section
       id="precios"
-      className="scroll-mt-20 border-t py-24 sm:py-32"
-      style={{ borderColor: "var(--studio-hairline)", background: "var(--studio-surface)" }}
+      className="scroll-mt-20 border-b border-[var(--studio-hairline)] bg-[var(--studio-surface)] py-20 sm:py-28"
     >
       <div className="mx-auto max-w-6xl px-5 sm:px-8">
-        <SectionLabel>Propuesta & Precios</SectionLabel>
-        <h2 className="mt-4 text-[clamp(2.2rem,4.5vw,3.8rem)] font-bold tracking-tight text-black">
-          Planes claros, precios a la vista.
-        </h2>
-        <p className="mt-3 text-[18px] sm:text-[20px] text-neutral-600 max-w-2xl">
-          Transparencia desde la primera conversación. Comenzamos por la versión que produce el mayor resultado.
-        </p>
+        <SectionHead
+          label="Precios"
+          title="Precio a la vista, cerrado antes de empezar."
+          lead="Escoge el punto de partida. Si tu caso no encaja en ninguno, lo cotizamos en la primera conversación."
+          align="center"
+        />
 
-        <div className="mt-14 grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="mt-14 grid gap-5 lg:grid-cols-3">
           {PRICING_PLANS.map((plan) => (
             <article
               key={plan.name}
-              className={`flex flex-col justify-between rounded-3xl border p-8 transition-all duration-300 ${
-                plan.featured ? "bg-black text-white shadow-xl" : "bg-white text-black shadow-sm"
+              className={`relative flex flex-col rounded-3xl border p-8 ${
+                plan.featured
+                  ? "border-black bg-black text-white shadow-[0_24px_60px_rgba(0,0,0,0.22)] lg:-mt-4 lg:mb-[-1rem]"
+                  : "border-[var(--studio-hairline)] bg-white text-black"
               }`}
-              style={{ borderColor: plan.featured ? "#000000" : "var(--studio-hairline)" }}
             >
-              <div>
-                <div className="flex items-center justify-between gap-2">
-                  <span
-                    className={`rounded-full px-3 py-1 text-[12px] font-semibold ${
-                      plan.featured ? "bg-neutral-800 text-neutral-200" : "bg-neutral-100 text-neutral-700"
-                    }`}
-                  >
-                    {plan.badge}
-                  </span>
-                  <span className={`text-[13px] font-medium ${plan.featured ? "text-neutral-400" : "text-neutral-500"}`}>
-                    {plan.timeline}
-                  </span>
-                </div>
-
-                <h3 className="mt-6 text-[28px] font-bold tracking-tight">{plan.name}</h3>
-                <div className={`mt-2 text-[26px] font-bold ${plan.featured ? "text-white" : "text-black"}`}>
-                  {plan.price}
-                </div>
-
-                <p className={`mt-4 text-[14px] leading-relaxed ${plan.featured ? "text-neutral-300" : "text-neutral-600"}`}>
-                  {plan.description}
-                </p>
-
-                <div className="mt-8 space-y-3">
-                  {plan.features.map((feat) => (
-                    <div key={feat} className="flex items-center gap-2.5 text-[14px] font-medium">
-                      <Check className={`h-4 w-4 shrink-0 ${plan.featured ? "text-white" : "text-black"}`} />
-                      <span className={plan.featured ? "text-neutral-200" : "text-neutral-700"}>{feat}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="mt-10 pt-6 border-t border-neutral-200/20">
-                <a
-                  href={whatsappUrl(plan.msg)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={`inline-flex w-full items-center justify-center gap-2 rounded-full py-3.5 text-[15px] font-bold transition-transform active:scale-[0.98] ${
-                    plan.featured
-                      ? "bg-white text-black hover:bg-neutral-100"
-                      : "bg-black text-white hover:bg-neutral-800"
+              <div className="flex items-center justify-between gap-2">
+                <span
+                  className={`rounded-full px-3 py-1 text-[12px] font-semibold ${
+                    plan.featured ? "bg-[#c5f04a] text-black" : "bg-[var(--studio-surface)] text-neutral-700"
                   }`}
                 >
-                  {plan.cta}
-                  <ArrowUpRight className="h-4 w-4" />
-                </a>
+                  {plan.badge}
+                </span>
+                <span
+                  className={`text-[13px] font-medium ${
+                    plan.featured ? "text-neutral-400" : "text-neutral-500"
+                  }`}
+                >
+                  {plan.timeline}
+                </span>
               </div>
+
+              <h3 className="mt-7 text-[22px] font-semibold tracking-tight">{plan.name}</h3>
+
+              <div className="mt-2 flex items-baseline gap-2">
+                <span className="text-[38px] font-semibold tracking-tight">{plan.price}</span>
+                <span
+                  className={`text-[13px] font-medium ${
+                    plan.featured ? "text-neutral-400" : "text-neutral-500"
+                  }`}
+                >
+                  {plan.priceNote}
+                </span>
+              </div>
+
+              <p
+                className={`mt-4 text-[14px] leading-relaxed ${
+                  plan.featured ? "text-neutral-300" : "text-neutral-600"
+                }`}
+              >
+                {plan.description}
+              </p>
+
+              <ul
+                className={`mt-7 flex-1 space-y-3 border-t pt-7 ${
+                  plan.featured ? "border-white/15" : "border-[var(--studio-hairline)]"
+                }`}
+              >
+                {plan.features.map((feature) => (
+                  <li key={feature} className="flex gap-2.5 text-[14px] font-medium">
+                    <Check
+                      className={`mt-0.5 h-4 w-4 shrink-0 ${plan.featured ? "text-[#c5f04a]" : "text-black"}`}
+                      aria-hidden
+                    />
+                    <span className={plan.featured ? "text-neutral-200" : "text-neutral-700"}>
+                      {feature}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+
+              <a
+                href={whatsappUrl(plan.msg)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`mt-8 inline-flex w-full items-center justify-center gap-2 rounded-full py-4 text-[15px] font-semibold transition-transform active:scale-[0.98] ${
+                  plan.featured
+                    ? "bg-white text-black hover:bg-neutral-100"
+                    : "bg-black text-white hover:bg-neutral-800"
+                }`}
+              >
+                {plan.cta}
+                <ArrowUpRight className="h-4 w-4" aria-hidden />
+              </a>
             </article>
           ))}
         </div>
+
+        <ul className="mt-10 flex flex-wrap items-center justify-center gap-x-7 gap-y-3">
+          {PLAN_INCLUDES.map((item) => (
+            <li key={item} className="flex items-center gap-2 text-[14px] font-medium text-neutral-700">
+              <Check className="h-4 w-4 shrink-0 text-black" aria-hidden />
+              {item}
+            </li>
+          ))}
+        </ul>
       </div>
     </section>
   );
 }
 
-function StudioFaqSection() {
+function FaqSection() {
   return (
-    <section
-      id="preguntas"
-      className="scroll-mt-20 border-t py-24 sm:py-32 bg-white"
-      style={{ borderColor: "var(--studio-hairline)" }}
-    >
+    <section id="preguntas" className="scroll-mt-20 border-b border-[var(--studio-hairline)] py-20 sm:py-28">
       <div className="mx-auto max-w-4xl px-5 sm:px-8">
-        <SectionLabel>Preguntas frecuentes</SectionLabel>
-        <h2 className="mt-4 text-[clamp(2.2rem,4.5vw,3.8rem)] font-bold tracking-tight text-black">
-          Despejando dudas antes de construir
-        </h2>
-        <p className="mt-4 text-[18px] text-neutral-600">
-          Respuestas a las preguntas comunes sobre nuestro proceso de trabajo y desarrollo.
-        </p>
+        <SectionHead label="Preguntas frecuentes" title="Lo que suelen preguntar antes de empezar." />
 
-        <div className="mt-12 space-y-4">
+        <div className="mt-12 divide-y divide-[var(--studio-hairline)] border-y border-[var(--studio-hairline)]">
           {STUDIO_FAQS.map((faq) => (
-            <details
-              key={faq.question}
-              className="group rounded-2xl border p-6 text-black transition-colors [&[open]]:bg-neutral-50"
-              style={{ borderColor: "var(--studio-hairline)" }}
-            >
-              <summary className="flex cursor-pointer items-center justify-between text-[18px] sm:text-[20px] font-semibold leading-snug list-none select-none">
+            <details key={faq.question} className="group py-6">
+              <summary className="flex cursor-pointer list-none select-none items-center justify-between gap-4 text-[18px] font-semibold leading-snug text-black sm:text-[20px]">
                 <span>{faq.question}</span>
-                <span className="ml-4 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-neutral-300 transition-transform duration-200 group-open:rotate-45">
-                  <Plus className="h-4 w-4 text-black" />
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-neutral-300 transition-transform duration-200 group-open:rotate-45">
+                  <Plus className="h-4 w-4 text-black" aria-hidden />
                 </span>
               </summary>
-              <p className="mt-4 text-[16px] leading-relaxed text-neutral-600">
+              <p className="mt-4 max-w-2xl text-[16px] leading-relaxed text-neutral-600">
                 {faq.answer}
               </p>
             </details>
@@ -581,44 +788,35 @@ function StudioFaqSection() {
   );
 }
 
-function PensarSection() {
+function FinalCta() {
   return (
-    <section
-      id="archivo"
-      className="scroll-mt-20 border-t py-24 sm:py-32"
-      style={{ borderColor: "var(--studio-hairline)", background: "var(--studio-surface)" }}
-    >
+    <section className="bg-black py-20 text-white sm:py-28">
       <div className="mx-auto max-w-4xl px-5 text-center sm:px-8">
-        <h2 className="text-[clamp(2.1rem,4.5vw,3.6rem)] font-bold tracking-tight text-black">
-          Construir también es una forma de pensar.
+        <h2 className="text-[clamp(2.1rem,4.6vw,3.6rem)] font-semibold text-white">
+          Cuéntanos qué necesita vender o dejar de doler.
         </h2>
-        <p className="mt-6 text-[18px] sm:text-[20px] text-neutral-700 max-w-2xl mx-auto font-medium">
-          Cada producto es una respuesta provisional a algo que observé.
+        <p className="mx-auto mt-5 max-w-xl text-[17px] leading-relaxed text-neutral-400 sm:text-[19px]">
+          Respondemos el mismo día con un alcance concreto y un precio cerrado. Sin
+          formularios largos ni llamadas de descubrimiento eternas.
         </p>
 
-        <div className="mt-8 flex flex-wrap justify-center gap-3 max-w-2xl mx-auto">
-          {[
-            "Una necesidad.",
-            "Una fricción.",
-            "Un cambio en el mercado.",
-            "Una posibilidad que antes no existía.",
-          ].map((item) => (
-            <span
-              key={item}
-              className="rounded-full bg-white border border-[#e0e0e0] px-5 py-2.5 text-[15px] font-semibold text-neutral-800 shadow-sm"
-            >
-              {item}
-            </span>
-          ))}
-        </div>
-
-        <div className="mt-12">
-          <Link
-            href="/projects"
-            className="inline-flex items-center gap-2 rounded-full bg-black px-8 py-4 text-[16px] font-semibold text-white transition-all hover:scale-105 active:scale-[0.97]"
+        <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
+          <a
+            href={CONTACT_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#c5f04a] px-8 py-4 text-[16px] font-semibold text-black transition-transform hover:bg-[#c5f04a] active:scale-[0.98] sm:w-auto"
           >
-            Explorar el archivo
-          </Link>
+            <MessageCircle className="h-5 w-5" aria-hidden />
+            Escribir por WhatsApp
+          </a>
+          <a
+            href={`mailto:${CONTACT_EMAIL}`}
+            className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-white/25 px-8 py-4 text-[16px] font-semibold text-white transition-colors hover:border-white sm:w-auto"
+          >
+            <Mail className="h-5 w-5" aria-hidden />
+            Enviar un correo
+          </a>
         </div>
       </div>
     </section>
@@ -627,44 +825,58 @@ function PensarSection() {
 
 function StudioFooter() {
   return (
-    <footer className="border-t bg-white" style={{ borderColor: "var(--studio-hairline)" }}>
-      <div className="mx-auto flex max-w-6xl flex-col gap-10 px-5 py-12 sm:px-8">
+    <footer className="border-t border-[var(--studio-hairline)] bg-white">
+      {/* The mark, full width — the page signs off with the same signal it opens with. */}
+      <Waveform
+        className="h-24 w-full text-black/[0.13] sm:h-32"
+        cycles={26}
+        weight={2.2}
+      />
+      <div className="mx-auto flex max-w-6xl flex-col gap-8 px-5 pb-12 sm:px-8">
         <div className="flex flex-col justify-between gap-6 sm:flex-row sm:items-start">
           <div>
-            <CreativvLogo variant="lockup-bare" className="h-8 w-auto text-black" />
-            <p className="mt-3 text-[16px] text-neutral-700 font-medium">
-              Productos y experimentos de Adri Ávila.
+            <RelevaLogo variant="lockup-bare" className="h-8 w-auto text-black" />
+            <p className="mt-3 max-w-sm text-[15px] text-neutral-600">
+              Estudio de producto digital. Diseño, software y automatización con IA para
+              negocios que necesitan resultados medibles.
             </p>
           </div>
 
-          <div className="flex flex-wrap items-center gap-2 text-[13px]">
-            {["Producto", "UX", "Software", "Inteligencia artificial"].map((tag) => (
-              <span
-                key={tag}
-                className="rounded-full px-3.5 py-1.5 text-neutral-700 font-semibold border border-neutral-200 bg-neutral-50"
-              >
-                {tag}
-              </span>
+          <nav className="flex flex-wrap gap-x-6 gap-y-2 text-[14px] font-medium text-neutral-600">
+            {NAV.map(([label, href]) => (
+              <a key={href} href={href} className="transition-colors hover:text-black">
+                {label}
+              </a>
             ))}
-          </div>
+            <Link href="/projects" className="transition-colors hover:text-black">
+              Archivo
+            </Link>
+          </nav>
         </div>
 
-        <div className="flex flex-col justify-between gap-4 border-t border-[#ebebeb] pt-8 text-[14px] text-neutral-500 sm:flex-row sm:items-center">
-          <span className="font-medium text-neutral-700">© 2026 Creativv</span>
+        <div className="flex flex-col justify-between gap-4 border-t border-[var(--studio-hairline)] pt-7 text-[14px] text-neutral-500 sm:flex-row sm:items-center">
+          <span>© {new Date().getFullYear()} Releva</span>
           <div className="flex flex-wrap items-center gap-6 font-medium">
-            <a href="#observar" className="hover:text-black transition-colors">Manifiesto</a>
-            <a href="#productos" className="hover:text-black transition-colors">Productos</a>
-            <a href="#experimentos" className="hover:text-black transition-colors">Experimentos</a>
-            <a href="#proceso" className="hover:text-black transition-colors">Proceso</a>
-            <a href="#precios" className="hover:text-black transition-colors">Precios</a>
-            <a href="#preguntas" className="hover:text-black transition-colors">FAQ</a>
-            <Link href="/projects" className="hover:text-black transition-colors">Archivo</Link>
-            <a href={CONTACT_URL} target="_blank" rel="noopener noreferrer" className="hover:text-black transition-colors flex items-center gap-1">
-              <MessageCircle className="h-4 w-4" /> WhatsApp
+            <a
+              href={CONTACT_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 transition-colors hover:text-black"
+            >
+              <MessageCircle className="h-4 w-4" aria-hidden /> WhatsApp
             </a>
-            <a href={`mailto:${CONTACT_EMAIL}`} className="hover:text-black transition-colors flex items-center gap-1">
-              <Mail className="h-4 w-4" /> Email
+            <a
+              href={`mailto:${CONTACT_EMAIL}`}
+              className="flex items-center gap-1.5 transition-colors hover:text-black"
+            >
+              <Mail className="h-4 w-4" aria-hidden /> {CONTACT_EMAIL}
             </a>
+            <Link href="/privacidad" className="transition-colors hover:text-black">
+              Privacidad
+            </Link>
+            <Link href="/terminos" className="transition-colors hover:text-black">
+              Términos
+            </Link>
           </div>
         </div>
       </div>

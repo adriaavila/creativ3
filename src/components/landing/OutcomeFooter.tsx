@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { ArrowRight, Mail, MessageCircle } from "lucide-react";
 import type { LandingIntent } from "@/lib/landing-intent";
-import CreativvLogo from "./CreativvLogo";
+import RelevaLogo from "@/components/brand/RelevaLogo";
 import { CONTACT_EMAIL, whatsappUrl } from "@/lib/contact";
 
 const REVENUE_CONTACT = whatsappUrl(
@@ -63,7 +63,7 @@ export default function OutcomeFooter({ intent = "efficiency" }: OutcomeFooterPr
     <footer
       id="empezar"
       className={`px-5 pb-10 pt-24 text-white transition-colors duration-700 sm:px-8 lg:px-12 lg:pt-32 ${
-        isRevenue ? "bg-[#2a1712]" : "bg-[#172016]"
+        isRevenue ? "bg-[#111214]" : "bg-[#0a0a0a]"
       }`}
     >
       <div key={intent} className="landing-intent-enter mx-auto max-w-[1440px]">
@@ -71,14 +71,14 @@ export default function OutcomeFooter({ intent = "efficiency" }: OutcomeFooterPr
           <div>
             <div
               className={`font-mono text-[10px] uppercase tracking-[0.2em] ${
-                isRevenue ? "text-[#f3a78d]" : "text-[#b8d397]"
+                isRevenue ? "text-[#a1a1a3]" : "text-[#c5f04a]"
               }`}
             >
               {content.eyebrow}
             </div>
             <h2 className="mt-5 max-w-5xl font-display text-[clamp(3.4rem,8vw,8.4rem)] leading-[0.84] tracking-[-0.05em]">
               {content.title}
-              <span className={`block italic ${isRevenue ? "text-[#f0a38a]" : "text-[#cfe3b1]"}`}>
+              <span className={`block italic ${isRevenue ? "text-[#a1a1a3]" : "text-[#c5f04a]"}`}>
                 {content.accent}
               </span>
             </h2>
@@ -92,8 +92,8 @@ export default function OutcomeFooter({ intent = "efficiency" }: OutcomeFooterPr
                 rel={primaryIsExternal ? "noopener noreferrer" : undefined}
                 className={`inline-flex min-h-12 items-center justify-center gap-2 rounded-full px-6 text-sm font-semibold transition-colors ${
                   isRevenue
-                    ? "bg-[#f0a38a] text-[#2a1712] hover:bg-white"
-                    : "bg-[#dbe9c3] text-[#172016] hover:bg-white"
+                    ? "bg-[#a1a1a3] text-[#111214] hover:bg-white"
+                    : "bg-[#c5f04a] text-[#0a0a0a] hover:bg-white"
                 }`}
               >
                 {content.primaryLabel} <ArrowRight className="size-4" />
@@ -121,7 +121,7 @@ export default function OutcomeFooter({ intent = "efficiency" }: OutcomeFooterPr
                 target={isExternal ? "_blank" : undefined}
                 rel={isExternal ? "noopener noreferrer" : undefined}
                 className={`group p-5 transition-colors sm:p-6 ${
-                  isRevenue ? "bg-[#2a1712] hover:bg-[#3b2119]" : "bg-[#172016] hover:bg-[#203023]"
+                  isRevenue ? "bg-[#111214] hover:bg-[#1c1d20]" : "bg-[#0a0a0a] hover:bg-[#111214]"
                 }`}
               >
                 <div className="flex items-center justify-between font-mono text-[9px] uppercase tracking-[0.17em] text-white/38">
@@ -129,7 +129,7 @@ export default function OutcomeFooter({ intent = "efficiency" }: OutcomeFooterPr
                   <ArrowRight className="size-3.5 -rotate-45 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
                 </div>
                 <div className="mt-4 font-display text-2xl">{name}</div>
-                <div className={`mt-2 text-sm ${isRevenue ? "text-[#f0a38a]" : "text-[#cfe3b1]"}`}>{price}</div>
+                <div className={`mt-2 text-sm ${isRevenue ? "text-[#a1a1a3]" : "text-[#c5f04a]"}`}>{price}</div>
                 <div className="mt-2 text-xs leading-5 text-white/45">{payoff}</div>
               </a>
             );
@@ -138,7 +138,7 @@ export default function OutcomeFooter({ intent = "efficiency" }: OutcomeFooterPr
 
         <div className="mt-20 grid gap-10 border-t border-white/10 pt-10 md:grid-cols-[1fr_auto] md:items-end">
           <div>
-            <CreativvLogo variant="lockup-bare" className="h-9 w-auto text-white" />
+            <RelevaLogo variant="lockup-bare" className="h-9 w-auto text-white" />
             <p className="mt-4 max-w-md text-sm leading-6 text-white/45">{content.description}</p>
           </div>
           <div className="flex flex-wrap gap-3 text-sm">
@@ -159,7 +159,7 @@ export default function OutcomeFooter({ intent = "efficiency" }: OutcomeFooterPr
           </div>
         </div>
         <div className="mt-10 flex flex-col justify-between gap-2 font-mono text-[9px] uppercase tracking-[0.13em] text-white/28 sm:flex-row">
-          <span>© {new Date().getFullYear()} Creativv</span>
+          <span>© {new Date().getFullYear()} Releva</span>
           <span>ServiciosCreativos.online</span>
         </div>
       </div>

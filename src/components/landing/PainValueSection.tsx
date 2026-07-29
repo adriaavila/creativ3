@@ -42,19 +42,19 @@ const OUTCOMES = [
 
 export default function PainValueSection() {
   return (
-    <section className="relative w-full bg-[#f5f3ec] text-[#1f2a1d]">
+    <section className="relative w-full bg-[#ffffff] text-[#0a0a0a]">
       <div className="mx-auto max-w-6xl px-6 py-20 md:px-10 md:py-28">
         <div className="grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
           <div className="max-w-xl">
-            <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-[#1f2a1d] px-3.5 py-1.5 text-xs font-semibold uppercase tracking-[0.14em] text-white">
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-[#0a0a0a] px-3.5 py-1.5 text-xs font-semibold uppercase tracking-[0.14em] text-white">
               <AlertCircle className="h-3.5 w-3.5" />
               Lo que arreglamos
             </div>
-            <h2 className="text-4xl font-normal leading-[0.98] text-[#336443] sm:text-5xl md:text-6xl">
+            <h2 className="text-4xl font-normal leading-[0.98] text-[#1c1d20] sm:text-5xl md:text-6xl">
               No necesitas más ruido digital. Necesitas un camino para captar clientes.
             </h2>
-            <p className="mt-5 text-base leading-relaxed text-[#4b5b47] md:text-lg">
-              Creativv convierte presencia, interés y procesos sueltos en activos que ayudan a vender:
+            <p className="mt-5 text-base leading-relaxed text-[#6b6b6b] md:text-lg">
+              Releva convierte presencia, interés y procesos sueltos en activos que ayudan a vender:
               una landing clara, un flujo de leads o un producto digital listo para validar.
             </p>
           </div>
@@ -63,9 +63,9 @@ export default function PainValueSection() {
             {PAINS.map((pain) => (
               <div
                 key={pain}
-                className="flex gap-3 rounded-lg border border-[#1f2a1d]/10 bg-white px-4 py-4 text-sm leading-relaxed text-[#3d4f38] shadow-sm sm:text-base"
+                className="flex gap-3 rounded-lg border border-[#0a0a0a]/10 bg-white px-4 py-4 text-sm leading-relaxed text-[#26272b] shadow-sm sm:text-base"
               >
-                <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-[#336443]" />
+                <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-[#1c1d20]" />
                 <span>{pain}</span>
               </div>
             ))}
@@ -78,13 +78,13 @@ export default function PainValueSection() {
             return (
               <article
                 key={item.title}
-                className="rounded-lg border border-[#1f2a1d]/10 bg-white/80 p-5 shadow-sm"
+                className="rounded-lg border border-[#0a0a0a]/10 bg-white/80 p-5 shadow-sm"
               >
-                <div className="mb-5 flex h-10 w-10 items-center justify-center rounded-lg bg-[#dbe9c3] text-[#1f2a1d]">
+                <div className="mb-5 flex h-10 w-10 items-center justify-center rounded-lg bg-[#c5f04a] text-[#0a0a0a]">
                   <Icon className="h-5 w-5" />
                 </div>
-                <h3 className="text-lg font-semibold text-[#1f2a1d]">{item.title}</h3>
-                <p className="mt-3 text-sm leading-relaxed text-[#4b5b47]">{item.text}</p>
+                <h3 className="text-lg font-semibold text-[#0a0a0a]">{item.title}</h3>
+                <p className="mt-3 text-sm leading-relaxed text-[#6b6b6b]">{item.text}</p>
               </article>
             );
           })}

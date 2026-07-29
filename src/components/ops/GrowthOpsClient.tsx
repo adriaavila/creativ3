@@ -2,6 +2,7 @@
 
 import { useMemo, useState, type ReactNode } from "react";
 import Link from "next/link";
+import RelevaLogo from "@/components/brand/RelevaLogo";
 import {
   ArrowLeft,
   BarChart3,
@@ -163,7 +164,7 @@ export default function GrowthOpsClient({
     setLeads((items) => items.map((item) => (item.id === id ? { ...item, ...patch } : item)));
 
   return (
-    <main className="min-h-screen bg-[#0f1711] text-white">
+    <main className="min-h-screen bg-[#08090a] text-white">
       <div className="mx-auto max-w-[1500px] px-4 pb-5 sm:px-7 lg:px-10">
         <header
           className={`sticky top-0 z-30 -mx-4 flex flex-wrap items-center justify-between gap-5 px-4 py-4 sm:-mx-7 sm:px-7 lg:-mx-10 lg:px-10 ${GLASS_HEADER}`}
@@ -172,9 +173,10 @@ export default function GrowthOpsClient({
             <Link id="lnk-back-to-ops" href="/ops" className="flex size-10 items-center justify-center rounded-full border border-white/10 bg-white/5" aria-label="Volver al sitio">
               <ArrowLeft className="size-4" />
             </Link>
+            <RelevaLogo variant="mark-bare" className="h-6 w-auto text-white" />
             <div>
-              <div className="font-mono text-[9px] uppercase tracking-[0.18em] text-[#a9c989]">Operación privada</div>
-              <h1 className={`mt-1 font-display text-3xl ${DISPLAY_TIGHT}`}>Creativv Growth OS</h1>
+              <div className="font-mono text-[9px] uppercase tracking-[0.18em] text-[#c5f04a]">Operación privada</div>
+              <h1 className={`mt-1 font-display text-3xl ${DISPLAY_TIGHT}`}>Releva Growth OS</h1>
             </div>
           </div>
           <div className="flex items-center gap-3">
@@ -190,7 +192,7 @@ export default function GrowthOpsClient({
               type="button"
               disabled={running}
               onClick={() => void startRun()}
-              className="inline-flex min-h-10 items-center gap-2 rounded-full bg-[#dbe9c3] px-5 text-sm font-semibold text-[#172016] hover:bg-white disabled:opacity-50"
+              className="inline-flex min-h-10 items-center gap-2 rounded-full bg-[#c5f04a] px-5 text-sm font-semibold text-[#0a0a0a] hover:bg-white disabled:opacity-50"
             >
               {running ? <LoaderCircle className="size-4 animate-spin" /> : <Play className="size-4" />}
               Ejecutar ahora
@@ -215,13 +217,13 @@ export default function GrowthOpsClient({
           ].map(([label, value]) => (
             <div key={label} className="rounded-2xl border border-white/10 bg-white/[0.035] p-5">
               <div className="font-mono text-[9px] uppercase tracking-[0.18em] text-white/38">{label}</div>
-              <div className="mt-3 font-display text-4xl text-[#dbe9c3]">{value}</div>
+              <div className="mt-3 font-display text-4xl text-[#c5f04a]">{value}</div>
             </div>
           ))}
         </section>
 
         {notice && (
-          <div className="mt-5 rounded-xl border border-[#a9c989]/20 bg-[#a9c989]/8 px-4 py-3 text-sm text-[#dbe9c3]">
+          <div className="mt-5 rounded-xl border border-[#c5f04a]/20 bg-[#c5f04a]/8 px-4 py-3 text-sm text-[#c5f04a]">
             {notice}
           </div>
         )}
@@ -232,7 +234,7 @@ export default function GrowthOpsClient({
               key={item}
               type="button"
               onClick={() => setTab(item)}
-              className={`rounded-lg px-4 py-2 text-sm font-semibold capitalize ${tab === item ? "bg-white text-[#172016]" : "text-white/50 hover:text-white"}`}
+              className={`rounded-lg px-4 py-2 text-sm font-semibold capitalize ${tab === item ? "bg-white text-[#0a0a0a]" : "text-white/50 hover:text-white"}`}
             >
               {item === "hoy" ? "Hoy" : item === "marketing" ? "Marketing" : item === "runs" ? "Runs" : item === "leads" ? "Leads" : "Borradores"}
             </button>
@@ -247,7 +249,7 @@ export default function GrowthOpsClient({
                 hint="Aprobados, aún sin contactar"
                 leads={buckets.contactarHoy}
                 action={(lead) => (
-                  <TapButton type="button" onClick={() => void markContacted(lead)} className="rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-[#172016]">Marcar contactado</TapButton>
+                  <TapButton type="button" onClick={() => void markContacted(lead)} className="rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-[#0a0a0a]">Marcar contactado</TapButton>
                 )}
               />
               <DayBucket
@@ -263,7 +265,7 @@ export default function GrowthOpsClient({
                 hint="Respondieron interesados"
                 leads={buckets.enviarPropuesta}
                 action={(lead) => (
-                  <button type="button" disabled={busyLead === lead.id} onClick={() => void generateProposal(lead)} className="inline-flex items-center gap-1.5 rounded-full bg-[#dbe9c3] px-3 py-1.5 text-xs font-semibold text-[#172016] disabled:opacity-50">
+                  <button type="button" disabled={busyLead === lead.id} onClick={() => void generateProposal(lead)} className="inline-flex items-center gap-1.5 rounded-full bg-[#c5f04a] px-3 py-1.5 text-xs font-semibold text-[#0a0a0a] disabled:opacity-50">
                     {busyLead === lead.id ? <LoaderCircle className="size-3.5 animate-spin" /> : <FileText className="size-3.5" />} Generar propuesta
                   </button>
                 )}
@@ -278,7 +280,7 @@ export default function GrowthOpsClient({
               {initialRuns.length === 0 ? <Empty text="Todavía no hay runs. Ejecuta el agente cuando Neon y Eve estén conectados." /> : initialRuns.map((run) => (
                 <article key={run.id} className="grid gap-4 rounded-2xl border border-white/10 bg-white/[0.035] p-5 md:grid-cols-[150px_1fr_auto] md:items-center">
                   <div>
-                    <span className="rounded-full bg-white/8 px-3 py-1.5 text-xs text-[#cfe3b1]">{RUN_LABELS[run.status]}</span>
+                    <span className="rounded-full bg-white/8 px-3 py-1.5 text-xs text-[#c5f04a]">{RUN_LABELS[run.status]}</span>
                     <div className="mt-3 font-mono text-[9px] text-white/35">{run.id.slice(0, 8)}</div>
                   </div>
                   <div>
@@ -297,13 +299,13 @@ export default function GrowthOpsClient({
                 <article key={lead.id} className="rounded-2xl border border-white/10 bg-white/[0.035] p-5">
                   <div className="flex items-start justify-between gap-4">
                     <div>
-                      <div className="font-mono text-[9px] uppercase tracking-[0.15em] text-[#a9c989]">{lead.vertical} · {lead.location}</div>
+                      <div className="font-mono text-[9px] uppercase tracking-[0.15em] text-[#c5f04a]">{lead.vertical} · {lead.location}</div>
                       <h2 className="mt-2 font-display text-3xl">{lead.businessName}</h2>
                     </div>
-                    <span className="flex size-11 items-center justify-center rounded-full border border-[#a9c989]/25 font-display text-xl text-[#dbe9c3]">{lead.leadScore}</span>
+                    <span className="flex size-11 items-center justify-center rounded-full border border-[#c5f04a]/25 font-display text-xl text-[#c5f04a]">{lead.leadScore}</span>
                   </div>
                   <p className="mt-5 text-sm leading-6 text-white/58">{lead.problemDetected}</p>
-                  <div className="mt-4 rounded-xl bg-[#dbe9c3] p-4 text-sm leading-5 text-[#172016]">{lead.offerAngle}</div>
+                  <div className="mt-4 rounded-xl bg-[#c5f04a] p-4 text-sm leading-5 text-[#0a0a0a]">{lead.offerAngle}</div>
                   <p className="mt-4 text-xs leading-5 text-white/38">Evidencia: {lead.evidence}</p>
 
                   <div className="mt-5 grid grid-cols-2 gap-2 lg:grid-cols-4">
@@ -313,7 +315,7 @@ export default function GrowthOpsClient({
                         type="number" min={0} max={100}
                         value={lead.closeProbability ?? ""}
                         onChange={(e) => patchLead(lead.id, { closeProbability: e.target.value === "" ? null : Number(e.target.value) })}
-                        className="rounded-lg border border-white/10 bg-black/20 px-2 py-1.5 text-sm text-white/80 outline-none focus:border-[#a9c989]/45"
+                        className="rounded-lg border border-white/10 bg-black/20 px-2 py-1.5 text-sm text-white/80 outline-none focus:border-[#c5f04a]/45"
                       />
                     </label>
                     <label className="flex flex-col gap-1 text-[10px] uppercase tracking-wide text-white/35">
@@ -322,7 +324,7 @@ export default function GrowthOpsClient({
                         type="number" min={0}
                         value={lead.potentialValue ?? ""}
                         onChange={(e) => patchLead(lead.id, { potentialValue: e.target.value === "" ? null : Number(e.target.value) })}
-                        className="rounded-lg border border-white/10 bg-black/20 px-2 py-1.5 text-sm text-white/80 outline-none focus:border-[#a9c989]/45"
+                        className="rounded-lg border border-white/10 bg-black/20 px-2 py-1.5 text-sm text-white/80 outline-none focus:border-[#c5f04a]/45"
                       />
                     </label>
                     <label className="flex flex-col gap-1 text-[10px] uppercase tracking-wide text-white/35">
@@ -331,7 +333,7 @@ export default function GrowthOpsClient({
                         type="text"
                         value={lead.nextAction ?? ""}
                         onChange={(e) => patchLead(lead.id, { nextAction: e.target.value === "" ? null : e.target.value })}
-                        className="rounded-lg border border-white/10 bg-black/20 px-2 py-1.5 text-sm text-white/80 outline-none focus:border-[#a9c989]/45"
+                        className="rounded-lg border border-white/10 bg-black/20 px-2 py-1.5 text-sm text-white/80 outline-none focus:border-[#c5f04a]/45"
                       />
                     </label>
                     <label className="flex flex-col gap-1 text-[10px] uppercase tracking-wide text-white/35">
@@ -340,7 +342,7 @@ export default function GrowthOpsClient({
                         type="date"
                         value={lead.nextActionAt?.slice(0, 10) ?? ""}
                         onChange={(e) => patchLead(lead.id, { nextActionAt: e.target.value ? `${e.target.value}T00:00:00.000Z` : null })}
-                        className="rounded-lg border border-white/10 bg-black/20 px-2 py-1.5 text-sm text-white/80 outline-none focus:border-[#a9c989]/45"
+                        className="rounded-lg border border-white/10 bg-black/20 px-2 py-1.5 text-sm text-white/80 outline-none focus:border-[#c5f04a]/45"
                       />
                     </label>
                   </div>
@@ -352,11 +354,11 @@ export default function GrowthOpsClient({
                       </a>
                     ))}
                     <TapButton type="button" onClick={() => void saveLeadFields(lead)} className="rounded-full border border-white/15 px-3 py-1.5 text-xs font-semibold text-white/70">Guardar pipeline</TapButton>
-                    <button type="button" disabled={busyLead === lead.id} onClick={() => void generateProposal(lead)} className="inline-flex items-center gap-1.5 rounded-full border border-[#a9c989]/30 px-3 py-1.5 text-xs font-semibold text-[#dbe9c3] disabled:opacity-50">
+                    <button type="button" disabled={busyLead === lead.id} onClick={() => void generateProposal(lead)} className="inline-flex items-center gap-1.5 rounded-full border border-[#c5f04a]/30 px-3 py-1.5 text-xs font-semibold text-[#c5f04a] disabled:opacity-50">
                       {busyLead === lead.id ? <LoaderCircle className="size-3.5 animate-spin" /> : <FileText className="size-3.5" />} Propuesta
                     </button>
                     {lead.status !== "contacted" && (
-                      <TapButton type="button" onClick={() => void markContacted(lead)} className="rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-[#172016]">Marcar contacto manual</TapButton>
+                      <TapButton type="button" onClick={() => void markContacted(lead)} className="rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-[#0a0a0a]">Marcar contacto manual</TapButton>
                     )}
                   </div>
                 </article>
@@ -372,14 +374,14 @@ export default function GrowthOpsClient({
                   <div key={leadId} className="rounded-2xl border border-white/10 bg-white/[0.02] p-4">
                     <div className="mb-3 flex items-center justify-between px-1">
                       <h2 className="font-display text-2xl">{lead?.businessName ?? "Lead"}</h2>
-                      <span className="font-mono text-[9px] uppercase tracking-[0.15em] text-[#a9c989]">{lead?.vertical}</span>
+                      <span className="font-mono text-[9px] uppercase tracking-[0.15em] text-[#c5f04a]">{lead?.vertical}</span>
                     </div>
                     <div className="grid gap-4 lg:grid-cols-2">
                       {leadDrafts.map((draft) => (
                         <article key={draft.id} className="rounded-2xl border border-white/10 bg-white/[0.035] p-5">
                           <div className="flex items-center justify-between gap-4">
                             <div className="flex items-center gap-2">
-                              <span className="rounded-full bg-[#dbe9c3]/15 px-2.5 py-1 text-[10px] font-semibold text-[#dbe9c3]">{KIND_LABELS[draft.kind]}</span>
+                              <span className="rounded-full bg-[#c5f04a]/15 px-2.5 py-1 text-[10px] font-semibold text-[#c5f04a]">{KIND_LABELS[draft.kind]}</span>
                               <span className="font-mono text-[9px] uppercase tracking-[0.15em] text-white/40">{draft.channel}</span>
                             </div>
                             <span className="rounded-full bg-white/8 px-3 py-1.5 text-xs text-white/55">{draft.status}</span>
@@ -388,10 +390,10 @@ export default function GrowthOpsClient({
                             value={draft.content}
                             onChange={(event) => setDrafts((items) => items.map((item) => item.id === draft.id ? { ...item, content: event.target.value } : item))}
                             rows={draft.kind === "proposal" ? 12 : 6}
-                            className="mt-4 w-full resize-y rounded-xl border border-white/10 bg-black/15 p-4 text-sm leading-6 text-white/75 outline-none focus:border-[#a9c989]/45"
+                            className="mt-4 w-full resize-y rounded-xl border border-white/10 bg-black/15 p-4 text-sm leading-6 text-white/75 outline-none focus:border-[#c5f04a]/45"
                           />
                           <div className="mt-4 flex flex-wrap gap-2">
-                            <TapButton type="button" onClick={() => void saveDraft(draft, "approved")} className="inline-flex items-center gap-2 rounded-full bg-[#dbe9c3] px-4 py-2 text-xs font-semibold text-[#172016]"><Check className="size-3.5" /> Aprobar</TapButton>
+                            <TapButton type="button" onClick={() => void saveDraft(draft, "approved")} className="inline-flex items-center gap-2 rounded-full bg-[#c5f04a] px-4 py-2 text-xs font-semibold text-[#0a0a0a]"><Check className="size-3.5" /> Aprobar</TapButton>
                             <TapButton type="button" onClick={() => void saveDraft(draft, "rejected")} className="inline-flex items-center gap-2 rounded-full border border-white/12 px-4 py-2 text-xs font-semibold text-white/60"><X className="size-3.5" /> Rechazar</TapButton>
                             <TapButton type="button" onClick={() => navigator.clipboard.writeText(draft.content)} className="inline-flex items-center gap-2 rounded-full border border-white/12 px-4 py-2 text-xs font-semibold text-white/60"><Copy className="size-3.5" /> Copiar</TapButton>
                           </div>
@@ -424,7 +426,7 @@ function DayBucket({
   return (
     <div className="rounded-2xl border border-white/10 bg-white/[0.035] p-5">
       <div className="flex items-baseline justify-between">
-        <h2 className="font-display text-2xl text-[#dbe9c3]">{title}</h2>
+        <h2 className="font-display text-2xl text-[#c5f04a]">{title}</h2>
         <span className="font-mono text-[10px] uppercase tracking-[0.15em] text-white/35">{leads.length} · {hint}</span>
       </div>
       {leads.length === 0 ? (
@@ -465,8 +467,8 @@ function MetricChip({ metric }: { metric: PostizMetric }) {
     <div className="rounded-xl border border-white/8 bg-black/15 px-3 py-2">
       <div className="font-mono text-[9px] uppercase tracking-[0.12em] text-white/38">{metric.label}</div>
       <div className="mt-1 flex items-baseline gap-2">
-        <span className="font-display text-xl text-[#dbe9c3]">{compact.format(metric.value)}</span>
-        <span className={`inline-flex items-center gap-0.5 text-[10px] font-semibold ${up ? "text-[#a9c989]" : "text-[#e0a394]"}`}>
+        <span className="font-display text-xl text-[#c5f04a]">{compact.format(metric.value)}</span>
+        <span className={`inline-flex items-center gap-0.5 text-[10px] font-semibold ${up ? "text-[#c5f04a]" : "text-[#a1a1a3]"}`}>
           {up ? <TrendingUp className="size-3" /> : <TrendingDown className="size-3" />}
           {Math.abs(metric.percentageChange).toFixed(0)}%
         </span>
@@ -495,7 +497,7 @@ function PostRow({ post }: { post: PostizPost }) {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
-            <span className="font-mono text-[9px] uppercase tracking-[0.15em] text-[#a9c989]">{post.integration?.identifier ?? "canal"}</span>
+            <span className="font-mono text-[9px] uppercase tracking-[0.15em] text-[#c5f04a]">{post.integration?.identifier ?? "canal"}</span>
             <span className="rounded-full bg-white/8 px-2 py-0.5 text-[10px] text-white/55">{POST_STATE_LABELS[post.state] ?? post.state}</span>
             <time className="font-mono text-[10px] text-white/35">{post.publishDate ? new Date(post.publishDate).toLocaleString("es-VE", { dateStyle: "short", timeStyle: "short" }) : ""}</time>
           </div>
@@ -508,7 +510,7 @@ function PostRow({ post }: { post: PostizPost }) {
             </a>
           )}
           {post.state === "PUBLISHED" && metrics === null && (
-            <button type="button" onClick={() => void loadMetrics()} className="inline-flex items-center gap-1.5 rounded-full border border-[#a9c989]/30 px-3 py-1.5 text-xs font-semibold text-[#dbe9c3]">
+            <button type="button" onClick={() => void loadMetrics()} className="inline-flex items-center gap-1.5 rounded-full border border-[#c5f04a]/30 px-3 py-1.5 text-xs font-semibold text-[#c5f04a]">
               <BarChart3 className="size-3.5" /> Métricas
             </button>
           )}
@@ -516,7 +518,7 @@ function PostRow({ post }: { post: PostizPost }) {
         </div>
       </div>
       {metrics === "missing" && <p className="mt-3 text-xs text-white/40">La plataforma no devolvió el ID publicado. Conéctalo desde Postiz para ver métricas.</p>}
-      {metrics === "error" && <p className="mt-3 text-xs text-[#e0a394]">No se pudieron cargar las métricas.</p>}
+      {metrics === "error" && <p className="mt-3 text-xs text-[#a1a1a3]">No se pudieron cargar las métricas.</p>}
       {Array.isArray(metrics) && (
         metrics.length === 0
           ? <p className="mt-3 text-xs text-white/40">Sin métricas todavía.</p>
@@ -532,10 +534,10 @@ function MarketingPanel({ snapshot, waha }: { snapshot: MarketingSnapshot; waha:
       <div className="grid gap-5">
         <ChannelRuntimePanel postizConfigured={false} waha={waha} />
         <div className="rounded-2xl border border-white/10 bg-white/[0.035] p-8">
-          <div className="font-mono text-[9px] uppercase tracking-[0.18em] text-[#a9c989]">Setup requerido</div>
+          <div className="font-mono text-[9px] uppercase tracking-[0.18em] text-[#c5f04a]">Setup requerido</div>
           <h2 className="mt-3 font-display text-3xl">Conecta Postiz para medir marketing.</h2>
           <p className="mt-4 max-w-xl text-sm leading-6 text-white/50">
-            Agrega <code className="rounded bg-black/30 px-1.5 py-0.5 text-[#dbe9c3]">POSTIZ_API_KEY</code> en las variables de entorno
+            Agrega <code className="rounded bg-black/30 px-1.5 py-0.5 text-[#c5f04a]">POSTIZ_API_KEY</code> en las variables de entorno
             (Settings → API en tu cuenta de Postiz) y recarga. Verás canales conectados (IG, LinkedIn…),
             calendario de publicaciones y métricas por canal y por post.
           </p>
@@ -548,7 +550,7 @@ function MarketingPanel({ snapshot, waha }: { snapshot: MarketingSnapshot; waha:
     return (
       <div className="grid gap-5">
         <ChannelRuntimePanel postizConfigured waha={waha} />
-        <div className="rounded-2xl border border-[#e0a394]/25 bg-[#e0a394]/8 p-6 text-sm text-[#e0a394]">
+        <div className="rounded-2xl border border-[#a1a1a3]/25 bg-[#a1a1a3]/8 p-6 text-sm text-[#a1a1a3]">
           Postiz no pudo cargar sus métricas. Revisa la conexión y credenciales del servidor.
         </div>
       </div>
@@ -577,7 +579,7 @@ function MarketingPanel({ snapshot, waha }: { snapshot: MarketingSnapshot; waha:
         ].map(([label, value]) => (
           <div key={label} className="rounded-2xl border border-white/10 bg-white/[0.035] p-5">
             <div className="font-mono text-[9px] uppercase tracking-[0.18em] text-white/38">{label}</div>
-            <div className="mt-3 font-display text-4xl text-[#dbe9c3]">{value}</div>
+            <div className="mt-3 font-display text-4xl text-[#c5f04a]">{value}</div>
           </div>
         ))}
       </div>
@@ -593,11 +595,11 @@ function MarketingPanel({ snapshot, waha }: { snapshot: MarketingSnapshot; waha:
                   // eslint-disable-next-line @next/next/no-img-element -- avatar externo de Postiz
                   <img src={channel.picture} alt="" className="size-10 rounded-full object-cover" />
                 ) : (
-                  <span className="flex size-10 items-center justify-center rounded-full border border-[#a9c989]/25 font-display text-lg text-[#dbe9c3]">{channel.name.slice(0, 1)}</span>
+                  <span className="flex size-10 items-center justify-center rounded-full border border-[#c5f04a]/25 font-display text-lg text-[#c5f04a]">{channel.name.slice(0, 1)}</span>
                 )}
                 <div>
                   <h2 className="font-display text-2xl">{channel.name}</h2>
-                  <div className="font-mono text-[9px] uppercase tracking-[0.15em] text-[#a9c989]">
+                  <div className="font-mono text-[9px] uppercase tracking-[0.15em] text-[#c5f04a]">
                     {channel.identifier}{channel.disabled ? " · desactivado" : ""}
                   </div>
                 </div>
@@ -616,7 +618,7 @@ function MarketingPanel({ snapshot, waha }: { snapshot: MarketingSnapshot; waha:
 
       <div className="rounded-2xl border border-white/10 bg-white/[0.035] p-5">
         <div className="flex items-baseline justify-between">
-          <h2 className="font-display text-2xl text-[#dbe9c3]">Próximas publicaciones</h2>
+          <h2 className="font-display text-2xl text-[#c5f04a]">Próximas publicaciones</h2>
           <span className="font-mono text-[10px] uppercase tracking-[0.15em] text-white/35">{upcoming.length} programadas</span>
         </div>
         {upcoming.length === 0 ? (
@@ -628,7 +630,7 @@ function MarketingPanel({ snapshot, waha }: { snapshot: MarketingSnapshot; waha:
 
       <div className="rounded-2xl border border-white/10 bg-white/[0.035] p-5">
         <div className="flex items-baseline justify-between">
-          <h2 className="font-display text-2xl text-[#dbe9c3]">Publicado (últimos 30 días)</h2>
+          <h2 className="font-display text-2xl text-[#c5f04a]">Publicado (últimos 30 días)</h2>
           <span className="font-mono text-[10px] uppercase tracking-[0.15em] text-white/35">{published.length} posts</span>
         </div>
         {published.length === 0 ? (
@@ -645,25 +647,25 @@ function ChannelRuntimePanel({ postizConfigured, waha }: { postizConfigured: boo
   return (
     <div className="grid gap-3 lg:grid-cols-2">
       <article className="rounded-2xl border border-white/10 bg-white/[0.035] p-5">
-        <div className="font-mono text-[9px] uppercase tracking-[0.18em] text-[#a9c989]">Redes sociales</div>
+        <div className="font-mono text-[9px] uppercase tracking-[0.18em] text-[#c5f04a]">Redes sociales</div>
         <div className="mt-3 flex items-center justify-between gap-4">
           <div>
             <h2 className="font-display text-2xl">Postiz</h2>
             <p className="mt-1 text-xs leading-5 text-white/40">LinkedIn, Instagram y otros canales con calendario y métricas.</p>
           </div>
-          <span className={`rounded-full px-3 py-1.5 text-xs ${postizConfigured ? "bg-[#a9c989]/15 text-[#dbe9c3]" : "bg-white/8 text-white/45"}`}>
+          <span className={`rounded-full px-3 py-1.5 text-xs ${postizConfigured ? "bg-[#c5f04a]/15 text-[#c5f04a]" : "bg-white/8 text-white/45"}`}>
             {postizConfigured ? "Conectado" : "Sin configurar"}
           </span>
         </div>
       </article>
 
       <article className="rounded-2xl border border-white/10 bg-white/[0.035] p-5">
-        <div className="font-mono text-[9px] uppercase tracking-[0.18em] text-[#a9c989]">WhatsApp publishing</div>
+        <div className="font-mono text-[9px] uppercase tracking-[0.18em] text-[#c5f04a]">WhatsApp publishing</div>
         <div className="mt-3 flex items-start justify-between gap-4">
           <div>
             <h2 className="font-display text-2xl">WAHA</h2>
             <p className="mt-1 text-xs leading-5 text-white/40">Status y Channels aprobados. Sin outreach masivo ni envío directo autónomo.</p>
-            {waha.error && <p className="mt-2 text-xs text-[#e0a394]">{waha.error}</p>}
+            {waha.error && <p className="mt-2 text-xs text-[#a1a1a3]">{waha.error}</p>}
             {waha.sessions.length > 0 && (
               <div className="mt-3 flex flex-wrap gap-2">
                 {waha.sessions.map((session) => (
@@ -674,7 +676,7 @@ function ChannelRuntimePanel({ postizConfigured, waha }: { postizConfigured: boo
               </div>
             )}
           </div>
-          <span className={`shrink-0 rounded-full px-3 py-1.5 text-xs ${waha.configured && !waha.error ? "bg-[#a9c989]/15 text-[#dbe9c3]" : "bg-white/8 text-white/45"}`}>
+          <span className={`shrink-0 rounded-full px-3 py-1.5 text-xs ${waha.configured && !waha.error ? "bg-[#c5f04a]/15 text-[#c5f04a]" : "bg-white/8 text-white/45"}`}>
             {!waha.configured ? "Sin configurar" : waha.error ? "Con error" : "Conectado"}
           </span>
         </div>

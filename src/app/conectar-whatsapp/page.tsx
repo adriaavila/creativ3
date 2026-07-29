@@ -16,9 +16,9 @@ export default async function ConectarWhatsAppPage({
 
   if (!sessionId) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-[#0a0f0b] px-6 text-white selection:bg-[#31583a] selection:text-white">
+      <main className="flex min-h-screen items-center justify-center bg-[#08090a] px-6 text-white selection:bg-[#0a0a0a] selection:text-white">
         <div className="max-w-md rounded-3xl border border-white/10 bg-white/[0.04] p-8 text-center text-white shadow-2xl shadow-black/50">
-          <div className="font-mono text-[9px] uppercase tracking-[0.2em] text-[#a9c989] mb-2">
+          <div className="font-mono text-[9px] uppercase tracking-[0.2em] text-[#c5f04a] mb-2">
             Verificación requerida
           </div>
           <h1 className="text-2xl font-display text-white tracking-[-0.02em]">Falta el enlace de tu compra</h1>

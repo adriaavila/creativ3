@@ -50,19 +50,19 @@ const geist = Geist({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://www.servicioscreativos.online"),
+  metadataBase: new URL("https://servicios.frontia.app"),
   title: {
-    default: "creativv | Aumenta ingresos o reduce costos",
-    template: "%s | creativv",
+    default: "Releva | Aumenta ingresos o reduce costos",
+    template: "%s | Releva",
   },
   description:
-    "Creativv diseña landing pages, sitios web y ecommerce para aumentar ingresos; automatizaciones, dashboards y apps para reducir costos.",
+    "Releva diseña landing pages, sitios web y ecommerce para aumentar ingresos; automatizaciones, dashboards y apps para reducir costos.",
   alternates: { canonical: "/" },
   verification: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION
     ? { google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION }
     : undefined,
   keywords: [
-    "creativv",
+    "Releva",
     "landing pages",
     "agentes IA para negocios",
     "automatizaciones",
@@ -75,18 +75,18 @@ export const metadata: Metadata = {
     "WhatsApp",
   ],
   openGraph: {
-    title: "creativv | Diseño digital para crecer u operar mejor",
+    title: "Releva | Diseño digital para crecer u operar mejor",
     description:
       "Landing pages, sitios web y ecommerce para vender más. Automatizaciones, dashboards y apps para operar con menos fricción.",
-    url: "https://www.servicioscreativos.online",
-    siteName: "creativv",
+    url: "https://servicios.frontia.app",
+    siteName: "Releva",
     locale: "es_VE",
     type: "website",
-    images: [{ url: "/opengraph-image", width: 1200, height: 630, alt: "creativv" }],
+    images: [{ url: "/opengraph-image", width: 1200, height: 630, alt: "Releva" }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "creativv | Aumenta ingresos o reduce costos",
+    title: "Releva | Aumenta ingresos o reduce costos",
     description:
       "Estrategia, UX/UI y software diseñados alrededor del resultado que tu negocio necesita.",
     images: ["/opengraph-image"],

@@ -25,11 +25,11 @@ const CTA_URL = whatsappUrl(
 
 export default function WhatsAppBanner() {
   return (
-    <section id="funnel" className="relative w-full bg-[#1f2a1d] text-white scroll-mt-24">
+    <section id="funnel" className="relative w-full bg-[#0a0a0a] text-white scroll-mt-24">
       <div className="mx-auto max-w-6xl px-6 py-20 md:px-10 md:py-28">
         <div className="grid gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
           <div>
-            <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-white/10 px-3.5 py-1.5 text-xs font-semibold uppercase tracking-[0.14em] text-[#dbe9c3]">
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-white/10 px-3.5 py-1.5 text-xs font-semibold uppercase tracking-[0.14em] text-[#c5f04a]">
               <Sparkles className="h-3.5 w-3.5" />
               Cómo funciona el funnel
             </div>
@@ -45,7 +45,7 @@ export default function WhatsAppBanner() {
               href={CTA_URL}
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-8 inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-[#dbe9c3] px-6 py-3 text-sm font-semibold text-[#1f2a1d] transition-all duration-300 hover:-translate-y-0.5 hover:bg-white"
+              className="mt-8 inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-[#c5f04a] px-6 py-3 text-sm font-semibold text-[#0a0a0a] transition-all duration-300 hover:-translate-y-0.5 hover:bg-white"
             >
               Diseñar mi ruta
               <ArrowRight className="h-4 w-4" />
@@ -61,7 +61,7 @@ export default function WhatsAppBanner() {
                   className="grid gap-4 rounded-lg border border-white/10 bg-white/[0.04] p-5 backdrop-blur md:grid-cols-[auto_1fr] md:p-6"
                 >
                   <div className="flex items-center gap-4 md:block">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-[#dbe9c3] text-[#1f2a1d]">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-[#c5f04a] text-[#0a0a0a]">
                       <Icon className="h-5 w-5" />
                     </div>
                     <div className="font-mono text-xs font-semibold uppercase tracking-[0.18em] text-white/50 md:mt-5">

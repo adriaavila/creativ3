@@ -44,6 +44,17 @@ function StrokeGradient({ id }: { id: string }) {
   );
 }
 
+function WordGradient({ id }: { id: string }) {
+  return (
+    <defs>
+      <linearGradient id={id} x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0" stopColor={ACCENT} />
+        <stop offset="1" stopColor="currentColor" />
+      </linearGradient>
+    </defs>
+  );
+}
+
 function Mark({ id, strokeWidth = 2.6 }: { id: string; strokeWidth?: number }) {
   return (
     <path
@@ -68,6 +79,7 @@ export default function AllokLogo({
   const isDark = theme === "dark";
   const badgeBg = isDark ? "#111214" : "#08090a";
   const id = gradientId(variant);
+  const wordId = `${id}-word`;
 
   if (variant === "mark") {
     return (
@@ -111,6 +123,7 @@ export default function AllokLogo({
         role="img"
         aria-label="allok"
       >
+        <WordGradient id={wordId} />
         <text
           x="0"
           y="33"
@@ -122,7 +135,8 @@ export default function AllokLogo({
           letterSpacing="-1.3"
           fill="currentColor"
         >
-          allok
+          <tspan fill={`url(#${wordId})`}>all</tspan>
+          <tspan>ok</tspan>
         </text>
       </svg>
     );
@@ -138,6 +152,7 @@ export default function AllokLogo({
         aria-label="allok"
       >
         <StrokeGradient id={id} />
+        <WordGradient id={wordId} />
         <g transform="translate(-2,1) scale(0.85)">
           <Mark id={id} strokeWidth={3.1} />
         </g>
@@ -152,7 +167,8 @@ export default function AllokLogo({
           letterSpacing="-1.4"
           fill="currentColor"
         >
-          allok
+          <tspan fill={`url(#${wordId})`}>all</tspan>
+          <tspan>ok</tspan>
         </text>
       </svg>
     );
@@ -166,6 +182,7 @@ export default function AllokLogo({
       role="img"
       aria-label="allok"
     >
+      <WordGradient id={wordId} />
       <rect width="48" height="48" y="4" rx="14" fill={badgeBg} />
       <g className="text-white">
         <StrokeGradient id={id} />
@@ -184,7 +201,8 @@ export default function AllokLogo({
         letterSpacing="-1.4"
         fill="currentColor"
       >
-        allok
+        <tspan fill={`url(#${wordId})`}>all</tspan>
+        <tspan>ok</tspan>
       </text>
     </svg>
   );

@@ -29,8 +29,8 @@ export default function AllokHome({
 
   return (
     <div className="studio min-h-screen bg-white text-black antialiased selection:bg-[#c5f04a] selection:text-black">
-      <header className="sticky top-0 z-50 border-b border-black/10 bg-white/80 backdrop-blur-xl">
-        <nav className="mx-auto flex max-w-[90rem] items-center justify-between gap-3 px-5 py-3 sm:px-8">
+      <header className="studio-header sticky top-0 z-50">
+        <nav className="studio-nav mx-auto flex max-w-[90rem] items-center justify-between gap-3 px-5 py-3 sm:px-8">
           <Link href={`/${locale}`} aria-label="allok" className="shrink-0 text-black">
             <AllokLogo variant="lockup-bare" className="h-7 w-auto sm:h-[30px]" />
           </Link>
@@ -96,20 +96,14 @@ export default function AllokHome({
                 <span className="h-1.5 w-1.5 rounded-full bg-[#c5f04a]" aria-hidden />
                 {home.available}
               </span>
-              <h1 className="brand-tail-text mt-7 max-w-4xl text-[clamp(3.4rem,7.3vw,7.6rem)] font-semibold leading-[.84] tracking-[-.06em] text-balance">
+              <h1 className="brand-tail-text mt-7 max-w-4xl pb-[.08em] text-[clamp(3.4rem,7.3vw,7.6rem)] font-semibold leading-[.9] tracking-[-.06em] text-balance">
                 {home.heroTitle}
               </h1>
-              <div className="relative mt-8 w-fit max-w-2xl pb-1">
-                <p className="relative z-10 text-[clamp(1.2rem,2vw,1.72rem)] font-semibold leading-tight text-balance">
+              <div className="relative mt-3 w-fit max-w-2xl pb-1">
+                <p className="text-[clamp(1.2rem,2vw,1.72rem)] font-semibold leading-[1.3] text-balance">
                   {home.heroLead}
                 </p>
-                <Waveform
-                  id="hero-lead-wave"
-                  cycles={14}
-                  weight={9}
-                  waist={0.36}
-                  className="absolute -bottom-3 left-0 h-8 w-full text-[#c5f04a]"
-                />
+                <span aria-hidden className="absolute -bottom-1 left-0 h-[3px] w-full rounded-full bg-[#c5f04a]" />
               </div>
               <p className="mt-4 max-w-[58ch] text-[17px] leading-relaxed text-neutral-600 sm:text-[19px]">
                 {home.heroBody}

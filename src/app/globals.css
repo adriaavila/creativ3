@@ -116,6 +116,45 @@
   -webkit-text-fill-color: transparent;
 }
 
+.studio-header {
+  padding: 0.5rem 0.75rem 0;
+  pointer-events: none;
+}
+
+.studio-nav {
+  pointer-events: auto;
+  border: 1px solid rgba(10, 10, 10, 0.1);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.88);
+  box-shadow: 0 12px 38px rgba(10, 10, 10, 0.08);
+  backdrop-filter: blur(18px);
+}
+
+@keyframes studio-nav-dock {
+  from {
+    max-width: 90rem;
+    border-color: transparent;
+    background: rgba(255, 255, 255, 0);
+    box-shadow: 0 0 0 rgba(10, 10, 10, 0);
+    backdrop-filter: blur(0);
+  }
+  to {
+    max-width: 72rem;
+    border-color: rgba(10, 10, 10, 0.1);
+    background: rgba(255, 255, 255, 0.88);
+    box-shadow: 0 12px 38px rgba(10, 10, 10, 0.08);
+    backdrop-filter: blur(18px);
+  }
+}
+
+@supports (animation-timeline: scroll()) {
+  .studio-nav {
+    animation: studio-nav-dock linear both;
+    animation-timeline: scroll();
+    animation-range: 0px 160px;
+  }
+}
+
 .studio-hero {
   background:
     radial-gradient(60% 75% at 9% 14%, rgba(197, 240, 74, 0.3), transparent 64%),

@@ -2,7 +2,7 @@ import { z } from "zod";
 import { NextRequest, NextResponse } from "next/server";
 import { getStripePurchaseBySessionId } from "@/lib/stripe-purchases-db";
 import { getWahaConfig, getWahaSnapshot } from "@/lib/waha";
-import { getWahaQr, startWahaSession } from "@/lib/waha-send";
+import { getWahaQr, requestWahaPairingCode, restartWahaSession, startWahaSession } from "@/lib/waha-send";
 import { getWahaConnection, updateWahaConnectionStatus, upsertWahaConnection } from "@/lib/whatsapp-inbox-db";
 
 export const runtime = "nodejs";
@@ -11,7 +11,16 @@ export const runtime = "nodejs";
 // checkout session id itself: unguessable, issued by Stripe, and only the buyer
 // receives it (via the success_url). No ops cookie needed here, and no way to
 // enumerate other customers' sessions.
-const querySchema = z.object({ session_id: z.string().trim().min(10).max(255) });
+const querySchema = z.object({
+  session_id: z.string().trim().min(10).max(255),
+  // Optional: pair by code instead of QR. E.164 digits, no '+', country code included.
+  phone: z
+    .string()
+    .trim()
+    .transform((value) => value.replace(/\D/g, ""))
+    .refine((digits) => digits.length >= 8 && digits.length <= 15, "Número inválido.")
+    .optional(),
+});
 
 /** Derives a stable, slug-safe WAHA session name from the purchase. */
 function wahaSessionIdFor(stripeSessionId: string, client: string | null): string {
@@ -30,7 +39,10 @@ function wahaSessionIdFor(stripeSessionId: string, client: string | null): strin
 }
 
 export async function GET(req: NextRequest) {
-  const parsed = querySchema.safeParse({ session_id: req.nextUrl.searchParams.get("session_id") });
+  const parsed = querySchema.safeParse({
+    session_id: req.nextUrl.searchParams.get("session_id"),
+    phone: req.nextUrl.searchParams.get("phone") ?? undefined,
+  });
   if (!parsed.success) {
     return NextResponse.json({ error: "session_id requerido." }, { status: 400 });
   }
@@ -75,7 +87,17 @@ export async function GET(req: NextRequest) {
 
   // Reconcile stored status against WAHA's live view so the page can stop polling.
   const snapshot = await getWahaSnapshot(sessionId);
-  const liveStatus = snapshot.sessions.find((s) => s.name === sessionId)?.status?.toUpperCase();
+  let liveStatus = snapshot.sessions.find((s) => s.name === sessionId)?.status?.toUpperCase();
+
+  // An unscanned session expires into FAILED and never issues a new QR on its own.
+  // Restart it here so the page recovers by itself instead of dead-ending the
+  // customer; the restart lands back on SCAN_QR_CODE within a few seconds, which
+  // the next poll picks up.
+  if (liveStatus === "FAILED" || liveStatus === "STOPPED") {
+    await restartWahaSession(sessionId).catch(() => null);
+    liveStatus = "STARTING";
+  }
+
   let status = connection?.status ?? "pending";
   if (liveStatus === "WORKING") status = "connected";
   else if (liveStatus === "SCAN_QR_CODE") status = "scan_qr";
@@ -85,7 +107,15 @@ export async function GET(req: NextRequest) {
     await updateWahaConnectionStatus(sessionId, status);
   }
 
-  const qr = status === "scan_qr" ? await getWahaQr(sessionId).catch(() => null) : null;
+  // Two ways to pair the same session: scan the QR, or type an 8-character code
+  // into "Link with phone number". Asking for a code skips the QR — requesting
+  // both at once makes WhatsApp invalidate one of them.
+  const wantsCode = Boolean(parsed.data.phone);
+  const qr = status === "scan_qr" && !wantsCode ? await getWahaQr(sessionId).catch(() => null) : null;
+  const code =
+    status === "scan_qr" && parsed.data.phone
+      ? await requestWahaPairingCode(sessionId, parsed.data.phone).catch(() => null)
+      : null;
 
-  return NextResponse.json({ session: sessionId, status, qr, plan: purchase.plan });
+  return NextResponse.json({ session: sessionId, status, qr, code, plan: purchase.plan });
 }

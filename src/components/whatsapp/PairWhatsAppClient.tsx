@@ -9,6 +9,7 @@ type PairState = {
   session?: string;
   status?: "pending" | "scan_qr" | "connected" | "disconnected";
   qr?: { mimetype: string; data: string } | null;
+  code?: string | null;
   plan?: string;
   error?: string;
   channel?: string;
@@ -24,6 +25,31 @@ export default function PairWhatsAppClient({ stripeSessionId }: { stripeSessionI
   const reduceMotion = useReducedMotion();
   const [state, setState] = useState<PairState>({});
   const [loading, setLoading] = useState(true);
+  // Pairing by code is a one-shot request, deliberately outside the poll loop:
+  // every request-code call invalidates the previous code, so polling with the
+  // phone attached would rewrite the number the user is trying to type in.
+  const [phone, setPhone] = useState("");
+  const [code, setCode] = useState<string | null>(null);
+  const [codeError, setCodeError] = useState<string | null>(null);
+  const [requestingCode, setRequestingCode] = useState(false);
+
+  const requestCode = async () => {
+    setRequestingCode(true);
+    setCodeError(null);
+    try {
+      const res = await fetch(
+        `/api/waha/pair?session_id=${encodeURIComponent(stripeSessionId)}&phone=${encodeURIComponent(phone)}`,
+        { cache: "no-store" },
+      );
+      const data = (await res.json()) as PairState;
+      if (data.code) setCode(data.code);
+      else setCodeError(data.error ?? "No pudimos generar el código. Revisá el número e intentá de nuevo.");
+    } catch {
+      setCodeError("No pudimos generar el código. Revisá tu conexión e intentá de nuevo.");
+    } finally {
+      setRequestingCode(false);
+    }
+  };
 
   useEffect(() => {
     let cancelled = false;
@@ -76,7 +102,62 @@ export default function PairWhatsAppClient({ stripeSessionId }: { stripeSessionI
             </div>
           )}
 
-          {state.status === "scan_qr" && state.qr && (
+          {state.status === "scan_qr" && !code && (
+            <div className="mt-6 rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+              <p className="text-sm text-white/70">¿Sin cámara a mano? Vinculá con tu número.</p>
+              <div className="mt-3 flex gap-2">
+                <input
+                  type="tel"
+                  inputMode="numeric"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  placeholder="591XXXXXXXX"
+                  aria-label="Número de WhatsApp con código de país, sin +"
+                  className="min-w-0 flex-1 rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-sm text-white placeholder:text-white/30 focus:border-[#c5f04a]/50 focus:outline-none"
+                />
+                <button
+                  type="button"
+                  onClick={requestCode}
+                  disabled={requestingCode || phone.replace(/\D/g, "").length < 8}
+                  className="shrink-0 rounded-xl bg-[#c5f04a] px-4 py-2 text-sm font-medium text-black transition disabled:opacity-40"
+                >
+                  {requestingCode ? "Generando…" : "Obtener código"}
+                </button>
+              </div>
+              <p className="mt-2 text-xs text-white/40">Con código de país, sin el signo +.</p>
+              {codeError && <p className="mt-2 text-xs text-red-300">{codeError}</p>}
+            </div>
+          )}
+
+          {state.status === "scan_qr" && code && (
+            <motion.div
+              initial={reduceMotion ? false : { opacity: 0, scale: 0.98 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={SETTLE}
+              className="mt-6"
+            >
+              <div className="rounded-2xl border border-[#c5f04a]/30 bg-[#c5f04a]/5 p-6 text-center">
+                <p className="font-mono text-3xl tracking-[0.2em] text-[#c5f04a]">{code}</p>
+              </div>
+              <ol className="mt-5 space-y-2 text-sm leading-relaxed text-white/70">
+                <li>1. Abrí WhatsApp en tu teléfono.</li>
+                <li>2. Ajustes → Dispositivos vinculados → Vincular dispositivo.</li>
+                <li>3. Tocá «Vincular con número de teléfono» e ingresá este código.</li>
+              </ol>
+              <button
+                type="button"
+                onClick={() => {
+                  setCode(null);
+                  setPhone("");
+                }}
+                className="mt-4 text-xs text-white/50 underline underline-offset-4 hover:text-white/80"
+              >
+                Prefiero escanear el QR
+              </button>
+            </motion.div>
+          )}
+
+          {state.status === "scan_qr" && !code && state.qr && (
             <motion.div
               initial={reduceMotion ? false : { opacity: 0, scale: 0.98 }}
               animate={{ opacity: 1, scale: 1 }}

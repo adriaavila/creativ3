@@ -31,11 +31,70 @@ export function toWahaChatId(waId: string): string {
   return `${digits}@c.us`;
 }
 
+/**
+ * Webhook config for a session. WAHA delivers inbound messages only to the
+ * webhooks attached to the session itself — there is no global webhook setting —
+ * so a session started without this is a number that can never reach the inbox.
+ * `ignore` matters: without it every contact's status update fires a webhook.
+ */
+function sessionConfig() {
+  const appUrl = (process.env.APP_URL ?? process.env.NEXT_PUBLIC_APP_URL ?? "").replace(/\/+$/, "");
+  if (!appUrl) throw new Error("APP_URL is required to register the WAHA webhook.");
+
+  const hmacKey = process.env.WAHA_WEBHOOK_HMAC_KEY;
+  // ponytail: fail loudly rather than silently registering an unsigned webhook —
+  // the route rejects unsigned payloads only when the key is set, so a missing key
+  // here would quietly open the endpoint to anyone who knows the URL.
+  if (!hmacKey) throw new Error("WAHA_WEBHOOK_HMAC_KEY is required to register the WAHA webhook.");
+
+  return {
+    webhooks: [
+      {
+        url: `${appUrl}/api/waha/webhook`,
+        events: ["message", "message.ack", "session.status"],
+        hmac: { key: hmacKey },
+        retries: { policy: "constant", delaySeconds: 2, attempts: 15 },
+      },
+    ],
+    ignore: { status: true, groups: true, channels: true },
+  };
+}
+
 export async function startWahaSession(sessionId: string): Promise<void> {
   await wahaFetch("/api/sessions", {
     method: "POST",
-    body: JSON.stringify({ name: sessionId, start: true }),
+    body: JSON.stringify({ name: sessionId, start: true, config: sessionConfig() }),
   });
+}
+
+/**
+ * Brings a dead session back to SCAN_QR_CODE. An unscanned session expires after
+ * a few minutes and WAHA parks it in FAILED rather than issuing a fresh QR, so
+ * without this a customer who walks away from the page comes back to a dead end:
+ * no QR, and `request-code` answers 422 "current status is FAILED".
+ */
+export async function restartWahaSession(sessionId: string): Promise<void> {
+  await wahaFetch(`/api/sessions/${encodeURIComponent(sessionId)}/restart`, { method: "POST" });
+}
+
+/**
+ * Pairing without a camera: WhatsApp shows an 8-character code on the phone
+ * ("Link with phone number" in Linked devices) instead of a QR to scan. This is
+ * the path that works over a call, where the prospect cannot point a camera at
+ * your screen. The session must already be in SCAN_QR_CODE.
+ *
+ * `phoneNumber` is E.164 digits without '+' — the same shape as a WhatsApp id.
+ */
+export async function requestWahaPairingCode(sessionId: string, phoneNumber: string): Promise<string | null> {
+  const digits = phoneNumber.replace(/\D/g, "");
+  if (digits.length < 8) throw new Error("El número debe incluir código de país, sin '+'.");
+
+  const response = await wahaFetch(`/api/${encodeURIComponent(sessionId)}/auth/request-code`, {
+    method: "POST",
+    body: JSON.stringify({ phoneNumber: digits }),
+  });
+  const body = await response.json().catch(() => null);
+  return body?.code ? String(body.code) : null;
 }
 
 export type WahaQr = { mimetype: string; data: string };

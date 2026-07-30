@@ -31,10 +31,39 @@ export function toWahaChatId(waId: string): string {
   return `${digits}@c.us`;
 }
 
+/**
+ * Webhook config for a session. WAHA delivers inbound messages only to the
+ * webhooks attached to the session itself — there is no global webhook setting —
+ * so a session started without this is a number that can never reach the inbox.
+ * `ignore` matters: without it every contact's status update fires a webhook.
+ */
+function sessionConfig() {
+  const appUrl = (process.env.APP_URL ?? process.env.NEXT_PUBLIC_APP_URL ?? "").replace(/\/+$/, "");
+  if (!appUrl) throw new Error("APP_URL is required to register the WAHA webhook.");
+
+  const hmacKey = process.env.WAHA_WEBHOOK_HMAC_KEY;
+  // ponytail: fail loudly rather than silently registering an unsigned webhook —
+  // the route rejects unsigned payloads only when the key is set, so a missing key
+  // here would quietly open the endpoint to anyone who knows the URL.
+  if (!hmacKey) throw new Error("WAHA_WEBHOOK_HMAC_KEY is required to register the WAHA webhook.");
+
+  return {
+    webhooks: [
+      {
+        url: `${appUrl}/api/waha/webhook`,
+        events: ["message", "message.ack", "session.status"],
+        hmac: { key: hmacKey },
+        retries: { policy: "constant", delaySeconds: 2, attempts: 15 },
+      },
+    ],
+    ignore: { status: true, groups: true, channels: true },
+  };
+}
+
 export async function startWahaSession(sessionId: string): Promise<void> {
   await wahaFetch("/api/sessions", {
     method: "POST",
-    body: JSON.stringify({ name: sessionId, start: true }),
+    body: JSON.stringify({ name: sessionId, start: true, config: sessionConfig() }),
   });
 }
 

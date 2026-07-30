@@ -3,13 +3,14 @@ import { NextRequest, NextResponse } from "next/server";
 import { insertMessage, updateMessageStatusByWaId, upsertConversation } from "@/lib/whatsapp-inbox-db";
 
 // HMAC-over-raw-body, same shape as the Meta webhook verifier in
-// src/app/api/meta/whatsapp/webhook/route.ts. WAHA itself doesn't mandate a
-// signature header name — this project puts one in front via WAHA_WEBHOOK_HMAC_KEY
-// (see .env.example) and expects it on `x-webhook-hmac`. If your WAHA/proxy setup
-// signs differently, adjust the header name here — the HMAC math stays the same.
+// src/app/api/meta/whatsapp/webhook/route.ts. WAHA signs with the per-session
+// `config.webhooks[].hmac.key` (we set it to WAHA_WEBHOOK_HMAC_KEY) and sends the
+// digest on `X-Webhook-Hmac`, hex, algorithm sha512 — it advertises the algorithm
+// on `X-Webhook-Hmac-Algorithm`, which we deliberately ignore: trusting a
+// caller-supplied algorithm name would let anyone downgrade the hash.
 function verifySignature(rawBody: string, header: string | null, secret: string) {
   if (!header) return false;
-  const expected = crypto.createHmac("sha256", secret).update(rawBody).digest("hex");
+  const expected = crypto.createHmac("sha512", secret).update(rawBody).digest("hex");
   const received = Buffer.from(header);
   const expectedBuf = Buffer.from(expected);
   return received.length === expectedBuf.length && crypto.timingSafeEqual(received, expectedBuf);

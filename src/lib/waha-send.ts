@@ -68,6 +68,16 @@ export async function startWahaSession(sessionId: string): Promise<void> {
 }
 
 /**
+ * Brings a dead session back to SCAN_QR_CODE. An unscanned session expires after
+ * a few minutes and WAHA parks it in FAILED rather than issuing a fresh QR, so
+ * without this a customer who walks away from the page comes back to a dead end:
+ * no QR, and `request-code` answers 422 "current status is FAILED".
+ */
+export async function restartWahaSession(sessionId: string): Promise<void> {
+  await wahaFetch(`/api/sessions/${encodeURIComponent(sessionId)}/restart`, { method: "POST" });
+}
+
+/**
  * Pairing without a camera: WhatsApp shows an 8-character code on the phone
  * ("Link with phone number" in Linked devices) instead of a QR to scan. This is
  * the path that works over a call, where the prospect cannot point a camera at

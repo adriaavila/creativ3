@@ -2,7 +2,7 @@ import { z } from "zod";
 import { NextRequest, NextResponse } from "next/server";
 import { getStripePurchaseBySessionId } from "@/lib/stripe-purchases-db";
 import { getWahaConfig, getWahaSnapshot } from "@/lib/waha";
-import { getWahaQr, requestWahaPairingCode, startWahaSession } from "@/lib/waha-send";
+import { getWahaQr, requestWahaPairingCode, restartWahaSession, startWahaSession } from "@/lib/waha-send";
 import { getWahaConnection, updateWahaConnectionStatus, upsertWahaConnection } from "@/lib/whatsapp-inbox-db";
 
 export const runtime = "nodejs";
@@ -87,7 +87,17 @@ export async function GET(req: NextRequest) {
 
   // Reconcile stored status against WAHA's live view so the page can stop polling.
   const snapshot = await getWahaSnapshot(sessionId);
-  const liveStatus = snapshot.sessions.find((s) => s.name === sessionId)?.status?.toUpperCase();
+  let liveStatus = snapshot.sessions.find((s) => s.name === sessionId)?.status?.toUpperCase();
+
+  // An unscanned session expires into FAILED and never issues a new QR on its own.
+  // Restart it here so the page recovers by itself instead of dead-ending the
+  // customer; the restart lands back on SCAN_QR_CODE within a few seconds, which
+  // the next poll picks up.
+  if (liveStatus === "FAILED" || liveStatus === "STOPPED") {
+    await restartWahaSession(sessionId).catch(() => null);
+    liveStatus = "STARTING";
+  }
+
   let status = connection?.status ?? "pending";
   if (liveStatus === "WORKING") status = "connected";
   else if (liveStatus === "SCAN_QR_CODE") status = "scan_qr";

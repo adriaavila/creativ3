@@ -99,12 +99,9 @@ export default function AllokHome({
               <h1 className="brand-tail-text mt-7 max-w-4xl pb-[.08em] text-[clamp(3.4rem,7.3vw,7.6rem)] font-semibold leading-[.9] tracking-[-.06em] text-balance">
                 {home.heroTitle}
               </h1>
-              <div className="relative mt-3 w-fit max-w-2xl pb-1">
-                <p className="text-[clamp(1.2rem,2vw,1.72rem)] font-semibold leading-[1.3] text-balance">
-                  {home.heroLead}
-                </p>
-                <span aria-hidden className="absolute -bottom-1 left-0 h-[3px] w-full rounded-full bg-[#c5f04a]" />
-              </div>
+              <p className="mt-3 max-w-2xl text-[clamp(1.2rem,2vw,1.72rem)] font-semibold leading-[1.3] text-balance">
+                {home.heroLead}
+              </p>
               <p className="mt-4 max-w-[58ch] text-[17px] leading-relaxed text-neutral-600 sm:text-[19px]">
                 {home.heroBody}
               </p>

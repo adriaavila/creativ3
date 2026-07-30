@@ -67,6 +67,26 @@ export async function startWahaSession(sessionId: string): Promise<void> {
   });
 }
 
+/**
+ * Pairing without a camera: WhatsApp shows an 8-character code on the phone
+ * ("Link with phone number" in Linked devices) instead of a QR to scan. This is
+ * the path that works over a call, where the prospect cannot point a camera at
+ * your screen. The session must already be in SCAN_QR_CODE.
+ *
+ * `phoneNumber` is E.164 digits without '+' — the same shape as a WhatsApp id.
+ */
+export async function requestWahaPairingCode(sessionId: string, phoneNumber: string): Promise<string | null> {
+  const digits = phoneNumber.replace(/\D/g, "");
+  if (digits.length < 8) throw new Error("El número debe incluir código de país, sin '+'.");
+
+  const response = await wahaFetch(`/api/${encodeURIComponent(sessionId)}/auth/request-code`, {
+    method: "POST",
+    body: JSON.stringify({ phoneNumber: digits }),
+  });
+  const body = await response.json().catch(() => null);
+  return body?.code ? String(body.code) : null;
+}
+
 export type WahaQr = { mimetype: string; data: string };
 
 export async function getWahaQr(sessionId: string): Promise<WahaQr | null> {

@@ -16,6 +16,8 @@ export type StripePurchase = {
   channel: "waha" | "cloud_api";
   client: string | null;
   customerEmail: string | null;
+  stripeCustomerId: string | null;
+  stripeSubscriptionId: string | null;
   createdAt: string;
 };
 
@@ -30,7 +32,8 @@ export async function getStripePurchaseBySessionId(
 ): Promise<StripePurchase | null> {
   const sql = getSql();
   const rows = await sql`
-    SELECT stripe_session_id, plan, channel, client, customer_email, created_at
+    SELECT stripe_session_id, plan, channel, client, customer_email,
+      stripe_customer_id, stripe_subscription_id, created_at
     FROM stripe_purchases
     WHERE stripe_session_id = ${stripeSessionId}
   `;
@@ -42,6 +45,10 @@ export async function getStripePurchaseBySessionId(
     channel: row.channel === "cloud_api" ? "cloud_api" : "waha",
     client: row.client ? String(row.client) : null,
     customerEmail: row.customer_email ? String(row.customer_email) : null,
+    stripeCustomerId: row.stripe_customer_id ? String(row.stripe_customer_id) : null,
+    stripeSubscriptionId: row.stripe_subscription_id
+      ? String(row.stripe_subscription_id)
+      : null,
     createdAt: new Date(String(row.created_at)).toISOString(),
   };
 }
@@ -54,16 +61,62 @@ export async function recordStripePurchase(input: {
   amountTotal?: number | null;
   currency?: string | null;
   customerEmail?: string | null;
+  stripeCustomerId?: string | null;
+  stripeSubscriptionId?: string | null;
+  paymentStatus?: string | null;
 }): Promise<void> {
   const sql = getSql();
   await sql`
     INSERT INTO stripe_purchases (
-      stripe_session_id, plan, channel, client, amount_total, currency, customer_email
+      stripe_session_id, plan, channel, client, amount_total, currency, customer_email,
+      stripe_customer_id, stripe_subscription_id, payment_status
     )
     VALUES (
       ${input.stripeSessionId}, ${input.plan}, ${input.channel}, ${input.client ?? null},
-      ${input.amountTotal ?? null}, ${input.currency ?? null}, ${input.customerEmail ?? null}
+      ${input.amountTotal ?? null}, ${input.currency ?? null}, ${input.customerEmail ?? null},
+      ${input.stripeCustomerId ?? null}, ${input.stripeSubscriptionId ?? null},
+      ${input.paymentStatus ?? null}
     )
-    ON CONFLICT (stripe_session_id) DO NOTHING
+    ON CONFLICT (stripe_session_id) DO UPDATE SET
+      plan = EXCLUDED.plan,
+      channel = EXCLUDED.channel,
+      client = COALESCE(EXCLUDED.client, stripe_purchases.client),
+      amount_total = COALESCE(EXCLUDED.amount_total, stripe_purchases.amount_total),
+      currency = COALESCE(EXCLUDED.currency, stripe_purchases.currency),
+      customer_email = COALESCE(EXCLUDED.customer_email, stripe_purchases.customer_email),
+      stripe_customer_id = COALESCE(EXCLUDED.stripe_customer_id, stripe_purchases.stripe_customer_id),
+      stripe_subscription_id = COALESCE(EXCLUDED.stripe_subscription_id, stripe_purchases.stripe_subscription_id),
+      payment_status = COALESCE(EXCLUDED.payment_status, stripe_purchases.payment_status)
+  `;
+}
+
+export async function upsertStripeSubscription(input: {
+  stripeSubscriptionId: string;
+  stripeCustomerId: string;
+  plan: string;
+  status: string;
+  currentPeriodEnd?: number | null;
+  cancelAtPeriodEnd: boolean;
+}): Promise<void> {
+  const sql = getSql();
+  const periodEnd = input.currentPeriodEnd
+    ? new Date(input.currentPeriodEnd * 1000).toISOString()
+    : null;
+  await sql`
+    INSERT INTO stripe_subscriptions (
+      stripe_subscription_id, stripe_customer_id, plan, status,
+      current_period_end, cancel_at_period_end
+    )
+    VALUES (
+      ${input.stripeSubscriptionId}, ${input.stripeCustomerId}, ${input.plan},
+      ${input.status}, ${periodEnd}, ${input.cancelAtPeriodEnd}
+    )
+    ON CONFLICT (stripe_subscription_id) DO UPDATE SET
+      stripe_customer_id = EXCLUDED.stripe_customer_id,
+      plan = EXCLUDED.plan,
+      status = EXCLUDED.status,
+      current_period_end = EXCLUDED.current_period_end,
+      cancel_at_period_end = EXCLUDED.cancel_at_period_end,
+      updated_at = now()
   `;
 }

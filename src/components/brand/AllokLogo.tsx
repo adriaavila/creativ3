@@ -23,7 +23,7 @@ const ACCENT = "#c5f04a";
 // One id per variant. Two logos of the same variant on a page resolve to the
 // first definition, which is byte-identical — same paint, no visual drift.
 function gradientId(variant: string) {
-  return `releva-stroke-${variant}`;
+  return `allok-stroke-${variant}`;
 }
 
 function StrokeGradient({ id }: { id: string }) {
@@ -60,7 +60,7 @@ function Mark({ id, strokeWidth = 2.6 }: { id: string; strokeWidth?: number }) {
 const WORDMARK_FONT =
   "var(--font-grotesk), var(--font-instrument-sans), Inter, sans-serif";
 
-export default function RelevaLogo({
+export default function AllokLogo({
   className,
   variant = "lockup",
   theme = "auto",
@@ -76,7 +76,7 @@ export default function RelevaLogo({
         xmlns="http://www.w3.org/2000/svg"
         className={className}
         role="img"
-        aria-label="Releva"
+        aria-label="allok"
       >
         <rect width="64" height="64" rx="16" fill={badgeBg} />
         <g className="text-white">
@@ -94,7 +94,7 @@ export default function RelevaLogo({
         xmlns="http://www.w3.org/2000/svg"
         className={className}
         role="img"
-        aria-label="Releva"
+        aria-label="allok"
       >
         <StrokeGradient id={id} />
         <Mark id={id} />
@@ -105,16 +105,16 @@ export default function RelevaLogo({
   if (variant === "wordmark") {
     return (
       <svg
-        viewBox="0 0 116 44"
+        viewBox="0 0 92 44"
         xmlns="http://www.w3.org/2000/svg"
         className={className}
         role="img"
-        aria-label="Releva"
+        aria-label="allok"
       >
         <text
           x="0"
           y="33"
-          textLength="112"
+          textLength="88"
           lengthAdjust="spacingAndGlyphs"
           fontFamily={WORDMARK_FONT}
           fontSize="34"
@@ -122,7 +122,7 @@ export default function RelevaLogo({
           letterSpacing="-1.3"
           fill="currentColor"
         >
-          releva
+          allok
         </text>
       </svg>
     );
@@ -131,11 +131,11 @@ export default function RelevaLogo({
   if (variant === "lockup-bare") {
     return (
       <svg
-        viewBox="0 0 172 56"
+        viewBox="0 0 148 56"
         xmlns="http://www.w3.org/2000/svg"
         className={className}
         role="img"
-        aria-label="Releva"
+        aria-label="allok"
       >
         <StrokeGradient id={id} />
         <g transform="translate(-2,1) scale(0.85)">
@@ -144,7 +144,7 @@ export default function RelevaLogo({
         <text
           x="54"
           y="37"
-          textLength="112"
+          textLength="88"
           lengthAdjust="spacingAndGlyphs"
           fontFamily={WORDMARK_FONT}
           fontSize="33"
@@ -152,7 +152,7 @@ export default function RelevaLogo({
           letterSpacing="-1.4"
           fill="currentColor"
         >
-          releva
+          allok
         </text>
       </svg>
     );
@@ -160,11 +160,11 @@ export default function RelevaLogo({
 
   return (
     <svg
-      viewBox="0 0 178 56"
+      viewBox="0 0 154 56"
       xmlns="http://www.w3.org/2000/svg"
       className={className}
       role="img"
-      aria-label="Releva"
+      aria-label="allok"
     >
       <rect width="48" height="48" y="4" rx="14" fill={badgeBg} />
       <g className="text-white">
@@ -176,7 +176,7 @@ export default function RelevaLogo({
       <text
         x="60"
         y="37"
-        textLength="112"
+        textLength="88"
         lengthAdjust="spacingAndGlyphs"
         fontFamily={WORDMARK_FONT}
         fontSize="33"
@@ -184,7 +184,7 @@ export default function RelevaLogo({
         letterSpacing="-1.4"
         fill="currentColor"
       >
-        releva
+        allok
       </text>
     </svg>
   );

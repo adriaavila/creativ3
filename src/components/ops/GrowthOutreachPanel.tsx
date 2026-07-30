@@ -171,7 +171,7 @@ export default function GrowthOutreachPanel({
                 <textarea value={message} onChange={(event) => setMessage(event.target.value)} rows={6} placeholder="Escribe un mensaje breve y personalizado basado en la evidencia…" className="mt-1.5 w-full resize-y rounded-xl border border-white/10 bg-black/20 p-3 text-sm leading-6 text-white outline-none focus:border-[#c5f04a]/45" />
               </label>
               <p className="mt-2 text-[11px] leading-5 text-white/35">
-                El primer contacto usa la plantilla de marketing <code className="text-[#c5f04a]">creativv_growth_intro</code>, requerida por Meta fuera de la ventana de 24 horas. Si sigue en revisión, no se marcará el lead como contactado.
+                El primer contacto usa la plantilla de marketing <code className="text-[#c5f04a]">allok_growth_intro</code>, requerida por Meta fuera de la ventana de 24 horas. Si sigue en revisión, no se marcará el lead como contactado.
               </p>
               <label className="mt-4 flex items-start gap-3 rounded-xl border border-white/10 bg-white/[0.025] p-3 text-xs leading-5 text-white/55">
                 <input type="checkbox" checked={confirmed} onChange={(event) => setConfirmed(event.target.checked)} className="mt-0.5" />

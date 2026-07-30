@@ -52,8 +52,8 @@ const SECRET = "test-ops-secret";
 const KEY = randomBytes(32);
 
 // Session: round-trip, wrong secret, tampered payload, expiry.
-const token = createToken("creativv-ops-owner", SECRET);
-assert.equal(verifyToken(token, SECRET)?.userId, "creativv-ops-owner", "valid token should verify");
+const token = createToken("allok-ops-owner", SECRET);
+assert.equal(verifyToken(token, SECRET)?.userId, "allok-ops-owner", "valid token should verify");
 assert.equal(verifyToken(token, "wrong-secret"), null, "wrong secret must not verify");
 assert.equal(verifyToken("garbage", SECRET), null, "malformed token must not verify");
 assert.equal(verifyToken(undefined, SECRET), null, "missing token must not verify");

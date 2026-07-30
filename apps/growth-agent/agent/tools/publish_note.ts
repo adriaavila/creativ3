@@ -42,7 +42,7 @@ export default defineTool({
     const headers = {
       Authorization: `Bearer ${token}`,
       Accept: "application/vnd.github+json",
-      "User-Agent": "creativv-growth-agent",
+      "User-Agent": "allok-growth-agent",
     };
     // Same-day re-run: fetch existing SHA so the PUT updates instead of 422-ing.
     let sha: string | undefined;

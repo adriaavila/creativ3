@@ -1,5 +1,5 @@
 {
-  "name": "creativ3",
+  "name": "allok",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "check:billing": "tsx scripts/check-billing-catalog.ts",
     "meta:diagnostics": "node scripts/meta-embedded-signup-diagnostics.mjs"
   },
   "dependencies": {

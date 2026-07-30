@@ -7,7 +7,7 @@ import Reveal from "./Reveal";
 
 // Scripted build. Each step, once done, reveals the next block in the preview.
 const STEPS = [
-  { cmd: "init proyecto", note: "releva.site" },
+  { cmd: "init proyecto", note: "allok.fun" },
   { cmd: "generar hero", note: "título + claim" },
   { cmd: "aplicar paleta", note: "verde / papiro" },
   { cmd: "maquetar secciones", note: "servicios + obra" },
@@ -70,7 +70,7 @@ export default function LiveBuild() {
         <Reveal className="mb-12 max-w-2xl">
           <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-[#0a0a0a] px-3.5 py-1.5 text-xs font-semibold uppercase tracking-[0.14em] text-white">
             <Terminal className="h-3.5 w-3.5" />
-            El método Releva
+            El método allok
           </div>
           <h2 className="text-4xl font-normal leading-[0.98] text-[#0a0a0a] sm:text-5xl md:text-6xl">
             Mira cómo se construye, en vivo.
@@ -88,7 +88,7 @@ export default function LiveBuild() {
           <div className="flex flex-col gap-3 bg-[#111214] p-6 font-mono text-sm text-white/80">
             <div className="mb-2 flex items-center gap-2 text-[11px] uppercase tracking-[0.18em] text-[#c5f04a]">
               <span className="h-2 w-2 rounded-full bg-[#c5f04a]" />
-              agente · Releva
+              agente · allok
             </div>
             {STEPS.map((step, i) => {
               const done = visibleStage > i;
@@ -130,7 +130,7 @@ export default function LiveBuild() {
                 <span
                   className={`h-1.5 w-1.5 rounded-full ${has(6) ? "bg-[#4ade80]" : "bg-[#6b6b6b]/30"}`}
                 />
-                releva.site
+                allok.fun
               </div>
             </div>
 

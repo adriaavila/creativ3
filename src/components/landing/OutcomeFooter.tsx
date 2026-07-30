@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { ArrowRight, Mail, MessageCircle } from "lucide-react";
 import type { LandingIntent } from "@/lib/landing-intent";
-import RelevaLogo from "@/components/brand/RelevaLogo";
+import AllokLogo from "@/components/brand/AllokLogo";
 import { CONTACT_EMAIL, whatsappUrl } from "@/lib/contact";
 
 const REVENUE_CONTACT = whatsappUrl(
@@ -138,7 +138,7 @@ export default function OutcomeFooter({ intent = "efficiency" }: OutcomeFooterPr
 
         <div className="mt-20 grid gap-10 border-t border-white/10 pt-10 md:grid-cols-[1fr_auto] md:items-end">
           <div>
-            <RelevaLogo variant="lockup-bare" className="h-9 w-auto text-white" />
+            <AllokLogo variant="lockup-bare" className="h-9 w-auto text-white" />
             <p className="mt-4 max-w-md text-sm leading-6 text-white/45">{content.description}</p>
           </div>
           <div className="flex flex-wrap gap-3 text-sm">
@@ -159,7 +159,7 @@ export default function OutcomeFooter({ intent = "efficiency" }: OutcomeFooterPr
           </div>
         </div>
         <div className="mt-10 flex flex-col justify-between gap-2 font-mono text-[9px] uppercase tracking-[0.13em] text-white/28 sm:flex-row">
-          <span>© {new Date().getFullYear()} Releva</span>
+          <span>© {new Date().getFullYear()} allok</span>
           <span>ServiciosCreativos.online</span>
         </div>
       </div>

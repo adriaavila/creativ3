@@ -1,0 +1,134 @@
+{
+  "meta": {
+    "title": "allok | Tu negocio, funcionando mejor",
+    "description": "Sistemas digitales para vender más y operar mejor: sitios web, automatización con IA y allok Desk para ventas por WhatsApp."
+  },
+  "common": {
+    "brand": "allok",
+    "talk": "Hablemos",
+    "whatsapp": "Escríbenos por WhatsApp",
+    "prices": "Ver soluciones",
+    "privacy": "Privacidad",
+    "terms": "Términos",
+    "back": "Volver al inicio"
+  },
+  "home": {
+    "nav": ["Soluciones", "Trabajo", "Proceso", "Precios", "Preguntas"],
+    "available": "Disponible para nuevos proyectos",
+    "heroTitle": "Tu negocio, funcionando mejor.",
+    "heroLead": "Sistemas digitales para vender más y operar mejor.",
+    "heroBody": "Diseñamos sitios, automatizaciones y sistemas de venta por WhatsApp que convierten interés en ingresos y reducen el trabajo manual.",
+    "trust": ["Primer entregable en 3 días", "Precio cerrado, sin sorpresas", "+10 productos en producción"],
+    "offersLabel": "Soluciones",
+    "offersTitle": "Un sistema claro para cada cuello de botella.",
+    "offersLead": "Empezamos por el resultado que más mueve tu negocio hoy.",
+    "offers": [
+      {
+        "name": "allok Launch",
+        "tag": "Vender más",
+        "description": "Landing pages y sitios rápidos, claros y diseñados para convertir visitas en conversaciones.",
+        "price": "Desde USD 199",
+        "cta": "Cotizar Launch",
+        "features": ["UX/UI a medida", "Next.js rápido y accesible", "SEO técnico", "Captura directa a WhatsApp"]
+      },
+      {
+        "name": "allok Automate",
+        "tag": "Operar mejor",
+        "description": "Automatización e integraciones con IA para quitar seguimiento manual y conectar tus herramientas.",
+        "price": "Desde USD 499",
+        "cta": "Cotizar Automate",
+        "features": ["Flujos n8n y API", "Integración con CRM", "Clasificación de leads", "Documentación y pruebas"]
+      },
+      {
+        "name": "allok Desk",
+        "tag": "Ventas por WhatsApp",
+        "description": "Inbox comercial, IA supervisada, calificación y seguimiento en un solo sistema.",
+        "price": "Desde USD 79/mes",
+        "cta": "Conocer allok Desk",
+        "features": ["Respuestas sugeridas", "Seguimiento automático", "Calificación comercial", "Activación guiada"]
+      }
+    ],
+    "workLabel": "Trabajo",
+    "workTitle": "Sistemas reales, funcionando hoy.",
+    "workLead": "Producto, comercio y operaciones construidos alrededor de resultados medibles.",
+    "work": [
+      ["REI", "Infraestructura inmobiliaria", "Marketplace, CRM y procesamiento de documentos con IA en un solo sistema."],
+      ["Shopea", "Comercio por WhatsApp", "Catálogo, checkout y pagos conectados a la conversación de venta."],
+      ["allok Desk", "Sistema comercial", "Atención, calificación y seguimiento de oportunidades por WhatsApp."]
+    ],
+    "processLabel": "Proceso",
+    "processTitle": "De la idea a producción, sin teatro.",
+    "process": [
+      ["01", "Entendemos el objetivo", "Acordamos el problema, el usuario y el resultado esperado."],
+      ["02", "Cerramos alcance y precio", "Definimos el primer entregable útil antes de empezar."],
+      ["03", "Diseñamos y construimos", "Compartimos avances funcionales desde los primeros días."],
+      ["04", "Lanzamos y medimos", "Publicamos, observamos y mejoramos con evidencia."]
+    ],
+    "pricingLabel": "Precios",
+    "pricingTitle": "Un punto de partida claro.",
+    "pricingLead": "Alcance y precio se confirman antes de escribir la primera línea de código.",
+    "faqLabel": "Preguntas frecuentes",
+    "faqTitle": "Lo que conviene saber antes de empezar.",
+    "faqs": [
+      ["¿Cuánto tarda un proyecto?", "Una landing puede salir en 3 días. Una automatización suele tomar entre 5 y 10 días. Un sistema completo se entrega por etapas."],
+      ["¿Necesito requerimientos técnicos?", "No. Empezamos por el problema de negocio y convertimos ese contexto en un alcance concreto."],
+      ["¿Qué pasa después del lanzamiento?", "El código y los accesos son tuyos. El soporte continuo es opcional, sin dependencia obligatoria."],
+      ["¿Cómo se paga?", "Los servicios se pagan por hitos. allok Desk combina una implementación inicial con una suscripción mensual."]
+    ],
+    "finalTitle": "Hagamos que tu negocio funcione mejor.",
+    "finalBody": "Cuéntanos qué quieres vender, automatizar o dejar de perseguir manualmente.",
+    "footer": "Sistemas digitales para vender más y operar mejor."
+  },
+  "desk": {
+    "metaTitle": "allok Desk | Sistema de ventas por WhatsApp",
+    "metaDescription": "Convierte conversaciones de WhatsApp en oportunidades organizadas con IA supervisada, seguimiento y un inbox comercial.",
+    "eyebrow": "Sistema de ventas por WhatsApp",
+    "title": "Cada conversación, más cerca de una venta.",
+    "lead": "allok Desk responde, organiza, califica y da seguimiento sin quitarle el control a tu equipo.",
+    "primary": "Instalar allok Desk",
+    "secondary": "Hablar con nosotros",
+    "features": [
+      ["Inbox comercial", "Conversaciones, responsables y oportunidades en un solo lugar."],
+      ["IA supervisada", "Respuestas sugeridas que tu equipo puede revisar antes de enviar."],
+      ["Seguimiento", "Recordatorios y próximos pasos para que ningún lead se enfríe."],
+      ["Activación guiada", "Conectamos tu número y dejamos el flujo listo para operar."]
+    ],
+    "pricingTitle": "Elige el tamaño que encaja hoy.",
+    "monthly": "/mes",
+    "setup": "implementación",
+    "checkout": "Continuar al pago",
+    "loading": "Abriendo pago seguro…",
+    "error": "No pudimos abrir el pago. Intenta de nuevo.",
+    "plans": {
+      "desk-cohort": ["Cohorte", "USD 79", "USD 390", "Para los primeros negocios que participen en feedback semanal."],
+      "desk": ["Desk", "USD 129", "USD 690", "Para un equipo comercial que vende y hace seguimiento por WhatsApp."],
+      "desk-scale": ["Escala", "USD 290", "USD 1.490", "Para varias sedes, números o un funnel comercial más completo."]
+    }
+  },
+  "payment": {
+    "successTitle": "Pago confirmado.",
+    "successBody": "Tu allok Desk está listo para el siguiente paso: conectar WhatsApp.",
+    "activate": "Conectar mi WhatsApp",
+    "cancelTitle": "Pago cancelado.",
+    "cancelBody": "No se realizó ningún cargo. Puedes retomar el proceso cuando quieras.",
+    "portal": "Administrar suscripción"
+  },
+  "legal": {
+    "privacyTitle": "Política de privacidad",
+    "termsTitle": "Términos de servicio",
+    "updated": "Última actualización: 29 de julio de 2026",
+    "privacy": [
+      ["Qué recopilamos", "Recopilamos los datos que nos envías al solicitar información, contratar un servicio o conectar una cuenta, además de datos técnicos necesarios para operar y proteger el servicio."],
+      ["Cómo los usamos", "Usamos tus datos para prestar soporte, procesar pagos, ejecutar automatizaciones contratadas y mejorar la seguridad y el rendimiento."],
+      ["Proveedores", "Podemos usar proveedores de infraestructura, pagos, analítica y mensajería bajo sus propios términos de privacidad. No vendemos datos personales."],
+      ["Tus derechos", "Puedes solicitar acceso, corrección o eliminación de tus datos escribiendo a contacto@allok.fun."]
+    ],
+    "terms": [
+      ["Alcance", "Cada servicio se rige por la propuesta o plan aceptado, donde se especifican entregables, tiempos, precio y responsabilidades."],
+      ["Pagos", "Los pagos de proyectos se realizan por hitos. Las suscripciones se renuevan hasta su cancelación desde el portal de cliente."],
+      ["Uso aceptable", "No puedes usar los servicios para fraude, abuso, spam ni actividades que vulneren derechos o leyes aplicables."],
+      ["Propiedad y acceso", "Al completar los pagos acordados recibes los accesos y entregables indicados en la propuesta. Herramientas de terceros conservan sus propias licencias."],
+      ["Contacto", "Para soporte legal o comercial, escribe a contacto@allok.fun."]
+    ]
+  }
+}

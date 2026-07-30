@@ -1,0 +1,134 @@
+{
+  "meta": {
+    "title": "allok | Your business, working better",
+    "description": "Digital systems to sell more and operate better: websites, AI automation, and allok Desk for WhatsApp sales."
+  },
+  "common": {
+    "brand": "allok",
+    "talk": "Let's talk",
+    "whatsapp": "Message us on WhatsApp",
+    "prices": "View solutions",
+    "privacy": "Privacy",
+    "terms": "Terms",
+    "back": "Back home"
+  },
+  "home": {
+    "nav": ["Solutions", "Work", "Process", "Pricing", "Questions"],
+    "available": "Available for new projects",
+    "heroTitle": "Your business, working better.",
+    "heroLead": "Digital systems to sell more and operate better.",
+    "heroBody": "We design websites, automation, and WhatsApp sales systems that turn interest into revenue and reduce manual work.",
+    "trust": ["First delivery in 3 days", "Fixed price, no surprises", "10+ products in production"],
+    "offersLabel": "Solutions",
+    "offersTitle": "A clear system for every bottleneck.",
+    "offersLead": "We start with the outcome that can move your business most today.",
+    "offers": [
+      {
+        "name": "allok Launch",
+        "tag": "Sell more",
+        "description": "Fast, clear landing pages and websites designed to turn visits into conversations.",
+        "price": "From USD 199",
+        "cta": "Quote Launch",
+        "features": ["Custom UX/UI", "Fast, accessible Next.js", "Technical SEO", "Direct WhatsApp capture"]
+      },
+      {
+        "name": "allok Automate",
+        "tag": "Operate better",
+        "description": "AI automation and integrations that remove manual follow-up and connect your tools.",
+        "price": "From USD 499",
+        "cta": "Quote Automate",
+        "features": ["n8n and API workflows", "CRM integration", "Lead qualification", "Documentation and testing"]
+      },
+      {
+        "name": "allok Desk",
+        "tag": "WhatsApp sales",
+        "description": "A sales inbox, supervised AI, qualification, and follow-up in one system.",
+        "price": "From USD 79/month",
+        "cta": "Explore allok Desk",
+        "features": ["Suggested replies", "Automatic follow-up", "Sales qualification", "Guided activation"]
+      }
+    ],
+    "workLabel": "Work",
+    "workTitle": "Real systems, working today.",
+    "workLead": "Product, commerce, and operations built around measurable outcomes.",
+    "work": [
+      ["REI", "Real estate infrastructure", "A marketplace, CRM, and AI document processing in one system."],
+      ["Shopea", "WhatsApp commerce", "Catalog, checkout, and payments connected to the sales conversation."],
+      ["allok Desk", "Sales system", "WhatsApp support, qualification, and opportunity follow-up."]
+    ],
+    "processLabel": "Process",
+    "processTitle": "From idea to production, without the theater.",
+    "process": [
+      ["01", "We understand the goal", "We align on the problem, the user, and the expected outcome."],
+      ["02", "We fix scope and price", "We define the first useful delivery before work begins."],
+      ["03", "We design and build", "You see working progress within the first few days."],
+      ["04", "We launch and measure", "We publish, observe, and improve with evidence."]
+    ],
+    "pricingLabel": "Pricing",
+    "pricingTitle": "A clear place to start.",
+    "pricingLead": "Scope and price are confirmed before the first line of code is written.",
+    "faqLabel": "Frequently asked questions",
+    "faqTitle": "What you should know before starting.",
+    "faqs": [
+      ["How long does a project take?", "A landing page can ship in 3 days. Automation usually takes 5–10 days. A complete system is delivered in stages."],
+      ["Do I need technical requirements?", "No. We start with the business problem and turn that context into a concrete scope."],
+      ["What happens after launch?", "The code and access are yours. Ongoing support is optional, with no forced dependency."],
+      ["How does payment work?", "Services are paid by milestones. allok Desk combines an initial setup with a monthly subscription."]
+    ],
+    "finalTitle": "Let's make your business work better.",
+    "finalBody": "Tell us what you want to sell, automate, or stop chasing manually.",
+    "footer": "Digital systems to sell more and operate better."
+  },
+  "desk": {
+    "metaTitle": "allok Desk | WhatsApp sales system",
+    "metaDescription": "Turn WhatsApp conversations into organized opportunities with supervised AI, follow-up, and a sales inbox.",
+    "eyebrow": "WhatsApp sales system",
+    "title": "Every conversation, closer to a sale.",
+    "lead": "allok Desk replies, organizes, qualifies, and follows up while your team stays in control.",
+    "primary": "Install allok Desk",
+    "secondary": "Talk to us",
+    "features": [
+      ["Sales inbox", "Conversations, owners, and opportunities in one place."],
+      ["Supervised AI", "Suggested replies your team can review before sending."],
+      ["Follow-up", "Reminders and next steps so no lead goes cold."],
+      ["Guided activation", "We connect your number and leave the workflow ready to operate."]
+    ],
+    "pricingTitle": "Choose the size that fits today.",
+    "monthly": "/month",
+    "setup": "setup",
+    "checkout": "Continue to payment",
+    "loading": "Opening secure checkout…",
+    "error": "We couldn't open checkout. Please try again.",
+    "plans": {
+      "desk-cohort": ["Cohort", "USD 79", "USD 390", "For early businesses taking part in weekly feedback."],
+      "desk": ["Desk", "USD 129", "USD 690", "For a sales team selling and following up through WhatsApp."],
+      "desk-scale": ["Scale", "USD 290", "USD 1,490", "For multiple locations, numbers, or a more complete sales funnel."]
+    }
+  },
+  "payment": {
+    "successTitle": "Payment confirmed.",
+    "successBody": "Your allok Desk is ready for the next step: connect WhatsApp.",
+    "activate": "Connect my WhatsApp",
+    "cancelTitle": "Payment canceled.",
+    "cancelBody": "No charge was made. You can restart checkout whenever you are ready.",
+    "portal": "Manage subscription"
+  },
+  "legal": {
+    "privacyTitle": "Privacy policy",
+    "termsTitle": "Terms of service",
+    "updated": "Last updated: July 29, 2026",
+    "privacy": [
+      ["What we collect", "We collect information you send when requesting information, purchasing a service, or connecting an account, plus technical data needed to operate and protect the service."],
+      ["How we use it", "We use your data to provide support, process payments, run contracted automation, and improve security and performance."],
+      ["Providers", "We may use infrastructure, payment, analytics, and messaging providers under their own privacy terms. We do not sell personal data."],
+      ["Your rights", "You can request access, correction, or deletion of your data by emailing contacto@allok.fun."]
+    ],
+    "terms": [
+      ["Scope", "Each service is governed by the accepted proposal or plan, which defines deliverables, timing, price, and responsibilities."],
+      ["Payments", "Project payments are made by milestone. Subscriptions renew until canceled through the customer portal."],
+      ["Acceptable use", "You may not use the services for fraud, abuse, spam, or activities that violate rights or applicable laws."],
+      ["Ownership and access", "After agreed payments are complete, you receive the access and deliverables stated in the proposal. Third-party tools retain their own licenses."],
+      ["Contact", "For legal or commercial support, email contacto@allok.fun."]
+    ]
+  }
+}

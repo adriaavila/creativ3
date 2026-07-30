@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { ArrowUpRight, Menu, X } from "lucide-react";
-import RelevaLogo from "@/components/brand/RelevaLogo";
+import AllokLogo from "@/components/brand/AllokLogo";
 import styles from "./ProductHome.module.css";
 
 type ProductHeaderProps = {
@@ -42,9 +42,9 @@ export default function ProductHeader({ evaluationUrl }: ProductHeaderProps) {
   return (
     <header className={`${styles.header} ${scrolled ? styles.headerScrolled : ""}`}>
       <nav className={styles.headerInner} aria-label="Navegación principal">
-        <a href="#inicio" className={styles.brand} aria-label="Releva, ir al inicio">
-          <RelevaLogo variant="mark-bare" className={styles.brandMark} />
-          <span>Releva</span>
+        <a href="#inicio" className={styles.brand} aria-label="allok, ir al inicio">
+          <AllokLogo variant="mark-bare" className={styles.brandMark} />
+          <span>allok</span>
           <span className={styles.brandDot} aria-hidden="true" />
         </a>
 

@@ -17,7 +17,7 @@ import {
 import type { LandingIntent } from "@/lib/landing-intent";
 import { whatsappUrl } from "@/lib/contact";
 import BoomerangVideoBg from "./BoomerangVideoBg";
-import RelevaLogo from "@/components/brand/RelevaLogo";
+import AllokLogo from "@/components/brand/AllokLogo";
 
 const BG_VIDEO =
   "https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260511_131941_d136af49-e243-493a-be14-6ff3f24e09e6.mp4";
@@ -161,9 +161,9 @@ export default function Hero({ intent, onIntentChange }: HeroProps) {
           className={`flex items-center transition-colors duration-500 ${
             isRevenue ? "text-[#1c1d20]" : "text-[#0a0a0a]"
           }`}
-          aria-label="Releva"
+          aria-label="allok"
         >
-          <RelevaLogo variant="lockup-bare" className="h-7 w-auto sm:h-8 md:h-9" />
+          <AllokLogo variant="lockup-bare" className="h-7 w-auto sm:h-8 md:h-9" />
         </Link>
 
         <div className="hidden items-center gap-1 rounded-full border border-white/70 bg-white/78 py-1 pl-6 pr-1 shadow-sm backdrop-blur-xl lg:flex">

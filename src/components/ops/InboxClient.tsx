@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import RelevaLogo from "@/components/brand/RelevaLogo";
+import AllokLogo from "@/components/brand/AllokLogo";
 import { ArrowLeft, Bot, Check, Loader2, MessageCircle, Send, Smartphone, Sparkles, User } from "lucide-react";
 import { motion, useReducedMotion } from "motion/react";
 import type { ConversationOutcome, WaConversation, WaMessage } from "@/lib/whatsapp-inbox-db";
@@ -203,7 +203,7 @@ export default function InboxClient({ initialConversations }: InboxClientProps) 
           >
             <ArrowLeft className="size-4" />
           </Link>
-          <RelevaLogo variant="mark-bare" className="h-5 w-auto text-white" />
+          <AllokLogo variant="mark-bare" className="h-5 w-auto text-white" />
           <div>
             <div className="font-mono text-[9px] uppercase tracking-[0.18em] text-[#c5f04a]">
               Inbox WhatsApp

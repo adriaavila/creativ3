@@ -1,10 +1,10 @@
 import { CONTACT_EMAIL, WHATSAPP_NUMBER } from "@/lib/contact";
 
-export const SITE_URL = "https://servicios.frontia.app";
-export const SITE_NAME = "Releva";
+export const SITE_URL = "https://allok.fun";
+export const SITE_NAME = "allok";
 
 // Organization + WebSite — emitted once in the root layout.
-export function siteJsonLd() {
+export function siteJsonLd(locale: "es" | "en" = "es") {
   return [
     {
       "@context": "https://schema.org",
@@ -14,13 +14,15 @@ export function siteJsonLd() {
       logo: `${SITE_URL}/logo.svg`,
       email: CONTACT_EMAIL,
       description:
-        "Estudio creativo: landing pages, automatizaciones y productos digitales para captar leads y vender con menos fricción.",
+        locale === "es"
+          ? "Sistemas digitales para vender más y operar mejor."
+          : "Digital systems to sell more and operate better.",
       areaServed: ["VE", "Latin America"],
       contactPoint: {
         "@type": "ContactPoint",
         contactType: "sales",
         telephone: `+${WHATSAPP_NUMBER}`,
-        availableLanguage: ["es"],
+        availableLanguage: ["es", "en"],
       },
     },
     {
@@ -28,7 +30,7 @@ export function siteJsonLd() {
       "@type": "WebSite",
       name: SITE_NAME,
       url: SITE_URL,
-      inLanguage: "es",
+      inLanguage: locale,
     },
   ];
 }
@@ -47,10 +49,11 @@ export function serviceJsonLd(name: string, description: string, path: string) {
 }
 
 // FAQPage schema. Pass [{q, a}] — also render the same Q&A visibly on the page.
-export function faqJsonLd(items: { q: string; a: string }[]) {
+export function faqJsonLd(items: { q: string; a: string }[], locale = "es") {
   return {
     "@context": "https://schema.org",
     "@type": "FAQPage",
+    inLanguage: locale,
     mainEntity: items.map(({ q, a }) => ({
       "@type": "Question",
       name: q,

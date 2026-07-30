@@ -23,7 +23,7 @@ export async function dispatchGrowthAgent({ message, correlationId }: DispatchIn
         authorization: `Bearer ${key}`,
         "content-type": "application/json",
         "idempotency-key": correlationId,
-        "x-hermes-session-key": "creativv:growth:ops",
+        "x-hermes-session-key": "allok:growth:ops",
       },
       body: JSON.stringify({ input: message, session_id: correlationId }),
       signal: AbortSignal.timeout(15_000),

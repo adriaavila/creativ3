@@ -1,54 +1,76 @@
 import Stripe from "stripe";
-import { NextRequest, NextResponse } from "next/server";
-import { recordStripePurchase } from "@/lib/stripe-purchases-db";
+import { NextResponse, type NextRequest } from "next/server";
+import {
+  recordStripePurchase,
+  upsertStripeSubscription,
+} from "@/lib/stripe-purchases-db";
 
 export const runtime = "nodejs";
 
-export async function POST(req: NextRequest) {
-  const key = process.env.STRIPE_SECRET_KEY;
+const id = (value: string | Stripe.Customer | Stripe.DeletedCustomer | null) =>
+  typeof value === "string" ? value : value?.id ?? null;
+
+export async function POST(request: NextRequest) {
+  const secret = process.env.STRIPE_SECRET_KEY;
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
-  if (!key || !webhookSecret) {
-    return NextResponse.json({ error: "Stripe no configurado" }, { status: 503 });
+  const signature = request.headers.get("stripe-signature");
+  if (!secret || !webhookSecret || !signature) {
+    return NextResponse.json({ error: "Stripe webhook is not configured." }, { status: 503 });
   }
 
-  const signature = req.headers.get("stripe-signature");
-  if (!signature) {
-    return NextResponse.json({ error: "Falta stripe-signature." }, { status: 400 });
-  }
-
-  // Must read the raw body: Stripe signs the exact bytes it sent.
-  const rawBody = await req.text();
-  const stripe = new Stripe(key, { apiVersion: "2026-04-22.dahlia" });
-
+  const stripe = new Stripe(secret, { apiVersion: "2026-04-22.dahlia" });
   let event: Stripe.Event;
   try {
-    event = stripe.webhooks.constructEvent(rawBody, signature, webhookSecret);
+    event = stripe.webhooks.constructEvent(
+      await request.text(),
+      signature,
+      webhookSecret,
+    );
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Firma inválida.";
-    return NextResponse.json({ error: message }, { status: 400 });
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : "Invalid signature." },
+      { status: 400 },
+    );
   }
 
-  if (event.type === "checkout.session.completed") {
-    const session = event.data.object as Stripe.Checkout.Session;
-    const plan = session.metadata?.plan ?? "unknown";
-    const channel = session.metadata?.channel === "cloud_api" ? "cloud_api" : "waha";
-    const client = session.metadata?.client || null;
-
-    try {
+  try {
+    if (event.type === "checkout.session.completed") {
+      const session = event.data.object;
       await recordStripePurchase({
         stripeSessionId: session.id,
-        plan,
-        channel,
-        client,
+        plan: session.metadata?.item ?? session.metadata?.plan ?? "unknown",
+        channel: session.metadata?.channel === "cloud_api" ? "cloud_api" : "waha",
+        client: session.metadata?.client || null,
         amountTotal: session.amount_total,
         currency: session.currency,
         customerEmail: session.customer_details?.email ?? null,
+        stripeCustomerId: id(session.customer),
+        stripeSubscriptionId:
+          typeof session.subscription === "string"
+            ? session.subscription
+            : session.subscription?.id ?? null,
+        paymentStatus: session.payment_status,
       });
-    } catch (error) {
-      // Stripe retries on non-2xx — a DB blip here shouldn't blindly retry
-      // forever, but we do want it logged for manual reconciliation.
-      console.error("Could not record Stripe purchase", event.id, error);
     }
+
+    if (
+      event.type === "customer.subscription.created" ||
+      event.type === "customer.subscription.updated" ||
+      event.type === "customer.subscription.deleted"
+    ) {
+      const subscription = event.data.object;
+      await upsertStripeSubscription({
+        stripeSubscriptionId: subscription.id,
+        stripeCustomerId: id(subscription.customer) ?? "unknown",
+        plan: subscription.metadata.item ?? subscription.metadata.plan ?? "unknown",
+        status: subscription.status,
+        currentPeriodEnd: subscription.items.data[0]?.current_period_end ?? null,
+        cancelAtPeriodEnd: subscription.cancel_at_period_end,
+      });
+    }
+  } catch (error) {
+    console.error("Could not persist Stripe event", event.id, error);
+    return NextResponse.json({ error: "Webhook persistence failed." }, { status: 500 });
   }
 
   return NextResponse.json({ received: true });

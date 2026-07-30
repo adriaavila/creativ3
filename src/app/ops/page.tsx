@@ -15,8 +15,8 @@ import { getNextStepSummary, type NextStepSummary } from "@/lib/whatsapp-inbox-d
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Ops Central | Releva",
-  description: "Panel de administración y diagnóstico de sistemas Releva.",
+  title: "Ops Central | allok",
+  description: "Panel de administración y diagnóstico de sistemas allok.",
 };
 
 export default async function OpsPage() {

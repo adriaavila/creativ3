@@ -25,7 +25,7 @@ export async function authorizeOps(): Promise<OpsAuthorization> {
 }
 
 /** Signs a fresh session token. Throws if OPS_SESSION_SECRET is unset — callers already gate on isOpsAuthConfigured(). */
-export function issueOpsSessionToken(userId = "creativv-ops-owner") {
+export function issueOpsSessionToken(userId = "allok-ops-owner") {
   const secret = process.env.OPS_SESSION_SECRET;
   if (!secret) throw new Error("OPS_SESSION_SECRET is not configured.");
   return createOpsSessionToken(userId, secret);

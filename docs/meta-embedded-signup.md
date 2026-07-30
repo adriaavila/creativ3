@@ -68,7 +68,7 @@ EA6f6q8SZkewllyJ
 Expected webhook path:
 
 ```txt
-https://n8n.frontia.app/webhook/meta/embedded-signup
+https://n8n.allok.fun/webhook/meta/embedded-signup
 ```
 
 The app backend calls this workflow after the Meta code exchange and WABA subscription. The active workflow requires the `x-servicioscreativos-secret` header, validates `code`, `waba_id`, `phone_number_id`, and `business_token`, stores the connected account in n8n workflow static data, and returns clean JSON. It also accepts authenticated `meta_embedded_signup_diagnostic` payloads without storing test data.
@@ -78,7 +78,7 @@ The VPS n8n container must define the same `N8N_WEBHOOK_SECRET` used by Vercel. 
 WhatsApp messages and coexistence-specific webhook fields are forwarded to:
 
 ```txt
-https://n8n.frontia.app/webhook/meta/whatsapp-events
+https://n8n.allok.fun/webhook/meta/whatsapp-events
 ```
 
 The active `Meta WhatsApp Events - Coexistence` workflow authenticates the Vercel handoff and records each delivery in n8n execution history.

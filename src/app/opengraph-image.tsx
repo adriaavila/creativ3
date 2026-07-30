@@ -2,7 +2,7 @@ import { ImageResponse } from "next/og";
 import { wavePath } from "@/lib/waveform";
 
 export const runtime = "edge";
-export const alt = "Releva — Vende más. Reduce el costo de operar.";
+export const alt = "allok — Vende más. Reduce el costo de operar.";
 export const size = {
   width: 1200,
   height: 630,
@@ -29,9 +29,9 @@ export default async function Image() {
         }}
       >
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <span style={{ fontSize: 34, fontWeight: 600, letterSpacing: "-0.03em" }}>releva</span>
+          <span style={{ fontSize: 34, fontWeight: 600, letterSpacing: "-0.03em" }}>allok</span>
           <span style={{ fontSize: 22, color: "#8a8a8a", letterSpacing: "0.12em" }}>
-            RELEVO DE TRABAJO REPETITIVO
+            SISTEMAS DIGITALES PARA NEGOCIOS
           </span>
         </div>
 
@@ -56,7 +56,7 @@ export default async function Image() {
             <span style={{ color: "#8a8a8a" }}>Reduce el costo de operar.</span>
           </div>
           <div style={{ display: "flex", fontSize: 26, color: "#a1a1a3" }}>
-            servicios.frontia.app
+            allok.fun
           </div>
         </div>
       </div>

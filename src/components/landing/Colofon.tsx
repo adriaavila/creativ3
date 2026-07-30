@@ -1,26 +1,26 @@
-import { ArrowUpRight, Mail, MessageCircle, Sparkles } from "lucide-react";
+import { ArrowUpRight, Mail, MessageCircle } from "lucide-react";
 import { CONTACT_EMAIL, whatsappUrl } from "@/lib/contact";
-import RelevaLogo from "@/components/brand/RelevaLogo";
+import AllokLogo from "@/components/brand/AllokLogo";
 import Reveal from "./Reveal";
 
 const CTA_LINKS = [
   {
     label: "Pedir landing page",
     href: whatsappUrl(
-      "Hola, quiero pedir la landing page de USD 199 en 3 días con Releva. Mi negocio es:"
+      "Hola, quiero pedir la landing page de USD 199 en 3 días con allok. Mi negocio es:"
     ),
     primary: true,
   },
   {
     label: "Cotizar automatización",
     href: whatsappUrl(
-      "Hola, quiero cotizar una automatización simple desde USD 499 con Releva. El flujo que quiero ordenar es:"
+      "Hola, quiero cotizar una automatización simple desde USD 499 con allok. El flujo que quiero ordenar es:"
     ),
   },
   {
     label: "Cotizar web/producto",
     href: whatsappUrl(
-      "Hola, quiero cotizar una web o producto desde USD 699 con Releva. Necesito construir:"
+      "Hola, quiero cotizar una web o producto desde USD 699 con allok. Necesito construir:"
     ),
   },
   {
@@ -98,7 +98,7 @@ export default function Colofon() {
               WhatsApp Directo
             </a>
             <a
-              href={`mailto:${CONTACT_EMAIL}?subject=Consulta%20Releva`}
+              href={`mailto:${CONTACT_EMAIL}?subject=Consulta%20allok`}
               className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-5 py-3 text-sm font-semibold text-white/90 transition-colors hover:bg-white/10"
             >
               <Mail className="h-4 w-4 text-[#c5f04a]" />
@@ -110,10 +110,10 @@ export default function Colofon() {
         <div className="flex flex-col justify-between gap-10 border-t border-white/10 pt-10 md:flex-row md:items-end">
           <div>
             <div className="mb-4 flex items-center text-white">
-              <RelevaLogo variant="lockup-bare" theme="dark" className="h-9 w-auto text-white" />
+              <AllokLogo variant="lockup-bare" theme="dark" className="h-9 w-auto text-white" />
             </div>
             <p className="max-w-sm text-xs leading-relaxed text-white/55">
-              Releva es un estudio independiente que diseña landing pages, productos digitales,
+              allok es un estudio independiente que diseña landing pages, productos digitales,
               apps web y automatizaciones con IA para ayudar a negocios a crecer u operar con menos costo.
             </p>
           </div>
@@ -133,7 +133,7 @@ export default function Colofon() {
         </div>
 
         <div className="mt-12 flex flex-col items-start justify-between gap-2 border-t border-white/5 pt-6 text-xs text-white/40 md:flex-row md:items-center">
-          <span>© {new Date().getFullYear()} Releva. Todos los derechos reservados.</span>
+          <span>© {new Date().getFullYear()} allok. Todos los derechos reservados.</span>
           <div className="flex items-center gap-4">
             <span>ServiciosCreativos.online</span>
             <span className="h-1 w-1 rounded-full bg-[#c5f04a]" />
@@ -144,4 +144,3 @@ export default function Colofon() {
     </footer>
   );
 }
-

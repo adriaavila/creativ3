@@ -61,7 +61,7 @@ export default function QuoteConfigurator() {
   const annualPotential = monthlyPotential * 12;
   const paybackMonths = monthlyPotential > 0 ? 499 / monthlyPotential : 0;
 
-  const summary = `Hola, quiero revisar una automatización con Releva. Mi estimación es: ${values.people} personas, ${values.weeklyHours} horas semanales por persona en tareas repetitivas, costo de ${usd.format(values.hourlyCost)}/hora y ${values.automatable}% potencialmente automatizable. La calculadora estima ${number.format(recoveredHours)} horas recuperables al mes y un valor potencial de ${usd.format(monthlyPotential)} mensuales. Quiero validar estos supuestos.`;
+  const summary = `Hola, quiero revisar una automatización con allok. Mi estimación es: ${values.people} personas, ${values.weeklyHours} horas semanales por persona en tareas repetitivas, costo de ${usd.format(values.hourlyCost)}/hora y ${values.automatable}% potencialmente automatizable. La calculadora estima ${number.format(recoveredHours)} horas recuperables al mes y un valor potencial de ${usd.format(monthlyPotential)} mensuales. Quiero validar estos supuestos.`;
 
   const update = (key: keyof CalculatorState, next: number) => {
     setValues((current) => ({ ...current, [key]: next }));

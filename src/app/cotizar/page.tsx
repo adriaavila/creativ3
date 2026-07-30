@@ -7,7 +7,7 @@ import Colofon from "@/components/landing/Colofon";
 export const metadata: Metadata = {
   title: "Calculadora de ahorro operativo",
   description:
-    "Estima horas recuperables, costo del trabajo repetitivo y valor potencial de automatizar un proceso con Releva.",
+    "Estima horas recuperables, costo del trabajo repetitivo y valor potencial de automatizar un proceso con allok.",
   alternates: { canonical: "/cotizar" },
 };
 

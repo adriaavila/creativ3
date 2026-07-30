@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import RelevaLogo from "@/components/brand/RelevaLogo";
+import AllokLogo from "@/components/brand/AllokLogo";
 import {
   Activity,
   ArrowLeft,
@@ -122,12 +122,12 @@ export default function OpsDashboardClient({
             >
               <ArrowLeft className="size-4" />
             </Link>
-            <RelevaLogo variant="mark-bare" className="h-6 w-auto text-white" />
+            <AllokLogo variant="mark-bare" className="h-6 w-auto text-white" />
             <div>
               <div className="font-mono text-[9px] uppercase tracking-[0.18em] text-[#c5f04a]">
                 Panel de Administración
               </div>
-              <h1 className={`mt-1 font-display text-3xl ${DISPLAY_TIGHT}`}>Releva Systems Ops</h1>
+              <h1 className={`mt-1 font-display text-3xl ${DISPLAY_TIGHT}`}>allok Systems Ops</h1>
             </div>
           </div>
           <div className="flex items-center gap-3">

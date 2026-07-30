@@ -4,7 +4,7 @@
 
 ## 0. Resumen ejecutivo
 
-Creativv es un estudio/SaaS que vende automatización de WhatsApp para negocios (LATAM). El repo (`/Users/ama/projects/saas/creativ3`, Next.js) ya tiene:
+allok es un estudio/SaaS que vende automatización de WhatsApp para negocios (LATAM). El repo (`/Users/ama/projects/saas/allok`, Next.js) ya tiene:
 
 - **Meta Embedded Signup + Coexistence** funcionando (`src/lib/meta/server.ts`, `src/app/embedded-whatsapp/page.tsx`) — la parte más madura del código.
 - **WAHA** (WhatsApp HTTP API, self-hosted, no-oficial) como *health check* únicamente (`src/lib/waha.ts`, 44 líneas, solo `GET /api/sessions`). No envía ni recibe nada todavía.
@@ -39,7 +39,7 @@ Se mantienen los 4 planes ya codificados en `src/app/api/stripe/checkout/route.t
 - WAHA empareja por QR en minutos, sin dependencia de Meta, pero es **no oficial**: riesgo de baneo de número, sin templates estructurados, sin garantías de Meta. Debe quedar explícito en el ToS/checkout qué implica.
 - **Sobreprecio de canal**: si el cliente en plan `starter` quiere Cloud API en vez de WAHA, +$30 setup (costo de onboarding manual/soporte). Se implementa como línea de producto adicional en Stripe, no como plan nuevo.
 
-### 1.2 Tier nuevo: Creativv Agent Harness (infraestructura para agencias/devs)
+### 1.2 Tier nuevo: allok Agent Harness (infraestructura para agencias/devs)
 
 Vende el VPS + harness (WAHA multi-sesión + Hermes) como infraestructura administrada a terceros que quieren correr su propio flujo de agentes/WhatsApp sin montar servidores.
 
@@ -237,12 +237,12 @@ WAHA hoy solo se usa para health-check. Para ofrecerlo como canal real a cliente
 El VPS ya está desplegado y operado por el usuario — esta fase es incremental, no de provisión desde cero.
 
 1. **Fijar digests** de `nousresearch/hermes-agent` y `devlikeapro/waha` en `ops/agents/docker-compose.yml` (pendiente desde el README original).
-2. **Reverse proxy TLS** (Caddy) delante de WAHA para exponerlo de forma segura fuera de `127.0.0.1` — necesario para que Vercel y los webhooks lleguen. Un `Caddyfile` con `waha.creativv.dev { reverse_proxy waha:3000 }` basta.
+2. **Reverse proxy TLS** (Caddy) delante de WAHA para exponerlo de forma segura fuera de `127.0.0.1` — necesario para que Vercel y los webhooks lleguen. Un `Caddyfile` con `waha.allok.dev { reverse_proxy waha:3000 }` basta.
 3. **Backups** del volumen `waha_sessions` (perder la sesión = re-parear por QR con el cliente). Cron diario a almacenamiento externo (S3/Backblaze).
 4. **Cutover de Hermes**: seguir el fase-2/3 ya documentado en `ops/agents/README.md` (`GROWTH_AGENT_RUNTIME=hermes` tras una semana en shadow mode comparando con Eve). No urgente para este plan — el growth-agent en Vercel (Eve) sigue siendo el runtime activo mientras se valida Hermes.
 5. **Multi-instancia para tier "Harness"**: cada cliente de infraestructura = su propio proyecto docker-compose (`docker compose -p cliente-acme -f docker-compose.tenant.yml up -d`), con su propio volumen de sesión WAHA y (en el tier Team/Whitelabel) su propio perfil Hermes con `SOUL.md` propio. **No** construir aislamiento multi-tenant a nivel de fila en Postgres para este tier todavía — el aislamiento es a nivel de contenedor/proceso, más simple y más seguro para un mercado de 1-3 clientes iniciales. Documentar el runbook de "nuevo tenant" como script (`ops/agents/new-tenant.sh`) que clona la plantilla compose, genera puertos únicos, y registra la instancia.
 
-**Verificación:** `curl https://waha.creativv.dev/api/sessions` con API key desde fuera del VPS → 200. Reinicio del host → sesiones sobreviven (volumen persistente). Crear un tenant nuevo con el script → stack aislado arriba en <5 min.
+**Verificación:** `curl https://waha.allok.dev/api/sessions` con API key desde fuera del VPS → 200. Reinicio del host → sesiones sobreviven (volumen persistente). Crear un tenant nuevo con el script → stack aislado arriba en <5 min.
 
 ### Fase 5 — Frontend: un solo funnel + venta del harness (2–3 días)
 

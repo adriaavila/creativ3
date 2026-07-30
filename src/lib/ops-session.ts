@@ -3,7 +3,7 @@ import { createHmac, timingSafeEqual } from "node:crypto";
 // ponytail: HMAC-signed session token, not JWT — one secret, one claim (userId + exp),
 // no library needed. Upgrade to a real JWT lib only if scopes/claims grow.
 
-export const OPS_COOKIE_NAME = "creativv_ops_session";
+export const OPS_COOKIE_NAME = "allok_ops_session";
 export const OPS_SESSION_TTL_SECONDS = 60 * 60 * 12; // 12h, matches prior cookie maxAge
 
 export type OpsSessionPayload = { userId: string; exp: number };

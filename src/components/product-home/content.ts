@@ -26,8 +26,8 @@ export const APPLICATIONS: ApplicationItem[] = [
       "Organiza oportunidades, automatiza seguimientos y visualiza todo tu proceso comercial.",
     outcome: "Cada conversación llega al siguiente paso con contexto y responsable.",
     image: "/projects/frontai-landing/01-desktop.jpg",
-    imageAlt: "Interfaz de Frontia para conversaciones, leads y seguimientos",
-    project: "Frontia · atención y seguimiento",
+    imageAlt: "Interfaz de allok Desk para conversaciones, leads y seguimientos",
+    project: "allok Desk · atención y seguimiento",
   },
   {
     id: "portales-clientes",
@@ -86,8 +86,8 @@ export const APPLICATIONS: ApplicationItem[] = [
       "Reduce tareas repetitivas, resume información, clasifica solicitudes y ayuda a tu equipo a trabajar más rápido.",
     outcome: "Automatización visible, supervisable y conectada a un problema concreto.",
     image: "/projects/frontai-landing/01-desktop.jpg",
-    imageAlt: "Panel de Frontia para automatizar atención, clasificación y seguimiento",
-    project: "Frontia · agente de atención",
+    imageAlt: "Panel de allok Desk para automatizar atención, clasificación y seguimiento",
+    project: "allok Desk · agente de atención",
   },
 ];
 

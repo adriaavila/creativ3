@@ -2,7 +2,7 @@ import { defineTool } from "eve/tools";
 import { z } from "zod";
 
 export default defineTool({
-  description: "Read the approved Creativv markets, offers, pricing boundaries, and outreach rules.",
+  description: "Read the approved allok markets, offers, pricing boundaries, and outreach rules.",
   inputSchema: z.object({}),
   async execute() {
     return {

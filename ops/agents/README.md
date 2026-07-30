@@ -1,4 +1,4 @@
-# Creativv agents: Hermes + Postiz + WAHA
+# allok agents: Hermes + Postiz + WAHA
 
 ## Target architecture
 

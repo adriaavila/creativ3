@@ -14,7 +14,7 @@
   --color-papiro-soft: var(--papiro-soft);
   --color-guayoyo: var(--guayoyo);
 
-  /* Releva is one grotesque, at every size. `font-display` is used on ~40
+  /* allok is one grotesque, at every size. `font-display` is used on ~40
      headings across the app; repointing the token retires the serif everywhere
      in one line rather than editing each call site. */
   --font-display: var(--font-grotesk);
@@ -38,7 +38,7 @@
 }
 
 :root {
-  /* ── Releva ────────────────────────────────────────────────────
+  /* ── allok ────────────────────────────────────────────────────
      One neutral ramp, one accent. The old palette carried navy, sage,
      forest green, cream and terracotta at once; the waveform mark only
      works if nothing else in the frame competes with it.
@@ -97,22 +97,56 @@
   --studio-accent: #c5f04a;
 }
 
-/* Highlighter mark behind display type. A gradient rather than an absolutely
-   positioned bar: it redraws per line, so a wrap never leaves the mark hanging
-   past the last word. */
-.studio-mark {
-  /* Band, not underline: the display line-height is 0.94, so the line box
-     bottom sits near the baseline — start the mark above it or it reads as a
-     detached rule. */
-  background-image: linear-gradient(
-    to top,
-    transparent 0.08em,
-    var(--studio-accent) 0.08em,
-    var(--studio-accent) 0.42em,
-    transparent 0.42em
-  );
-  box-decoration-break: clone;
-  -webkit-box-decoration-break: clone;
+/* The logo resolves from ink into lime at its trailing edge. Display type uses
+   the contrarian inverse: lime appears early, then degrades into hard black.
+   The accessible green is confined to large type; body copy stays neutral. */
+.brand-tail-text {
+  color: #0a0a0a;
+  background-image: linear-gradient(105deg, #587615 0%, #0a0a0a 34%, #0a0a0a 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.brand-tail-text-dark {
+  color: #ffffff;
+  background-image: linear-gradient(105deg, #c5f04a 0%, #ffffff 34%, #ffffff 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.studio-hero {
+  background:
+    radial-gradient(60% 75% at 9% 14%, rgba(197, 240, 74, 0.3), transparent 64%),
+    linear-gradient(115deg, #f5f5f4 0%, #ffffff 58%, #f0f0ef 100%);
+}
+
+.studio-hero > div:first-child {
+  background-image:
+    linear-gradient(rgba(10, 10, 10, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(10, 10, 10, 0.035) 1px, transparent 1px);
+  background-size: 64px 64px;
+  mask-image: linear-gradient(to right, black, transparent 72%);
+}
+
+.studio-window {
+  border-radius: 1.5rem;
+  transform: rotate(1.25deg);
+  transition: transform 400ms cubic-bezier(.2, .8, .2, 1);
+}
+
+.studio-window:hover {
+  transform: rotate(0);
+}
+
+.brand-button {
+  border-radius: 999px;
+  box-shadow: 0.3rem 0.3rem 0 #c5f04a;
+}
+
+.brand-button:hover {
+  box-shadow: 0.15rem 0.15rem 0 #c5f04a;
 }
 
 /* Marquee edges fade instead of hard-cutting at the container. */
@@ -512,3 +546,26 @@ html.theme-dark :focus-visible {
   color: #111214;
 }
 html.theme-dark .theme-kinetic ~ * { /* no-op selector to scope */ }
+
+/* allok marketing motion: one restrained entrance language, CSS-only. */
+@keyframes allok-enter {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.allok-enter {
+  animation: allok-enter 280ms ease-out both;
+}
+
+@supports (animation-timeline: view()) {
+  .allok-reveal {
+    animation: allok-enter linear both;
+    animation-timeline: view();
+    animation-range: entry 8% cover 24%;
+  }
+}
+
+.studio :is(a, button, summary):focus-visible {
+  outline: 2px solid #111214;
+  outline-offset: 3px;
+}

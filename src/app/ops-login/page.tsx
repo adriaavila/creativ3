@@ -1,10 +1,10 @@
 import Link from "next/link";
-import RelevaLogo from "@/components/brand/RelevaLogo";
+import AllokLogo from "@/components/brand/AllokLogo";
 import Waveform from "@/components/brand/Waveform";
 
 export const metadata = {
-  title: "Acceso Ops | Releva",
-  description: "Acceso privado al centro operativo de Releva.",
+  title: "Acceso Ops | allok",
+  description: "Acceso privado al centro operativo de allok.",
 };
 
 export default async function OpsLoginPage({
@@ -25,9 +25,9 @@ export default async function OpsLoginPage({
       />
 
       <div className="relative w-full max-w-md rounded-3xl border border-white/10 bg-white/[0.04] p-7 shadow-2xl shadow-black/40 sm:p-9">
-        <RelevaLogo variant="mark" className="h-11 w-11" />
+        <AllokLogo variant="mark" className="h-11 w-11" />
         <div className="mt-6 font-mono text-[9px] uppercase tracking-[0.2em] text-[#c5f04a]">
-          Releva · Operación privada
+          allok · Operación privada
         </div>
         <h1 className="mt-3 font-display text-5xl leading-[0.9]">Entrar a Ops</h1>
         <p className="mt-4 text-sm leading-6 text-white/50">

@@ -27,7 +27,7 @@ const OFFERS = [
     ],
     cta: "Pedir landing page",
     message:
-      "Hola, quiero pedir la landing page de USD 199 en 3 días con Releva. Mi negocio es:",
+      "Hola, quiero pedir la landing page de USD 199 en 3 días con allok. Mi negocio es:",
   },
   {
     icon: Rocket,
@@ -45,7 +45,7 @@ const OFFERS = [
     ],
     cta: "Cotizar automatización",
     message:
-      "Hola, quiero cotizar una automatización simple desde USD 499 con Releva. El proceso que quiero automatizar es:",
+      "Hola, quiero cotizar una automatización simple desde USD 499 con allok. El proceso que quiero automatizar es:",
   },
   {
     icon: Gauge,
@@ -65,7 +65,7 @@ const OFFERS = [
     ],
     cta: "Cotizar web/producto",
     message:
-      "Hola, quiero cotizar una web o producto desde USD 699 con Releva. Lo que necesito construir es:",
+      "Hola, quiero cotizar una web o producto desde USD 699 con allok. Lo que necesito construir es:",
   },
 ];
 

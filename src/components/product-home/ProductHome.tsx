@@ -1,6 +1,4 @@
-import Link from "next/link";
-import { ArrowRight, ArrowUpRight, Check, Mail, MessageCircle } from "lucide-react";
-import RelevaLogo from "@/components/brand/RelevaLogo";
+import { ArrowUpRight, Check } from "lucide-react";
 import WhatsAppBanner from "@/components/landing/WhatsAppBanner";
 import ProyectosShowcase from "@/components/landing/ProyectosShowcase";
 import OfertaSection from "@/components/landing/OfertaSection";
@@ -39,7 +37,7 @@ const PROJECT_CONTEXT: Record<
     description: "Una plataforma para administrar cartera, contratos, propietarios e ingresos en un solo lugar.",
   },
   "frontai-landing": {
-    service: "FrontIA",
+    service: "allok Desk",
     before: "Llamadas, citas y oportunidades dependían de seguimiento manual entre conversaciones.",
     description: "Un agente que atiende, califica oportunidades, agenda citas y registra cada seguimiento.",
   },
@@ -128,8 +126,8 @@ const structuredData = {
   "@graph": [
     {
       "@type": "ProfessionalService",
-      name: "Releva",
-      url: "https://servicios.frontia.app",
+      name: "allok",
+      url: "https://allok.fun",
       email: CONTACT_EMAIL,
       description:
         "Estudio independiente de websites, aplicaciones, automatización e inteligencia artificial para negocios.",
@@ -137,12 +135,12 @@ const structuredData = {
     },
     {
       "@type": "ItemList",
-      name: "Servicios principales de Releva",
+      name: "Servicios principales de allok",
       itemListElement: [
         "WhatsApp Sales Experience",
         "Cinematic Launch Page",
         "App Prototype Sprint",
-        "FrontIA",
+        "allok Desk",
       ].map((name, index) => ({ "@type": "ListItem", position: index + 1, name })),
     },
     {
@@ -280,4 +278,3 @@ export default function ProductHome() {
     </div>
   );
 }
-

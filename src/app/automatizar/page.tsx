@@ -18,7 +18,7 @@ const PROCESS = [
 
 export default function AutomatizarPage() {
   const intake = whatsappUrl(
-    "Hola, quiero revisar una automatización con Releva. El proceso repetitivo es:"
+    "Hola, quiero revisar una automatización con allok. El proceso repetitivo es:"
   );
 
   return (

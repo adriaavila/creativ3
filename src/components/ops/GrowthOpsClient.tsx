@@ -2,7 +2,7 @@
 
 import { useMemo, useState, type ReactNode } from "react";
 import Link from "next/link";
-import RelevaLogo from "@/components/brand/RelevaLogo";
+import AllokLogo from "@/components/brand/AllokLogo";
 import {
   ArrowLeft,
   BarChart3,
@@ -173,10 +173,10 @@ export default function GrowthOpsClient({
             <Link id="lnk-back-to-ops" href="/ops" className="flex size-10 items-center justify-center rounded-full border border-white/10 bg-white/5" aria-label="Volver al sitio">
               <ArrowLeft className="size-4" />
             </Link>
-            <RelevaLogo variant="mark-bare" className="h-6 w-auto text-white" />
+            <AllokLogo variant="mark-bare" className="h-6 w-auto text-white" />
             <div>
               <div className="font-mono text-[9px] uppercase tracking-[0.18em] text-[#c5f04a]">Operación privada</div>
-              <h1 className={`mt-1 font-display text-3xl ${DISPLAY_TIGHT}`}>Releva Growth OS</h1>
+              <h1 className={`mt-1 font-display text-3xl ${DISPLAY_TIGHT}`}>allok Growth OS</h1>
             </div>
           </div>
           <div className="flex items-center gap-3">

@@ -1,5 +1,5 @@
 ## Style Prompt
-Editorial brand film for creativv Studio — a Venezuelan design+code+AI studio. Soft daylight, tropical modernism on a cream canvas. Confident, minimal, slow. Each beat is one declaration. Greens of the Ávila against papyrus paper. Movement is patient, type is the hero.
+Editorial brand film for allok Studio — a Venezuelan design+code+AI studio. Soft daylight, tropical modernism on a cream canvas. Confident, minimal, slow. Each beat is one declaration. Greens of the Ávila against papyrus paper. Movement is patient, type is the hero.
 
 ## Colors
 - `#e8e7df` — papiro (primary bg, cream)

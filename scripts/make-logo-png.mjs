@@ -51,7 +51,7 @@ const LOGOS = [
             <path d="M33 26 L42 42 L51 26" opacity="0.45" />
           </g>
         </svg>
-        <text x="256" y="380" text-anchor="middle" font-family="Inter, sans-serif" font-size="64" font-weight="600" letter-spacing="-2.4" fill="#ffffff">creativv</text>
+        <text x="256" y="380" text-anchor="middle" font-family="Inter, sans-serif" font-size="64" font-weight="600" letter-spacing="-2.4" fill="#ffffff">allok</text>
         <circle cx="392" cy="340" r="5.6" fill="#ffffff" />
       </svg>
     `
@@ -71,7 +71,7 @@ const LOGOS = [
             <path d="M33 26 L42 42 L51 26" opacity="0.45" />
           </g>
         </svg>
-        <text x="256" y="380" text-anchor="middle" font-family="Inter, sans-serif" font-size="64" font-weight="600" letter-spacing="-2.4" fill="#1f2a1d">creativv</text>
+        <text x="256" y="380" text-anchor="middle" font-family="Inter, sans-serif" font-size="64" font-weight="600" letter-spacing="-2.4" fill="#1f2a1d">allok</text>
         <circle cx="392" cy="340" r="5.6" fill="#1f2a1d" />
       </svg>
     `

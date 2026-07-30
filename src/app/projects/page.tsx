@@ -8,9 +8,9 @@ import {
 } from "@/lib/projects";
 
 export const metadata: Metadata = {
-  title: "Proyectos · Releva",
+  title: "Proyectos · allok",
   description:
-    "Archivo de proyectos recientes de Releva: webs, web apps y automatizaciones sincronizadas desde GitHub.",
+    "Archivo de proyectos recientes de allok: webs, web apps y automatizaciones sincronizadas desde GitHub.",
   alternates: { canonical: "/projects" },
 };
 

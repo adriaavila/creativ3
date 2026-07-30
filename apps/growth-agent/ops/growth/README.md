@@ -7,13 +7,13 @@
 - The agent can research, score, persist, draft, and update state. It has no outreach-sending tool.
 - The active strategy is one 14-day campaign at a time. Initial experiment: `reduce_costs × ecommerce × WhatsApp/operations automation`.
 - Postiz handles approved social scheduling and analytics. WAHA is reserved for approved WhatsApp Status/Channel content; never bulk direct outreach.
-- Use `pnpm --filter @creativv/growth-agent build` before deployment and trigger `daily-research` from Eve's dev schedule endpoint during local verification.
+- Use `pnpm --filter @allok/growth-agent build` before deployment and trigger `daily-research` from Eve's dev schedule endpoint during local verification.
 - Model runs through **Vercel AI Gateway** (`gateway("anthropic/claude-sonnet-4-6")` in each `agent.ts`; override per env with `GROWTH_MODEL`). Requires `AI_GATEWAY_API_KEY`.
 - Eve remains the current runtime. The production migration to Hermes Agent is documented in `ops/agents/README.md`; run both in shadow mode before cutover.
 
 ## Evaluating the agents
 
-- `pnpm --filter @creativv/growth-agent eval` runs the suite in `evals/`. The judge model for `t.judge.*` LLM-as-judge checks is configured in `evals/evals.config.ts` (override with `GROWTH_JUDGE_MODEL`); it only scores, never changes the agent under test.
+- `pnpm --filter @allok/growth-agent eval` runs the suite in `evals/`. The judge model for `t.judge.*` LLM-as-judge checks is configured in `evals/evals.config.ts` (override with `GROWTH_JUDGE_MODEL`); it only scores, never changes the agent under test.
 - Current checks: `limits`, `no-outreach`, `evidence-has-url`, `draft-voice` (judge), `lead-score-sanity` (judge), `no-pii` (judge). Gate failures fail the run; tune judge strictness with `.soft()`/`.gate()`/`.atLeast()` per assertion.
 - To trust a change: break a copywriter rule in `subagents/copywriter/instructions.md` and confirm `draft-voice` fails, then revert.
 

@@ -6,7 +6,7 @@ import InboxClient from "@/components/ops/InboxClient";
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Inbox WhatsApp | Releva Ops",
+  title: "Inbox WhatsApp | allok Ops",
   description: "Bandeja unificada de conversaciones de WhatsApp (Cloud API + WAHA).",
 };
 

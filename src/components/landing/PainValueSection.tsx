@@ -54,7 +54,7 @@ export default function PainValueSection() {
               No necesitas más ruido digital. Necesitas un camino para captar clientes.
             </h2>
             <p className="mt-5 text-base leading-relaxed text-[#6b6b6b] md:text-lg">
-              Releva convierte presencia, interés y procesos sueltos en activos que ayudan a vender:
+              allok convierte presencia, interés y procesos sueltos en activos que ayudan a vender:
               una landing clara, un flujo de leads o un producto digital listo para validar.
             </p>
           </div>

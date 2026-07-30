@@ -1,5 +1,5 @@
 /**
- * Releva's one mark: an amplitude-modulated sine. Dense carrier, envelope that
+ * allok's one mark: an amplitude-modulated sine. Dense carrier, envelope that
  * swells, waists in the middle and dies at both ends — the shape of a signal
  * that got picked up, not a decoration.
  *

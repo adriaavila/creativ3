@@ -9,7 +9,7 @@ import { whatsappUrl } from "@/lib/contact";
 import Reveal from "./Reveal";
 
 const PROJECT_CTA = whatsappUrl(
-  "Hola, vi los proyectos realizados de Releva y quiero construir algo parecido para mi negocio. Mi caso es:"
+  "Hola, vi los proyectos realizados de allok y quiero construir algo parecido para mi negocio. Mi caso es:"
 );
 
 export default function ProyectosShowcase() {

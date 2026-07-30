@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import RelevaLogo from "@/components/brand/RelevaLogo";
+import AllokLogo from "@/components/brand/AllokLogo";
 import { MessageCircle } from "lucide-react";
 import { whatsappUrl } from "@/lib/contact";
 
@@ -28,7 +28,7 @@ const HIDE_ON = [
 ];
 
 const DIRECT_WHATSAPP_CTA = whatsappUrl(
-  "Hola Releva, quiero cotizar un proyecto. Mi negocio es:"
+  "Hola allok, quiero cotizar un proyecto. Mi negocio es:"
 );
 
 export default function SiteHeader() {
@@ -43,7 +43,7 @@ export default function SiteHeader() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  if (pathname === "/") return null;
+  if (pathname === "/" || /^\/(es|en)(\/|$)/.test(pathname ?? "")) return null;
   if (pathname && HIDE_ON.some((p) => p !== "/" && pathname === p)) return null;
 
   return (
@@ -57,10 +57,10 @@ export default function SiteHeader() {
       <nav className="max-w-6xl mx-auto flex items-center justify-between px-4 sm:px-6 md:px-10 h-16 sm:h-[72px]">
         <Link
           href="/"
-          aria-label="Releva"
+          aria-label="allok"
           className="flex items-center text-white"
         >
-          <RelevaLogo variant="lockup-bare" theme="dark" className="h-7 sm:h-8 w-auto text-white" />
+          <AllokLogo variant="lockup-bare" theme="dark" className="h-7 sm:h-8 w-auto text-white" />
         </Link>
 
         <div className="hidden lg:flex items-center gap-1 bg-white/[0.05] backdrop-blur-md rounded-full pl-6 pr-1 py-1 shadow-sm border border-white/10">

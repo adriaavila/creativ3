@@ -1,146 +1,70 @@
 import Stripe from "stripe";
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
+import {
+  getBillingItem,
+  isBillingKey,
+  type BillingChannel,
+} from "@/lib/billing/catalog";
+import { isLocale, type Locale } from "@/lib/i18n";
 
-// One product — the Desk — at three price points by client size, plus a cohort
-// discount for the first 5. Not three feature tiers: the cheap tier buys feedback
-// and a documented case, not a lesser system.
-//
-// The floor under these numbers is real AI cost per conversation (Sonnet 5 for
-// qualifying/negotiating turns, Haiku 4.5 for FAQ — see src/lib/whatsapp-ai.ts)
-// plus a sub-$50/mo fixed infra cost. See the pricing note in
-// docs/whatsapp-dual-channel-plan.md for the full cost breakdown.
-//
-// Results-based billing (piso + cita atribuida) is quoted per contract and settled
-// off Stripe — it needs the 30-day baseline from migration 008 first.
-const PLANS = {
-  starter: {
-    name: "Desk Cohorte",
-    currency: "usd",
-    setupAmount: 39000, // $390
-    recurringAmount: 7900, // $79/mo
-    description:
-      "El Desk completo a precio de cohorte, para los primeros 5 negocios: feedback semanal y permiso para documentar el proceso a cambio.",
-    defaultChannel: "waha" as const,
-  },
-  growth: {
-    name: "Desk",
-    currency: "usd",
-    setupAmount: 69000, // $690
-    recurringAmount: 12900, // $129/mo
-    description:
-      "Inbox comercial, respuestas sugeridas con IA aprobadas por vos, calificación, landing/cotizador y tu línea base medida a los 30 días.",
-    defaultChannel: "waha" as const,
-  },
-  premium: {
-    name: "Desk Empresa",
-    currency: "usd",
-    setupAmount: 149000, // $1,490
-    recurringAmount: 29000, // $290/mo
-    description:
-      "Varias sedes o números, funnel completo desde anuncios, Hermes Agent y reporte semanal. Habilita el Sprint a Resultado. Cloud API recomendado, WAHA de respaldo.",
-    defaultChannel: "cloud_api" as const,
-  },
-} as const;
-
-type PlanKey = keyof typeof PLANS;
-type Channel = "waha" | "cloud_api";
-
-// Upcharge for choosing Cloud API on a plan whose default channel is WAHA — the
-// manual onboarding/support cost of registering the number with Meta up front.
-const CLOUD_API_UPCHARGE_CENTS = 2000; // $20 setup
-
-type CheckoutLineItem = {
-  price_data: {
-    currency: string;
-    product_data: {
-      name: string;
-      description: string;
-    };
-    unit_amount: number;
-    recurring?: { interval: "month" };
-  };
-  quantity: number;
-};
-
-export async function POST(req: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
-    const { plan, channel, client } = (await req.json()) as {
+    const body = (await request.json()) as {
+      item?: string;
       plan?: string;
       channel?: string;
       client?: string;
+      locale?: string;
     };
-
-    if (!plan || !(plan in PLANS)) {
-      return NextResponse.json({ error: "Plan inválido" }, { status: 400 });
-    }
-    const planKey = plan as PlanKey;
-    const selectedPlan = PLANS[planKey];
-
-    const requestedChannel: Channel =
-      channel === "waha" || channel === "cloud_api" ? channel : selectedPlan.defaultChannel;
-
-    const key = process.env.STRIPE_SECRET_KEY;
-    if (!key) {
-      return NextResponse.json({ error: "Stripe no configurado" }, { status: 500 });
+    const key = body.item ?? body.plan;
+    if (!key || !isBillingKey(key)) {
+      return NextResponse.json({ error: "Invalid billing item." }, { status: 400 });
     }
 
-    const stripe = new Stripe(key, { apiVersion: "2026-04-22.dahlia" });
-
-    const origin = req.headers.get("origin") ?? process.env.NEXT_PUBLIC_URL ?? "http://localhost:3000";
-    const lineItems: CheckoutLineItem[] = [
-      {
-        price_data: {
-          currency: selectedPlan.currency,
-          product_data: {
-            name: `Plan ${selectedPlan.name}`,
-            description: selectedPlan.description,
-          },
-          unit_amount: selectedPlan.recurringAmount,
-          recurring: { interval: "month" },
-        },
-        quantity: 1,
-      },
-      {
-        price_data: {
-          currency: selectedPlan.currency,
-          product_data: {
-            name: `Setup ${selectedPlan.name}`,
-            description: "Pago inicial de implementación.",
-          },
-          unit_amount: selectedPlan.setupAmount,
-        },
-        quantity: 1,
-      },
-    ];
-
-    if (requestedChannel === "cloud_api" && selectedPlan.defaultChannel === "waha") {
-      lineItems.push({
-        price_data: {
-          currency: selectedPlan.currency,
-          product_data: {
-            name: "Canal Cloud API (en vez de WAHA)",
-            description: "Onboarding manual con registro oficial en Meta.",
-          },
-          unit_amount: CLOUD_API_UPCHARGE_CENTS,
-        },
-        quantity: 1,
-      });
+    const locale: Locale = body.locale && isLocale(body.locale) ? body.locale : "es";
+    const catalogItem = getBillingItem(key);
+    const channel: BillingChannel =
+      body.channel === "cloud_api" || body.channel === "waha"
+        ? body.channel
+        : "defaultChannel" in catalogItem
+          ? catalogItem.defaultChannel
+          : "waha";
+    const secret = process.env.STRIPE_SECRET_KEY;
+    if (!secret) {
+      return NextResponse.json({ error: "Stripe is not configured." }, { status: 503 });
     }
+
+    const stripe = new Stripe(secret, { apiVersion: "2026-04-22.dahlia" });
+    const origin =
+      process.env.NEXT_PUBLIC_URL ??
+      request.headers.get("origin") ??
+      "http://localhost:3000";
+    const successPath =
+      locale === "es" ? "/es/pago/exito" : "/en/payment/success";
+    const cancelPath =
+      locale === "es" ? "/es/pago/cancelado" : "/en/payment/canceled";
 
     const session = await stripe.checkout.sessions.create({
-      payment_method_types: ["card"],
-      mode: "subscription",
-      line_items: lineItems,
-      success_url: `${origin}/pago/exito?session_id={CHECKOUT_SESSION_ID}&plan=${planKey}&channel=${requestedChannel}`,
-      cancel_url: `${origin}/pago/cancelado`,
-      locale: "es",
+      mode: catalogItem.kind === "subscription" ? "subscription" : "payment",
+      line_items: catalogItem.prices.map((price) => ({ price, quantity: 1 })),
+      success_url: `${origin}${successPath}?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${origin}${cancelPath}`,
+      locale,
       allow_promotion_codes: true,
-      metadata: { plan: planKey, channel: requestedChannel, client: client ?? "" },
+      customer_creation: catalogItem.kind === "one_time" ? "always" : undefined,
+      metadata: { item: key, plan: key, channel, client: body.client ?? "", locale },
+      subscription_data:
+        catalogItem.kind === "subscription"
+          ? { metadata: { item: key, plan: key, channel, locale } }
+          : undefined,
     });
 
     return NextResponse.json({ url: session.url });
-  } catch (err) {
-    const message = err instanceof Error ? err.message : "Error desconocido";
-    return NextResponse.json({ error: message }, { status: 500 });
+  } catch (error) {
+    console.error("Could not create Stripe Checkout session", error);
+    return NextResponse.json(
+      { error: "Could not start secure checkout." },
+      { status: 500 },
+    );
   }
 }

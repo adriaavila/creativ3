@@ -26,7 +26,7 @@ export default function Waveform({
   weight = 3.4,
   waist = 0.22,
   accentTail = false,
-  id = "releva-wave",
+  id = "allok-wave",
 }: Props) {
   const d = wavePath({ cycles, width: 1000, amp: 62, midY: 80, waist });
 

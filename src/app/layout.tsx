@@ -5,6 +5,7 @@ import "./globals.css";
 import SiteHeader from "@/components/sections/SiteHeader";
 import RouteTheme from "@/components/sections/RouteTheme";
 import { siteJsonLd } from "@/lib/seo";
+import { headers } from "next/headers";
 
 const fraunces = Fraunces({
   weight: ["300", "400"],
@@ -50,19 +51,18 @@ const geist = Geist({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://servicios.frontia.app"),
+  metadataBase: new URL("https://allok.fun"),
   title: {
-    default: "Releva | Aumenta ingresos o reduce costos",
-    template: "%s | Releva",
+    default: "allok | Tu negocio, funcionando mejor",
+    template: "%s | allok",
   },
   description:
-    "Releva diseña landing pages, sitios web y ecommerce para aumentar ingresos; automatizaciones, dashboards y apps para reducir costos.",
-  alternates: { canonical: "/" },
+    "Sistemas digitales para vender más y operar mejor: sitios web, automatización con IA y allok Desk.",
   verification: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION
     ? { google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION }
     : undefined,
   keywords: [
-    "Releva",
+    "allok",
     "landing pages",
     "agentes IA para negocios",
     "automatizaciones",
@@ -75,25 +75,25 @@ export const metadata: Metadata = {
     "WhatsApp",
   ],
   openGraph: {
-    title: "Releva | Diseño digital para crecer u operar mejor",
+    title: "allok | Tu negocio, funcionando mejor",
     description:
       "Landing pages, sitios web y ecommerce para vender más. Automatizaciones, dashboards y apps para operar con menos fricción.",
-    url: "https://servicios.frontia.app",
-    siteName: "Releva",
+    url: "https://allok.fun",
+    siteName: "allok",
     locale: "es_VE",
     type: "website",
-    images: [{ url: "/opengraph-image", width: 1200, height: 630, alt: "Releva" }],
+    images: [{ url: "/opengraph-image", width: 1200, height: 630, alt: "allok" }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Releva | Aumenta ingresos o reduce costos",
+    title: "allok | Tu negocio, funcionando mejor",
     description:
       "Estrategia, UX/UI y software diseñados alrededor del resultado que tu negocio necesita.",
     images: ["/opengraph-image"],
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
@@ -102,9 +102,10 @@ export default function RootLayout({
   // viewport-height scroller with the body overflowing it, which breaks
   // ScrollTrigger's start/end measurement. `min-h-screen` on <body> gives the
   // same full-viewport floor without pinning the root's height.
+  const locale = (await headers()).get("x-allok-locale") === "en" ? "en" : "es";
   return (
     <html
-      lang="es"
+      lang={locale}
       className={`${fraunces.variable} ${italiana.variable} ${jetbrains.variable} ${instrumentSans.variable} ${geist.variable} theme-dark`}
     >
       {/* relative: GSAP ScrollTrigger's documented requirement whenever overflow
@@ -113,7 +114,7 @@ export default function RootLayout({
       <body className="relative min-h-screen overflow-x-hidden antialiased">
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(siteJsonLd()) }}
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(siteJsonLd(locale)) }}
         />
         <RouteTheme />
         <SiteHeader />

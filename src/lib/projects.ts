@@ -130,15 +130,15 @@ export const PORTFOLIO_PROJECTS: PortfolioProject[] = [
   },
   {
     id: "frontai-landing",
-    name: "Frontia",
+    name: "allok Desk",
     kind: "Conversaciones que se convierten en acciones.",
     categories: ["web", "automation"],
     description:
       "Un agente de voz con IA que atiende, entiende, califica y organiza cada interacción.",
     result:
-      "Frontia conecta una llamada con el siguiente paso del proceso comercial.",
+      "allok Desk conecta una llamada con el siguiente paso del proceso comercial.",
     businessGoal: "both",
-    businessOutcome: "Frontia conecta una llamada con el siguiente paso del proceso comercial.",
+    businessOutcome: "allok Desk conecta una llamada con el siguiente paso del proceso comercial.",
     agentRole: "Agente de front desk",
     status: "demo",
     stack: ["Next.js", "AI UX", "Vercel", "Motion"],
@@ -149,17 +149,17 @@ export const PORTFOLIO_PROJECTS: PortfolioProject[] = [
     images: [
       {
         src: "/projects/frontai-landing/01-desktop.jpg",
-        alt: "Hero de Frontia con interfaz de agente AI",
+        alt: "Hero de allok Desk con interfaz de agente AI",
         label: "Hero",
       },
       {
         src: "/projects/frontai-landing/02-desktop-scroll.jpg",
-        alt: "Seccion de problema y solucion en Frontia",
+        alt: "Seccion de problema y solucion en allok Desk",
         label: "Story",
       },
       {
         src: "/projects/frontai-landing/03-mobile.jpg",
-        alt: "Version movil de Frontia",
+        alt: "Version movil de allok Desk",
         label: "Mobile",
       },
     ],

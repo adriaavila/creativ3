@@ -34,7 +34,7 @@ const SERVICES: ServiceOffer[] = [
     result: "Una primera versión real para probar el flujo, alinear al equipo y aprender con usuarios.",
   },
   {
-    name: "FrontIA",
+    name: "allok Desk",
     promise: "Tu negocio responde aunque tú no estés.",
     result: "Atención, calificación, agenda y seguimiento con inteligencia artificial supervisable.",
   },

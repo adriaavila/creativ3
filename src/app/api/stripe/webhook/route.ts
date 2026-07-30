@@ -1,14 +1,34 @@
 import Stripe from "stripe";
+import { Resend } from "resend";
 import { NextResponse, type NextRequest } from "next/server";
 import {
   recordStripePurchase,
   upsertStripeSubscription,
 } from "@/lib/stripe-purchases-db";
+import { projectPaymentEmail } from "@/lib/project-payment-email";
 
 export const runtime = "nodejs";
 
 const id = (value: string | Stripe.Customer | Stripe.DeletedCustomer | null) =>
   typeof value === "string" ? value : value?.id ?? null;
+
+async function sendProjectPaymentEmail(session: Stripe.Checkout.Session) {
+  const apiKey = process.env.RESEND_API_KEY;
+  const from = process.env.RESEND_FROM_EMAIL;
+  const to = session.customer_details?.email;
+  if (!apiKey || !from || !to) return;
+
+  const email = projectPaymentEmail({
+    name: session.customer_details?.name ?? null,
+    amount: session.amount_total,
+    currency: session.currency,
+  });
+  const { error } = await new Resend(apiKey).emails.send(
+    { from, to, subject: email.subject, html: email.html, text: email.text },
+    { idempotencyKey: `project-payment/${session.id}` },
+  );
+  if (error) throw new Error("Project payment email was rejected.");
+}
 
 export async function POST(request: NextRequest) {
   const secret = process.env.STRIPE_SECRET_KEY;
@@ -51,6 +71,13 @@ export async function POST(request: NextRequest) {
             : session.subscription?.id ?? null,
         paymentStatus: session.payment_status,
       });
+
+      if (
+        session.metadata?.item === "project-deposit" &&
+        session.payment_status === "paid"
+      ) {
+        await sendProjectPaymentEmail(session);
+      }
     }
 
     if (

@@ -7,6 +7,8 @@ import {
 } from "@/lib/billing/catalog";
 import { isLocale, type Locale } from "@/lib/i18n";
 
+const PROJECT_DEPOSIT = "project-deposit";
+
 export async function POST(request: NextRequest) {
   try {
     const body = (await request.json()) as {
@@ -17,16 +19,16 @@ export async function POST(request: NextRequest) {
       locale?: string;
     };
     const key = body.item ?? body.plan;
-    if (!key || !isBillingKey(key)) {
+    if (!key || (key !== PROJECT_DEPOSIT && !isBillingKey(key))) {
       return NextResponse.json({ error: "Invalid billing item." }, { status: 400 });
     }
 
     const locale: Locale = body.locale && isLocale(body.locale) ? body.locale : "es";
-    const catalogItem = getBillingItem(key);
+    const catalogItem = key === PROJECT_DEPOSIT ? null : getBillingItem(key);
     const channel: BillingChannel =
       body.channel === "cloud_api" || body.channel === "waha"
         ? body.channel
-        : "defaultChannel" in catalogItem
+        : catalogItem && "defaultChannel" in catalogItem
           ? catalogItem.defaultChannel
           : "waha";
     const secret = process.env.STRIPE_SECRET_KEY;
@@ -45,16 +47,26 @@ export async function POST(request: NextRequest) {
       locale === "es" ? "/es/pago/cancelado" : "/en/payment/canceled";
 
     const session = await stripe.checkout.sessions.create({
-      mode: catalogItem.kind === "subscription" ? "subscription" : "payment",
-      line_items: catalogItem.prices.map((price) => ({ price, quantity: 1 })),
+      mode: catalogItem?.kind === "subscription" ? "subscription" : "payment",
+      line_items: catalogItem
+        ? catalogItem.prices.map((price) => ({ price, quantity: 1 }))
+        : [{
+            price_data: {
+              currency: "usd",
+              product_data: { name: "Depósito de proyecto allok" },
+              unit_amount: 20_000,
+            },
+            quantity: 1,
+          }],
       success_url: `${origin}${successPath}?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}${cancelPath}`,
       locale,
       allow_promotion_codes: true,
-      customer_creation: catalogItem.kind === "one_time" ? "always" : undefined,
+      customer_creation: catalogItem?.kind !== "subscription" ? "always" : undefined,
+      integration_identifier: "allok-project-payment-qnplrxav",
       metadata: { item: key, plan: key, channel, client: body.client ?? "", locale },
       subscription_data:
-        catalogItem.kind === "subscription"
+        catalogItem?.kind === "subscription"
           ? { metadata: { item: key, plan: key, channel, locale } }
           : undefined,
     });

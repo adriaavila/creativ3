@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "check:billing": "tsx scripts/check-billing-catalog.ts",
+    "check:billing": "tsx scripts/check-billing-catalog.ts && tsx scripts/check-project-payment-email.ts",
     "meta:diagnostics": "node scripts/meta-embedded-signup-diagnostics.mjs"
   },
   "dependencies": {

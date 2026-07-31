@@ -1,5 +1,8 @@
 # Meta WhatsApp Embedded Signup
 
+> Production status and the current acceptance blocker are tracked in
+> [`docs/meta-whatsapp-production-state.md`](./meta-whatsapp-production-state.md).
+
 This app uses Meta Embedded Signup for a Tech Provider onboarding flow.
 
 ## Runtime Env
@@ -13,6 +16,9 @@ META_CONFIG_ID=
 META_GRAPH_VERSION=v25.0
 META_WEBHOOK_VERIFY_TOKEN=
 META_WEBHOOK_CALLBACK_URL=https://YOUR_DOMAIN/api/meta/whatsapp/webhook
+DATABASE_URL=
+TOKEN_ENCRYPTION_KEY=
+CRON_SECRET=
 N8N_WEBHOOK_URL=https://YOUR_N8N_HOST/webhook/meta/embedded-signup
 N8N_WEBHOOK_SECRET=
 APP_URL=https://YOUR_DOMAIN
@@ -22,14 +28,7 @@ NEXT_PUBLIC_META_GRAPH_VERSION=v25.0
 NEXT_PUBLIC_APP_URL=https://YOUR_DOMAIN
 ```
 
-Optional:
-
-```txt
-DATABASE_URL=
-N8N_WHATSAPP_EVENTS_WEBHOOK_URL=
-```
-
-`DATABASE_URL` stores the durable connected-number inventory shown in `/ops`. n8n also keeps the connection payload for automation. `META_APP_SECRET`, connected-account business tokens, webhook secrets, and database URLs must stay server-side.
+`DATABASE_URL` stores the durable connected-number inventory and webhook queue shown in `/ops`. Connected-account tokens are encrypted in Postgres and are never forwarded to n8n. `META_APP_SECRET`, connected-account business tokens, webhook secrets, and database URLs must stay server-side.
 
 ## Meta Dashboard Checks
 
@@ -71,37 +70,22 @@ Expected webhook path:
 https://n8n.allok.fun/webhook/meta/embedded-signup
 ```
 
-The app backend calls this workflow after the Meta code exchange and WABA subscription. The active workflow requires the `x-servicioscreativos-secret` header, validates `code`, `waba_id`, `phone_number_id`, and `business_token`, stores the connected account in n8n workflow static data, and returns clean JSON. It also accepts authenticated `meta_embedded_signup_diagnostic` payloads without storing test data.
+The app no longer forwards signup authorization codes or business tokens to n8n. Neon is the only connection source of truth. The legacy signup workflow remains only for lifecycle/diagnostic compatibility and must not store credentials.
 
 The VPS n8n container must define the same `N8N_WEBHOOK_SECRET` used by Vercel. The workflow reads it through `$env.N8N_WEBHOOK_SECRET`.
 
-WhatsApp messages and coexistence-specific webhook fields are forwarded to:
+WhatsApp events are durably stored and normalized inside allok. The former direct n8n message-event workflow is intentionally unpublished because it could bypass human takeover and duplicate replies. Its old endpoint was:
 
 ```txt
 https://n8n.allok.fun/webhook/meta/whatsapp-events
 ```
 
-The active `Meta WhatsApp Events - Coexistence` workflow authenticates the Vercel handoff and records each delivery in n8n execution history.
+Do not republish that workflow without tenant lookup, idempotency, and explicit human-supervision gates.
 
 Import `n8n/meta-embedded-signup.workflow.json` only if the workflow needs to be recreated.
 
 ## Connected numbers in Ops
 
-After a successful onboarding, the exchange route reads the number's visible profile from Meta and upserts it into `whatsapp_connections`. Open `/ops` and use **Números conectados** to see the display number, verified name, subscription status, quality rating, WABA ID, and connection time. Run `db/migrations/004_whatsapp_connections.sql` when provisioning a database; the application also creates the table idempotently on first use.
+After a successful onboarding, the exchange route reads the number's visible profile from Meta and upserts it into `whatsapp_connections`. Open `/ops` and use **Números conectados** to see the display number, verified name, subscription status, connection mode, quality rating, WABA ID, and connection time.
 
-Recommended DB table if you later move storage from n8n static data to Postgres:
-
-```sql
-create table if not exists connected_whatsapp_accounts (
-  waba_id text not null,
-  phone_number_id text not null,
-  business_id text,
-  business_token text not null,
-  token_metadata jsonb not null default '{}'::jsonb,
-  owner jsonb not null default '{}'::jsonb,
-  status text not null default 'connected',
-  connected_at timestamptz not null,
-  updated_at timestamptz not null default now(),
-  primary key (waba_id, phone_number_id)
-);
-```
+Provision a database by applying the checked-in migrations in order. The current production schema includes `004_whatsapp_connections.sql`, `006_whatsapp_channels_inbox.sql`, `008_conversation_outcomes.sql`, and `010_meta_whatsapp_webhook_events.sql`. Runtime code does not create or alter schema.

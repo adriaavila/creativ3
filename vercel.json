@@ -1,0 +1,9 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "crons": [
+    {
+      "path": "/api/meta/whatsapp/webhook/drain",
+      "schedule": "0 0 * * *"
+    }
+  ]
+}

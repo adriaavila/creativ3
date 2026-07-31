@@ -1,5 +1,5 @@
 import crypto from "node:crypto";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import {
   META_MESSAGE_ORIGINS,
   META_REQUIRED_PERMISSIONS,
@@ -8,8 +8,13 @@ import {
   getPublicMetaConfig,
   META_SIGNUP_STATE_COOKIE,
 } from "@/lib/meta/server";
+import { authorizeOps } from "@/lib/ops-auth";
+import { getLatestWhatsAppConnectionForClient } from "@/lib/whatsapp-connections-db";
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const authorization = await authorizeOps();
+  if (!authorization.authorized) return authorization.response;
+
   const result = getPublicMetaConfig();
 
   if (!result.config) {
@@ -23,6 +28,12 @@ export async function GET() {
   }
 
   const state = crypto.randomUUID();
+  const requestedWorkspace = request.nextUrl.searchParams.get("workspace");
+  const workspace =
+    requestedWorkspace && /^[a-zA-Z0-9._-]{1,80}$/.test(requestedWorkspace)
+      ? requestedWorkspace
+      : authorization.userId;
+  const connection = await getLatestWhatsAppConnectionForClient(workspace).catch(() => null);
   const response = NextResponse.json({
     appId: result.config.appId,
     configId: result.config.configId,
@@ -31,6 +42,7 @@ export async function GET() {
     state,
     allowedMessageOrigins: META_MESSAGE_ORIGINS,
     requiredPermissions: META_REQUIRED_PERMISSIONS,
+    connection,
   });
 
   response.cookies.set(META_SIGNUP_STATE_COOKIE, state, {

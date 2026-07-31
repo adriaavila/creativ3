@@ -55,4 +55,11 @@ export type MetaEmbeddedSignupConfig = {
   state: string;
   allowedMessageOrigins: readonly string[];
   requiredPermissions: readonly string[];
+  connection: {
+    wabaId: string;
+    phoneNumberId: string;
+    displayPhoneNumber: string | null;
+    status: string;
+    connectionMode: "META_CLOUD_API" | "META_COEXISTENCE";
+  } | null;
 };

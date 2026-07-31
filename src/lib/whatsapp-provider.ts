@@ -1,4 +1,4 @@
-export const WHATSAPP_CONNECTION_MODES = ["META_CLOUD_API", "META_COEXISTENCE"] as const;
+export const WHATSAPP_CONNECTION_MODES = ["META_CLOUD_API", "META_COEXISTENCE", "WAHA"] as const;
 
 export type WhatsAppConnectionMode = (typeof WHATSAPP_CONNECTION_MODES)[number];
 
@@ -17,6 +17,8 @@ export type WhatsAppSendTextInput = {
   connectionId: string;
   to: string;
   body: string;
+  clientMessageId?: string;
+  replyTo?: string;
 };
 
 export type WhatsAppMediaType = "audio" | "document" | "image" | "sticker" | "video";
@@ -34,6 +36,7 @@ export type WhatsAppSendMediaInput = {
 export type WhatsAppMarkAsReadInput = {
   connectionId: string;
   messageId: string;
+  to?: string;
 };
 
 export type WhatsAppSendResult = {
@@ -41,9 +44,11 @@ export type WhatsAppSendResult = {
 };
 
 type WhatsAppNormalizedEventBase = {
-  provider: "META_CLOUD_API";
+  provider: "META_CLOUD_API" | "WAHA";
   wabaId?: string;
   phoneNumberId?: string;
+  sessionId?: string;
+  engine?: string;
   occurredAt?: string;
 };
 
@@ -54,7 +59,7 @@ export type WhatsAppMessageReceivedEvent = WhatsAppNormalizedEventBase & {
     from?: string;
     to?: string;
     direction: "inbound" | "outbound";
-    source: "cloud_api" | "business_app";
+    source: "cloud_api" | "business_app" | "waha" | "phone";
     type: string;
     text?: string;
   };

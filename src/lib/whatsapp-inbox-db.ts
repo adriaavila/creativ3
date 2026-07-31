@@ -14,6 +14,7 @@ export type ConversationOutcome = "cita" | "cotizacion" | "descarte";
 
 export type WaConversation = {
   id: number;
+  connectionId: string | null;
   channelKind: ChannelKind;
   channelKey: string;
   contactWaId: string;
@@ -43,12 +44,19 @@ export type WaMessage = {
 
 export type WahaConnectionRecord = {
   id: string;
+  connectionId: string;
+  workspaceId: string;
+  wahaSessionId: string;
   client: string | null;
   wahaBaseUrl: string;
-  status: "pending" | "scan_qr" | "connected" | "disconnected";
+  status: "pending" | "starting" | "scan_qr" | "passkey" | "connected" | "stopped" | "failed" | "deleted";
   phoneDisplay: string | null;
   connectedAt: string | null;
   lastSyncedAt: string | null;
+  lastWebhookAt: string | null;
+  lastInboundAt: string | null;
+  lastOutboundAt: string | null;
+  lastError: string | null;
   updatedAt: string;
 };
 
@@ -66,6 +74,7 @@ function getSql() {
 function mapConversation(row: any): WaConversation {
   return {
     id: Number(row.id),
+    connectionId: row.connection_id ? String(row.connection_id) : null,
     channelKind: row.channel_kind,
     channelKey: String(row.channel_key),
     contactWaId: String(row.contact_wa_id),
@@ -101,12 +110,19 @@ function mapMessage(row: any): WaMessage {
 function mapWahaConnection(row: any): WahaConnectionRecord {
   return {
     id: String(row.id),
+    connectionId: String(row.connection_id),
+    workspaceId: String(row.workspace_id),
+    wahaSessionId: String(row.waha_session_id),
     client: row.client ? String(row.client) : null,
     wahaBaseUrl: String(row.waha_base_url),
     status: row.status,
     phoneDisplay: row.phone_display ? String(row.phone_display) : null,
     connectedAt: row.connected_at ? new Date(String(row.connected_at)).toISOString() : null,
     lastSyncedAt: row.last_synced_at ? new Date(String(row.last_synced_at)).toISOString() : null,
+    lastWebhookAt: row.last_webhook_at ? new Date(String(row.last_webhook_at)).toISOString() : null,
+    lastInboundAt: row.last_inbound_at ? new Date(String(row.last_inbound_at)).toISOString() : null,
+    lastOutboundAt: row.last_outbound_at ? new Date(String(row.last_outbound_at)).toISOString() : null,
+    lastError: row.last_error ? String(row.last_error) : null,
     updatedAt: new Date(String(row.updated_at)).toISOString(),
   };
 }
@@ -119,21 +135,24 @@ export async function upsertConversation(input: {
   contactName?: string | null;
   direction: MessageDirection;
   occurredAt?: string;
+  connectionId?: string | null;
 }): Promise<WaConversation> {
   const sql = getSql();
   const occurredAt = input.occurredAt ?? new Date().toISOString();
   const rows = await sql`
     INSERT INTO wa_conversations (
-      channel_kind, channel_key, contact_wa_id, contact_name, last_message_at, last_inbound_at
+      channel_kind, channel_key, contact_wa_id, contact_name, last_message_at, last_inbound_at, connection_id
     )
     VALUES (
       ${input.channelKind}, ${input.channelKey}, ${input.contactWaId}, ${input.contactName ?? null},
       ${occurredAt},
-      ${input.direction === "in" ? occurredAt : null}
+      ${input.direction === "in" ? occurredAt : null},
+      ${input.connectionId ?? null}
     )
     ON CONFLICT (channel_kind, channel_key, contact_wa_id)
     DO UPDATE SET
       contact_name = COALESCE(EXCLUDED.contact_name, wa_conversations.contact_name),
+      connection_id = COALESCE(EXCLUDED.connection_id, wa_conversations.connection_id),
       last_message_at = ${occurredAt},
       last_inbound_at = CASE WHEN ${input.direction} = 'in' THEN ${occurredAt}::timestamptz ELSE wa_conversations.last_inbound_at END,
       updated_at = now()
@@ -289,26 +308,39 @@ export async function getRecentMessagesForAi(conversationId: number, limit = 20)
 
 export async function upsertWahaConnection(input: {
   id: string;
+  workspaceId: string;
+  stripePurchaseId?: string | null;
   client?: string | null;
   wahaBaseUrl: string;
   status?: WahaConnectionRecord["status"];
-}): Promise<void> {
+}): Promise<WahaConnectionRecord> {
   const sql = getSql();
-  await sql`
-    INSERT INTO waha_connections (id, client, waha_base_url, status, updated_at)
-    VALUES (${input.id}, ${input.client ?? null}, ${input.wahaBaseUrl}, ${input.status ?? "pending"}, now())
+  const rows = await sql`
+    INSERT INTO waha_connections (
+      id, workspace_id, waha_session_id, stripe_purchase_id, client, waha_base_url, status, updated_at
+    )
+    VALUES (
+      ${input.id}, ${input.workspaceId}, ${input.id}, ${input.stripePurchaseId ?? null},
+      ${input.client ?? null}, ${input.wahaBaseUrl}, ${input.status ?? "pending"}, now()
+    )
     ON CONFLICT (id) DO UPDATE SET
+      workspace_id = EXCLUDED.workspace_id,
+      waha_session_id = EXCLUDED.waha_session_id,
+      stripe_purchase_id = COALESCE(EXCLUDED.stripe_purchase_id, waha_connections.stripe_purchase_id),
       client = EXCLUDED.client,
       waha_base_url = EXCLUDED.waha_base_url,
       status = EXCLUDED.status,
       updated_at = now()
+    RETURNING *
   `;
+  return mapWahaConnection(rows[0]);
 }
 
 export async function updateWahaConnectionStatus(
   id: string,
   status: WahaConnectionRecord["status"],
   phoneDisplay?: string | null,
+  lastError?: string | null,
 ): Promise<void> {
   const sql = getSql();
   await sql`
@@ -316,6 +348,8 @@ export async function updateWahaConnectionStatus(
     SET status = ${status},
         phone_display = COALESCE(${phoneDisplay ?? null}, phone_display),
         connected_at = CASE WHEN ${status} = 'connected' THEN now() ELSE connected_at END,
+        disconnected_at = CASE WHEN ${status} IN ('stopped', 'failed', 'deleted') THEN now() ELSE disconnected_at END,
+        last_error = ${lastError ?? null},
         last_synced_at = now(),
         updated_at = now()
     WHERE id = ${id}
@@ -324,8 +358,61 @@ export async function updateWahaConnectionStatus(
 
 export async function getWahaConnection(id: string): Promise<WahaConnectionRecord | null> {
   const sql = getSql();
-  const rows = await sql`SELECT * FROM waha_connections WHERE id = ${id}`;
+  const rows = await sql`
+    SELECT * FROM waha_connections
+    WHERE id = ${id} OR waha_session_id = ${id} OR connection_id::text = ${id}
+    LIMIT 1
+  `;
   return rows[0] ? mapWahaConnection(rows[0]) : null;
+}
+
+export async function recordWahaWebhookEvent(input: {
+  eventId: string;
+  connectionId: string | null;
+  sessionId: string;
+  eventType: string;
+  payload: Record<string, unknown>;
+}): Promise<boolean> {
+  const sql = getSql();
+  const rows = await sql`
+    INSERT INTO waha_webhook_events (event_id, connection_id, session_id, event_type, payload)
+    VALUES (
+      ${input.eventId}, ${input.connectionId}::uuid, ${input.sessionId}, ${input.eventType},
+      ${JSON.stringify(input.payload)}::jsonb
+    )
+    ON CONFLICT (event_id) DO NOTHING
+    RETURNING event_id
+  `;
+  if (input.connectionId) {
+    await sql`
+      UPDATE waha_connections SET last_webhook_at = now(), updated_at = now()
+      WHERE connection_id = ${input.connectionId}::uuid
+    `;
+  }
+  return rows.length > 0;
+}
+
+export async function finishWahaWebhookEvent(eventId: string, error?: string): Promise<void> {
+  const sql = getSql();
+  await sql`
+    UPDATE waha_webhook_events
+    SET processed_at = now(), last_error = ${error ?? null}
+    WHERE event_id = ${eventId}
+  `;
+}
+
+export async function noteWahaConnectionActivity(
+  connectionId: string,
+  direction: "in" | "out",
+): Promise<void> {
+  const sql = getSql();
+  await sql`
+    UPDATE waha_connections
+    SET last_inbound_at = CASE WHEN ${direction} = 'in' THEN now() ELSE last_inbound_at END,
+        last_outbound_at = CASE WHEN ${direction} = 'out' THEN now() ELSE last_outbound_at END,
+        updated_at = now()
+    WHERE connection_id = ${connectionId}::uuid
+  `;
 }
 
 export async function listWahaConnections(): Promise<WahaConnectionRecord[]> {

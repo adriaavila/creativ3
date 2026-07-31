@@ -1,13 +1,16 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Image from "next/image";
 import { AlertCircle, CheckCircle2, Loader2, ShieldAlert } from "lucide-react";
 import { motion, useReducedMotion } from "motion/react";
 
 type PairState = {
+  connectionId?: string;
   session?: string;
-  status?: "pending" | "scan_qr" | "connected" | "disconnected";
+  status?: "pending" | "starting" | "scan_qr" | "passkey" | "connected" | "stopped" | "failed" | "deleted";
+  phone?: string | null;
+  engine?: string | null;
   qr?: { mimetype: string; data: string } | null;
   code?: string | null;
   plan?: string;
@@ -33,15 +36,23 @@ export default function PairWhatsAppClient({ stripeSessionId }: { stripeSessionI
   const [codeError, setCodeError] = useState<string | null>(null);
   const [requestingCode, setRequestingCode] = useState(false);
 
+  const mutate = useCallback(async (action: string, extra: Record<string, string> = {}) => {
+    const res = await fetch(`/api/waha/pair?session_id=${encodeURIComponent(stripeSessionId)}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action, ...extra }),
+    });
+    const data = (await res.json()) as PairState;
+    setState(data);
+    if (!res.ok) throw new Error(data.error ?? "No se pudo actualizar la conexión.");
+    return data;
+  }, [stripeSessionId]);
+
   const requestCode = async () => {
     setRequestingCode(true);
     setCodeError(null);
     try {
-      const res = await fetch(
-        `/api/waha/pair?session_id=${encodeURIComponent(stripeSessionId)}&phone=${encodeURIComponent(phone)}`,
-        { cache: "no-store" },
-      );
-      const data = (await res.json()) as PairState;
+      const data = await mutate("pair_code", { phone });
       if (data.code) setCode(data.code);
       else setCodeError(data.error ?? "No pudimos generar el código. Revisá el número e intentá de nuevo.");
     } catch {
@@ -65,7 +76,7 @@ export default function PairWhatsAppClient({ stripeSessionId }: { stripeSessionI
         setState(data);
         setLoading(false);
         // Stop polling once paired or definitively wrong-channel/not-found.
-        if (data.status !== "connected" && !data.channel && res.status !== 404) {
+        if (data.status !== "deleted" && !data.channel && res.status !== 404) {
           timer = setTimeout(tick, POLL_MS);
         }
       } catch {
@@ -73,12 +84,21 @@ export default function PairWhatsAppClient({ stripeSessionId }: { stripeSessionI
       }
     };
 
-    tick();
+    // Network-backed initialization; the callback updates state after fetch resolves.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    mutate("ensure")
+      .catch(() => null)
+      .finally(() => {
+        if (!cancelled) {
+          setLoading(false);
+          timer = setTimeout(tick, POLL_MS);
+        }
+      });
     return () => {
       cancelled = true;
       if (timer) clearTimeout(timer);
     };
-  }, [stripeSessionId]);
+  }, [mutate, stripeSessionId]);
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-[#08090a] px-6 py-20 text-white selection:bg-[#0a0a0a] selection:text-white">
@@ -92,6 +112,12 @@ export default function PairWhatsAppClient({ stripeSessionId }: { stripeSessionI
           {loading && (
             <div className="mt-8 flex items-center gap-2 text-sm text-white/70">
               <Loader2 className="size-4 animate-spin text-[#c5f04a]" /> Preparando tu sesión…
+            </div>
+          )}
+
+          {!loading && (state.status === "pending" || state.status === "starting") && !state.error && (
+            <div className="mt-8 flex items-center gap-2 text-sm text-white/70">
+              <Loader2 className="size-4 animate-spin text-[#c5f04a]" /> Iniciando WhatsApp…
             </div>
           )}
 
@@ -190,14 +216,53 @@ export default function PairWhatsAppClient({ stripeSessionId }: { stripeSessionI
               className="mt-6 flex items-start gap-2 rounded-2xl border border-[#c5f04a]/30 bg-[#0a0a0a]/20 p-4 text-sm text-[#c5f04a]"
             >
               <CheckCircle2 className="mt-0.5 size-4 shrink-0" />
-              <p>Listo. Tu número quedó conectado — ya podemos recibir y responder mensajes.</p>
+              <p>
+                Listo. {state.phone ? `El número ${state.phone}` : "Tu número"} quedó conectado — ya podemos recibir y responder mensajes.
+              </p>
             </motion.div>
           )}
 
-          {state.status === "disconnected" && (
-            <p className="mt-6 text-sm text-white/70">
-              La sesión se desconectó. Recargá esta página para generar un código nuevo.
-            </p>
+          {(state.status === "stopped" || state.status === "failed") && (
+            <div className="mt-6 rounded-2xl border border-amber-400/20 bg-amber-400/10 p-4 text-sm text-amber-100">
+              <p>La conexión se detuvo. Reiniciala para obtener un QR nuevo.</p>
+              <button
+                type="button"
+                onClick={() => void mutate("restart").catch(() => null)}
+                className="mt-3 rounded-xl bg-[#c5f04a] px-4 py-2 font-medium text-black"
+              >
+                Reconectar
+              </button>
+            </div>
+          )}
+
+          {state.status === "passkey" && (
+            <p className="mt-6 text-sm text-white/70">Confirmá la vinculación en tu teléfono para continuar.</p>
+          )}
+
+          {state.session && state.status !== "deleted" && (
+            <div className="mt-6 flex flex-wrap gap-2 border-t border-white/10 pt-5">
+              {state.status === "connected" && (
+                <button type="button" onClick={() => void mutate("restart").catch(() => null)} className="rounded-xl border border-white/15 px-3 py-2 text-xs text-white/70">Reiniciar</button>
+              )}
+              <button
+                type="button"
+                onClick={() => {
+                  if (confirm("Esto desvinculará el teléfono y exigirá escanear otro QR. ¿Continuar?")) void mutate("logout").catch(() => null);
+                }}
+                className="rounded-xl border border-white/15 px-3 py-2 text-xs text-white/70"
+              >
+                Cerrar sesión
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  if (confirm("Esto eliminará la sesión WAHA. ¿Eliminar definitivamente?")) void mutate("delete").catch(() => null);
+                }}
+                className="rounded-xl border border-red-400/20 px-3 py-2 text-xs text-red-300"
+              >
+                Eliminar
+              </button>
+            </div>
           )}
 
           <div className="mt-8 flex items-start gap-2 border-t border-white/10 pt-5 text-xs leading-relaxed text-white/50">

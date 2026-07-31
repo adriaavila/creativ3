@@ -12,6 +12,8 @@
     "check:meta-webhook-db": "tsx scripts/check-meta-webhook-db.ts",
     "check:webhook-signature": "tsx scripts/check-webhook-signature.ts",
     "check:waha-provider": "tsx scripts/check-waha-provider.ts",
+    "check:waha-security": "tsx scripts/check-waha-security.ts",
+    "check:waha-webhook-db": "tsx scripts/check-waha-webhook-db.ts",
     "meta:diagnostics": "node scripts/meta-embedded-signup-diagnostics.mjs"
   },
   "dependencies": {

@@ -1,5 +1,6 @@
 import { timingSafeEqual } from "node:crypto";
 import { processMetaWebhookQueue } from "@/lib/meta/webhook-processor";
+import { processWahaWebhookQueue } from "@/lib/waha-webhook-processor";
 
 export const dynamic = "force-dynamic";
 
@@ -18,7 +19,11 @@ export async function GET(request: Request) {
   if (!cronAuthorized && !n8nAuthorized) {
     return Response.json({ error: "Unauthorized." }, { status: 401 });
   }
-  return Response.json(await processMetaWebhookQueue(25));
+  const [meta, waha] = await Promise.all([
+    processMetaWebhookQueue(25),
+    processWahaWebhookQueue(25),
+  ]);
+  return Response.json({ meta, waha });
 }
 
 function safeEqual(value: string | null, expected: string) {

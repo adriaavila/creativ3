@@ -36,7 +36,7 @@ const missing = await post(null);
 
 console.log(`valid=${good.status} tampered=${tampered.status} missing=${missing.status}  ${url}`);
 
-assert.equal(good.status, 200, "a correctly signed sha512 webhook must be accepted");
+assert.ok(good.status >= 200 && good.status < 300, "a correctly signed sha512 webhook must be accepted");
 assert.equal(tampered.status, 401, "a tampered signature must be rejected");
 assert.equal(missing.status, 401, "a missing signature must be rejected");
 console.log("waha webhook signature ok");

@@ -96,4 +96,4 @@ Import `n8n/meta-embedded-signup.workflow.json` or `n8n/meta-webhook-drain.workf
 
 After a successful onboarding, the exchange route reads the number's visible profile from Meta and upserts it into `whatsapp_connections`. Open `/ops` and use **Números conectados** to see the display number, verified name, subscription status, connection mode, quality rating, WABA ID, and connection time.
 
-Provision a database by applying the checked-in migrations in order. The current production schema includes `004_whatsapp_connections.sql`, `006_whatsapp_channels_inbox.sql`, `008_conversation_outcomes.sql`, and `010_meta_whatsapp_webhook_events.sql`. Runtime code does not create or alter schema.
+Provision a database by applying the checked-in migrations in order. The current production schema includes `004_whatsapp_connections.sql`, `006_whatsapp_channels_inbox.sql`, `008_conversation_outcomes.sql`, `010_meta_whatsapp_webhook_events.sql`, `011_waha_connection_lifecycle.sql`, and `012_waha_webhook_queue.sql`. Runtime code does not create or alter schema.

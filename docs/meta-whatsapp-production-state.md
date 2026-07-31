@@ -80,7 +80,7 @@ Tenant resolution uses the Meta `phone_number_id` as the Cloud API channel key a
 
 Known infrastructure debt:
 
-- VPS public TCP ports `6001` and `6002` still bypass the reverse proxy, and SSH `22` is public. Close the WAHA origin ports in the provider firewall after confirming the desired emergency-access policy. Do not enable UFW blindly on this Docker/Coolify host.
+- VPS TCP `6001/6002` are Coolify Realtime/terminal ports, not WAHA origins. They and SSH `22` were reachable from the current ProtonVPN egress even though the VPS harness says Hostinger drops all non-Cloudflare public traffic. Reconcile the attached Hostinger firewall and the required Coolify terminal/emergency-SSH access policy before changing rules; the harness requires explicit confirmation for firewall changes. Do not enable UFW blindly on this Docker/Coolify host.
 - Coolify named volumes are not included in the current `/data` restic backup scope.
 - n8n runs as one `latest` container without a worker/queue topology. This is adequate for the current empty/pilot load, not for high-volume multi-tenant delivery.
 

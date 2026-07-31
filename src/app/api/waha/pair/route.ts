@@ -1,6 +1,11 @@
 import { z } from "zod";
 import { NextRequest, NextResponse } from "next/server";
 import { getStripePurchaseBySessionId, type StripePurchase } from "@/lib/stripe-purchases-db";
+import {
+  isActiveWahaEntitlement,
+  ownsWahaConnection,
+  wahaSessionIdForPurchase,
+} from "@/lib/waha-access";
 import { getWahaConfig, getWahaSnapshot } from "@/lib/waha";
 import {
   deleteWahaSession,
@@ -28,18 +33,6 @@ const actionSchema = z.object({
 });
 const ALLOWED_PLANS = new Set(["desk-cohort", "desk"]);
 
-function wahaSessionIdFor(stripeSessionId: string, client: string | null): string {
-  const source = client || stripeSessionId.slice(-24);
-  const slug = source
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "")
-    .slice(0, 40);
-  return `cli-${slug || stripeSessionId.slice(-16).toLowerCase()}`;
-}
-
 async function authorize(req: NextRequest): Promise<
   | { purchase: StripePurchase; sessionId: string; workspaceId: string }
   | NextResponse
@@ -54,13 +47,13 @@ async function authorize(req: NextRequest): Promise<
       { status: 409 },
     );
   }
-  if (purchase.paymentStatus !== "paid" || !ALLOWED_PLANS.has(purchase.plan)) {
+  if (!isActiveWahaEntitlement(purchase.paymentStatus, purchase.subscriptionStatus) || !ALLOWED_PLANS.has(purchase.plan)) {
     return NextResponse.json({ error: "Esta compra no habilita una conexión WAHA." }, { status: 403 });
   }
   return {
     purchase,
-    sessionId: wahaSessionIdFor(purchase.stripeSessionId, purchase.client),
-    workspaceId: purchase.client?.trim() || `purchase:${purchase.id}`,
+    sessionId: wahaSessionIdForPurchase(purchase.id),
+    workspaceId: `purchase:${purchase.id}`,
   };
 }
 
@@ -96,6 +89,9 @@ export async function GET(req: NextRequest) {
   const auth = await authorize(req);
   if (auth instanceof NextResponse) return auth;
   const connection = await getWahaConnection(auth.sessionId);
+  if (!ownsWahaConnection(auth.purchase.id, connection)) {
+    return NextResponse.json({ error: "La conexión pertenece a otra compra." }, { status: 403 });
+  }
   return NextResponse.json(await snapshot(auth.sessionId, connection, auth.purchase.plan));
 }
 
@@ -109,6 +105,9 @@ export async function POST(req: NextRequest) {
   if (!config) return NextResponse.json({ error: "WAHA no está configurado." }, { status: 503 });
 
   let connection = await getWahaConnection(auth.sessionId);
+  if (!ownsWahaConnection(auth.purchase.id, connection)) {
+    return NextResponse.json({ error: "La conexión pertenece a otra compra." }, { status: 403 });
+  }
   if (!connection && parsed.data.action !== "ensure") {
     return NextResponse.json({ error: "La conexión todavía no existe." }, { status: 409 });
   }

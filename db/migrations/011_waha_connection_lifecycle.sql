@@ -24,6 +24,8 @@ ALTER TABLE waha_connections
   ALTER COLUMN workspace_id SET NOT NULL,
   ALTER COLUMN waha_session_id SET NOT NULL;
 
+UPDATE waha_connections SET status = 'stopped' WHERE status = 'disconnected';
+
 ALTER TABLE waha_connections DROP CONSTRAINT IF EXISTS waha_connections_status_check;
 ALTER TABLE waha_connections ADD CONSTRAINT waha_connections_status_check CHECK (
   status IN ('pending', 'starting', 'scan_qr', 'passkey', 'connected', 'stopped', 'failed', 'deleted')

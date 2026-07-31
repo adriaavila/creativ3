@@ -47,6 +47,7 @@ export type WahaConnectionRecord = {
   connectionId: string;
   workspaceId: string;
   wahaSessionId: string;
+  stripePurchaseId: string | null;
   client: string | null;
   wahaBaseUrl: string;
   status: "pending" | "starting" | "scan_qr" | "passkey" | "connected" | "stopped" | "failed" | "deleted";
@@ -58,6 +59,14 @@ export type WahaConnectionRecord = {
   lastOutboundAt: string | null;
   lastError: string | null;
   updatedAt: string;
+};
+
+export type WahaWebhookEventRecord = {
+  eventId: string;
+  connectionId: string | null;
+  sessionId: string;
+  payload: Record<string, unknown>;
+  attempts: number;
 };
 
 let sqlClient: NeonQueryFunction<false, false> | null = null;
@@ -113,6 +122,7 @@ function mapWahaConnection(row: any): WahaConnectionRecord {
     connectionId: String(row.connection_id),
     workspaceId: String(row.workspace_id),
     wahaSessionId: String(row.waha_session_id),
+    stripePurchaseId: row.stripe_purchase_id ? String(row.stripe_purchase_id) : null,
     client: row.client ? String(row.client) : null,
     wahaBaseUrl: String(row.waha_base_url),
     status: row.status,
@@ -331,8 +341,11 @@ export async function upsertWahaConnection(input: {
       waha_base_url = EXCLUDED.waha_base_url,
       status = EXCLUDED.status,
       updated_at = now()
+    WHERE waha_connections.stripe_purchase_id IS NULL
+       OR waha_connections.stripe_purchase_id = EXCLUDED.stripe_purchase_id
     RETURNING *
   `;
+  if (!rows[0]) throw new Error("WAHA connection ownership conflict.");
   return mapWahaConnection(rows[0]);
 }
 
@@ -392,13 +405,70 @@ export async function recordWahaWebhookEvent(input: {
   return rows.length > 0;
 }
 
-export async function finishWahaWebhookEvent(eventId: string, error?: string): Promise<void> {
+export async function claimWahaWebhookEvents(limit = 10): Promise<WahaWebhookEventRecord[]> {
+  const sql = getSql();
+  const rows = await sql`
+    WITH candidates AS (
+      SELECT event_id
+      FROM waha_webhook_events
+      WHERE (
+          (status IN ('pending', 'failed') AND next_attempt_at <= now())
+          OR (status = 'processing' AND processing_started_at < now() - interval '5 minutes')
+        )
+        AND attempts < 10
+      ORDER BY received_at
+      FOR UPDATE SKIP LOCKED
+      LIMIT ${limit}
+    )
+    UPDATE waha_webhook_events AS event
+    SET status = 'processing', attempts = event.attempts + 1,
+        processing_started_at = now(), last_error = null, updated_at = now()
+    FROM candidates
+    WHERE event.event_id = candidates.event_id
+    RETURNING event.event_id, event.connection_id::text, event.session_id,
+      event.payload, event.attempts
+  `;
+  return rows.map((row) => ({
+    eventId: String(row.event_id),
+    connectionId: row.connection_id ? String(row.connection_id) : null,
+    sessionId: String(row.session_id),
+    payload: row.payload as Record<string, unknown>,
+    attempts: Number(row.attempts),
+  }));
+}
+
+export async function markWahaWebhookEventProcessed(eventId: string): Promise<void> {
   const sql = getSql();
   await sql`
     UPDATE waha_webhook_events
-    SET processed_at = now(), last_error = ${error ?? null}
+    SET status = 'processed', processed_at = now(), updated_at = now()
     WHERE event_id = ${eventId}
   `;
+}
+
+export async function markWahaWebhookEventFailed(
+  eventId: string,
+  attempts: number,
+  error: unknown,
+): Promise<void> {
+  const sql = getSql();
+  const retryAt = new Date(
+    Date.now() + Math.min(3600, 2 ** Math.max(0, attempts - 1)) * 1000,
+  ).toISOString();
+  const safeError = error instanceof Error ? error.message.slice(0, 500) : "Webhook processing failed";
+  await sql`
+    UPDATE waha_webhook_events
+    SET status = 'failed', last_error = ${safeError}, next_attempt_at = ${retryAt}, updated_at = now()
+    WHERE event_id = ${eventId}
+  `;
+}
+
+export async function getWahaWebhookEventStats() {
+  const sql = getSql();
+  const rows = await sql`
+    SELECT status, count(*)::int AS count FROM waha_webhook_events GROUP BY status
+  `;
+  return Object.fromEntries(rows.map((row) => [String(row.status), Number(row.count)]));
 }
 
 export async function noteWahaConnectionActivity(

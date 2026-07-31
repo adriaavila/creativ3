@@ -3,6 +3,7 @@ import { getGraphVersion } from "@/lib/meta/server";
 import { getGrowthAgentRuntime } from "@/lib/growth-agent-runtime";
 import { authorizeOps } from "@/lib/ops-auth";
 import { getMetaWebhookEventStats } from "@/lib/meta/webhook-events-db";
+import { getWahaWebhookEventStats } from "@/lib/whatsapp-inbox-db";
 
 export const dynamic = "force-dynamic";
 
@@ -176,6 +177,7 @@ export async function POST() {
   }
 
   const webhookEvents = await getMetaWebhookEventStats().catch(() => ({ unavailable: 1 }));
+  const wahaWebhookEvents = await getWahaWebhookEventStats().catch(() => ({ unavailable: 1 }));
 
   return Response.json({
     env,
@@ -184,6 +186,7 @@ export async function POST() {
     n8n: n8nStatus,
     callbackUrl: callbackUrlStatus,
     webhookEvents,
+    wahaWebhookEvents,
     metaVersion: getGraphVersion(),
   });
 }

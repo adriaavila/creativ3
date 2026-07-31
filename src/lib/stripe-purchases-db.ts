@@ -19,6 +19,7 @@ export type StripePurchase = {
   customerEmail: string | null;
   stripeCustomerId: string | null;
   stripeSubscriptionId: string | null;
+  subscriptionStatus: string | null;
   paymentStatus: string | null;
   createdAt: string;
 };
@@ -34,10 +35,14 @@ export async function getStripePurchaseBySessionId(
 ): Promise<StripePurchase | null> {
   const sql = getSql();
   const rows = await sql`
-    SELECT id, stripe_session_id, plan, channel, client, customer_email,
-      stripe_customer_id, stripe_subscription_id, payment_status, created_at
-    FROM stripe_purchases
-    WHERE stripe_session_id = ${stripeSessionId}
+    SELECT purchase.id, purchase.stripe_session_id, purchase.plan, purchase.channel,
+      purchase.client, purchase.customer_email, purchase.stripe_customer_id,
+      purchase.stripe_subscription_id, purchase.payment_status, purchase.created_at,
+      subscription.status AS subscription_status
+    FROM stripe_purchases purchase
+    LEFT JOIN stripe_subscriptions subscription
+      ON subscription.stripe_subscription_id = purchase.stripe_subscription_id
+    WHERE purchase.stripe_session_id = ${stripeSessionId}
   `;
   const row = rows[0];
   if (!row) return null;
@@ -52,6 +57,7 @@ export async function getStripePurchaseBySessionId(
     stripeSubscriptionId: row.stripe_subscription_id
       ? String(row.stripe_subscription_id)
       : null,
+    subscriptionStatus: row.subscription_status ? String(row.subscription_status) : null,
     paymentStatus: row.payment_status ? String(row.payment_status) : null,
     createdAt: new Date(String(row.created_at)).toISOString(),
   };

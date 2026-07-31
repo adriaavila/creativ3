@@ -1,0 +1,47 @@
+{
+  "id": "Yf3mR8qK2vL7sN5p",
+  "name": "allok - Drain Meta Webhook Queue",
+  "active": true,
+  "nodes": [
+    {
+      "id": "metaWebhookDrainSchedule",
+      "name": "Every Minute",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [-240, 0],
+      "parameters": {
+        "rule": {
+          "interval": [{"field": "minutes", "minutesInterval": 1}]
+        }
+      }
+    },
+    {
+      "id": "metaWebhookDrainRequest",
+      "name": "Drain Meta Webhook Queue",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [20, 0],
+      "parameters": {
+        "url": "https://allok.fun/api/meta/whatsapp/webhook/drain",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-servicioscreativos-secret",
+              "value": "={{ $env.N8N_WEBHOOK_SECRET }}"
+            }
+          ]
+        },
+        "options": {}
+      }
+    }
+  ],
+  "connections": {
+    "Every Minute": {
+      "main": [[{"node": "Drain Meta Webhook Queue", "type": "main", "index": 0}]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

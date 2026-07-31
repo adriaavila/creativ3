@@ -69,11 +69,14 @@ Tenant resolution uses the Meta `phone_number_id` as the Cloud API channel key a
 ## Infrastructure state
 
 - allok is deployed by the GitHub/Vercel integration; it is not a Coolify workload.
+- Production commit `cd8ba2f402b2c1c9b2ed77ad1e261011e07f0d0c` was merged through [PR #5](https://github.com/adriaavila/creativ3/pull/5) and deployed successfully by Vercel as `6NfmQA7MVxLwKUqzSmUKNvws8CSY`. The production alias and protected onboarding redirect were checked in a signed-in browser.
 - Neon migration `010_meta_whatsapp_webhook_events.sql` is applied. At the time of this snapshot there are zero customer connections and zero retained test events/messages.
 - Production has the required Meta, database, token-encryption, n8n, WAHA HMAC, and cron variables. Values were not printed or copied into this repository.
 - The production WAHA HMAC was synchronized with the live VPS session configuration. Live check: valid signature `200`; tampered and missing signatures `401`.
 - n8n and both WAHA containers are healthy. WAHA session directories are `0700`; files are `0600`.
-- n8n's pre-change database and workflow exports are stored under `/data/n8n/backups/` with mode `0600`; the primary snapshot timestamp is `20260731T140452Z`.
+- n8n workflow `Yf3mR8qK2vL7sN5p` drains the durable queue every minute. Five consecutive post-restart executions (`462`-`466`) completed successfully, and a signed manual drain returned zero claimed/processed/failed events.
+- The legacy Embedded Signup workflow `EA6f6q8SZkewllyJ` was replaced with the lifecycle/diagnostic-only definition. Its retained empty static-data container was cleared directly from the stopped SQLite database; the post-restart export is active and has no static data, credential field, or static-data call.
+- n8n's pre-change database and workflow exports are stored under `/data/n8n/backups/` with mode `0600`. The baseline snapshot is `20260731T140452Z`; the exact legacy workflow export is `workflow-EA6f6q8SZkewllyJ-20260731T145704Z.json`, and the pre-static-clear database is `database-pre-meta-static-clear-20260731T150354Z.sqlite`.
 
 Known infrastructure debt:
 
@@ -97,6 +100,8 @@ node --env-file=.env.local scripts/waha-webhook-check.mjs https://allok.fun
 
 The 2026-07-31 gate passed provider Graph/normalization checks, signature tamper cases, a real Neon durable-enqueue/dedup/process/cleanup round trip, TypeScript, full ESLint, and the optimized Next `16.2.12` build. The production database was rechecked after cleanup and contained zero connections, events, conversations, and messages.
 
+Production smoke checks also passed: Ops login `303` and authenticated diagnostics `200`; database, n8n, and callback checks healthy; Meta verification challenge `200`; a correctly signed Meta payload `200`, processed exactly once, then removed; unsigned/tampered Meta and WAHA requests rejected; and WAHA valid/tampered/missing signatures returned `200/401/401`. Missing diagnostic variables are optional growth-agent/Postiz alternatives, not dependencies of the Meta WhatsApp path.
+
 Unused CLI/UI dependencies were removed, `next` and `eslint-config-next` were updated to `16.2.12`, and patched `sharp`, `postcss`, and Babel resolutions are locked. `pnpm why` confirms the patched resolved graph; the npm audit service may still attribute advisories to Next's declared ranges.
 
 ## Real acceptance test
@@ -118,4 +123,4 @@ Until those ten checks pass, message-history sync, contact-state sync, phone-cha
 
 ## n8n rollback
 
-The three unpublished workflows can be restored from the `20260731T140452Z` exports or republished with their recorded version IDs. Only do this after replacing their autonomous logic with tenant lookup, deduplication, human-takeover checks, and no plaintext token storage. Restart only n8n after republishing, then retest execution counts and public webhook registration.
+The three unpublished workflows can be restored from the `20260731T140452Z` exports or republished with their recorded version IDs. The Embedded Signup workflow can be restored from `workflow-EA6f6q8SZkewllyJ-20260731T145704Z.json`; restore the whole pre-clear database only as a last resort because it reintroduces the obsolete static-data container. Only republish autonomous message workflows after adding tenant lookup, idempotency, human-takeover checks, and no plaintext token storage. Restart only n8n after a CLI publish, then retest execution counts and public webhook registration.

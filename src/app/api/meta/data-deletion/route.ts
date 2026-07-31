@@ -4,7 +4,7 @@ import {
   forwardMetaAccountLifecycleToN8n,
   verifyMetaSignedRequest,
 } from "@/lib/meta/server";
-import { deleteWhatsAppConnectionsForMetaUser } from "@/lib/whatsapp-connections-db";
+import { deleteWhatsAppDataForMetaUser } from "@/lib/whatsapp-connections-db";
 
 export async function POST(req: NextRequest) {
   const appSecret = process.env.META_APP_SECRET;
@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
       issuedAt: payload.issued_at,
       receivedAt: new Date().toISOString(),
     }),
-    deleteWhatsAppConnectionsForMetaUser(payload.user_id),
+    deleteWhatsAppDataForMetaUser(payload.user_id),
   ]);
 
   if (

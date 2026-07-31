@@ -13,7 +13,10 @@ export default async function OpsLoginPage({
   searchParams: Promise<{ error?: string; next?: string }>;
 }) {
   const params = await searchParams;
-  const nextPath = params.next?.startsWith("/ops") ? params.next : "/ops";
+  const nextPath =
+    params.next?.startsWith("/ops") || params.next?.startsWith("/embedded-whatsapp")
+      ? params.next
+      : "/ops";
 
   return (
     <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#08090a] p-6 text-white">

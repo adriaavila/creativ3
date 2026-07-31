@@ -22,6 +22,7 @@ export type WhatsAppConnectionView = {
   qualityRating: string | null;
   nameStatus: string | null;
   status: string;
+  connectionMode: "META_CLOUD_API" | "META_COEXISTENCE";
   client: string | null;
   connectedAt: string;
   lastSyncedAt: string | null;
@@ -97,13 +98,87 @@ export async function listWhatsAppConnections(): Promise<WhatsAppConnectionView[
   const sql = getSql();
   const rows = await sql`
     SELECT waba_id, phone_number_id, business_id, display_phone_number,
-      verified_name, quality_rating, name_status, status, client,
+      verified_name, quality_rating, name_status, status, connection_mode, client,
       connected_at, last_synced_at
     FROM whatsapp_connections
     ORDER BY connected_at DESC
   `;
 
-  return rows.map((row) => ({
+  return rows.map(mapWhatsAppConnection);
+}
+
+export async function getLatestWhatsAppConnectionForClient(
+  client: string,
+): Promise<WhatsAppConnectionView | null> {
+  const sql = getSql();
+  const rows = await sql`
+    SELECT waba_id, phone_number_id, business_id, display_phone_number,
+      verified_name, quality_rating, name_status, status, connection_mode, client,
+      connected_at, last_synced_at
+    FROM whatsapp_connections
+    WHERE client = ${client} AND status != 'deauthorized'
+    ORDER BY connected_at DESC
+    LIMIT 1
+  `;
+  return rows[0] ? mapWhatsAppConnection(rows[0]) : null;
+}
+
+export async function getWhatsAppProviderConnection(
+  phoneNumberId: string,
+  client?: string,
+) {
+  const sql = getSql();
+  const rows = client
+    ? await sql`
+        SELECT waba_id, phone_number_id, business_token, connection_mode
+        FROM whatsapp_connections
+        WHERE phone_number_id = ${phoneNumberId} AND client = ${client}
+          AND status != 'deauthorized'
+        ORDER BY updated_at DESC
+        LIMIT 1
+      `
+    : await sql`
+        SELECT waba_id, phone_number_id, business_token, connection_mode
+        FROM whatsapp_connections
+        WHERE phone_number_id = ${phoneNumberId} AND status != 'deauthorized'
+        ORDER BY updated_at DESC
+        LIMIT 1
+      `;
+  const row = rows[0];
+  if (!row?.business_token) return null;
+  return {
+    id: String(row.phone_number_id),
+    mode: row.connection_mode === "META_CLOUD_API" ? "META_CLOUD_API" as const : "META_COEXISTENCE" as const,
+    wabaId: String(row.waba_id),
+    phoneNumberId: String(row.phone_number_id),
+    businessToken: decryptToken(String(row.business_token)),
+  };
+}
+
+export async function markWhatsAppConnectionDisconnected(
+  wabaId: string,
+  phoneNumberId: string,
+) {
+  const sql = getSql();
+  await sql`
+    UPDATE whatsapp_connections
+    SET status = 'deauthorized', business_token = null,
+      token_metadata = '{}'::jsonb, updated_at = now()
+    WHERE waba_id = ${wabaId} AND phone_number_id = ${phoneNumberId}
+  `;
+}
+
+export async function markWhatsAppConnectionStatusByWaba(wabaId: string, status: string) {
+  const sql = getSql();
+  await sql`
+    UPDATE whatsapp_connections
+    SET status = ${status}, updated_at = now()
+    WHERE waba_id = ${wabaId}
+  `;
+}
+
+function mapWhatsAppConnection(row: Record<string, unknown>): WhatsAppConnectionView {
+  return {
     wabaId: String(row.waba_id),
     phoneNumberId: String(row.phone_number_id),
     businessId: row.business_id ? String(row.business_id) : null,
@@ -112,12 +187,14 @@ export async function listWhatsAppConnections(): Promise<WhatsAppConnectionView[
     qualityRating: row.quality_rating ? String(row.quality_rating) : null,
     nameStatus: row.name_status ? String(row.name_status) : null,
     status: String(row.status),
+    connectionMode:
+      row.connection_mode === "META_CLOUD_API" ? "META_CLOUD_API" : "META_COEXISTENCE",
     client: row.client ? String(row.client) : null,
     connectedAt: new Date(String(row.connected_at)).toISOString(),
     lastSyncedAt: row.last_synced_at
       ? new Date(String(row.last_synced_at)).toISOString()
       : null,
-  }));
+  };
 }
 
 export async function markWhatsAppConnectionsDeauthorized(metaUserId: string) {
@@ -130,47 +207,17 @@ export async function markWhatsAppConnectionsDeauthorized(metaUserId: string) {
   `;
 }
 
-export async function deleteWhatsAppConnectionsForMetaUser(metaUserId: string) {
+export async function deleteWhatsAppDataForMetaUser(metaUserId: string) {
   const sql = getSql();
   await sql`
-    DELETE FROM whatsapp_connections
-    WHERE meta_user_id = ${metaUserId}
+    WITH target_connections AS MATERIALIZED (
+      SELECT phone_number_id FROM whatsapp_connections WHERE meta_user_id = ${metaUserId}
+    ), deleted_conversations AS (
+      DELETE FROM wa_conversations
+      WHERE channel_kind = 'cloud_api'
+        AND channel_key IN (SELECT phone_number_id FROM target_connections)
+      RETURNING id
+    )
+    DELETE FROM whatsapp_connections WHERE meta_user_id = ${metaUserId}
   `;
-}
-
-/** Decrypts and returns the live business token for a connection, or null if not connected. */
-export async function getWhatsAppConnectionToken(
-  wabaId: string,
-  phoneNumberId: string,
-): Promise<string | null> {
-  const sql = getSql();
-  const rows = await sql`
-    SELECT business_token
-    FROM whatsapp_connections
-    WHERE waba_id = ${wabaId} AND phone_number_id = ${phoneNumberId}
-  `;
-  const raw = rows[0]?.business_token;
-  if (!raw) return null;
-  return decryptToken(String(raw));
-}
-
-/**
- * Same as getWhatsAppConnectionToken but keyed by phone_number_id alone — the
- * inbox (wa_conversations.channel_key) only carries the phone number id, not the
- * waba_id. A phone number id is only ever attached to one WABA in practice.
- */
-export async function getWhatsAppConnectionTokenByPhoneNumberId(
-  phoneNumberId: string,
-): Promise<string | null> {
-  const sql = getSql();
-  const rows = await sql`
-    SELECT business_token
-    FROM whatsapp_connections
-    WHERE phone_number_id = ${phoneNumberId} AND status != 'deauthorized'
-    ORDER BY updated_at DESC
-    LIMIT 1
-  `;
-  const raw = rows[0]?.business_token;
-  if (!raw) return null;
-  return decryptToken(String(raw));
 }

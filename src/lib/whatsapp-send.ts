@@ -1,5 +1,6 @@
-import { sendPreparedTextMessage, sendTemplateMessage } from "@/lib/meta/server";
-import { getWhatsAppConnectionTokenByPhoneNumberId } from "@/lib/whatsapp-connections-db";
+import { sendTemplateMessage } from "@/lib/meta/server";
+import { MetaCloudWhatsAppProvider } from "@/lib/meta/cloud-whatsapp-provider";
+import { getWhatsAppProviderConnection } from "@/lib/whatsapp-connections-db";
 import { sendWahaText } from "@/lib/waha-send";
 import { getConversationById, insertMessage, type WaConversation, type WaMessage } from "@/lib/whatsapp-inbox-db";
 
@@ -31,10 +32,11 @@ export async function sendToConversation(input: SendToConversationInput): Promis
 }
 
 async function sendCloudApi(conversation: WaConversation, input: SendToConversationInput) {
-  const token = await getWhatsAppConnectionTokenByPhoneNumberId(conversation.channelKey);
-  if (!token) {
+  const connection = await getWhatsAppProviderConnection(conversation.channelKey);
+  if (!connection) {
     throw new Error(`No hay conexión Cloud API activa para phone_number_id ${conversation.channelKey}.`);
   }
+  const provider = new MetaCloudWhatsAppProvider(async () => connection);
 
   const withinWindow = conversation.lastInboundAt
     ? Date.now() - new Date(conversation.lastInboundAt).getTime() < FREE_TEXT_WINDOW_MS
@@ -46,7 +48,7 @@ async function sendCloudApi(conversation: WaConversation, input: SendToConversat
   if (input.template) {
     const result = await sendTemplateMessage({
       phoneNumberId: conversation.channelKey,
-      businessToken: token,
+      businessToken: connection.businessToken,
       to: conversation.contactWaId,
       templateName: input.template.name,
       languageCode: input.template.languageCode,
@@ -57,13 +59,12 @@ async function sendCloudApi(conversation: WaConversation, input: SendToConversat
   } else {
     if (!withinWindow) throw new OutsideFreeTextWindowError();
     if (!input.text) throw new Error("Falta `text` cuando no se envía un template.");
-    const result = await sendPreparedTextMessage({
-      phoneNumberId: conversation.channelKey,
-      businessToken: token,
+    const result = await provider.sendText({
+      connectionId: connection.id,
       to: conversation.contactWaId,
       body: input.text,
     });
-    waMessageId = extractMessageId(result);
+    waMessageId = result.messageId ?? undefined;
     body = input.text;
   }
 

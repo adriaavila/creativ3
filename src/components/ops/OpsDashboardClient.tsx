@@ -33,6 +33,7 @@ type DiagnosticsResult = {
   growthAgent: { ok: boolean; error: string; statusText: string };
   n8n: { ok: boolean; error: string; statusText: string };
   callbackUrl: { ok: boolean; error: string; statusText: string };
+  webhookEvents: Record<string, number>;
   metaVersion: string;
 } | null;
 
@@ -516,6 +517,26 @@ export default function OpsDashboardClient({
                           <XCircle className="size-5 text-red-400" />
                         </>
                       )}
+                    </div>
+                  </div>
+
+                  <div className="flex items-start justify-between rounded-xl bg-white/[0.02] p-4">
+                    <div className="flex gap-3">
+                      <div className="mt-0.5 text-[#c5f04a]">
+                        <FileText className="size-5" />
+                      </div>
+                      <div>
+                        <div className="text-sm font-semibold">Cola durable de Meta</div>
+                        <div className="text-xs text-white/50">Eventos guardados antes de confirmar recepción</div>
+                      </div>
+                    </div>
+                    <div className="text-right font-mono text-xs">
+                      <div className={(results.webhookEvents.failed ?? 0) > 0 ? "text-red-400" : "text-[#c5f04a]"}>
+                        {results.webhookEvents.failed ?? 0} fallidos
+                      </div>
+                      <div className="mt-1 text-white/40">
+                        {results.webhookEvents.pending ?? 0} pendientes · {results.webhookEvents.processed ?? 0} procesados
+                      </div>
                     </div>
                   </div>
                 </div>

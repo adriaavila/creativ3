@@ -15,7 +15,10 @@ export async function POST(request: Request) {
   const configuredPassword = process.env.OPS_ACCESS_PASSWORD;
   const sessionSecret = process.env.OPS_SESSION_SECRET;
   const requestedNext = String(form.get("next") ?? "/ops");
-  const nextPath = requestedNext.startsWith("/ops") ? requestedNext : "/ops";
+  const nextPath =
+    requestedNext.startsWith("/ops") || requestedNext.startsWith("/embedded-whatsapp")
+      ? requestedNext
+      : "/ops";
 
   if (!configuredPassword || !sessionSecret) {
     return Response.json({ error: "Ops access is not configured." }, { status: 503 });

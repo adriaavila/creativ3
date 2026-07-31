@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { safeMetaError, sendPreparedTextMessage } from "@/lib/meta/server";
+import { MetaCloudWhatsAppProvider } from "@/lib/meta/cloud-whatsapp-provider";
+import { safeMetaError } from "@/lib/meta/server";
+import { getWhatsAppProviderConnection } from "@/lib/whatsapp-connections-db";
 import { authorizeOps } from "@/lib/ops-auth";
 
 export async function POST(req: NextRequest) {
@@ -20,24 +22,31 @@ export async function POST(req: NextRequest) {
 
   const value = input as Record<string, unknown>;
   const phoneNumberId = stringField(value.phone_number_id);
-  const businessToken = stringField(value.business_token);
   const to = stringField(value.to);
+  const requestedWorkspace = stringField(value.workspace);
+  const workspace =
+    requestedWorkspace && /^[a-zA-Z0-9._-]{1,80}$/.test(requestedWorkspace)
+      ? requestedWorkspace
+      : authorization.userId;
   const body = stringField(value.body) ?? "WhatsApp test message from Servicios Creativos.";
 
-  if (!phoneNumberId || !businessToken || !to) {
+  if (!phoneNumberId || !to) {
     return NextResponse.json(
       {
-        error: "phone_number_id, business_token, and to are required.",
-        mode: "Use this only from a secure server-side tool or n8n workflow. Do not call it from the browser.",
+        error: "phone_number_id and to are required.",
       },
       { status: 400 },
     );
   }
 
   try {
-    const result = await sendPreparedTextMessage({
-      phoneNumberId,
-      businessToken,
+    const connection = await getWhatsAppProviderConnection(phoneNumberId, workspace);
+    if (!connection) {
+      return NextResponse.json({ error: "Connection not found." }, { status: 404 });
+    }
+    const provider = new MetaCloudWhatsAppProvider(async () => connection);
+    const result = await provider.sendText({
+      connectionId: connection.id,
       to,
       body,
     });

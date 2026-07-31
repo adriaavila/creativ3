@@ -3,7 +3,6 @@ import {
   buildTokenMetadata,
   debugBusinessToken,
   exchangeCodeForBusinessToken,
-  forwardConnectedAccountToN8n,
   getExchangeEnv,
   getMissingTokenPermissions,
   META_SIGNUP_STATE_COOKIE,
@@ -13,8 +12,12 @@ import {
   validateSignupPayload,
 } from "@/lib/meta/server";
 import { upsertWhatsAppConnection } from "@/lib/whatsapp-connections-db";
+import { authorizeOps } from "@/lib/ops-auth";
 
 export async function POST(req: NextRequest) {
+  const authorization = await authorizeOps();
+  if (!authorization.authorized) return authorization.response;
+
   let input: unknown;
 
   try {
@@ -74,8 +77,15 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const ownedPayload = {
+      ...payload,
+      client: payload.client ?? authorization.userId,
+      user_id: authorization.userId,
+      team_id: undefined,
+      account_id: undefined,
+    };
     const resolved = await resolveMetaSignupConnection({
-      payload,
+      payload: ownedPayload,
       debugData,
       businessToken,
       graphVersion: exchangeEnv.env.graphVersion,
@@ -105,46 +115,24 @@ export async function POST(req: NextRequest) {
     const tokenMetadata = buildTokenMetadata(tokenExchange, debugData);
     const status = subscribeResult.success ? "subscribed" : "connected";
 
-    // Meta has already authorized and subscribed the number by this point, so a
-    // downstream outage must not fail the onboarding — the client would be left
-    // connected on Meta's side with nothing recorded here. Postgres is the source
-    // of truth for /ops, n8n is the automation consumer; only losing BOTH is fatal.
-    const [dbResult, n8nResult] = await Promise.all([
-      upsertWhatsAppConnection({
+    try {
+      await upsertWhatsAppConnection({
         payload: connectedPayload,
         businessToken,
         tokenMetadata,
         phoneProfile,
         status,
         connectedAt,
-      }).then(
-        () => ({ ok: true, error: undefined as string | undefined }),
-        (error: unknown) => ({ ok: false, error: errorText(error) }),
-      ),
-      forwardConnectedAccountToN8n({
-        payload: connectedPayload,
-        businessToken,
-        tokenMetadata,
-        subscribeResult,
-        env: exchangeEnv.env,
-        connectedAt,
-      }).catch((error: unknown) => ({
-        ok: false,
-        status: 0,
-        body: { error: errorText(error) },
-      })),
-    ]);
-
-    if (!dbResult.ok && !n8nResult.ok) {
+      });
+    } catch (error) {
       return NextResponse.json(
         {
           error:
-            "Meta authorized the number, but it could not be stored in any backend. Retry once storage is back.",
+            "Meta authorized the number, but the secure connection record could not be stored. Retry once storage is back.",
           waba_id: connectedPayload.waba_id,
           phone_number_id: connectedPayload.phone_number_id,
           waba_subscribe_succeeded: subscribeResult.success === true,
-          database: { ok: false, error: dbResult.error },
-          n8n: { ok: false, status: n8nResult.status },
+          database: { ok: false, error: errorText(error) },
         },
         { status: 502 },
       );
@@ -163,14 +151,10 @@ export async function POST(req: NextRequest) {
       },
       token_metadata: tokenMetadata,
       waba_subscribe_succeeded: subscribeResult.success === true,
-      database: { ok: dbResult.ok },
-      n8n: {
-        reached: n8nResult.ok,
-        status: n8nResult.status,
-      },
+      database: { ok: true },
       test_message: {
         endpoint: "/api/meta/embedded-signup/test-message",
-        mode: "server-side only; supply a stored business token from your secure backend or n8n",
+        mode: "server-side provider using the encrypted stored connection",
       },
     });
     response.cookies.set(META_SIGNUP_STATE_COOKIE, "", {

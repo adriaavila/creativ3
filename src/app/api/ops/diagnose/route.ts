@@ -2,6 +2,7 @@ import { neon } from "@neondatabase/serverless";
 import { getGraphVersion } from "@/lib/meta/server";
 import { getGrowthAgentRuntime } from "@/lib/growth-agent-runtime";
 import { authorizeOps } from "@/lib/ops-auth";
+import { getMetaWebhookEventStats } from "@/lib/meta/webhook-events-db";
 
 export const dynamic = "force-dynamic";
 
@@ -13,6 +14,8 @@ const SERVER_ENV_KEYS = [
   "META_WEBHOOK_VERIFY_TOKEN",
   "META_WEBHOOK_CALLBACK_URL",
   "N8N_WEBHOOK_URL",
+  "N8N_WEBHOOK_SECRET",
+  "N8N_WHATSAPP_EVENTS_WEBHOOK_URL",
   "APP_URL",
   "DATABASE_URL",
   "GROWTH_AGENT_URL",
@@ -24,6 +27,9 @@ const SERVER_ENV_KEYS = [
   "POSTIZ_API_KEY",
   "WAHA_URL",
   "WAHA_API_KEY",
+  "WAHA_WEBHOOK_HMAC_KEY",
+  "TOKEN_ENCRYPTION_KEY",
+  "CRON_SECRET",
 ];
 
 const PUBLIC_ENV_KEYS = [
@@ -169,12 +175,15 @@ export async function POST() {
     }
   }
 
+  const webhookEvents = await getMetaWebhookEventStats().catch(() => ({ unavailable: 1 }));
+
   return Response.json({
     env,
     database: databaseStatus,
     growthAgent: growthAgentStatus,
     n8n: n8nStatus,
     callbackUrl: callbackUrlStatus,
+    webhookEvents,
     metaVersion: getGraphVersion(),
   });
 }

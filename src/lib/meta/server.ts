@@ -7,8 +7,6 @@ const REQUIRED_EXCHANGE_ENV = [
   "META_APP_ID",
   "META_APP_SECRET",
   "META_CONFIG_ID",
-  "N8N_WEBHOOK_URL",
-  "N8N_WEBHOOK_SECRET",
 ] as const;
 
 export const META_SIGNUP_STATE_COOKIE = "meta_embedded_signup_state";
@@ -91,6 +89,13 @@ export type MetaWhatsAppPhoneProfile = {
   name_status?: string;
 };
 
+export type MetaMessageResponse = {
+  messages?: Array<{
+    id?: string;
+    message_status?: string;
+  }>;
+};
+
 export type ResolvedMetaSignupPayload = MetaEmbeddedSignupPayload & {
   waba_id: string;
   phone_number_id: string;
@@ -102,12 +107,6 @@ type ValidatedMetaSignupPayload = Omit<
 > & {
   waba_id?: string;
   phone_number_id?: string;
-};
-
-type N8nForwardResponse = {
-  ok: boolean;
-  status: number;
-  body?: unknown;
 };
 
 export type MetaSignedRequestPayload = {
@@ -157,10 +156,6 @@ export function getExchangeEnv() {
       appSecret: process.env.META_APP_SECRET as string,
       configId: process.env.META_CONFIG_ID as string,
       graphVersion: getGraphVersion(),
-      n8nWebhookUrl: process.env.N8N_WEBHOOK_URL as string,
-      n8nWebhookSecret: process.env.N8N_WEBHOOK_SECRET,
-      appUrl: process.env.APP_URL,
-      webhookCallbackUrl: process.env.META_WEBHOOK_CALLBACK_URL,
     },
   };
 }
@@ -448,58 +443,6 @@ export async function forwardMetaAccountLifecycleToN8n(input: {
   };
 }
 
-export async function forwardConnectedAccountToN8n(input: {
-  payload: MetaEmbeddedSignupPayload;
-  businessToken: string;
-  tokenMetadata: TokenMetadata;
-  subscribeResult: SubscribeResponse;
-  env: NonNullable<ReturnType<typeof getExchangeEnv>["env"]>;
-  connectedAt: string;
-}): Promise<N8nForwardResponse> {
-  const response = await fetch(input.env.n8nWebhookUrl, {
-    method: "POST",
-    headers: buildN8nHeaders(input.env.n8nWebhookSecret),
-    body: JSON.stringify({
-      event: "meta_embedded_signup_connected",
-      connected_account: {
-        waba_id: input.payload.waba_id,
-        phone_number_id: input.payload.phone_number_id,
-        business_id: input.payload.business_id,
-        business_token: input.businessToken,
-        token_metadata: input.tokenMetadata,
-        connected_at: input.connectedAt,
-        owner: {
-          client: input.payload.client,
-          user_id: input.payload.user_id,
-          team_id: input.payload.team_id,
-          account_id: input.payload.account_id,
-        },
-        status: input.subscribeResult.success ? "subscribed" : "connected",
-      },
-      signup: {
-        code: input.payload.code,
-        state: input.payload.state,
-        session: input.payload.session,
-      },
-      meta: {
-        app_id: input.env.appId,
-        config_id: input.env.configId,
-        graph_version: input.env.graphVersion,
-        webhook_callback_url: input.env.webhookCallbackUrl,
-        app_url: input.env.appUrl,
-        subscribe_succeeded: input.subscribeResult.success === true,
-      },
-    }),
-    signal: AbortSignal.timeout(8000),
-  });
-
-  return {
-    ok: response.ok,
-    status: response.status,
-    body: await readSafeBody(response),
-  };
-}
-
 export async function sendPreparedTextMessage(input: {
   phoneNumberId: string;
   businessToken: string;
@@ -507,7 +450,7 @@ export async function sendPreparedTextMessage(input: {
   body: string;
   graphVersion?: string;
 }) {
-  return graphRequest({
+  return graphRequest<MetaMessageResponse>({
     requestName: "send_test_message",
     graphVersion: input.graphVersion ?? getGraphVersion(),
     path: `${encodeURIComponent(input.phoneNumberId)}/messages`,
@@ -521,6 +464,58 @@ export async function sendPreparedTextMessage(input: {
       text: {
         body: input.body,
       },
+    },
+  });
+}
+
+export async function sendMediaMessage(input: {
+  phoneNumberId: string;
+  businessToken: string;
+  to: string;
+  type: "audio" | "document" | "image" | "sticker" | "video";
+  mediaId?: string;
+  link?: string;
+  caption?: string;
+  filename?: string;
+  graphVersion?: string;
+}) {
+  return graphRequest<MetaMessageResponse>({
+    requestName: "send_media_message",
+    graphVersion: input.graphVersion ?? getGraphVersion(),
+    path: `${encodeURIComponent(input.phoneNumberId)}/messages`,
+    method: "POST",
+    accessToken: input.businessToken,
+    body: {
+      messaging_product: "whatsapp",
+      recipient_type: "individual",
+      to: input.to,
+      type: input.type,
+      [input.type]: {
+        ...(input.mediaId ? { id: input.mediaId } : {}),
+        ...(input.link ? { link: input.link } : {}),
+        ...(input.caption ? { caption: input.caption } : {}),
+        ...(input.filename ? { filename: input.filename } : {}),
+      },
+    },
+  });
+}
+
+export async function markWhatsAppMessageAsRead(input: {
+  phoneNumberId: string;
+  businessToken: string;
+  messageId: string;
+  graphVersion?: string;
+}) {
+  await graphRequest<SubscribeResponse>({
+    requestName: "mark_whatsapp_message_as_read",
+    graphVersion: input.graphVersion ?? getGraphVersion(),
+    path: `${encodeURIComponent(input.phoneNumberId)}/messages`,
+    method: "POST",
+    accessToken: input.businessToken,
+    body: {
+      messaging_product: "whatsapp",
+      status: "read",
+      message_id: input.messageId,
     },
   });
 }
@@ -568,6 +563,20 @@ export async function deregisterPhoneNumber(input: {
   });
 }
 
+export async function unsubscribeWabaFromApp(input: {
+  wabaId: string;
+  businessToken: string;
+  graphVersion?: string;
+}) {
+  return graphRequest<SubscribeResponse>({
+    requestName: "unsubscribe_waba",
+    graphVersion: input.graphVersion ?? getGraphVersion(),
+    path: `${encodeURIComponent(input.wabaId)}/subscribed_apps`,
+    method: "DELETE",
+    accessToken: input.businessToken,
+  });
+}
+
 export function safeMetaError(error: unknown) {
   if (error instanceof MetaGraphRequestError) {
     return {
@@ -584,7 +593,7 @@ async function graphRequest<T>(input: {
   requestName: string;
   graphVersion: string;
   path: string;
-  method?: "GET" | "POST";
+  method?: "DELETE" | "GET" | "POST";
   accessToken?: string;
   searchParams?: Record<string, string>;
   body?: unknown;

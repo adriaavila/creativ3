@@ -64,6 +64,14 @@ Workflow ID:
 EA6f6q8SZkewllyJ
 ```
 
+The durable retry worker is active as `allok - Drain Meta Webhook Queue`:
+
+```txt
+Yf3mR8qK2vL7sN5p
+```
+
+It calls the protected drain endpoint every minute with `N8N_WEBHOOK_SECRET`. The daily Vercel cron is only a Hobby-plan fallback.
+
 Expected webhook path:
 
 ```txt
@@ -82,7 +90,7 @@ https://n8n.allok.fun/webhook/meta/whatsapp-events
 
 Do not republish that workflow without tenant lookup, idempotency, and explicit human-supervision gates.
 
-Import `n8n/meta-embedded-signup.workflow.json` only if the workflow needs to be recreated.
+Import `n8n/meta-embedded-signup.workflow.json` or `n8n/meta-webhook-drain.workflow.json` only if the corresponding workflow needs to be recreated. A regular single-main n8n deployment cannot honor `--activeState=fromJson`; import, publish/activate, and restart n8n instead.
 
 ## Connected numbers in Ops
 

@@ -11,6 +11,7 @@ function getSql() {
 }
 
 export type StripePurchase = {
+  id: string;
   stripeSessionId: string;
   plan: string;
   channel: "waha" | "cloud_api";
@@ -18,6 +19,7 @@ export type StripePurchase = {
   customerEmail: string | null;
   stripeCustomerId: string | null;
   stripeSubscriptionId: string | null;
+  paymentStatus: string | null;
   createdAt: string;
 };
 
@@ -32,14 +34,15 @@ export async function getStripePurchaseBySessionId(
 ): Promise<StripePurchase | null> {
   const sql = getSql();
   const rows = await sql`
-    SELECT stripe_session_id, plan, channel, client, customer_email,
-      stripe_customer_id, stripe_subscription_id, created_at
+    SELECT id, stripe_session_id, plan, channel, client, customer_email,
+      stripe_customer_id, stripe_subscription_id, payment_status, created_at
     FROM stripe_purchases
     WHERE stripe_session_id = ${stripeSessionId}
   `;
   const row = rows[0];
   if (!row) return null;
   return {
+    id: String(row.id),
     stripeSessionId: String(row.stripe_session_id),
     plan: String(row.plan),
     channel: row.channel === "cloud_api" ? "cloud_api" : "waha",
@@ -49,6 +52,7 @@ export async function getStripePurchaseBySessionId(
     stripeSubscriptionId: row.stripe_subscription_id
       ? String(row.stripe_subscription_id)
       : null,
+    paymentStatus: row.payment_status ? String(row.payment_status) : null,
     createdAt: new Date(String(row.created_at)).toISOString(),
   };
 }

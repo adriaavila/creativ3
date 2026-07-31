@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { authorizeOps } from "@/lib/ops-auth";
 import { getWahaConfig } from "@/lib/waha";
-import { getWahaQr, startWahaSession } from "@/lib/waha-send";
+import { ensureWahaSession, getWahaQr } from "@/lib/waha-send";
 import { listWahaConnections, updateWahaConnectionStatus, upsertWahaConnection } from "@/lib/whatsapp-inbox-db";
 
 export const runtime = "nodejs";
@@ -37,13 +37,14 @@ export async function POST(request: Request) {
 
   await upsertWahaConnection({
     id: input.id,
+    workspaceId: input.client ?? input.id,
     client: input.client ?? null,
     wahaBaseUrl: config.baseUrl,
     status: "pending",
   });
 
   try {
-    await startWahaSession(input.id);
+    await ensureWahaSession(input.id, input.client ?? input.id);
     await updateWahaConnectionStatus(input.id, "scan_qr");
     const qr = await getWahaQr(input.id);
     return Response.json({ ok: true, session: input.id, qr });

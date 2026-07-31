@@ -18,15 +18,18 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
 
   const snapshot = await getWahaSnapshot(id);
   const live = snapshot.sessions.find((session) => session.name === id);
-  const liveStatus = live?.status?.toUpperCase();
+  const liveStatus = live?.status;
 
   let status = connection.status;
-  if (liveStatus === "WORKING") status = "connected";
-  else if (liveStatus === "SCAN_QR_CODE") status = "scan_qr";
-  else if (liveStatus === "STOPPED" || liveStatus === "FAILED") status = "disconnected";
+  if (liveStatus === "connected") status = "connected";
+  else if (liveStatus === "scan_qr") status = "scan_qr";
+  else if (liveStatus === "starting") status = "starting";
+  else if (liveStatus === "passkey") status = "passkey";
+  else if (liveStatus === "stopped") status = "stopped";
+  else if (liveStatus === "failed") status = "failed";
 
   if (status !== connection.status) {
-    await updateWahaConnectionStatus(id, status, live?.name ? connection.phoneDisplay : undefined);
+    await updateWahaConnectionStatus(id, status, live?.phone);
   }
 
   const qr = status === "scan_qr" ? await getWahaQr(id).catch(() => null) : null;

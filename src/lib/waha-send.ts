@@ -4,7 +4,7 @@ import { getWahaConfig } from "@/lib/waha";
 // copy (risk of number ban, no structured Meta templates). See waha.ts for the
 // shared config/health-check; this file is send + session lifecycle only.
 
-async function wahaFetch(path: string, init?: RequestInit) {
+async function wahaFetch(path: string, init?: RequestInit, allowedStatuses: number[] = []) {
   const config = getWahaConfig();
   if (!config) throw new Error("WAHA is not configured (WAHA_URL/WAHA_API_KEY).");
 
@@ -18,7 +18,7 @@ async function wahaFetch(path: string, init?: RequestInit) {
     signal: AbortSignal.timeout(10_000),
   });
 
-  if (!response.ok) {
+  if (!response.ok && !allowedStatuses.includes(response.status)) {
     const body = await response.text().catch(() => "");
     throw new Error(`WAHA ${path} responded ${response.status}: ${body.slice(0, 200)}`);
   }
@@ -37,7 +37,7 @@ export function toWahaChatId(waId: string): string {
  * so a session started without this is a number that can never reach the inbox.
  * `ignore` matters: without it every contact's status update fires a webhook.
  */
-function sessionConfig() {
+function sessionConfig(workspaceId?: string) {
   const appUrl = (process.env.APP_URL ?? process.env.NEXT_PUBLIC_APP_URL ?? "").replace(/\/+$/, "");
   if (!appUrl) throw new Error("APP_URL is required to register the WAHA webhook.");
 
@@ -47,24 +47,54 @@ function sessionConfig() {
   // here would quietly open the endpoint to anyone who knows the URL.
   if (!hmacKey) throw new Error("WAHA_WEBHOOK_HMAC_KEY is required to register the WAHA webhook.");
 
+  const webhooks = [
+    {
+      url: `${appUrl}/api/waha/webhook`,
+      events: ["message", "message.ack", "session.status"],
+      hmac: { key: hmacKey },
+      retries: { policy: "constant", delaySeconds: 2, attempts: 15 },
+    },
+  ];
+  const downstreamUrl = process.env.MISTICA_WAHA_WEBHOOK_URL?.replace(/\/+$/, "");
+  const downstreamHmac = process.env.MISTICA_WAHA_WEBHOOK_HMAC_KEY;
+  if (workspaceId === "mistica" && downstreamUrl && downstreamHmac) {
+    webhooks.push({
+      url: downstreamUrl,
+      events: ["message", "message.ack", "session.status"],
+      hmac: { key: downstreamHmac },
+      retries: { policy: "constant", delaySeconds: 2, attempts: 15 },
+    });
+  }
+
   return {
-    webhooks: [
-      {
-        url: `${appUrl}/api/waha/webhook`,
-        events: ["message", "message.ack", "session.status"],
-        hmac: { key: hmacKey },
-        retries: { policy: "constant", delaySeconds: 2, attempts: 15 },
-      },
-    ],
+    metadata: workspaceId ? { workspaceId } : undefined,
+    webhooks,
     ignore: { status: true, groups: true, channels: true },
   };
 }
 
-export async function startWahaSession(sessionId: string): Promise<void> {
-  await wahaFetch("/api/sessions", {
-    method: "POST",
-    body: JSON.stringify({ name: sessionId, start: true, config: sessionConfig() }),
+export async function ensureWahaSession(sessionId: string, workspaceId?: string): Promise<void> {
+  const encoded = encodeURIComponent(sessionId);
+  const current = await wahaFetch(`/api/sessions/${encoded}`, undefined, [404]);
+  if (current.status === 404) {
+    await wahaFetch("/api/sessions", {
+      method: "POST",
+      body: JSON.stringify({ name: sessionId, start: true, config: sessionConfig(workspaceId) }),
+    });
+    return;
+  }
+
+  const session = await current.json() as { status?: string };
+  await wahaFetch(`/api/sessions/${encoded}`, {
+    method: "PUT",
+    body: JSON.stringify({ name: sessionId, config: sessionConfig(workspaceId) }),
   });
+  if (session.status === "FAILED") await restartWahaSession(sessionId);
+  else if (session.status === "STOPPED") await startWahaSession(sessionId);
+}
+
+export async function startWahaSession(sessionId: string): Promise<void> {
+  await wahaFetch(`/api/sessions/${encodeURIComponent(sessionId)}/start`, { method: "POST" });
 }
 
 /**
@@ -75,6 +105,18 @@ export async function startWahaSession(sessionId: string): Promise<void> {
  */
 export async function restartWahaSession(sessionId: string): Promise<void> {
   await wahaFetch(`/api/sessions/${encodeURIComponent(sessionId)}/restart`, { method: "POST" });
+}
+
+export async function stopWahaSession(sessionId: string): Promise<void> {
+  await wahaFetch(`/api/sessions/${encodeURIComponent(sessionId)}/stop`, { method: "POST" });
+}
+
+export async function logoutWahaSession(sessionId: string): Promise<void> {
+  await wahaFetch(`/api/sessions/${encodeURIComponent(sessionId)}/logout`, { method: "POST" });
+}
+
+export async function deleteWahaSession(sessionId: string): Promise<void> {
+  await wahaFetch(`/api/sessions/${encodeURIComponent(sessionId)}`, { method: "DELETE" });
 }
 
 /**
@@ -110,11 +152,46 @@ export async function sendWahaText(
   sessionId: string,
   waId: string,
   text: string,
+  options: { id?: string; replyTo?: string } = {},
 ): Promise<{ id?: string }> {
   const response = await wahaFetch("/api/sendText", {
     method: "POST",
-    body: JSON.stringify({ session: sessionId, chatId: toWahaChatId(waId), text }),
+    body: JSON.stringify({
+      session: sessionId,
+      chatId: toWahaChatId(waId),
+      text,
+      id: options.id,
+      reply_to: options.replyTo,
+    }),
   });
   const body = await response.json().catch(() => ({}) as Record<string, unknown>);
   return { id: body?.id ? String(body.id) : undefined };
+}
+
+export async function sendWahaMedia(input: {
+  sessionId: string;
+  waId: string;
+  url: string;
+  mimetype: string;
+  filename?: string;
+  caption?: string;
+}): Promise<{ id?: string }> {
+  const response = await wahaFetch("/api/sendFile", {
+    method: "POST",
+    body: JSON.stringify({
+      session: input.sessionId,
+      chatId: toWahaChatId(input.waId),
+      file: { url: input.url, mimetype: input.mimetype, filename: input.filename },
+      caption: input.caption,
+    }),
+  });
+  const body = await response.json().catch(() => ({}) as Record<string, unknown>);
+  return { id: body?.id ? String(body.id) : undefined };
+}
+
+export async function markWahaRead(sessionId: string, waId: string, messageId: string): Promise<void> {
+  await wahaFetch("/api/sendSeen", {
+    method: "POST",
+    body: JSON.stringify({ session: sessionId, chatId: toWahaChatId(waId), messageIds: [messageId] }),
+  });
 }

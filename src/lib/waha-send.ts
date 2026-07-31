@@ -141,11 +141,21 @@ export async function requestWahaPairingCode(sessionId: string, phoneNumber: str
 
 export type WahaQr = { mimetype: string; data: string };
 
+export async function readWahaQrResponse(response: Response): Promise<WahaQr | null> {
+  const mimetype = response.headers.get("content-type")?.split(";", 1)[0] || "image/png";
+  if (mimetype === "application/json") {
+    const body = await response.json().catch(() => null);
+    return body?.data
+      ? { mimetype: String(body.mimetype ?? "image/png"), data: String(body.data) }
+      : null;
+  }
+  const data = Buffer.from(await response.arrayBuffer()).toString("base64");
+  return data ? { mimetype, data } : null;
+}
+
 export async function getWahaQr(sessionId: string): Promise<WahaQr | null> {
   const response = await wahaFetch(`/api/${encodeURIComponent(sessionId)}/auth/qr`);
-  const body = await response.json().catch(() => null);
-  if (!body?.data) return null;
-  return { mimetype: String(body.mimetype ?? "image/png"), data: String(body.data) };
+  return readWahaQrResponse(response);
 }
 
 export async function sendWahaText(

@@ -1,0 +1,44 @@
+name: Sync portafolio
+
+# El "click": Actions → Sync portafolio → Run workflow.
+# Recaptura las pantallas de cada proyecto con liveUrl, refresca la fecha de
+# GitHub y commitea el resultado. Vercel redespliega solo.
+on:
+  workflow_dispatch:
+    inputs:
+      ids:
+        description: "IDs a sincronizar, separados por espacio (vacio = todos)"
+        required: false
+        default: ""
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec playwright install --with-deps chromium
+
+      - name: Sync
+        env:
+          # gh lee este token para las fechas de push de los repos privados
+          GH_TOKEN: ${{ secrets.PORTFOLIO_SYNC_TOKEN || github.token }}
+        run: pnpm sync:projects ${{ inputs.ids }}
+
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/projects src/data/projects-sync.json
+          git diff --staged --quiet && echo "Sin cambios." && exit 0
+          git commit -m "chore: sync portafolio (capturas + fechas)"
+          git push

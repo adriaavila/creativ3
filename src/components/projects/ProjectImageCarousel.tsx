@@ -129,6 +129,21 @@ export default function ProjectImageCarousel({
     setActive((value) => (value === images.length - 1 ? 0 : value + 1));
   };
 
+  // Proyectos internos o sin URL publica no tienen capturas: marco vacio, no crash.
+  if (!current) {
+    return (
+      <div
+        className={`flex aspect-[16/10] w-full items-center justify-center rounded-xl border font-mono text-[10px] uppercase tracking-[0.16em] ${
+          isDark
+            ? "border-white/10 bg-white/[0.04] text-white/40"
+            : "border-[#ebebeb] bg-[#f5f5f5] text-black/40"
+        }`}
+      >
+        {projectName}
+      </div>
+    );
+  }
+
   return (
     <div
       onTouchStart={handleTouchStart}

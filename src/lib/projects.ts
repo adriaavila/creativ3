@@ -1,3 +1,5 @@
+import syncData from "@/data/projects-sync.json";
+
 export type ProjectCategory = "web" | "webapp" | "automation";
 
 export type ProjectImage = {
@@ -27,7 +29,16 @@ export type PortfolioProject = {
   images: ProjectImage[];
 };
 
-export const PROJECTS_LAST_SYNCED_AT = "2026-05-25";
+// Regenerado por `pnpm sync:projects` (scripts/sync-projects.ts). No editar a mano.
+const SYNC = syncData as {
+  syncedAt: string;
+  projects: Record<
+    string,
+    { githubPushedAt?: string; githubUpdatedLabel?: string; images?: ProjectImage[] }
+  >;
+};
+
+export const PROJECTS_LAST_SYNCED_AT = SYNC.syncedAt;
 
 export const PROJECT_CATEGORIES: {
   id: "all" | ProjectCategory;
@@ -56,7 +67,7 @@ export const PROJECT_CATEGORIES: {
   },
 ];
 
-export const PORTFOLIO_PROJECTS: PortfolioProject[] = [
+const RAW_PORTFOLIO_PROJECTS: PortfolioProject[] = [
   {
     id: "shopea",
     name: "Shopea",
@@ -72,6 +83,7 @@ export const PORTFOLIO_PROJECTS: PortfolioProject[] = [
     status: "launched",
     stack: ["Next.js", "TypeScript", "Convex", "Clerk"],
     year: "2026",
+    liveUrl: "https://shopea.vercel.app",
     githubPushedAt: "2026-05-16T00:00:00Z",
     githubUpdatedLabel: "16 may 2026",
     images: [
@@ -442,7 +454,311 @@ export const PORTFOLIO_PROJECTS: PortfolioProject[] = [
     githubUpdatedLabel: "12 mar 2026",
     images: [],
   },
+  {
+    id: "integra",
+    name: "Integra",
+    kind: "Consultoría que se explica antes de la primera reunión.",
+    categories: ["web"],
+    description:
+      "Sitio corporativo y motor de contenido para una consultora de transformación digital en hospitalidad y retail.",
+    result:
+      "Integra convierte el criterio de una consultora en material publicado que trabaja antes de la llamada.",
+    businessGoal: "increase_revenue",
+    businessOutcome:
+      "Blog y recursos con rutas dinámicas: el equipo publica sin depender de desarrollo.",
+    agentRole: "Sin agente: arquitectura de contenido y SEO",
+    status: "launched",
+    stack: ["Next.js", "TypeScript", "Tailwind CSS", "Vercel"],
+    year: "2026",
+    liveUrl: "https://intrega-landing.vercel.app",
+    sourceUrl: "https://github.com/adriaavila/intrega-landing",
+    githubPushedAt: "2026-03-12T00:00:00Z",
+    githubUpdatedLabel: "12 mar 2026",
+    images: [
+      {
+        src: "/projects/integra/01-desktop.webp",
+        alt: "Home de Integra en desktop",
+        label: "Home",
+      },
+      {
+        src: "/projects/integra/02-desktop-scroll.webp",
+        alt: "Servicios y recursos de Integra",
+        label: "Servicios",
+      },
+      {
+        src: "/projects/integra/03-mobile.webp",
+        alt: "Integra en movil",
+        label: "Mobile",
+      },
+    ],
+  },
+  {
+    id: "vistacampo",
+    name: "Vistacampo",
+    kind: "Diseño que también comunica seguridad.",
+    categories: ["web"],
+    description:
+      "Sitio institucional multilingüe para un centro de rehabilitación de adicciones: contenido, equipo, instalaciones y blog en una estructura coherente.",
+    result:
+      "Vistacampo convierte un tema delicado en una experiencia donde la información genera confianza en vez de ansiedad.",
+    businessGoal: "increase_revenue",
+    businessOutcome:
+      "Arquitectura multilingüe y MDX: el equipo publica contenido sin depender de desarrollo.",
+    agentRole: "Sin agente: arquitectura de contenido, i18n y SEO",
+    status: "launched",
+    stack: ["Next.js", "TypeScript", "MDX", "i18n"],
+    year: "2026",
+    liveUrl: "https://vistacampo-redesign-4r.vercel.app",
+    sourceUrl: "https://github.com/adriaavila/vistacampo-redesign-4r",
+    githubPushedAt: "2026-04-03T00:00:00Z",
+    githubUpdatedLabel: "3 abr 2026",
+    images: [],
+  },
+  {
+    id: "avepane",
+    name: "AVEPANE",
+    kind: "Cincuenta años de trabajo social, legibles en una página.",
+    categories: ["web"],
+    description:
+      "Sitio institucional para una organización venezolana dedicada a inclusión y formación de personas con discapacidad intelectual.",
+    result:
+      "AVEPANE ordena programas, impacto y formas de participar sin perder cercanía humana.",
+    businessGoal: "increase_revenue",
+    businessOutcome:
+      "Presenta la organización ante familias, aliados y posibles colaboradores con una sola pieza.",
+    agentRole: "Sin agente: narrativa institucional y estructura de contenido",
+    status: "launched",
+    stack: ["Next.js", "TypeScript", "Tailwind CSS", "Radix UI"],
+    year: "2026",
+    liveUrl: "https://avepane.org",
+    sourceUrl: "https://github.com/adr24/avepane",
+    githubPushedAt: "2026-05-25T00:00:00Z",
+    githubUpdatedLabel: "25 may 2026",
+    images: [],
+  },
+  {
+    id: "samer",
+    name: "SAMER",
+    kind: "El comprador ve avanzar su obra sin llamar a nadie.",
+    categories: ["web"],
+    description:
+      "Sitio institucional de una constructora e inmobiliaria, con catálogo de proyectos y avance de obra por desarrollo.",
+    result:
+      "SAMER convierte los dos años de silencio entre la firma y la entrega en una razón para volver al sitio.",
+    businessGoal: "reduce_costs",
+    businessOutcome:
+      "La página de avance de obra absorbe las llamadas de '¿cómo va lo mío?' que consumían al equipo comercial.",
+    agentRole: "Sin agente: transparencia de obra como función de producto",
+    status: "launched",
+    stack: ["Next.js", "TypeScript", "Tailwind CSS", "Base UI"],
+    year: "2026",
+    liveUrl: "https://samer-rouge.vercel.app",
+    githubPushedAt: "2026-07-29T00:00:00Z",
+    githubUpdatedLabel: "29 jul 2026",
+    images: [],
+  },
+  {
+    id: "viaja-ven",
+    name: "Viaja Ven",
+    kind: "Inspirar y ayudar a decidir en la misma interfaz.",
+    categories: ["web", "webapp"],
+    description:
+      "Plataforma de turismo gastronómico en Colonia Tovar: explorar experiencias, armar rutas temáticas y compartir el itinerario.",
+    result:
+      "Viaja Ven junta veinte pestañas y una nota de voz en un solo objeto compartible.",
+    businessGoal: "increase_revenue",
+    businessOutcome:
+      "El itinerario es la unidad que se manda por WhatsApp: la distribución vive dentro del producto.",
+    agentRole: "Sin agente: descubrimiento y planificación guiada",
+    status: "launched",
+    stack: ["Next.js", "React", "TypeScript", "Tailwind CSS"],
+    year: "2026",
+    liveUrl: "https://viaja-ven.vercel.app",
+    sourceUrl: "https://github.com/adriaavila/viaja-ven",
+    githubPushedAt: "2026-03-12T00:00:00Z",
+    githubUpdatedLabel: "12 mar 2026",
+    images: [],
+  },
+  {
+    id: "kawsay",
+    name: "Kawsay",
+    kind: "Vender origen, no solo grano.",
+    categories: ["web"],
+    description:
+      "Ecommerce de café de especialidad con catálogo, colecciones, checkout y la narrativa de origen dentro del camino de compra.",
+    result:
+      "Kawsay pone orígenes e impacto en la ruta de conversión, no en una página enterrada en el footer.",
+    businessGoal: "increase_revenue",
+    businessOutcome:
+      "Sostiene el precio del café de especialidad frente a un producto que cuesta la cuarta parte y se ve igual en una foto.",
+    agentRole: "Sin agente: contenido de marca en el camino de compra",
+    status: "launched",
+    stack: ["Next.js", "TypeScript", "Tailwind CSS", "Vercel"],
+    year: "2025",
+    liveUrl: "https://kawsay.vercel.app",
+    githubPushedAt: "2025-08-25T00:00:00Z",
+    githubUpdatedLabel: "25 ago 2025",
+    images: [],
+  },
+  {
+    id: "dream-drop",
+    name: "Dream Drop",
+    kind: "Una tienda construida alrededor de la ventana, no del catálogo.",
+    categories: ["web"],
+    description:
+      "Ecommerce de lanzamientos por tiempo limitado, con la interfaz diseñada para comunicar escasez sin volverse ansiosa.",
+    result:
+      "Dream Drop aplica el mismo stack de ecommerce a una lógica comercial distinta: el drop en vez del stock permanente.",
+    businessGoal: "increase_revenue",
+    businessOutcome:
+      "La urgencia se comunica por diseño, sin contadores falsos ni presión artificial.",
+    agentRole: "Sin agente: dirección visual y ritmo de lanzamiento",
+    status: "launched",
+    stack: ["Next.js", "TypeScript", "Radix UI", "Framer Motion"],
+    year: "2026",
+    liveUrl: "https://v0-katachi-roan-sigma.vercel.app",
+    githubPushedAt: "2026-06-09T00:00:00Z",
+    githubUpdatedLabel: "9 jun 2026",
+    images: [],
+  },
+  {
+    id: "ainetworking-canada",
+    name: "AiNetworking Canada",
+    kind: "Salió a producción como plataforma, no como lista de espera.",
+    categories: ["web", "webapp"],
+    description:
+      "Sitio público y plataforma de miembros para una organización canadiense de IA: hubs, aplicaciones, eventos y área autenticada.",
+    result:
+      "AiNetworking Canada lanzó con el producto adentro: nueve canales, tablero de colaboración y onboarding con consentimiento explícito.",
+    businessGoal: "increase_revenue",
+    businessOutcome:
+      "El miembro que se registra encuentra a alguien con quien hablar el mismo día, en vez de un correo de bienvenida.",
+    agentRole: "Sin agente: matcher de hubs y rutas de participación",
+    status: "launched",
+    stack: ["Next.js", "TypeScript", "Convex", "Better Auth"],
+    year: "2026",
+    liveUrl: "https://ainetworking-org.vercel.app",
+    githubPushedAt: "2026-07-31T00:00:00Z",
+    githubUpdatedLabel: "31 jul 2026",
+    images: [],
+  },
+  {
+    id: "pausa",
+    name: "Pausa",
+    kind: "En crisis, dos toques valen más que un dashboard.",
+    categories: ["webapp"],
+    description:
+      "App privada mobile-first de acompañamiento en recuperación: check-ins diarios, curva de recuperación, grounding y contactos de apoyo.",
+    result:
+      "Pausa trata la fricción como el producto, no como un detalle de interfaz.",
+    businessGoal: "reduce_costs",
+    businessOutcome:
+      "PWA con notificaciones y datos privados por usuario, pensada para uso diario sostenido.",
+    agentRole: "Insights diarios asistidos por IA",
+    status: "improving",
+    stack: ["React", "Vite", "Supabase", "Tailwind CSS"],
+    year: "2026",
+    liveUrl: "https://pausa-beta.vercel.app",
+    githubPushedAt: "2026-07-08T00:00:00Z",
+    githubUpdatedLabel: "8 jul 2026",
+    images: [],
+  },
+  {
+    id: "santorini",
+    name: "Santorini Engine",
+    kind: "Contenido con IA sin inventar un solo dato.",
+    categories: ["automation"],
+    description:
+      "Motor interno de contenido y ventas para un proyecto residencial: conocimiento, estrategia, batches, producción, analítica y aprendizajes conectados.",
+    result:
+      "Santorini Engine publica todas las semanas con una regla de verdad incorporada.",
+    businessGoal: "increase_revenue",
+    businessOutcome:
+      "Precio, entrega y financiamiento se marcan como pendientes de verificación en vez de rellenarse: en vivienda, una cifra inventada no es un error de copy.",
+    agentRole: "Agente de marketing con aprobación humana",
+    status: "launched",
+    stack: ["Next.js", "TypeScript", "Markdown", "Zod"],
+    year: "2026",
+    githubPushedAt: "2026-07-19T00:00:00Z",
+    githubUpdatedLabel: "19 jul 2026",
+    images: [],
+  },
+  {
+    id: "waha-fisio-agent",
+    name: "Agente de Citas",
+    kind: "Un agente que cierra la transacción, no que responde bonito.",
+    categories: ["automation"],
+    description:
+      "Agente de WhatsApp para fisioterapia: conversa en español, consulta disponibilidad real en Cal.com, reserva la cita y envía recordatorios.",
+    result:
+      "El agente agenda sin que nadie del consultorio toque el teléfono.",
+    businessGoal: "both",
+    businessOutcome:
+      "Contesta a las 11:00 en vez de a las 19:00, que es cuando la persona ya reservó en otro lado.",
+    agentRole: "Agente de agendamiento con herramientas reales",
+    status: "demo",
+    stack: ["Python", "FastAPI", "WAHA", "Cal.com"],
+    year: "2026",
+    sourceUrl: "https://github.com/adriaavila/waha-fisio-agent",
+    githubPushedAt: "2026-06-27T00:00:00Z",
+    githubUpdatedLabel: "27 jun 2026",
+    images: [],
+  },
+  {
+    id: "expense-inbox-agent",
+    name: "Expense Inbox",
+    kind: "La foto del recibo entra; el gasto sale estructurado.",
+    categories: ["automation"],
+    description:
+      "Microservicio que convierte texto, nota de voz, foto o PDF en un gasto estructurado. Diseñado para colgarse de n8n.",
+    result:
+      "Expense Inbox elimina la tarde de fin de mes transcribiendo papeles arrugados.",
+    businessGoal: "reduce_costs",
+    businessOutcome:
+      "Contrato de API, autenticación, esquema de datos y health check: lo que separa un agente de algo de lo que se puede depender.",
+    agentRole: "Agente de captura y estructuración de gastos",
+    status: "launched",
+    stack: ["Python", "FastAPI", "OpenAI", "Postgres"],
+    year: "2026",
+    githubPushedAt: "2026-04-26T00:00:00Z",
+    githubUpdatedLabel: "26 abr 2026",
+    images: [],
+  },
+  {
+    id: "frontdesk-ai",
+    name: "FrontDesk IA",
+    kind: "No falta tráfico: falta quien recupere al que no cerró.",
+    categories: ["automation"],
+    description:
+      "Agente que atiende llamadas, califica leads, mantiene un pipeline de ventas y hace seguimiento automático.",
+    result:
+      "FrontDesk IA ataca la parte cara del embudo: el lead pagado que se pierde después del primer contacto.",
+    businessGoal: "both",
+    businessOutcome:
+      "Seguimiento automático sobre leads ya pagados, que es el dinero que el negocio ya gastó y no cobró.",
+    agentRole: "Recepcionista y seguimiento comercial",
+    status: "prototype",
+    stack: ["React", "TypeScript", "TanStack Start", "Supabase"],
+    year: "2026",
+    githubPushedAt: "2026-08-01T00:00:00Z",
+    githubUpdatedLabel: "1 ago 2026",
+    images: [],
+  },
 ];
+
+export const PORTFOLIO_PROJECTS: PortfolioProject[] = RAW_PORTFOLIO_PROJECTS.map(
+  (project) => {
+    const sync = SYNC.projects[project.id];
+    if (!sync) return project;
+    return {
+      ...project,
+      githubPushedAt: sync.githubPushedAt ?? project.githubPushedAt,
+      githubUpdatedLabel: sync.githubUpdatedLabel ?? project.githubUpdatedLabel,
+      // ponytail: las capturas escritas a mano ganan; el sync solo rellena las vacias
+      images: project.images.length > 0 ? project.images : (sync.images ?? []),
+    };
+  },
+);
 
 const FEATURED_IDS = ["rei-fm", "mistica", "frontai-landing", "soapy"] as const;
 

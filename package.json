@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "test": "node --import tsx --test src/lib/crm-rules.test.ts",
     "check:billing": "tsx scripts/check-billing-catalog.ts && tsx scripts/check-project-payment-email.ts",
     "check:meta-provider": "tsx scripts/check-meta-provider.ts",
     "check:meta-webhook-db": "tsx scripts/check-meta-webhook-db.ts",
@@ -14,7 +15,8 @@
     "check:waha-provider": "tsx scripts/check-waha-provider.ts",
     "check:waha-security": "tsx scripts/check-waha-security.ts",
     "check:waha-webhook-db": "tsx scripts/check-waha-webhook-db.ts",
-    "meta:diagnostics": "node scripts/meta-embedded-signup-diagnostics.mjs"
+    "meta:diagnostics": "node scripts/meta-embedded-signup-diagnostics.mjs",
+    "sync:projects": "tsx scripts/sync-projects.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",

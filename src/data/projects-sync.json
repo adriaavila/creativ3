@@ -1,0 +1,392 @@
+{
+  "syncedAt": "2026-08-01",
+  "projects": {
+    "shopea": {
+      "images": [
+        {
+          "src": "/projects/shopea/01-desktop.jpg",
+          "alt": "Shopea — Desktop",
+          "label": "Desktop"
+        },
+        {
+          "src": "/projects/shopea/02-desktop-scroll.jpg",
+          "alt": "Shopea — Scroll",
+          "label": "Scroll"
+        },
+        {
+          "src": "/projects/shopea/03-mobile.jpg",
+          "alt": "Shopea — Mobile",
+          "label": "Mobile"
+        }
+      ]
+    },
+    "rei-fm": {
+      "images": [
+        {
+          "src": "/projects/rei-fm/01-desktop.jpg",
+          "alt": "REI — Desktop",
+          "label": "Desktop"
+        },
+        {
+          "src": "/projects/rei-fm/02-desktop-scroll.jpg",
+          "alt": "REI — Scroll",
+          "label": "Scroll"
+        },
+        {
+          "src": "/projects/rei-fm/03-mobile.jpg",
+          "alt": "REI — Mobile",
+          "label": "Mobile"
+        }
+      ]
+    },
+    "frontai-landing": {
+      "images": [
+        {
+          "src": "/projects/frontai-landing/01-desktop.jpg",
+          "alt": "allok Desk — Desktop",
+          "label": "Desktop"
+        },
+        {
+          "src": "/projects/frontai-landing/02-desktop-scroll.jpg",
+          "alt": "allok Desk — Scroll",
+          "label": "Scroll"
+        },
+        {
+          "src": "/projects/frontai-landing/03-mobile.jpg",
+          "alt": "allok Desk — Mobile",
+          "label": "Mobile"
+        }
+      ]
+    },
+    "parley-mundial": {
+      "githubPushedAt": "2026-08-01T22:01:55Z",
+      "githubUpdatedLabel": "1 ago 2026",
+      "images": [
+        {
+          "src": "/projects/parley-mundial/01-desktop.jpg",
+          "alt": "Parlai Mundial — Desktop",
+          "label": "Desktop"
+        },
+        {
+          "src": "/projects/parley-mundial/02-desktop-scroll.jpg",
+          "alt": "Parlai Mundial — Scroll",
+          "label": "Scroll"
+        },
+        {
+          "src": "/projects/parley-mundial/03-mobile.jpg",
+          "alt": "Parlai Mundial — Mobile",
+          "label": "Mobile"
+        }
+      ]
+    },
+    "artistheway": {
+      "githubPushedAt": "2026-08-01T21:59:01Z",
+      "githubUpdatedLabel": "1 ago 2026",
+      "images": [
+        {
+          "src": "/projects/artistheway/01-desktop.jpg",
+          "alt": "Artistheway — Desktop",
+          "label": "Desktop"
+        },
+        {
+          "src": "/projects/artistheway/02-desktop-scroll.jpg",
+          "alt": "Artistheway — Scroll",
+          "label": "Scroll"
+        },
+        {
+          "src": "/projects/artistheway/03-mobile.jpg",
+          "alt": "Artistheway — Mobile",
+          "label": "Mobile"
+        }
+      ]
+    },
+    "pace-running": {
+      "images": [
+        {
+          "src": "/projects/pace-running/01-desktop.jpg",
+          "alt": "Pace Running — Desktop",
+          "label": "Desktop"
+        },
+        {
+          "src": "/projects/pace-running/02-desktop-scroll.jpg",
+          "alt": "Pace Running — Scroll",
+          "label": "Scroll"
+        },
+        {
+          "src": "/projects/pace-running/03-mobile.jpg",
+          "alt": "Pace Running — Mobile",
+          "label": "Mobile"
+        }
+      ]
+    },
+    "soapy": {
+      "images": [
+        {
+          "src": "/projects/soapy/01-desktop.jpg",
+          "alt": "Soapy — Desktop",
+          "label": "Desktop"
+        },
+        {
+          "src": "/projects/soapy/02-desktop-scroll.jpg",
+          "alt": "Soapy — Scroll",
+          "label": "Scroll"
+        },
+        {
+          "src": "/projects/soapy/03-mobile.jpg",
+          "alt": "Soapy — Mobile",
+          "label": "Mobile"
+        }
+      ]
+    },
+    "mistica": {
+      "githubPushedAt": "2026-08-01T21:59:49Z",
+      "githubUpdatedLabel": "1 ago 2026",
+      "images": [
+        {
+          "src": "/projects/mistica/01-desktop.jpg",
+          "alt": "Mística — Desktop",
+          "label": "Desktop"
+        },
+        {
+          "src": "/projects/mistica/02-desktop-scroll.jpg",
+          "alt": "Mística — Scroll",
+          "label": "Scroll"
+        },
+        {
+          "src": "/projects/mistica/03-mobile.jpg",
+          "alt": "Mística — Mobile",
+          "label": "Mobile"
+        }
+      ]
+    },
+    "taller-samer": {
+      "githubPushedAt": "2026-08-01T21:59:18Z",
+      "githubUpdatedLabel": "1 ago 2026",
+      "images": [
+        {
+          "src": "/projects/taller-samer/01-desktop.jpg",
+          "alt": "Taller Samer — Desktop",
+          "label": "Desktop"
+        },
+        {
+          "src": "/projects/taller-samer/02-desktop-scroll.jpg",
+          "alt": "Taller Samer — Scroll",
+          "label": "Scroll"
+        },
+        {
+          "src": "/projects/taller-samer/03-mobile.jpg",
+          "alt": "Taller Samer — Mobile",
+          "label": "Mobile"
+        }
+      ]
+    },
+    "almacen-vc": {
+      "githubPushedAt": "2026-08-01T21:59:20Z",
+      "githubUpdatedLabel": "1 ago 2026",
+      "images": [
+        {
+          "src": "/projects/almacen-vc/01-desktop.jpg",
+          "alt": "Almacén VC — Desktop",
+          "label": "Desktop"
+        },
+        {
+          "src": "/projects/almacen-vc/02-desktop-scroll.jpg",
+          "alt": "Almacén VC — Scroll",
+          "label": "Scroll"
+        },
+        {
+          "src": "/projects/almacen-vc/03-mobile.jpg",
+          "alt": "Almacén VC — Mobile",
+          "label": "Mobile"
+        }
+      ]
+    },
+    "wasap-creativ": {
+      "githubPushedAt": "2026-03-12T14:00:43Z",
+      "githubUpdatedLabel": "12 mar 2026"
+    },
+    "integra": {
+      "githubPushedAt": "2026-08-01T22:01:10Z",
+      "githubUpdatedLabel": "1 ago 2026",
+      "images": [
+        {
+          "src": "/projects/integra/01-desktop.jpg",
+          "alt": "Integra — Desktop",
+          "label": "Desktop"
+        },
+        {
+          "src": "/projects/integra/02-desktop-scroll.jpg",
+          "alt": "Integra — Scroll",
+          "label": "Scroll"
+        },
+        {
+          "src": "/projects/integra/03-mobile.jpg",
+          "alt": "Integra — Mobile",
+          "label": "Mobile"
+        }
+      ]
+    },
+    "vistacampo": {
+      "githubPushedAt": "2026-08-01T21:59:03Z",
+      "githubUpdatedLabel": "1 ago 2026",
+      "images": [
+        {
+          "src": "/projects/vistacampo/01-desktop.jpg",
+          "alt": "Vistacampo — Desktop",
+          "label": "Desktop"
+        },
+        {
+          "src": "/projects/vistacampo/02-desktop-scroll.jpg",
+          "alt": "Vistacampo — Scroll",
+          "label": "Scroll"
+        },
+        {
+          "src": "/projects/vistacampo/03-mobile.jpg",
+          "alt": "Vistacampo — Mobile",
+          "label": "Mobile"
+        }
+      ]
+    },
+    "avepane": {
+      "githubPushedAt": "2026-08-01T21:59:12Z",
+      "githubUpdatedLabel": "1 ago 2026",
+      "images": [
+        {
+          "src": "/projects/avepane/01-desktop.jpg",
+          "alt": "AVEPANE — Desktop",
+          "label": "Desktop"
+        },
+        {
+          "src": "/projects/avepane/02-desktop-scroll.jpg",
+          "alt": "AVEPANE — Scroll",
+          "label": "Scroll"
+        },
+        {
+          "src": "/projects/avepane/03-mobile.jpg",
+          "alt": "AVEPANE — Mobile",
+          "label": "Mobile"
+        }
+      ]
+    },
+    "samer": {
+      "images": [
+        {
+          "src": "/projects/samer/01-desktop.jpg",
+          "alt": "SAMER — Desktop",
+          "label": "Desktop"
+        },
+        {
+          "src": "/projects/samer/02-desktop-scroll.jpg",
+          "alt": "SAMER — Scroll",
+          "label": "Scroll"
+        },
+        {
+          "src": "/projects/samer/03-mobile.jpg",
+          "alt": "SAMER — Mobile",
+          "label": "Mobile"
+        }
+      ]
+    },
+    "viaja-ven": {
+      "githubPushedAt": "2026-08-01T22:01:12Z",
+      "githubUpdatedLabel": "1 ago 2026",
+      "images": [
+        {
+          "src": "/projects/viaja-ven/01-desktop.jpg",
+          "alt": "Viaja Ven — Desktop",
+          "label": "Desktop"
+        },
+        {
+          "src": "/projects/viaja-ven/02-desktop-scroll.jpg",
+          "alt": "Viaja Ven — Scroll",
+          "label": "Scroll"
+        },
+        {
+          "src": "/projects/viaja-ven/03-mobile.jpg",
+          "alt": "Viaja Ven — Mobile",
+          "label": "Mobile"
+        }
+      ]
+    },
+    "kawsay": {
+      "images": [
+        {
+          "src": "/projects/kawsay/01-desktop.jpg",
+          "alt": "Kawsay — Desktop",
+          "label": "Desktop"
+        },
+        {
+          "src": "/projects/kawsay/02-desktop-scroll.jpg",
+          "alt": "Kawsay — Scroll",
+          "label": "Scroll"
+        },
+        {
+          "src": "/projects/kawsay/03-mobile.jpg",
+          "alt": "Kawsay — Mobile",
+          "label": "Mobile"
+        }
+      ]
+    },
+    "dream-drop": {
+      "images": [
+        {
+          "src": "/projects/dream-drop/01-desktop.jpg",
+          "alt": "Dream Drop — Desktop",
+          "label": "Desktop"
+        },
+        {
+          "src": "/projects/dream-drop/02-desktop-scroll.jpg",
+          "alt": "Dream Drop — Scroll",
+          "label": "Scroll"
+        },
+        {
+          "src": "/projects/dream-drop/03-mobile.jpg",
+          "alt": "Dream Drop — Mobile",
+          "label": "Mobile"
+        }
+      ]
+    },
+    "ainetworking-canada": {
+      "images": [
+        {
+          "src": "/projects/ainetworking-canada/01-desktop.jpg",
+          "alt": "AiNetworking Canada — Desktop",
+          "label": "Desktop"
+        },
+        {
+          "src": "/projects/ainetworking-canada/02-desktop-scroll.jpg",
+          "alt": "AiNetworking Canada — Scroll",
+          "label": "Scroll"
+        },
+        {
+          "src": "/projects/ainetworking-canada/03-mobile.jpg",
+          "alt": "AiNetworking Canada — Mobile",
+          "label": "Mobile"
+        }
+      ]
+    },
+    "pausa": {
+      "images": [
+        {
+          "src": "/projects/pausa/01-desktop.jpg",
+          "alt": "Pausa — Desktop",
+          "label": "Desktop"
+        },
+        {
+          "src": "/projects/pausa/02-desktop-scroll.jpg",
+          "alt": "Pausa — Scroll",
+          "label": "Scroll"
+        },
+        {
+          "src": "/projects/pausa/03-mobile.jpg",
+          "alt": "Pausa — Mobile",
+          "label": "Mobile"
+        }
+      ]
+    },
+    "waha-fisio-agent": {
+      "githubPushedAt": "2026-08-01T22:02:04Z",
+      "githubUpdatedLabel": "1 ago 2026"
+    }
+  }
+}

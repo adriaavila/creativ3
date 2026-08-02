@@ -1,6 +1,9 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, ArrowUpRight, Check, Mail, MessageCircle, Plus } from "lucide-react";
+import { useState } from "react";
+import { ArrowRight, ArrowUpRight, Check, Mail, MessageCircle, Menu, Plus, X } from "lucide-react";
 import AllokLogo from "@/components/brand/AllokLogo";
 import Waveform from "@/components/brand/Waveform";
 import WorkImageCarousel from "@/components/home/WorkImageCarousel";
@@ -40,6 +43,7 @@ export default function AllokHome({
       ? "Hola allok, quiero mejorar cómo vende u opera mi negocio."
       : "Hi allok, I want to improve how my business sells or operates.",
   );
+  const [menuOpen, setMenuOpen] = useState(false);
 
   return (
     <div className="studio min-h-screen bg-white text-black antialiased selection:bg-[#c5f04a] selection:text-black">
@@ -87,8 +91,43 @@ export default function AllokHome({
               <MessageCircle className="h-4 w-4" aria-hidden />
               {common.talk}
             </a>
+            <button
+              type="button"
+              aria-label={menuOpen ? (locale === "es" ? "Cerrar menú" : "Close menu") : (locale === "es" ? "Abrir menú" : "Open menu")}
+              aria-expanded={menuOpen}
+              onClick={() => setMenuOpen((v) => !v)}
+              className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-neutral-200 text-black transition-colors hover:bg-[var(--studio-surface)] lg:hidden"
+            >
+              {menuOpen ? <X className="h-5 w-5" aria-hidden /> : <Menu className="h-5 w-5" aria-hidden />}
+            </button>
           </div>
         </nav>
+        {menuOpen ? (
+          <div className="border-t border-neutral-200 bg-white px-5 py-4 lg:hidden">
+            <div className="flex flex-col gap-1">
+              {home.nav.map((label, index) => (
+                <a
+                  key={anchors[index]}
+                  href={`#${anchors[index]}`}
+                  onClick={() => setMenuOpen(false)}
+                  className="rounded-xl px-3.5 py-2.5 text-sm font-medium text-neutral-700 transition-colors duration-200 hover:bg-[var(--studio-surface)] hover:text-black"
+                >
+                  {label}
+                </a>
+              ))}
+            </div>
+            <a
+              href={contactUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => setMenuOpen(false)}
+              className="mt-3 inline-flex items-center gap-2 rounded-full bg-black px-5 py-2.5 text-sm font-semibold text-white transition duration-200 hover:bg-neutral-800"
+            >
+              <MessageCircle className="h-4 w-4" aria-hidden />
+              {common.talk}
+            </a>
+          </div>
+        ) : null}
       </header>
 
       <main>

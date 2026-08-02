@@ -249,6 +249,15 @@ export default function AllokHome({
               </article>
             ))}
           </div>
+          <div className="mt-8 flex justify-end">
+            <Link
+              href="/projects"
+              className="inline-flex items-center gap-2 rounded-full border border-black/15 px-5 py-2.5 text-sm font-semibold text-black transition-colors duration-200 hover:border-black hover:bg-white"
+            >
+              {locale === "es" ? "Ver todos los proyectos" : "See all projects"}
+              <ArrowUpRight className="h-4 w-4" aria-hidden />
+            </Link>
+          </div>
         </Section>
 
         <Section id="proceso" label={home.processLabel} title={home.processTitle}>

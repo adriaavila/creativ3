@@ -2,8 +2,8 @@
 
 import Image from "next/image";
 import { ChevronLeft, ChevronRight, Workflow } from "lucide-react";
-import { useState } from "react";
 import type { ProjectImage } from "@/lib/projects";
+import { useDragSwipe } from "@/components/projects/useDragSwipe";
 
 type ProjectImageCarouselProps = {
   images: ProjectImage[];
@@ -18,35 +18,10 @@ export default function ProjectImageCarousel({
   stack,
   tone = "dark",
 }: ProjectImageCarouselProps) {
-  const [active, setActive] = useState(0);
-  const [touchStart, setTouchStart] = useState<number | null>(null);
-  const [touchEnd, setTouchEnd] = useState<number | null>(null);
+  const { active, setActive, previous, next, dragging, enabled, dragProps, trackStyle } =
+    useDragSwipe({ count: images.length });
   const isDark = tone === "dark";
   const current = images[active];
-
-  const minSwipeDistance = 40;
-
-  const handleTouchStart = (e: React.TouchEvent) => {
-    setTouchEnd(null);
-    setTouchStart(e.targetTouches[0].clientX);
-  };
-
-  const handleTouchMove = (e: React.TouchEvent) => {
-    setTouchEnd(e.targetTouches[0].clientX);
-  };
-
-  const handleTouchEnd = () => {
-    if (touchStart === null || touchEnd === null) return;
-    const distance = touchStart - touchEnd;
-    const isLeftSwipe = distance > minSwipeDistance;
-    const isRightSwipe = distance < -minSwipeDistance;
-
-    if (isLeftSwipe) {
-      next();
-    } else if (isRightSwipe) {
-      previous();
-    }
-  };
 
   if (!current) {
     return (
@@ -121,47 +96,29 @@ export default function ProjectImageCarousel({
     );
   }
 
-  const previous = () => {
-    setActive((value) => (value === 0 ? images.length - 1 : value - 1));
-  };
-
-  const next = () => {
-    setActive((value) => (value === images.length - 1 ? 0 : value + 1));
-  };
-
-  // Proyectos internos o sin URL publica no tienen capturas: marco vacio, no crash.
-  if (!current) {
-    return (
-      <div
-        className={`flex aspect-[16/10] w-full items-center justify-center rounded-xl border font-mono text-[10px] uppercase tracking-[0.16em] ${
-          isDark
-            ? "border-white/10 bg-white/[0.04] text-white/40"
-            : "border-[#ebebeb] bg-[#f5f5f5] text-black/40"
-        }`}
-      >
-        {projectName}
-      </div>
-    );
-  }
-
   return (
     <div
-      onTouchStart={handleTouchStart}
-      onTouchMove={handleTouchMove}
-      onTouchEnd={handleTouchEnd}
+      {...dragProps}
       className={`relative aspect-[16/10] w-full select-none overflow-hidden rounded-xl border ${
+        enabled ? (dragging ? "cursor-grabbing" : "cursor-grab") : ""
+      } ${
         isDark
           ? "border-white/10 bg-white/[0.04]"
           : "border-[#ebebeb] bg-[#f5f5f5]"
       }`}
     >
-      <Image
-        src={current.src}
-        alt={current.alt}
-        fill
-        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-        className="object-cover object-top transition-transform duration-500 ease-out group-hover:scale-[1.02]"
-      />
+      {/* Capa de arrastre separada de la imagen: así el translateX del gesto
+          no pisa el transform del scale-on-hover de <Image>. */}
+      <div className="absolute inset-0" style={trackStyle}>
+        <Image
+          src={current.src}
+          alt={current.alt}
+          fill
+          draggable={false}
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+          className="object-cover object-top transition-transform duration-500 ease-out group-hover:scale-[1.02]"
+        />
+      </div>
       <div
         className={`absolute inset-x-0 bottom-0 h-28 ${
           isDark

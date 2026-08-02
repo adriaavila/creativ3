@@ -3,14 +3,28 @@ import Link from "next/link";
 import { ArrowRight, ArrowUpRight, Check, Mail, MessageCircle, Plus } from "lucide-react";
 import AllokLogo from "@/components/brand/AllokLogo";
 import Waveform from "@/components/brand/Waveform";
+import WorkImageCarousel from "@/components/home/WorkImageCarousel";
 import type { Locale, Messages } from "@/lib/i18n";
 import { CONTACT_EMAIL, whatsappUrl } from "@/lib/contact";
 
 const anchors = ["soluciones", "trabajo", "proceso", "precios", "preguntas"] as const;
+/** Un set de capturas por card de "Trabajo", en el mismo orden que `home.work`. */
 const workImages = [
-  "/projects/rei-fm/01-desktop.jpg",
-  "/projects/shopea/01-desktop.jpg",
-  "/projects/frontai-landing/01-desktop.jpg",
+  [
+    "/projects/rei-fm/01-desktop.jpg",
+    "/projects/rei-fm/02-desktop-scroll.jpg",
+    "/projects/rei-fm/03-mobile.jpg",
+  ],
+  [
+    "/projects/shopea/01-desktop.jpg",
+    "/projects/shopea/02-desktop-scroll.jpg",
+    "/projects/shopea/03-mobile.jpg",
+  ],
+  [
+    "/projects/frontai-landing/01-desktop.jpg",
+    "/projects/frontai-landing/02-desktop-scroll.jpg",
+    "/projects/frontai-landing/03-mobile.jpg",
+  ],
 ] as const;
 
 export default function AllokHome({
@@ -222,15 +236,11 @@ export default function AllokHome({
                   index === 0 ? "md:col-span-7" : index === 1 ? "md:col-span-5" : "md:col-span-12 md:grid md:grid-cols-2"
                 }`}
               >
-                <div className={`relative overflow-hidden ${index === 2 ? "aspect-[16/10] md:aspect-auto md:min-h-72" : "aspect-[16/10]"}`}>
-                  <Image
-                    src={workImages[index]}
-                    alt={`${name} — ${kind}`}
-                    fill
-                    sizes="(max-width: 768px) 100vw, 380px"
-                    className="object-cover object-top transition-transform duration-300 group-hover:scale-[1.025]"
-                  />
-                </div>
+                <WorkImageCarousel
+                  images={workImages[index]}
+                  alt={`${name} — ${kind}`}
+                  className={index === 2 ? "aspect-[16/10] md:aspect-auto md:min-h-72" : "aspect-[16/10]"}
+                />
                 <div className={`p-6 ${index === 2 ? "md:flex md:flex-col md:justify-end md:p-10" : ""}`}>
                   <span className="text-xs font-semibold uppercase tracking-wider text-neutral-500">{kind}</span>
                   <h2 className="mt-2 text-xl font-semibold">{name}</h2>

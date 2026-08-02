@@ -142,15 +142,15 @@ const RAW_PORTFOLIO_PROJECTS: PortfolioProject[] = [
   },
   {
     id: "frontai-landing",
-    name: "allok Desk",
+    name: "Frontia",
     kind: "Conversaciones que se convierten en acciones.",
     categories: ["web", "automation"],
     description:
       "Un agente de voz con IA que atiende, entiende, califica y organiza cada interacción.",
     result:
-      "allok Desk conecta una llamada con el siguiente paso del proceso comercial.",
+      "Frontia conecta una llamada con el siguiente paso del proceso comercial.",
     businessGoal: "both",
-    businessOutcome: "allok Desk conecta una llamada con el siguiente paso del proceso comercial.",
+    businessOutcome: "Frontia conecta una llamada con el siguiente paso del proceso comercial.",
     agentRole: "Agente de front desk",
     status: "demo",
     stack: ["Next.js", "AI UX", "Vercel", "Motion"],
@@ -161,17 +161,17 @@ const RAW_PORTFOLIO_PROJECTS: PortfolioProject[] = [
     images: [
       {
         src: "/projects/frontai-landing/01-desktop.jpg",
-        alt: "Hero de allok Desk con interfaz de agente AI",
+        alt: "Hero de Frontia con interfaz de agente AI",
         label: "Hero",
       },
       {
         src: "/projects/frontai-landing/02-desktop-scroll.jpg",
-        alt: "Seccion de problema y solucion en allok Desk",
+        alt: "Seccion de problema y solucion en Frontia",
         label: "Story",
       },
       {
         src: "/projects/frontai-landing/03-mobile.jpg",
-        alt: "Version movil de allok Desk",
+        alt: "Version movil de Frontia",
         label: "Mobile",
       },
     ],
@@ -726,13 +726,13 @@ const RAW_PORTFOLIO_PROJECTS: PortfolioProject[] = [
   },
   {
     id: "frontdesk-ai",
-    name: "FrontDesk IA",
+    name: "Frontia CRM",
     kind: "No falta tráfico: falta quien recupere al que no cerró.",
     categories: ["automation"],
     description:
       "Agente que atiende llamadas, califica leads, mantiene un pipeline de ventas y hace seguimiento automático.",
     result:
-      "FrontDesk IA ataca la parte cara del embudo: el lead pagado que se pierde después del primer contacto.",
+      "Frontia CRM ataca la parte cara del embudo: el lead pagado que se pierde después del primer contacto.",
     businessGoal: "both",
     businessOutcome:
       "Seguimiento automático sobre leads ya pagados, que es el dinero que el negocio ya gastó y no cobró.",

@@ -132,7 +132,31 @@ export default function ProjectImageCarousel({
 
       {images.length > 1 && (
         <>
-          <div className="absolute bottom-3 left-3 flex gap-1.5 z-10">
+          <button
+            type="button"
+            aria-label={`Imagen anterior de ${projectName}`}
+            onPointerDown={(e) => e.stopPropagation()}
+            onClick={(e) => {
+              e.stopPropagation();
+              previous();
+            }}
+            className="absolute left-2.5 top-1/2 z-10 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-black/40 text-white backdrop-blur-md transition-all hover:bg-black/70 active:scale-95"
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </button>
+          <button
+            type="button"
+            aria-label={`Siguiente imagen de ${projectName}`}
+            onPointerDown={(e) => e.stopPropagation()}
+            onClick={(e) => {
+              e.stopPropagation();
+              next();
+            }}
+            className="absolute right-2.5 top-1/2 z-10 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-black/40 text-white backdrop-blur-md transition-all hover:bg-black/70 active:scale-95"
+          >
+            <ChevronRight className="h-4 w-4" />
+          </button>
+          <div className="absolute bottom-3 left-1/2 z-10 flex -translate-x-1/2 gap-1.5 rounded-full bg-black/35 px-2 py-1.5 backdrop-blur-md">
             {images.map((image, index) => (
               <button
                 key={image.src}
@@ -145,36 +169,10 @@ export default function ProjectImageCarousel({
                   setActive(index);
                 }}
                 className={`h-1.5 rounded-full transition-all ${
-                  active === index ? "w-7 bg-white" : "w-2 bg-white/50"
+                  active === index ? "w-6 bg-white" : "w-1.5 bg-white/55"
                 }`}
               />
             ))}
-          </div>
-          <div className="absolute bottom-3 right-3 flex gap-1.5 z-10">
-            <button
-              type="button"
-              aria-label={`Imagen anterior de ${projectName}`}
-              onPointerDown={(e) => e.stopPropagation()}
-              onClick={(e) => {
-                e.stopPropagation();
-                previous();
-              }}
-              className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/20 bg-black/50 text-white backdrop-blur-md transition-all hover:bg-black/80 active:scale-95"
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </button>
-            <button
-              type="button"
-              aria-label={`Siguiente imagen de ${projectName}`}
-              onPointerDown={(e) => e.stopPropagation()}
-              onClick={(e) => {
-                e.stopPropagation();
-                next();
-              }}
-              className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/20 bg-black/50 text-white backdrop-blur-md transition-all hover:bg-black/80 active:scale-95"
-            >
-              <ChevronRight className="h-4 w-4" />
-            </button>
           </div>
         </>
       )}

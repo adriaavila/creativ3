@@ -48,7 +48,7 @@ export const PROJECT_CATEGORIES: {
   {
     id: "all",
     label: "Todos",
-    description: "Los últimos proyectos sincronizados desde GitHub.",
+    description: "Los últimos trabajos sincronizados desde GitHub.",
   },
   {
     id: "web",

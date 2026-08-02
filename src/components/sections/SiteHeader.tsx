@@ -8,11 +8,10 @@ import { MessageCircle } from "lucide-react";
 import { whatsappUrl } from "@/lib/contact";
 
 const NAV = [
-  { label: "Proyectos", href: "/#proyectos" },
-  { label: "Servicios", href: "/#servicios" },
+  { label: "Servicios", href: "/#soluciones" },
+  { label: "Trabajos", href: "/projects" },
   { label: "WhatsApp IA", href: "/whatsapp" },
-  { label: "Planes", href: "/#oferta" },
-  { label: "Archivo", href: "/projects" },
+  { label: "Planes", href: "/#precios" },
 ];
 
 // App dashboards and internal flows hide marketing header
@@ -44,6 +43,7 @@ export default function SiteHeader() {
   }, []);
 
   if (pathname === "/" || /^\/(es|en)(\/|$)/.test(pathname ?? "")) return null;
+  if (pathname?.startsWith("/ops/")) return null;
   if (pathname && HIDE_ON.some((p) => p !== "/" && pathname === p)) return null;
 
   return (

@@ -32,11 +32,10 @@ const CTA_LINKS = [
 ];
 
 const FOOTER_LINKS = [
-  { label: "Proyectos", href: "/#proyectos" },
-  { label: "Servicios", href: "/#servicios" },
-  { label: "Planes y Precios", href: "/#oferta" },
+  { label: "Servicios", href: "/#soluciones" },
+  { label: "Trabajos", href: "/projects" },
+  { label: "Planes y Precios", href: "/#precios" },
   { label: "WhatsApp IA", href: "/whatsapp" },
-  { label: "Archivo completo", href: "/projects" },
   { label: "Cotizar", href: "/cotizar" },
   { label: "Términos", href: "/terminos" },
   { label: "Privacidad", href: "/privacidad" },

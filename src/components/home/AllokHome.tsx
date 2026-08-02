@@ -254,7 +254,7 @@ export default function AllokHome({
               href="/projects"
               className="inline-flex items-center gap-2 rounded-full border border-black/15 px-5 py-2.5 text-sm font-semibold text-black transition-colors duration-200 hover:border-black hover:bg-white"
             >
-              {locale === "es" ? "Ver todos los proyectos" : "See all projects"}
+              {locale === "es" ? "Ver todos los trabajos" : "See all work"}
               <ArrowUpRight className="h-4 w-4" aria-hidden />
             </Link>
           </div>

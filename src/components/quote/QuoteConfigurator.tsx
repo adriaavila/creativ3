@@ -78,16 +78,16 @@ export default function QuoteConfigurator() {
               setValues(preset.values);
               track("savings_preset_selected", { preset: preset.label });
             }}
-            className="group rounded-full border border-white/10 bg-white/[0.04] px-4 py-2.5 text-left transition-all hover:-translate-y-0.5 hover:border-[#c5f04a]/30 hover:bg-white/[0.08]"
+            className="group rounded-full border border-black/10 bg-white px-4 py-2.5 text-left transition-all hover:-translate-y-0.5 hover:border-black/25 hover:bg-[var(--studio-surface)]"
           >
-            <span className="block text-xs font-semibold text-white">{preset.label}</span>
-            <span className="hidden text-[10px] text-white/50 sm:block">{preset.description}</span>
+            <span className="block text-xs font-semibold text-black">{preset.label}</span>
+            <span className="hidden text-[10px] text-neutral-500 sm:block">{preset.description}</span>
           </button>
         ))}
         <button
           type="button"
           onClick={() => setValues(DEFAULTS)}
-          className="ml-auto inline-flex size-11 items-center justify-center rounded-full border border-white/10 bg-white/[0.04] text-white/70 transition-colors hover:bg-white/10 hover:text-white"
+          className="ml-auto inline-flex size-11 items-center justify-center rounded-full border border-black/10 bg-white text-neutral-600 transition-colors hover:bg-[var(--studio-surface)] hover:text-black"
           aria-label="Restablecer calculadora"
         >
           <RotateCcw className="size-4" />
@@ -95,13 +95,13 @@ export default function QuoteConfigurator() {
       </div>
 
       <div className="grid gap-5 lg:grid-cols-[1.08fr_0.92fr] lg:items-start">
-        <section className="rounded-[1.75rem] border border-white/10 bg-white/[0.04] p-5 text-white shadow-2xl shadow-black/40 sm:p-8">
-          <div className="mb-8 flex items-start justify-between gap-5 border-b border-white/10 pb-6">
+        <section className="rounded-[1.75rem] border border-black/10 bg-[var(--studio-surface)] p-5 text-black sm:p-8">
+          <div className="mb-8 flex items-start justify-between gap-5 border-b border-black/10 pb-6">
             <div>
-              <div className="font-mono text-[9px] uppercase tracking-[0.18em] text-[#c5f04a]">Tus números</div>
-              <h2 className="mt-2 font-display text-3xl leading-none text-white sm:text-4xl">¿Cuánto cuesta repetirlo?</h2>
+              <div className="font-mono text-[9px] uppercase tracking-[0.18em] text-neutral-500">Tus números</div>
+              <h2 className="mt-2 text-3xl leading-none text-black sm:text-4xl">¿Cuánto cuesta repetirlo?</h2>
             </div>
-            <span className="hidden rounded-full border border-[#c5f04a]/30 bg-[#0a0a0a]/30 px-3 py-1.5 font-mono text-xs font-semibold text-[#c5f04a] sm:block">
+            <span className="hidden rounded-full border border-black/15 bg-white px-3 py-1.5 font-mono text-xs font-semibold text-neutral-700 sm:block">
               Resultado en vivo
             </span>
           </div>
@@ -212,23 +212,23 @@ export default function QuoteConfigurator() {
       <section className="mt-16">
         <div className="mb-7 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
           <div>
-            <div className="font-mono text-[9px] uppercase tracking-[0.18em] text-[#c5f04a]">Formas de empezar</div>
-            <h2 className="mt-3 font-display text-4xl leading-none text-white sm:text-5xl">Del cálculo a un sistema real.</h2>
+            <div className="font-mono text-[9px] uppercase tracking-[0.18em] text-neutral-500">Formas de empezar</div>
+            <h2 className="mt-3 text-4xl leading-none text-black sm:text-5xl">Del cálculo a un sistema real.</h2>
           </div>
-          <p className="max-w-lg text-sm leading-6 text-white/70">
+          <p className="max-w-lg text-sm leading-6 text-neutral-600">
             El precio final depende del proceso. Estos rangos mantienen una entrada clara y verificable.
           </p>
         </div>
         <div className="grid gap-3 md:grid-cols-3">
           {OFFERS.map(([name, price, delivery, result]) => (
-            <article key={name} className="rounded-[1.3rem] border border-white/10 bg-white/[0.04] p-6 text-white">
-              <div className="flex items-center justify-between gap-3 font-mono text-[9px] uppercase tracking-[0.15em] text-white/50">
+            <article key={name} className="rounded-[1.3rem] border border-black/10 bg-[var(--studio-surface)] p-6 text-black">
+              <div className="flex items-center justify-between gap-3 font-mono text-[9px] uppercase tracking-[0.15em] text-neutral-500">
                 <span>{delivery}</span>
-                <Check className="size-3.5 text-[#c5f04a]" />
+                <Check className="size-3.5 text-[#587615]" />
               </div>
-              <h3 className="mt-6 font-display text-3xl leading-none text-white">{name}</h3>
-              <div className="mt-3 text-sm font-semibold text-[#c5f04a]">{price}</div>
-              <p className="mt-5 text-sm leading-6 text-white/60">{result}</p>
+              <h3 className="mt-6 text-3xl leading-none text-black">{name}</h3>
+              <div className="mt-3 text-sm font-semibold text-[#587615]">{price}</div>
+              <p className="mt-5 text-sm leading-6 text-neutral-600">{result}</p>
             </article>
           ))}
         </div>
@@ -267,11 +267,11 @@ function CalculatorField({
     <div>
       <div className="flex items-start justify-between gap-5">
         <label htmlFor={`${id}-number`}>
-          <span className="block text-sm font-semibold text-white">{label}</span>
-          <span className="mt-1 block text-xs leading-5 text-white/60">{hint}</span>
+          <span className="block text-sm font-semibold text-black">{label}</span>
+          <span className="mt-1 block text-xs leading-5 text-neutral-500">{hint}</span>
         </label>
-        <div className="flex shrink-0 items-center rounded-xl border border-white/10 bg-black/40 px-3 focus-within:border-[#c5f04a]/50">
-          {prefix && <span className="text-sm font-semibold text-[#c5f04a]">{prefix}</span>}
+        <div className="flex shrink-0 items-center rounded-xl border border-black/10 bg-white px-3 focus-within:border-black/30">
+          {prefix && <span className="text-sm font-semibold text-neutral-700">{prefix}</span>}
           <input
             id={`${id}-number`}
             type="number"
@@ -281,9 +281,9 @@ function CalculatorField({
             step={step}
             value={value}
             onChange={(event) => onChange(normalize(Number(event.target.value)))}
-            className="w-14 bg-transparent py-2 text-right text-lg font-semibold tabular-nums text-white outline-none"
+            className="w-14 bg-transparent py-2 text-right text-lg font-semibold tabular-nums text-black outline-none"
           />
-          <span className="ml-1 text-[10px] font-semibold text-white/50">{suffix}</span>
+          <span className="ml-1 text-[10px] font-semibold text-neutral-500">{suffix}</span>
         </div>
       </div>
       <input
@@ -295,10 +295,10 @@ function CalculatorField({
         onChange={(event) => onChange(Number(event.target.value))}
         aria-label={`Ajustar ${label.toLowerCase()}`}
         aria-valuetext={`${value} ${suffix}`}
-        className="savings-range mt-4 w-full accent-[#c5f04a]"
+        className="savings-range mt-4 w-full accent-black"
         style={{ "--range-progress": `${progress}%` } as React.CSSProperties}
       />
-      <div className="mt-1.5 flex justify-between font-mono text-[8px] uppercase tracking-[0.12em] text-white/40">
+      <div className="mt-1.5 flex justify-between font-mono text-[8px] uppercase tracking-[0.12em] text-neutral-400">
         <span>{min}</span>
         <span>{max}</span>
       </div>

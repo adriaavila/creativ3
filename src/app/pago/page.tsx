@@ -33,7 +33,7 @@ export default function ProjectPaymentPage() {
   };
 
   return (
-    <main className="min-h-screen bg-[#f5f5f4] px-5 py-6 text-[#0a0a0a] sm:px-8 sm:py-10">
+    <main className="studio min-h-screen bg-[#f5f5f4] px-5 py-6 text-[#0a0a0a] sm:px-8 sm:py-10">
       <div className="mx-auto flex min-h-[calc(100vh-3rem)] max-w-5xl flex-col border border-black/10 bg-white shadow-[0_24px_70px_rgba(0,0,0,0.08)] sm:min-h-[calc(100vh-5rem)]">
         <header className="flex items-center justify-between border-b border-black/10 px-6 py-5 sm:px-10">
           <AllokLogo variant="lockup-bare" theme="light" className="h-8 w-auto" />

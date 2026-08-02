@@ -19,7 +19,7 @@ export default function LegalPage({
     type === "privacy" ? messages.legal.privacy : messages.legal.terms;
 
   return (
-    <main className="min-h-screen bg-white text-black">
+    <main className="studio min-h-screen bg-white text-black">
       <nav className="mx-auto flex h-20 max-w-4xl items-center justify-between px-5 sm:px-8">
         <Link href={`/${locale}`} aria-label="allok">
           <AllokLogo variant="lockup-bare" className="h-8 w-auto" />

@@ -39,7 +39,7 @@ export default async function DeskPage({ params }: PageProps<"/[locale]/desk">) 
   );
 
   return (
-    <main className="min-h-screen bg-[#f3f3f3] text-[#111214]">
+    <main className="studio min-h-screen bg-[#f3f3f3] text-[#111214]">
       <nav className="mx-auto flex h-20 max-w-6xl items-center justify-between px-5 sm:px-8">
         <Link href={`/${locale}`} className="text-black" aria-label="allok">
           <AllokLogo variant="lockup-bare" className="h-8 w-auto" />

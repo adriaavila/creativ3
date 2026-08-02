@@ -44,7 +44,7 @@ export default function ProyectoPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#ffffff] text-[#0a0a0a] selection:bg-[#a1a1a3]/30 selection:text-[#0a0a0a] flex flex-col relative overflow-hidden">
+    <div className="studio min-h-screen bg-[#ffffff] text-[#0a0a0a] selection:bg-[#a1a1a3]/30 selection:text-[#0a0a0a] flex flex-col relative overflow-hidden">
       <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[url('/noise.png')]" />
       
       <main className="flex-1 flex flex-col items-center justify-center pt-32 pb-24 px-6 relative z-10 min-h-[80vh]">

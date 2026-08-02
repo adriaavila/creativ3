@@ -48,6 +48,7 @@ export default function WorkImageCarousel({
           <button
             type="button"
             aria-label={`Imagen anterior de ${alt}`}
+            onPointerDown={(e) => e.stopPropagation()}
             onClick={(e) => {
               e.stopPropagation();
               previous();
@@ -59,6 +60,7 @@ export default function WorkImageCarousel({
           <button
             type="button"
             aria-label={`Siguiente imagen de ${alt}`}
+            onPointerDown={(e) => e.stopPropagation()}
             onClick={(e) => {
               e.stopPropagation();
               next();
@@ -74,6 +76,7 @@ export default function WorkImageCarousel({
                 type="button"
                 aria-label={`Ver imagen ${index + 1} de ${alt}`}
                 aria-pressed={active === index}
+                onPointerDown={(e) => e.stopPropagation()}
                 onClick={(e) => {
                   e.stopPropagation();
                   setActive(index);

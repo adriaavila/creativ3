@@ -139,6 +139,7 @@ export default function ProjectImageCarousel({
                 type="button"
                 aria-label={`Ver imagen ${index + 1} de ${projectName}`}
                 aria-pressed={active === index}
+                onPointerDown={(e) => e.stopPropagation()}
                 onClick={(e) => {
                   e.stopPropagation();
                   setActive(index);
@@ -153,6 +154,7 @@ export default function ProjectImageCarousel({
             <button
               type="button"
               aria-label={`Imagen anterior de ${projectName}`}
+              onPointerDown={(e) => e.stopPropagation()}
               onClick={(e) => {
                 e.stopPropagation();
                 previous();
@@ -164,6 +166,7 @@ export default function ProjectImageCarousel({
             <button
               type="button"
               aria-label={`Siguiente imagen de ${projectName}`}
+              onPointerDown={(e) => e.stopPropagation()}
               onClick={(e) => {
                 e.stopPropagation();
                 next();

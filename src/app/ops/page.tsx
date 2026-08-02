@@ -10,7 +10,9 @@ import {
   listWhatsAppConnections,
   type WhatsAppConnectionView,
 } from "@/lib/whatsapp-connections-db";
-import { getNextStepSummary, type NextStepSummary } from "@/lib/whatsapp-inbox-db";
+import { getNextStepSummary, listWahaConnections, type NextStepSummary } from "@/lib/whatsapp-inbox-db";
+import type { CrmChannel } from "@/lib/crm-types";
+import { buildCrmChannels } from "@/lib/crm-channels";
 
 export const dynamic = "force-dynamic";
 
@@ -48,6 +50,7 @@ export default async function OpsPage() {
   let whatsappConnectionsError: string | null = null;
   let growthLeads: GrowthLead[] = [];
   let growthPrompts: GrowthPromptInfo[] = [];
+  let crmChannels: CrmChannel[] = [];
   // Migration 008 may not have run yet on a given environment — a missing column
   // must not take the whole dashboard down, so this one resolves separately.
   const nextStep: NextStepSummary = await getNextStepSummary().catch(() => ({
@@ -58,11 +61,12 @@ export default async function OpsPage() {
 
   try {
     const sql = neon(process.env.DATABASE_URL!);
-    const [leads, drafts, runs, connections, researchedLeads, prompts] = await Promise.all([
+    const [leads, drafts, runs, connections, wahaConnections, researchedLeads, prompts] = await Promise.all([
       sql`SELECT count(*)::int as count FROM leads`,
       sql`SELECT count(*)::int as count FROM outreach_drafts WHERE status = 'pending'`,
       sql`SELECT count(*)::int as count FROM growth_runs`,
       listWhatsAppConnections(),
+      listWahaConnections(),
       getGrowthLeads(100),
       getGrowthPromptRegistry(),
     ]);
@@ -73,6 +77,7 @@ export default async function OpsPage() {
     whatsappConnections = connections;
     growthLeads = researchedLeads;
     growthPrompts = prompts;
+    crmChannels = buildCrmChannels(connections, wahaConnections);
   } catch (error) {
     console.error("Could not fetch database stats for ops page", error);
     whatsappConnectionsError = "No se pudo cargar el inventario de WhatsApp.";
@@ -90,6 +95,7 @@ export default async function OpsPage() {
       initialWhatsAppConnectionsError={whatsappConnectionsError}
       initialGrowthLeads={growthLeads}
       growthPrompts={growthPrompts}
+      crmChannels={crmChannels}
     />
   );
 }

@@ -284,12 +284,13 @@ export async function createGrowthOutreachAttempt(input: {
   recipient: string;
   content: string;
   sentBy: string;
+  channelKind?: "cloud_api" | "waha";
 }) {
   const sql = getSql();
   if (!sql) throw new Error("DATABASE_URL is not configured");
   const [row] = await sql`
-    INSERT INTO growth_outreach_messages (lead_id, recipient, content, sent_by)
-    VALUES (${input.leadId}, ${input.recipient}, ${input.content}, ${input.sentBy})
+    INSERT INTO growth_outreach_messages (lead_id, recipient, content, sent_by, channel_kind)
+    VALUES (${input.leadId}, ${input.recipient}, ${input.content}, ${input.sentBy}, ${input.channelKind ?? null})
     RETURNING id
   `;
   return String(row.id);
@@ -297,7 +298,13 @@ export async function createGrowthOutreachAttempt(input: {
 
 export async function completeGrowthOutreachAttempt(
   id: string,
-  input: { status: "sent" | "failed"; providerMessageId?: string; error?: string },
+  input: {
+    status: "sent" | "failed";
+    providerMessageId?: string;
+    conversationId?: number;
+    channelKind?: "cloud_api" | "waha";
+    error?: string;
+  },
 ) {
   const sql = getSql();
   if (!sql) throw new Error("DATABASE_URL is not configured");
@@ -305,6 +312,8 @@ export async function completeGrowthOutreachAttempt(
     UPDATE growth_outreach_messages
     SET status = ${input.status},
         provider_message_id = ${input.providerMessageId ?? null},
+        conversation_id = COALESCE(${input.conversationId ?? null}, conversation_id),
+        channel_kind = COALESCE(${input.channelKind ?? null}, channel_kind),
         error = ${input.error?.slice(0, 800) ?? null},
         sent_at = CASE WHEN ${input.status} = 'sent' THEN now() ELSE sent_at END
     WHERE id = ${id}

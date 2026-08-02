@@ -8,6 +8,7 @@ import {
   type WhatsAppSendTextInput,
 } from "@/lib/whatsapp-provider";
 import { getWahaSnapshot } from "@/lib/waha";
+import { normalizeWhatsAppPhone } from "@/lib/phone";
 import {
   markWahaRead,
   sendWahaMedia,
@@ -81,6 +82,7 @@ export class WahaWhatsAppProvider implements WhatsAppProvider {
 
     if (event.event === "message" && text(payload.id)) {
       const fromMe = payload.fromMe === true;
+      const name = fromMe ? undefined : contactName(payload);
       return [{
         provider: "WAHA",
         sessionId,
@@ -94,6 +96,7 @@ export class WahaWhatsAppProvider implements WhatsAppProvider {
           source: fromMe ? "phone" : "waha",
           type: text(payload.type) ?? "text",
           text: text(payload.body),
+          ...(name ? { contactName: name } : {}),
         },
       }];
     }
@@ -139,5 +142,15 @@ function text(value: unknown): string | undefined {
 }
 
 function chatId(value: unknown): string | undefined {
-  return text(value)?.replace(/@c\.us$|@s\.whatsapp\.net$/, "");
+  const raw = text(value);
+  if (!raw) return undefined;
+  return normalizeWhatsAppPhone(raw) ?? raw.replace(/@c\.us$|@s\.whatsapp\.net$/, "");
+}
+
+function contactName(payload: Record<string, unknown>): string | undefined {
+  const data = record(payload._data);
+  return text(payload.notifyName)
+    ?? text(payload.pushName)
+    ?? text(data.notifyName)
+    ?? text(data.pushName);
 }

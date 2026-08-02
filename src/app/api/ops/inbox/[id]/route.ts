@@ -4,6 +4,7 @@ import {
   getConversationById,
   listMessages,
   setConversationAssignedMode,
+  setConversationLeadId,
   setConversationOutcome,
 } from "@/lib/whatsapp-inbox-db";
 
@@ -30,6 +31,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
 const patchSchema = z.object({
   assignedMode: z.enum(["human", "ai"]).optional(),
   outcome: z.enum(["cita", "cotizacion", "descarte"]).nullable().optional(),
+  leadId: z.string().uuid().nullable().optional(),
 });
 
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -44,5 +46,6 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   const input = patchSchema.parse(await request.json());
   if (input.assignedMode) await setConversationAssignedMode(conversationId, input.assignedMode);
   if (input.outcome !== undefined) await setConversationOutcome(conversationId, input.outcome);
+  if (input.leadId !== undefined) await setConversationLeadId(conversationId, input.leadId);
   return Response.json({ ok: true });
 }

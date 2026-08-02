@@ -1,17 +1,34 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Bot, CheckCircle2, ExternalLink, LoaderCircle, MessageCircle, Search } from "lucide-react";
 import type { GrowthPromptInfo } from "@/lib/growth-prompts";
 import type { GrowthLead } from "@/lib/growth-types";
+import type { CrmChannel } from "@/lib/crm-types";
+import { crmChannelStatusLabel, isCrmChannelActive } from "@/lib/crm-channels";
 import { TapButton } from "@/components/ops/apple";
+
+type ApprovedTemplate = {
+  name: string;
+  language: string;
+  bodyText: string;
+  variableCount: number;
+};
+
+function defaultChannel(channels: CrmChannel[]) {
+  return channels.find((channel) => channel.official && isCrmChannelActive(channel))?.id
+    ?? channels.find(isCrmChannelActive)?.id
+    ?? "";
+}
 
 export default function GrowthOutreachPanel({
   initialLeads,
   prompts,
+  channels,
 }: {
   initialLeads: GrowthLead[];
   prompts: GrowthPromptInfo[];
+  channels: CrmChannel[];
 }) {
   const [leads, setLeads] = useState(initialLeads);
   const [selectedId, setSelectedId] = useState(initialLeads[0]?.id ?? "");
@@ -22,6 +39,39 @@ export default function GrowthOutreachPanel({
   const [confirmed, setConfirmed] = useState(false);
   const [sending, setSending] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
+  const [channelId, setChannelId] = useState(defaultChannel(channels));
+  const [templates, setTemplates] = useState<ApprovedTemplate[]>([]);
+  const [templateName, setTemplateName] = useState("");
+  const [templateLanguage, setTemplateLanguage] = useState("");
+  const [templatesLoadedFor, setTemplatesLoadedFor] = useState<string | null>(null);
+
+  const selectedChannel = channels.find((channel) => channel.id === channelId) ?? null;
+
+  useEffect(() => {
+    let cancelled = false;
+    if (!selectedChannel?.official) return;
+
+    void fetch(`/api/ops/whatsapp/templates?connectionId=${encodeURIComponent(selectedChannel.id)}`, { cache: "no-store" })
+      .then((response) => (response.ok ? response.json() : { templates: [] }))
+      .then((data: { templates?: ApprovedTemplate[] }) => {
+        if (cancelled) return;
+        const next = data.templates ?? [];
+        setTemplates(next);
+        setTemplateName(next[0]?.name ?? "");
+        setTemplateLanguage(next[0]?.language ?? "");
+        setTemplatesLoadedFor(selectedChannel.id);
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setTemplates([]);
+          setTemplateName("");
+          setTemplateLanguage("");
+          setTemplatesLoadedFor(selectedChannel.id);
+        }
+      });
+
+    return () => { cancelled = true; };
+  }, [selectedChannel]);
 
   const selected = leads.find((lead) => lead.id === selectedId) ?? null;
   const filteredLeads = useMemo(() => {
@@ -53,6 +103,9 @@ export default function GrowthOutreachPanel({
       headers: { "content-type": "application/json" },
       body: JSON.stringify({
         leadId: selected.id,
+        connectionId: channelId,
+        channel: selectedChannel?.channel,
+        ...(selectedChannel?.official ? { templateName, templateLanguage } : {}),
         phone,
         message,
         contactSourceUrl: sourceUrl || null,
@@ -167,18 +220,57 @@ export default function GrowthOutreachPanel({
                 </label>
               </div>
               <label className="mt-4 block text-xs text-white/45">
+                Canal de envío
+                <select
+                  value={channelId}
+                  onChange={(event) => setChannelId(event.target.value)}
+                  disabled={channels.length === 0}
+                  className="mt-1.5 min-h-11 w-full rounded-xl border border-white/10 bg-black/20 px-3 py-2.5 text-sm text-white outline-none focus:border-[#c5f04a]/45 disabled:opacity-50"
+                >
+                  {channels.length === 0 && <option value="">Conecta un canal en Ops</option>}
+                  {channels.map((channel) => (
+                    <option key={channel.id} value={channel.id} disabled={!isCrmChannelActive(channel)}>
+                      {channel.label} · {crmChannelStatusLabel(channel)}{!isCrmChannelActive(channel) ? " · no disponible" : ""}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              {selectedChannel?.channel === "waha" && (
+                <p className="mt-2 text-[11px] leading-5 text-amber-200/70">
+                  WAHA es un canal no oficial. El número puede ser bloqueado por Meta.
+                </p>
+              )}
+              {selectedChannel?.official && (
+                <label className="mt-4 block text-xs text-white/45">
+                  Plantilla aprobada por Meta
+                  <select
+                    value={`${templateName}|${templateLanguage}`}
+                    onChange={(event) => {
+                      const [name, language] = event.target.value.split("|");
+                      setTemplateName(name ?? "");
+                      setTemplateLanguage(language ?? "");
+                    }}
+                    disabled={templatesLoadedFor !== selectedChannel.id || !templates.length}
+                    className="mt-1.5 min-h-11 w-full rounded-xl border border-white/10 bg-black/20 px-3 text-sm text-white outline-none focus:border-[#c5f04a]/45 disabled:opacity-50"
+                  >
+                    <option value="">{templatesLoadedFor !== selectedChannel.id ? "Cargando catálogo…" : templates.length ? "Selecciona una plantilla" : "No hay plantillas aprobadas"}</option>
+                    {templates.map((template) => <option key={`${template.name}|${template.language}`} value={`${template.name}|${template.language}`}>{template.name} · {template.language}</option>)}
+                  </select>
+                </label>
+              )}
+              <label className="mt-4 block text-xs text-white/45">
                 Mensaje personalizado de la plantilla
                 <textarea value={message} onChange={(event) => setMessage(event.target.value)} rows={6} placeholder="Escribe un mensaje breve y personalizado basado en la evidencia…" className="mt-1.5 w-full resize-y rounded-xl border border-white/10 bg-black/20 p-3 text-sm leading-6 text-white outline-none focus:border-[#c5f04a]/45" />
               </label>
               <p className="mt-2 text-[11px] leading-5 text-white/35">
-                El primer contacto usa la plantilla de marketing <code className="text-[#c5f04a]">allok_growth_intro</code>, requerida por Meta fuera de la ventana de 24 horas. Si sigue en revisión, no se marcará el lead como contactado.
+                Meta valida el nombre e idioma contra el catálogo aprobado. Si no hay una plantilla aprobada disponible, el envío oficial queda bloqueado.
               </p>
               <label className="mt-4 flex items-start gap-3 rounded-xl border border-white/10 bg-white/[0.025] p-3 text-xs leading-5 text-white/55">
                 <input type="checkbox" checked={confirmed} onChange={(event) => setConfirmed(event.target.checked)} className="mt-0.5" />
                 Confirmo que revisé el mensaje y que el número pertenece públicamente a este negocio. Este envío quedará auditado.
               </label>
               {notice && <div className="mt-4 rounded-xl border border-[#c5f04a]/20 bg-[#c5f04a]/8 px-4 py-3 text-sm text-[#c5f04a]">{notice}</div>}
-              <TapButton type="button" onClick={() => void sendMessage()} disabled={sending || !confirmed || !phone || message.trim().length < 10} className="mt-4 inline-flex min-h-11 items-center gap-2 rounded-full bg-[#c5f04a] px-5 text-sm font-semibold text-[#0a0a0a] transition hover:bg-white disabled:cursor-not-allowed disabled:opacity-40">
+              <TapButton type="button" onClick={() => void sendMessage()} disabled={sending || !confirmed || !channelId || !phone || message.trim().length < 10 || (selectedChannel?.official && (templatesLoadedFor !== selectedChannel.id || !templateName || !templateLanguage))} className="mt-4 inline-flex min-h-11 items-center gap-2 rounded-full bg-[#c5f04a] px-5 text-sm font-semibold text-[#0a0a0a] transition hover:bg-white disabled:cursor-not-allowed disabled:opacity-40">
                 {sending ? <LoaderCircle className="size-4 animate-spin" /> : <MessageCircle className="size-4" />}
                 Enviar plantilla por WhatsApp
               </TapButton>

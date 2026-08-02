@@ -2,10 +2,8 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import AllokLogo from "@/components/brand/AllokLogo";
 import {
   Activity,
-  ArrowLeft,
   ArrowRight,
   CheckCircle2,
   Database,
@@ -24,8 +22,9 @@ import type { WhatsAppConnectionView } from "@/lib/whatsapp-connections-db";
 import type { NextStepSummary } from "@/lib/whatsapp-inbox-db";
 import type { GrowthLead } from "@/lib/growth-types";
 import type { GrowthPromptInfo } from "@/lib/growth-prompts";
+import type { CrmChannel } from "@/lib/crm-types";
 import GrowthOutreachPanel from "@/components/ops/GrowthOutreachPanel";
-import { DISPLAY_TIGHT, GLASS_HEADER, TapButton } from "@/components/ops/apple";
+import { DISPLAY_TIGHT, TapButton } from "@/components/ops/apple";
 
 type DiagnosticsResult = {
   env: Record<string, boolean>;
@@ -48,6 +47,7 @@ type OpsDashboardClientProps = {
   initialWhatsAppConnectionsError: string | null;
   initialGrowthLeads: GrowthLead[];
   growthPrompts: GrowthPromptInfo[];
+  crmChannels: CrmChannel[];
 };
 
 export default function OpsDashboardClient({
@@ -57,6 +57,7 @@ export default function OpsDashboardClient({
   initialWhatsAppConnectionsError,
   initialGrowthLeads,
   growthPrompts,
+  crmChannels,
 }: OpsDashboardClientProps) {
   const [running, setRunning] = useState(false);
   const [results, setResults] = useState<DiagnosticsResult>(null);
@@ -108,59 +109,19 @@ export default function OpsDashboardClient({
   };
 
   return (
-    <main className="min-h-screen bg-[#08090a] text-white">
-      <div className="mx-auto max-w-[1400px] px-4 pb-5 sm:px-7 lg:px-10">
-        {/* Header: translucent material, content scrolls underneath rather than
-            being clipped by an opaque strip. */}
-        <header
-          className={`sticky top-0 z-30 -mx-4 flex flex-wrap items-center justify-between gap-5 px-4 py-4 sm:-mx-7 sm:px-7 lg:-mx-10 lg:px-10 ${GLASS_HEADER}`}
-        >
-          <div className="flex items-center gap-4">
-            <Link
-              href="/"
-              className="flex size-10 items-center justify-center rounded-full border border-white/10 bg-white/5 transition hover:bg-white/10"
-              aria-label="Volver al inicio"
-            >
-              <ArrowLeft className="size-4" />
-            </Link>
-            <AllokLogo variant="mark-bare" className="h-6 w-auto text-white" />
-            <div>
-              <div className="font-mono text-[9px] uppercase tracking-[0.18em] text-[#c5f04a]">
-                Panel de Administración
-              </div>
-              <h1 className={`mt-1 font-display text-3xl ${DISPLAY_TIGHT}`}>allok Systems Ops</h1>
-            </div>
+    <main className="min-h-dvh bg-[#08090a] pb-24 text-white md:pb-8">
+      <div className="mx-auto w-full max-w-[1500px] px-4 pb-10 pt-8 sm:px-6 lg:px-10 lg:pt-12">
+        <header className="flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-[#c5f04a]">Vista de hoy</div>
+            <h1 className={`mt-2 font-display text-4xl ${DISPLAY_TIGHT}`}>allok Ops</h1>
+            <p className="mt-2 text-sm text-white/45">Estado del sistema y las acciones que necesitan atención.</p>
           </div>
-          <div className="flex items-center gap-3">
-            <Link
-              href="/ops/inbox"
-              className="inline-flex min-h-10 items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 text-sm font-medium text-white/80 transition hover:bg-white/10 hover:text-white"
-            >
-              <MessageCircle className="size-4" />
-              Inbox
-            </Link>
-            <TapButton
-              id="btn-run-diagnostics"
-              type="button"
-              disabled={running}
-              onClick={runDiagnostics}
-              className="inline-flex min-h-10 items-center gap-2 rounded-full bg-[#c5f04a] px-5 text-sm font-semibold text-[#0a0a0a] transition hover:bg-white disabled:opacity-50"
-            >
-              {running ? (
-                <LoaderCircle className="size-4 animate-spin" />
-              ) : (
-                <Activity className="size-4" />
-              )}
-              Ejecutar Diagnóstico
+          <div className="flex flex-wrap gap-2">
+            <Link href="/ops/crm" className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-white/10 px-4 text-sm font-semibold text-white/70 transition hover:bg-white/[0.06] hover:text-white"><MessageCircle className="size-4" /> Abrir CRM</Link>
+            <TapButton id="btn-run-diagnostics" type="button" disabled={running} onClick={runDiagnostics} className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-[#c5f04a] px-4 text-sm font-semibold text-[#0a0a0a] transition hover:bg-white disabled:opacity-50">
+              {running ? <LoaderCircle className="size-4 animate-spin" /> : <Activity className="size-4" />} Ejecutar diagnóstico
             </TapButton>
-            <form action="/api/ops/logout" method="post">
-              <TapButton
-                type="submit"
-                className="rounded-full border border-white/10 px-4 py-2 text-xs font-semibold text-white/60 hover:bg-white/5 hover:text-white"
-              >
-                Salir
-              </TapButton>
-            </form>
           </div>
         </header>
 
@@ -201,7 +162,7 @@ export default function OpsDashboardClient({
           ].map((item) => (
             <div
               key={item.label}
-              className="rounded-2xl border border-white/10 bg-white/[0.025] p-6 transition duration-300 hover:border-white/15"
+              className="rounded-none border border-white/10 bg-white/[0.015] p-6 transition duration-300 hover:border-white/20"
             >
               <div className="font-mono text-[9px] uppercase tracking-[0.18em] text-white/40">
                 {item.label}
@@ -212,14 +173,14 @@ export default function OpsDashboardClient({
           ))}
         </section>
 
-        <GrowthOutreachPanel initialLeads={initialGrowthLeads} prompts={growthPrompts} />
+        <GrowthOutreachPanel initialLeads={initialGrowthLeads} prompts={growthPrompts} channels={crmChannels} />
 
         <div className="mt-8 grid gap-6 lg:grid-cols-[1fr_400px]">
           {/* Main Console & Diagnostic Output */}
           <div className="space-y-6">
             {/* Action Cards */}
             <div className="grid gap-4 sm:grid-cols-2">
-              <div className="flex flex-col justify-between rounded-2xl border border-white/10 bg-white/[0.035] p-6 transition duration-300 hover:bg-white/[0.05]">
+              <div className="flex flex-col justify-between rounded-none border border-white/10 bg-white/[0.02] p-6 transition duration-300 hover:bg-white/[0.035]">
                 <div>
                   <div className="inline-flex size-10 items-center justify-center rounded-xl bg-[#c5f04a]/10 text-[#c5f04a]">
                     <Play className="size-5" />
@@ -242,7 +203,7 @@ export default function OpsDashboardClient({
                 </div>
               </div>
 
-              <div className="flex flex-col justify-between rounded-2xl border border-white/10 bg-white/[0.035] p-6 transition duration-300 hover:bg-white/[0.05]">
+              <div className="flex flex-col justify-between rounded-none border border-white/10 bg-white/[0.02] p-6 transition duration-300 hover:bg-white/[0.035]">
                 <div>
                   <div className="inline-flex size-10 items-center justify-center rounded-xl bg-[#c5f04a]/10 text-[#c5f04a]">
                     <Webhook className="size-5" />
@@ -267,7 +228,7 @@ export default function OpsDashboardClient({
 
             <section
               id="whatsapp-connections"
-              className="scroll-mt-6 rounded-2xl border border-white/10 bg-white/[0.02] p-6"
+              className="scroll-mt-6 rounded-none border border-white/10 bg-white/[0.015] p-6"
             >
               <div className="flex flex-wrap items-start justify-between gap-4 border-b border-white/10 pb-4">
                 <div>
@@ -376,7 +337,7 @@ export default function OpsDashboardClient({
             </section>
 
             {/* Diagnostics Report */}
-            <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-6">
+            <div className="rounded-none border border-white/10 bg-white/[0.015] p-6">
               <div className="flex items-center justify-between border-b border-white/10 pb-4">
                 <h3 className="font-display text-lg">Estado de Conectividad</h3>
                 <span className="font-mono text-[9px] uppercase tracking-wider text-white/40">
@@ -547,7 +508,7 @@ export default function OpsDashboardClient({
           {/* Right Sidebar: Env Status & Static Checklist */}
           <div className="space-y-6">
             {/* Env Status */}
-            <div className="rounded-2xl border border-white/10 bg-white/[0.025] p-6">
+            <div className="rounded-none border border-white/10 bg-white/[0.015] p-6">
               <div className="flex items-center gap-2 border-b border-white/10 pb-4">
                 <Key className="size-4 text-[#c5f04a]" />
                 <h3 className="font-display text-md font-semibold">Variables de Entorno</h3>
@@ -590,7 +551,7 @@ export default function OpsDashboardClient({
             </div>
 
             {/* Checklist */}
-            <div className="rounded-2xl border border-white/10 bg-[#08090a] p-6">
+            <div className="rounded-none border border-white/10 bg-[#08090a] p-6">
               <div className="flex items-center gap-2 border-b border-white/10 pb-4">
                 <FileText className="size-4 text-[#c5f04a]" />
                 <h3 className="font-display text-md font-semibold">Verificación Manual</h3>

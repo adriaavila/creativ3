@@ -1,10 +1,7 @@
 "use client";
 
 import { useMemo, useState, type ReactNode } from "react";
-import Link from "next/link";
-import AllokLogo from "@/components/brand/AllokLogo";
 import {
-  ArrowLeft,
   BarChart3,
   Check,
   Copy,
@@ -20,7 +17,7 @@ import {
 import type { DraftKind, GrowthLead, GrowthRun, OutreachDraft } from "@/lib/growth-types";
 import type { MarketingSnapshot, PostizMetric, PostizPost } from "@/lib/postiz";
 import type { WahaSnapshot } from "@/lib/waha";
-import { DISPLAY_TIGHT, GLASS_HEADER, TapButton } from "@/components/ops/apple";
+import { DISPLAY_TIGHT, TapButton } from "@/components/ops/apple";
 
 type Tab = "hoy" | "marketing" | "runs" | "leads" | "drafts";
 
@@ -164,26 +161,19 @@ export default function GrowthOpsClient({
     setLeads((items) => items.map((item) => (item.id === id ? { ...item, ...patch } : item)));
 
   return (
-    <main className="min-h-screen bg-[#08090a] text-white">
-      <div className="mx-auto max-w-[1500px] px-4 pb-5 sm:px-7 lg:px-10">
-        <header
-          className={`sticky top-0 z-30 -mx-4 flex flex-wrap items-center justify-between gap-5 px-4 py-4 sm:-mx-7 sm:px-7 lg:-mx-10 lg:px-10 ${GLASS_HEADER}`}
-        >
-          <div className="flex items-center gap-4">
-            <Link id="lnk-back-to-ops" href="/ops" className="flex size-10 items-center justify-center rounded-full border border-white/10 bg-white/5" aria-label="Volver al sitio">
-              <ArrowLeft className="size-4" />
-            </Link>
-            <AllokLogo variant="mark-bare" className="h-6 w-auto text-white" />
-            <div>
-              <div className="font-mono text-[9px] uppercase tracking-[0.18em] text-[#c5f04a]">Operación privada</div>
-              <h1 className={`mt-1 font-display text-3xl ${DISPLAY_TIGHT}`}>allok Growth OS</h1>
-            </div>
+    <main className="min-h-dvh bg-[#08090a] pb-24 text-white md:pb-8">
+      <div className="mx-auto w-full max-w-[1500px] px-4 pb-10 pt-8 sm:px-6 lg:px-10 lg:pt-12">
+        <header className="flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-[#c5f04a]">Operación privada</div>
+            <h1 className={`mt-2 font-display text-4xl ${DISPLAY_TIGHT}`}>Growth OS</h1>
+            <p className="mt-2 text-sm text-white/45">Investigación, borradores y acciones comerciales revisadas.</p>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             <TapButton
               type="button"
               onClick={() => window.location.reload()}
-              className="flex size-10 items-center justify-center rounded-full border border-white/10 bg-white/5 hover:bg-white/10"
+              className="flex size-11 items-center justify-center rounded-xl border border-white/10 bg-white/[0.04] hover:bg-white/10"
               aria-label="Actualizar datos"
             >
               <RefreshCw className="size-4" />
@@ -192,19 +182,11 @@ export default function GrowthOpsClient({
               type="button"
               disabled={running}
               onClick={() => void startRun()}
-              className="inline-flex min-h-10 items-center gap-2 rounded-full bg-[#c5f04a] px-5 text-sm font-semibold text-[#0a0a0a] hover:bg-white disabled:opacity-50"
+              className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-[#c5f04a] px-4 text-sm font-semibold text-[#0a0a0a] hover:bg-white disabled:opacity-50"
             >
               {running ? <LoaderCircle className="size-4 animate-spin" /> : <Play className="size-4" />}
               Ejecutar ahora
             </TapButton>
-            <form action="/api/ops/logout" method="post">
-              <TapButton
-                type="submit"
-                className="rounded-full border border-white/10 px-4 py-2 text-xs font-semibold text-white/60 hover:bg-white/5 hover:text-white"
-              >
-                Salir
-              </TapButton>
-            </form>
           </div>
         </header>
 
@@ -215,7 +197,7 @@ export default function GrowthOpsClient({
             ["Leads", leads.length],
             ["Pendientes", drafts.filter((draft) => draft.status === "pending").length],
           ].map(([label, value]) => (
-            <div key={label} className="rounded-2xl border border-white/10 bg-white/[0.035] p-5">
+            <div key={label} className="rounded-none border border-white/10 bg-white/[0.02] p-5">
               <div className="font-mono text-[9px] uppercase tracking-[0.18em] text-white/38">{label}</div>
               <div className="mt-3 font-display text-4xl text-[#c5f04a]">{value}</div>
             </div>
@@ -228,7 +210,7 @@ export default function GrowthOpsClient({
           </div>
         )}
 
-        <div className="mt-7 flex gap-1 rounded-xl border border-white/10 bg-white/[0.025] p-1.5">
+        <div className="mt-7 flex gap-1 rounded-none border border-white/10 bg-white/[0.015] p-1.5">
           {(["hoy", "marketing", "runs", "leads", "drafts"] as Tab[]).map((item) => (
             <button
               key={item}
@@ -278,7 +260,7 @@ export default function GrowthOpsClient({
           {tab === "runs" && (
             <div className="grid gap-3">
               {initialRuns.length === 0 ? <Empty text="Todavía no hay runs. Ejecuta el agente cuando Neon y Eve estén conectados." /> : initialRuns.map((run) => (
-                <article key={run.id} className="grid gap-4 rounded-2xl border border-white/10 bg-white/[0.035] p-5 md:grid-cols-[150px_1fr_auto] md:items-center">
+                <article key={run.id} className="grid gap-4 rounded-none border border-white/10 bg-white/[0.02] p-5 md:grid-cols-[150px_1fr_auto] md:items-center">
                   <div>
                     <span className="rounded-full bg-white/8 px-3 py-1.5 text-xs text-[#c5f04a]">{RUN_LABELS[run.status]}</span>
                     <div className="mt-3 font-mono text-[9px] text-white/35">{run.id.slice(0, 8)}</div>
@@ -296,7 +278,7 @@ export default function GrowthOpsClient({
           {tab === "leads" && (
             <div className="grid gap-4 lg:grid-cols-2">
               {leads.length === 0 ? <Empty text="Los leads investigados aparecerán aquí con evidencia y fuentes." /> : leads.map((lead) => (
-                <article key={lead.id} className="rounded-2xl border border-white/10 bg-white/[0.035] p-5">
+                <article key={lead.id} className="rounded-none border border-white/10 bg-white/[0.02] p-5">
                   <div className="flex items-start justify-between gap-4">
                     <div>
                       <div className="font-mono text-[9px] uppercase tracking-[0.15em] text-[#c5f04a]">{lead.vertical} · {lead.location}</div>
@@ -371,14 +353,14 @@ export default function GrowthOpsClient({
               {drafts.length === 0 ? <Empty text="Los mensajes personalizados aparecerán aquí. Ninguno se enviará automáticamente." /> : draftsByLead.map(([leadId, leadDrafts]) => {
                 const lead = leadById.get(leadId);
                 return (
-                  <div key={leadId} className="rounded-2xl border border-white/10 bg-white/[0.02] p-4">
+                  <div key={leadId} className="rounded-none border border-white/10 bg-white/[0.015] p-4">
                     <div className="mb-3 flex items-center justify-between px-1">
                       <h2 className="font-display text-2xl">{lead?.businessName ?? "Lead"}</h2>
                       <span className="font-mono text-[9px] uppercase tracking-[0.15em] text-[#c5f04a]">{lead?.vertical}</span>
                     </div>
                     <div className="grid gap-4 lg:grid-cols-2">
                       {leadDrafts.map((draft) => (
-                        <article key={draft.id} className="rounded-2xl border border-white/10 bg-white/[0.035] p-5">
+                        <article key={draft.id} className="rounded-none border border-white/10 bg-white/[0.02] p-5">
                           <div className="flex items-center justify-between gap-4">
                             <div className="flex items-center gap-2">
                               <span className="rounded-full bg-[#c5f04a]/15 px-2.5 py-1 text-[10px] font-semibold text-[#c5f04a]">{KIND_LABELS[draft.kind]}</span>
@@ -424,7 +406,7 @@ function DayBucket({
   action: (lead: GrowthLead) => ReactNode;
 }) {
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/[0.035] p-5">
+    <div className="rounded-none border border-white/10 bg-white/[0.02] p-5">
       <div className="flex items-baseline justify-between">
         <h2 className="font-display text-2xl text-[#c5f04a]">{title}</h2>
         <span className="font-mono text-[10px] uppercase tracking-[0.15em] text-white/35">{leads.length} · {hint}</span>
@@ -449,7 +431,7 @@ function DayBucket({
 }
 
 function Empty({ text }: { text: string }) {
-  return <div className="rounded-2xl border border-dashed border-white/12 p-10 text-center text-sm text-white/38 lg:col-span-2">{text}</div>;
+  return <div className="rounded-none border border-dashed border-white/12 p-10 text-center text-sm text-white/38 lg:col-span-2">{text}</div>;
 }
 
 const compact = new Intl.NumberFormat("es-VE", { notation: "compact", maximumFractionDigits: 1 });
@@ -533,7 +515,7 @@ function MarketingPanel({ snapshot, waha }: { snapshot: MarketingSnapshot; waha:
     return (
       <div className="grid gap-5">
         <ChannelRuntimePanel postizConfigured={false} waha={waha} />
-        <div className="rounded-2xl border border-white/10 bg-white/[0.035] p-8">
+        <div className="rounded-none border border-white/10 bg-white/[0.02] p-8">
           <div className="font-mono text-[9px] uppercase tracking-[0.18em] text-[#c5f04a]">Setup requerido</div>
           <h2 className="mt-3 font-display text-3xl">Conecta Postiz para medir marketing.</h2>
           <p className="mt-4 max-w-xl text-sm leading-6 text-white/50">
@@ -550,7 +532,7 @@ function MarketingPanel({ snapshot, waha }: { snapshot: MarketingSnapshot; waha:
     return (
       <div className="grid gap-5">
         <ChannelRuntimePanel postizConfigured waha={waha} />
-        <div className="rounded-2xl border border-[#a1a1a3]/25 bg-[#a1a1a3]/8 p-6 text-sm text-[#a1a1a3]">
+        <div className="rounded-none border border-[#a1a1a3]/25 bg-[#a1a1a3]/8 p-6 text-sm text-[#a1a1a3]">
           Postiz no pudo cargar sus métricas. Revisa la conexión y credenciales del servidor.
         </div>
       </div>
@@ -577,7 +559,7 @@ function MarketingPanel({ snapshot, waha }: { snapshot: MarketingSnapshot; waha:
           ["Programados", upcoming.length],
           ["Impresiones 30d", compact.format(impressions)],
         ].map(([label, value]) => (
-          <div key={label} className="rounded-2xl border border-white/10 bg-white/[0.035] p-5">
+          <div key={label} className="rounded-none border border-white/10 bg-white/[0.02] p-5">
             <div className="font-mono text-[9px] uppercase tracking-[0.18em] text-white/38">{label}</div>
             <div className="mt-3 font-display text-4xl text-[#c5f04a]">{value}</div>
           </div>
@@ -589,7 +571,7 @@ function MarketingPanel({ snapshot, waha }: { snapshot: MarketingSnapshot; waha:
           <Empty text="No hay canales conectados en Postiz. Conecta Instagram y LinkedIn desde la app de Postiz." />
         ) : (
           snapshot.channels.map((channel) => (
-            <article key={channel.id} className="rounded-2xl border border-white/10 bg-white/[0.035] p-5">
+            <article key={channel.id} className="rounded-none border border-white/10 bg-white/[0.02] p-5">
               <div className="flex items-center gap-3">
                 {channel.picture ? (
                   // eslint-disable-next-line @next/next/no-img-element -- avatar externo de Postiz
@@ -616,7 +598,7 @@ function MarketingPanel({ snapshot, waha }: { snapshot: MarketingSnapshot; waha:
         )}
       </div>
 
-      <div className="rounded-2xl border border-white/10 bg-white/[0.035] p-5">
+      <div className="rounded-none border border-white/10 bg-white/[0.02] p-5">
         <div className="flex items-baseline justify-between">
           <h2 className="font-display text-2xl text-[#c5f04a]">Próximas publicaciones</h2>
           <span className="font-mono text-[10px] uppercase tracking-[0.15em] text-white/35">{upcoming.length} programadas</span>
@@ -628,7 +610,7 @@ function MarketingPanel({ snapshot, waha }: { snapshot: MarketingSnapshot; waha:
         )}
       </div>
 
-      <div className="rounded-2xl border border-white/10 bg-white/[0.035] p-5">
+      <div className="rounded-none border border-white/10 bg-white/[0.02] p-5">
         <div className="flex items-baseline justify-between">
           <h2 className="font-display text-2xl text-[#c5f04a]">Publicado (últimos 30 días)</h2>
           <span className="font-mono text-[10px] uppercase tracking-[0.15em] text-white/35">{published.length} posts</span>
@@ -646,7 +628,7 @@ function MarketingPanel({ snapshot, waha }: { snapshot: MarketingSnapshot; waha:
 function ChannelRuntimePanel({ postizConfigured, waha }: { postizConfigured: boolean; waha: WahaSnapshot }) {
   return (
     <div className="grid gap-3 lg:grid-cols-2">
-      <article className="rounded-2xl border border-white/10 bg-white/[0.035] p-5">
+      <article className="rounded-none border border-white/10 bg-white/[0.02] p-5">
         <div className="font-mono text-[9px] uppercase tracking-[0.18em] text-[#c5f04a]">Redes sociales</div>
         <div className="mt-3 flex items-center justify-between gap-4">
           <div>
@@ -659,7 +641,7 @@ function ChannelRuntimePanel({ postizConfigured, waha }: { postizConfigured: boo
         </div>
       </article>
 
-      <article className="rounded-2xl border border-white/10 bg-white/[0.035] p-5">
+      <article className="rounded-none border border-white/10 bg-white/[0.02] p-5">
         <div className="font-mono text-[9px] uppercase tracking-[0.18em] text-[#c5f04a]">WhatsApp publishing</div>
         <div className="mt-3 flex items-start justify-between gap-4">
           <div>

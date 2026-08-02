@@ -1,404 +1,303 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
-import Link from "next/link";
-import AllokLogo from "@/components/brand/AllokLogo";
-import { ArrowLeft, Bot, Check, Loader2, MessageCircle, Send, Smartphone, Sparkles, User } from "lucide-react";
-import { motion, useReducedMotion } from "motion/react";
-import type { ConversationOutcome, WaConversation, WaMessage } from "@/lib/whatsapp-inbox-db";
+import { useCallback, useMemo, useState } from "react";
+import { Bot, CheckCircle2, Search } from "lucide-react";
+import type { WaConversation } from "@/lib/whatsapp-inbox-db";
+import { formatWhatsAppPhone } from "@/lib/phone";
+import ConversationThread from "@/components/ops/ConversationThread";
+import { eventConversation, useOpsRealtime, type OpsRealtimeEvent } from "@/hooks/useOpsRealtime";
+
+type InboxFilter = "all" | "official" | "waiting" | "open";
 
 type InboxClientProps = {
   initialConversations: WaConversation[];
 };
 
-const POLL_MS = 5000;
-
-// The billable unit: every conversation ends marked, or it counts as nothing.
-// See db/migrations/008_conversation_outcomes.sql for why null is the losing default.
-const OUTCOMES: { id: ConversationOutcome; label: string }[] = [
-  { id: "cita", label: "Cita" },
-  { id: "cotizacion", label: "Cotización" },
-  { id: "descarte", label: "Descarte" },
-];
-
-// Apple-design spring defaults: critically damped (no overshoot) for ordinary
-// UI, response ~0.3s. See skill apple-design §4 — bounce only for
-// momentum-driven gestures, which nothing here has.
-const TAP_SPRING = { type: "spring" as const, bounce: 0, duration: 0.3 };
-
-function channelLabel(conversation: WaConversation) {
-  return conversation.channelKind === "cloud_api" ? "Cloud API" : "WAHA";
+function initials(name: string | null, fallback = "WA") {
+  const parts = (name ?? "").trim().split(/\s+/).filter(Boolean);
+  return parts.length ? parts.slice(0, 2).map((part) => part[0]).join("").toUpperCase() : fallback;
 }
 
-function formatTime(iso: string | null) {
+function formatListTime(iso: string | null) {
   if (!iso) return "";
-  return new Date(iso).toLocaleTimeString("es-VE", { hour: "2-digit", minute: "2-digit" });
+  const date = new Date(iso);
+  const today = new Date();
+  if (date.toDateString() === today.toDateString()) {
+    return date.toLocaleTimeString("es-VE", { hour: "2-digit", minute: "2-digit" });
+  }
+  return date.toLocaleDateString("es-VE", { day: "numeric", month: "short" });
 }
 
-export default function InboxClient({ initialConversations }: InboxClientProps) {
-  const reduceMotion = useReducedMotion();
-  const [conversations, setConversations] = useState(initialConversations);
-  const [selectedId, setSelectedId] = useState<number | null>(initialConversations[0]?.id ?? null);
-  const [messagesByConversation, setMessagesByConversation] = useState<Record<number, WaMessage[]>>({});
-  const messages = useMemo(
-    () => (selectedId ? messagesByConversation[selectedId] ?? [] : []),
-    [messagesByConversation, selectedId],
-  );
-  const [draftText, setDraftText] = useState("");
-  const [suggesting, setSuggesting] = useState(false);
-  const [sending, setSending] = useState(false);
-  const [togglingMode, setTogglingMode] = useState(false);
-  const [markingOutcome, setMarkingOutcome] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const threadEndRef = useRef<HTMLDivElement | null>(null);
+function waitingForReply(conversation: WaConversation) {
+  return Boolean(conversation.lastInboundAt && conversation.lastMessageAt === conversation.lastInboundAt);
+}
 
-  const selected = useMemo(
-    () => conversations.find((c) => c.id === selectedId) ?? null,
-    [conversations, selectedId],
-  );
+function conversationTitle(conversation: WaConversation) {
+  return conversation.contactName || formatWhatsAppPhone(conversation.contactPhone || conversation.contactWaId) || "Contacto de WhatsApp";
+}
 
-  // Poll conversation list.
-  useEffect(() => {
-    let cancelled = false;
-    const tick = async () => {
-      try {
-        const res = await fetch("/api/ops/inbox", { cache: "no-store" });
-        if (!res.ok) return;
-        const data = (await res.json()) as { conversations: WaConversation[] };
-        if (!cancelled) setConversations(data.conversations);
-      } catch {
-        // silent — next tick retries
-      }
-    };
-    tick();
-    const id = setInterval(tick, POLL_MS);
-    return () => {
-      cancelled = true;
-      clearInterval(id);
-    };
-  }, []);
+function statusLabel(status: WaConversation["status"]) {
+  return status === "open" ? "Abierta" : status === "snoozed" ? "En pausa" : "Cerrada";
+}
 
-  // Poll the open thread. No setState for the "nothing selected" case — the
-  // derived `messages` above already reads as [] when selectedId is null.
-  useEffect(() => {
-    if (!selectedId) return;
-    let cancelled = false;
-    const tick = async () => {
-      try {
-        const res = await fetch(`/api/ops/inbox/${selectedId}`, { cache: "no-store" });
-        if (!res.ok) return;
-        const data = (await res.json()) as { messages: WaMessage[] };
-        if (!cancelled) {
-          setMessagesByConversation((prev) => ({ ...prev, [selectedId]: data.messages }));
-        }
-      } catch {
-        // silent — next tick retries
-      }
-    };
-    tick();
-    const id = setInterval(tick, POLL_MS);
-    return () => {
-      cancelled = true;
-      clearInterval(id);
-    };
-  }, [selectedId]);
+function outcomeLabel(outcome: WaConversation["outcome"]) {
+  return outcome === "cita" ? "Cita" : outcome === "cotizacion" ? "Cotización" : outcome === "descarte" ? "Descarte" : "Sin resultado";
+}
 
-  useEffect(() => {
-    threadEndRef.current?.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth" });
-  }, [messages, reduceMotion]);
-
-  async function requestSuggestion() {
-    if (!selectedId) return;
-    setSuggesting(true);
-    setError(null);
-    try {
-      const res = await fetch(`/api/ops/inbox/${selectedId}/reply`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ mode: "suggest" }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error ?? "No se pudo sugerir una respuesta.");
-      setDraftText(data.suggestion.text);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Error al sugerir.");
-    } finally {
-      setSuggesting(false);
-    }
-  }
-
-  async function sendMessage() {
-    if (!selectedId || !draftText.trim()) return;
-    setSending(true);
-    setError(null);
-    try {
-      const res = await fetch(`/api/ops/inbox/${selectedId}/reply`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ mode: "send", text: draftText.trim() }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error ?? "No se pudo enviar.");
-      setDraftText("");
-      const refreshed = await fetch(`/api/ops/inbox/${selectedId}`, { cache: "no-store" });
-      const refreshedData = await refreshed.json();
-      setMessagesByConversation((prev) => ({ ...prev, [selectedId]: refreshedData.messages ?? [] }));
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Error al enviar.");
-    } finally {
-      setSending(false);
-    }
-  }
+function DetailRail({ conversation, onConversationChange }: { conversation: WaConversation; onConversationChange: (conversation: WaConversation) => void }) {
+  const [savingMode, setSavingMode] = useState(false);
+  const [modeError, setModeError] = useState<string | null>(null);
+  const official = conversation.channelKind === "cloud_api";
+  const phone = formatWhatsAppPhone(conversation.contactPhone || conversation.contactWaId);
 
   async function toggleAssignedMode() {
-    if (!selected) return;
-    const next = selected.assignedMode === "human" ? "ai" : "human";
-    setTogglingMode(true);
+    setSavingMode(true);
+    setModeError(null);
+    const assignedMode = conversation.assignedMode === "ai" ? "human" : "ai";
     try {
-      await fetch(`/api/ops/inbox/${selected.id}`, {
+      const response = await fetch(`/api/ops/inbox/${conversation.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ assignedMode: next }),
+        body: JSON.stringify({ assignedMode }),
       });
-      setConversations((prev) =>
-        prev.map((c) => (c.id === selected.id ? { ...c, assignedMode: next } : c)),
-      );
+      if (!response.ok) throw new Error("No se pudo actualizar el modo.");
+      const refreshed = await fetch(`/api/ops/inbox/${conversation.id}`, { cache: "no-store" });
+      if (!refreshed.ok) throw new Error("No se pudo cargar el modo actualizado.");
+      const data = (await refreshed.json()) as { conversation: WaConversation };
+      onConversationChange(data.conversation);
+    } catch (error) {
+      setModeError(error instanceof Error ? error.message : "No se pudo actualizar el modo.");
     } finally {
-      setTogglingMode(false);
-    }
-  }
-
-  // Clicking the active outcome again un-marks it — the same button is the undo.
-  async function markOutcome(outcome: ConversationOutcome) {
-    if (!selected) return;
-    const next = selected.outcome === outcome ? null : outcome;
-    setMarkingOutcome(true);
-    setError(null);
-    try {
-      const res = await fetch(`/api/ops/inbox/${selected.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ outcome: next }),
-      });
-      if (!res.ok) throw new Error("No se pudo marcar el resultado.");
-      setConversations((prev) =>
-        prev.map((c) => (c.id === selected.id ? { ...c, outcome: next } : c)),
-      );
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Error al marcar.");
-    } finally {
-      setMarkingOutcome(false);
+      setSavingMode(false);
     }
   }
 
   return (
-    <main className="flex h-screen flex-col bg-[#08090a] text-white">
-      {/* Materialized header: translucent, blurred, content scrolls underneath — not an opaque strip. */}
-      <header className="sticky top-0 z-20 flex items-center justify-between gap-4 border-b border-white/10 bg-[#08090a]/70 px-4 py-3 backdrop-blur-xl backdrop-saturate-150 sm:px-6">
+    <aside className="hidden min-h-0 w-[292px] shrink-0 flex-col border-l border-[#e5e7eb] bg-white xl:flex" aria-label="Detalles de la conversación">
+      <div className="flex h-[57px] items-center justify-between border-b border-[#e5e7eb] px-4">
+        <h2 className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#506176]">Detalles</h2>
+        <span className="text-[#a2acb8]" aria-hidden="true">›</span>
+      </div>
+
+      <div className="min-h-0 flex-1 overflow-y-auto px-4 py-5">
         <div className="flex items-center gap-3">
-          <Link
-            href="/ops"
-            className="flex size-9 items-center justify-center rounded-full border border-white/10 bg-white/5 transition hover:bg-white/10"
-            aria-label="Volver a Ops"
-          >
-            <ArrowLeft className="size-4" />
-          </Link>
-          <AllokLogo variant="mark-bare" className="h-5 w-auto text-white" />
-          <div>
-            <div className="font-mono text-[9px] uppercase tracking-[0.18em] text-[#c5f04a]">
-              Inbox WhatsApp
-            </div>
-            <h1 className="mt-0.5 font-display text-2xl leading-none tracking-[-0.01em]">
-              Conversaciones
-            </h1>
+          <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-[#73718d] text-sm font-semibold text-white">
+            {initials(conversation.contactName)}
+          </span>
+          <div className="min-w-0">
+            <h3 className="truncate text-[13px] font-semibold text-[#172238]">{conversationTitle(conversation)}</h3>
+            <p className="mt-0.5 truncate text-[11px] text-[#7e8a98]">{phone || conversation.contactWaId}</p>
           </div>
         </div>
-        {error && (
-          <p className="max-w-sm truncate rounded-full bg-red-500/10 px-3 py-1 text-xs text-red-300">
-            {error}
-          </p>
-        )}
-      </header>
 
-      <div className="flex min-h-0 flex-1">
-        {/* Conversation list */}
-        <aside className="w-full max-w-xs shrink-0 overflow-y-auto border-r border-white/10 sm:max-w-sm">
-          {conversations.length === 0 && (
-            <p className="p-6 text-sm text-white/40">Sin conversaciones todavía.</p>
-          )}
-          <ul>
-            {conversations.map((conversation) => {
-              const active = conversation.id === selectedId;
-              return (
-                <li key={conversation.id}>
-                  <button
-                    type="button"
-                    onClick={() => setSelectedId(conversation.id)}
-                    className={`flex w-full flex-col gap-1 border-b border-white/5 px-4 py-3 text-left transition ${
-                      active ? "bg-white/[0.06]" : "hover:bg-white/[0.03]"
-                    }`}
-                  >
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="truncate text-sm font-medium">
-                        {conversation.contactName || conversation.contactWaId}
-                      </span>
-                      <span className="shrink-0 text-[10px] text-white/40">
-                        {formatTime(conversation.lastMessageAt)}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="rounded-full bg-white/5 px-2 py-0.5 font-mono text-[9px] uppercase tracking-wide text-[#c5f04a]">
-                        {channelLabel(conversation)}
-                      </span>
-                      {conversation.assignedMode === "ai" && (
-                        <span className="flex items-center gap-1 rounded-full bg-[#c5f04a]/10 px-2 py-0.5 text-[9px] uppercase tracking-wide text-[#c5f04a]">
-                          <Bot className="size-2.5" /> IA
-                        </span>
-                      )}
-                      {conversation.outcome && (
-                        <span className="rounded-full bg-[#c5f04a] px-2 py-0.5 text-[9px] uppercase tracking-wide text-[#0a0a0a]">
-                          {conversation.outcome}
-                        </span>
-                      )}
-                    </div>
-                  </button>
-                </li>
-              );
-            })}
-          </ul>
-        </aside>
-
-        {/* Thread */}
-        <section className="flex min-h-0 flex-1 flex-col">
-          {!selected ? (
-            <div className="flex flex-1 items-center justify-center text-sm text-white/40">
-              Elegí una conversación.
+        <div className="mt-5 rounded-[11px] border border-[#e5e7eb] px-3 py-3">
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <Bot className="size-4 text-[#506176]" aria-hidden="true" />
+              <div>
+                <p className="text-[12px] font-medium text-[#172238]">IA en esta conversación</p>
+                <p className="mt-0.5 text-[10px] text-[#8a96a5]">{conversation.assignedMode === "ai" ? "Respondiendo" : "Revisión humana"}</p>
+              </div>
             </div>
-          ) : (
-            <>
-              <div className="flex items-center justify-between gap-3 border-b border-white/10 bg-white/[0.02] px-4 py-2.5 sm:px-6">
-                <div className="flex items-center gap-2 text-sm">
-                  <MessageCircle className="size-4 text-[#c5f04a]" />
-                  <span className="font-medium">{selected.contactName || selected.contactWaId}</span>
-                  <span className="text-white/30">·</span>
-                  <span className="text-white/50">{channelLabel(selected)}</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  {OUTCOMES.map((outcome) => {
-                    const active = selected.outcome === outcome.id;
-                    return (
-                      <motion.button
-                        key={outcome.id}
-                        type="button"
-                        onClick={() => markOutcome(outcome.id)}
-                        disabled={markingOutcome}
-                        aria-pressed={active}
-                        whileTap={reduceMotion ? undefined : { scale: 0.96 }}
-                        transition={TAP_SPRING}
-                        className={`rounded-full px-3 py-1.5 text-xs transition disabled:opacity-50 ${
-                          active
-                            ? "bg-[#c5f04a] font-medium text-[#0a0a0a]"
-                            : "border border-white/10 bg-white/5 text-white/70 hover:bg-white/10"
-                        }`}
-                      >
-                        {outcome.label}
-                      </motion.button>
-                    );
-                  })}
-                  <span className="mx-1 h-5 w-px bg-white/10" />
-                  <motion.button
-                    type="button"
-                    onClick={toggleAssignedMode}
-                    disabled={togglingMode}
-                    whileTap={reduceMotion ? undefined : { scale: 0.96 }}
-                    transition={TAP_SPRING}
-                    className="flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white/70 transition hover:bg-white/10 disabled:opacity-50"
-                  >
-                    {selected.assignedMode === "human" ? (
-                      <>
-                        <User className="size-3.5" /> Modo humano
-                      </>
-                    ) : (
-                      <>
-                        <Bot className="size-3.5" /> Modo IA (sugiere)
-                      </>
-                    )}
-                  </motion.button>
-                </div>
-              </div>
+            <button type="button" onClick={() => void toggleAssignedMode()} disabled={savingMode} className={`relative inline-flex h-5 w-9 rounded-full p-0.5 transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3f5f7b] disabled:opacity-50 ${conversation.assignedMode === "ai" ? "bg-[#3f5f7b]" : "bg-[#dce2e8]"}`} aria-pressed={conversation.assignedMode === "ai"} aria-label={`IA ${conversation.assignedMode === "ai" ? "activa" : "inactiva"}`}>
+              <span className={`size-4 rounded-full bg-white shadow-sm transition-transform ${conversation.assignedMode === "ai" ? "translate-x-4" : "translate-x-0"}`} />
+            </button>
+          </div>
+          {modeError && <p className="mt-2 text-[10px] text-[#a33b3b]" role="alert">{modeError}</p>}
+        </div>
 
-              <div className="flex-1 space-y-3 overflow-y-auto px-4 py-4 sm:px-6">
-                {messages.map((message) => {
-                  const mine = message.direction === "out";
-                  return (
-                    <div key={message.id} className={`flex ${mine ? "justify-end" : "justify-start"}`}>
-                      <div
-                        className={`max-w-[75%] rounded-2xl px-3.5 py-2 text-sm leading-snug ${
-                          mine ? "bg-[#c5f04a] text-[#0a0a0a]" : "bg-white/[0.06] text-white"
-                        }`}
-                      >
-                        <p className="whitespace-pre-wrap">{message.body}</p>
-                        <div
-                          className={`mt-1 flex items-center gap-1 text-[10px] ${
-                            mine ? "text-[#0a0a0a]/50" : "text-white/35"
-                          }`}
-                        >
-                          {message.source === "phone" && <Smartphone className="size-2.5" />}
-                          {message.source === "ai" && <Sparkles className="size-2.5" />}
-                          {formatTime(message.createdAt)}
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-                <div ref={threadEndRef} />
-              </div>
+        <dl className="mt-6 space-y-5">
+          <div>
+            <dt className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#94a0ad]">Canal</dt>
+            <dd className="mt-2 flex items-center gap-2 text-[12px] text-[#506176]">
+              <span className={`size-2 rounded-full ${official ? "bg-[#a8d63d]" : "bg-[#aeb8c2]"}`} aria-hidden="true" />
+              {official ? "WhatsApp oficial" : "WAHA · no oficial"}
+            </dd>
+          </div>
+          <div>
+            <dt className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#94a0ad]">Estado</dt>
+            <dd className="mt-2 text-[12px] text-[#506176]">{statusLabel(conversation.status)}</dd>
+          </div>
+          <div>
+            <dt className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#94a0ad]">Resultado</dt>
+            <dd className="mt-2 text-[12px] text-[#506176]">{outcomeLabel(conversation.outcome)}</dd>
+          </div>
+          <div>
+            <dt className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#94a0ad]">Lead vinculado</dt>
+            <dd className="mt-2 truncate text-[12px] text-[#506176]">{conversation.leadId || "Sin vincular"}</dd>
+          </div>
+        </dl>
+      </div>
+    </aside>
+  );
+}
 
-              <div className="border-t border-white/10 bg-white/[0.02] p-3 sm:p-4">
-                <div className="flex items-end gap-2">
-                  <textarea
-                    value={draftText}
-                    onChange={(event) => setDraftText(event.target.value)}
-                    placeholder="Escribí una respuesta…"
-                    rows={2}
-                    className="min-h-[2.5rem] flex-1 resize-none rounded-2xl border border-white/10 bg-white/5 px-3.5 py-2.5 text-sm text-white placeholder:text-white/30 focus:border-[#c5f04a]/50 focus:outline-none"
-                  />
-                  <motion.button
-                    type="button"
-                    onClick={requestSuggestion}
-                    disabled={suggesting}
-                    whileTap={reduceMotion ? undefined : { scale: 0.94 }}
-                    transition={TAP_SPRING}
-                    aria-label="Sugerir respuesta con IA"
-                    className="flex size-10 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/5 text-[#c5f04a] transition hover:bg-white/10 disabled:opacity-50"
-                  >
-                    {suggesting ? (
-                      <Loader2 className="size-4 animate-spin" />
-                    ) : (
-                      <Sparkles className="size-4" />
-                    )}
-                  </motion.button>
-                  <motion.button
-                    type="button"
-                    onClick={sendMessage}
-                    disabled={sending || !draftText.trim()}
-                    whileTap={reduceMotion ? undefined : { scale: 0.94 }}
-                    transition={TAP_SPRING}
-                    aria-label="Enviar"
-                    className="flex size-10 shrink-0 items-center justify-center rounded-full bg-[#c5f04a] text-[#0a0a0a] transition hover:bg-white disabled:opacity-40"
-                  >
-                    {sending ? <Loader2 className="size-4 animate-spin" /> : <Send className="size-4" />}
-                  </motion.button>
-                </div>
-                <p className="mt-2 flex items-center gap-1.5 text-[11px] text-white/35">
-                  <Check className="size-3" /> Toda respuesta sale solo cuando vos apretás enviar.
-                </p>
+export default function InboxClient({ initialConversations }: InboxClientProps) {
+  const [conversations, setConversations] = useState(initialConversations);
+  const [selectedId, setSelectedId] = useState<number | null>(initialConversations[0]?.id ?? null);
+  const [query, setQuery] = useState("");
+  const [filter, setFilter] = useState<InboxFilter>("all");
+
+  const refreshConversations = useCallback(async () => {
+    try {
+      const response = await fetch("/api/ops/inbox", { cache: "no-store" });
+      if (!response.ok) return;
+      const data = (await response.json()) as { conversations: WaConversation[] };
+      setConversations(data.conversations);
+    } catch {
+      // HTTP remains the recovery path when realtime is unavailable.
+    }
+  }, []);
+
+  const handleRealtimeEvent = useCallback((event: OpsRealtimeEvent) => {
+    if (event.type !== "conversation.updated" && event.type !== "message.created" && event.type !== "message.updated") return;
+    const next = eventConversation(event);
+    if (!next) {
+      void refreshConversations();
+      return;
+    }
+    setConversations((items) => {
+      const merged = items.some((item) => item.id === next.id)
+        ? items.map((item) => (item.id === next.id ? next : item))
+        : [next, ...items];
+      return merged.sort((left, right) => String(right.lastMessageAt).localeCompare(String(left.lastMessageAt)));
+    });
+  }, [refreshConversations]);
+
+  useOpsRealtime({ onEvent: handleRealtimeEvent, onReconnect: refreshConversations });
+
+  const counts = useMemo(() => ({
+    all: conversations.length,
+    official: conversations.filter((conversation) => conversation.channelKind === "cloud_api").length,
+    waiting: conversations.filter(waitingForReply).length,
+    open: conversations.filter((conversation) => conversation.status === "open").length,
+  }), [conversations]);
+
+  const filtered = useMemo(() => {
+    const normalized = query.trim().toLowerCase();
+    return conversations.filter((conversation) => {
+      const matchesQuery = !normalized || [conversation.contactName, conversation.contactPhone, conversation.contactWaId, conversation.channelKind]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase()
+        .includes(normalized);
+      const matchesFilter = filter === "all"
+        || (filter === "official" && conversation.channelKind === "cloud_api")
+        || (filter === "waiting" && waitingForReply(conversation))
+        || (filter === "open" && conversation.status === "open");
+      return matchesQuery && matchesFilter;
+    });
+  }, [conversations, filter, query]);
+
+  const selected = conversations.find((conversation) => conversation.id === selectedId) ?? null;
+
+  function updateConversation(next: WaConversation) {
+    setConversations((items) => items.map((item) => (item.id === next.id ? next : item)));
+  }
+
+  return (
+    <main className="min-h-[calc(100dvh-68px)] bg-[#f7f8fa] pb-[calc(68px+env(safe-area-inset-bottom))] text-[#172238] md:pb-0">
+      <div className="h-[calc(100dvh-68px)] min-h-[620px] overflow-hidden border-y border-[#e5e7eb] bg-white">
+        <div className="grid h-full grid-cols-1 lg:grid-cols-[360px_minmax(0,1fr)] xl:grid-cols-[360px_minmax(0,1fr)_292px]">
+          <aside className={`${selected ? "hidden lg:flex" : "flex"} min-h-0 flex-col border-r border-[#e5e7eb] bg-white`} aria-label="Lista de conversaciones">
+            <header className="border-b border-[#e5e7eb] px-4 pb-4 pt-5">
+              <div className="flex items-center gap-2">
+                <h1 className="text-[17px] font-semibold tracking-[-0.02em]">Bandeja</h1>
+                <span className="text-xs text-[#8a96a5]">{counts.all}</span>
               </div>
-            </>
-          )}
-        </section>
+              <label className="mt-4 flex min-h-10 items-center gap-2 rounded-[10px] border border-[#e1e6ec] bg-[#fafbfc] px-3 text-sm">
+                <Search className="size-4 text-[#8a96a5]" aria-hidden="true" />
+                <span className="sr-only">Buscar conversación</span>
+                <input
+                  value={query}
+                  onChange={(event) => setQuery(event.target.value)}
+                  placeholder="Buscar conversación…"
+                  className="w-full bg-transparent text-sm text-[#172238] outline-none placeholder:text-[#9aa5b2]"
+                />
+              </label>
+            </header>
+
+            <nav className="flex gap-1 overflow-x-auto border-b border-[#e5e7eb] px-4 py-3" aria-label="Filtros de conversaciones">
+              {([
+                ["all", "Todas"],
+                ["official", "Oficiales"],
+                ["waiting", "Esperan respuesta"],
+                ["open", "Abiertas"],
+              ] as const).map(([id, label]) => (
+                <button
+                  key={id}
+                  type="button"
+                  onClick={() => setFilter(id)}
+                  aria-pressed={filter === id}
+                  className={`min-h-8 shrink-0 rounded-full px-3 text-[11px] font-medium transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-[#3f5f7b] ${filter === id ? "bg-[#3f5f7b] text-white" : "border border-[#e1e6ec] bg-white text-[#536275] hover:border-[#b9c5d2]"}`}
+                >
+                  {label} <span className={filter === id ? "text-white/70" : "text-[#9aa5b2]"}>{counts[id]}</span>
+                </button>
+              ))}
+            </nav>
+
+            <div className="min-h-0 flex-1 overflow-y-auto" role="list" aria-label="Conversaciones de WhatsApp">
+              {filtered.length === 0 && <p className="px-6 py-12 text-center text-sm leading-6 text-[#7c8998]">No hay conversaciones que coincidan con la búsqueda.</p>}
+              {filtered.map((conversation) => {
+                const active = conversation.id === selectedId;
+                const waiting = waitingForReply(conversation);
+                const official = conversation.channelKind === "cloud_api";
+                return (
+                  <button
+                    key={conversation.id}
+                    type="button"
+                    role="listitem"
+                    onClick={() => setSelectedId(conversation.id)}
+                    aria-current={active ? "true" : undefined}
+                    className={`flex min-h-[82px] w-full items-center gap-3 border-b border-[#edf0f3] px-4 py-3 text-left transition focus-visible:z-10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-inset focus-visible:outline-[#3f5f7b] ${active ? "border-l-[3px] border-l-[#3f5f7b] bg-[#f1f5f9] pl-[13px]" : "hover:bg-[#fafbfd]"}`}
+                  >
+                    <span className="relative flex size-11 shrink-0 items-center justify-center rounded-full bg-[#73718d] text-[13px] font-semibold text-white">
+                      {initials(conversation.contactName)}
+                      <span className={`absolute bottom-0 right-0 size-2.5 rounded-full border-2 border-white ${official ? "bg-[#a8d63d]" : "bg-[#aeb8c2]"}`} aria-label={official ? "Canal oficial" : "Canal alternativo"} />
+                    </span>
+                    <span className="min-w-0 flex-1">
+                      <span className="flex items-start justify-between gap-2">
+                        <strong className="truncate text-[13px] font-semibold text-[#172238]">{conversationTitle(conversation)}</strong>
+                        <span className="shrink-0 text-[10px] text-[#8a96a5]">{formatListTime(conversation.lastMessageAt)}</span>
+                      </span>
+                      <span className="mt-1 block truncate text-[11px] text-[#758396]">{phoneLabel(conversation)}</span>
+                      <span className="mt-2 flex items-center gap-2 text-[10px]">
+                        <span className={official ? "text-[#47704d]" : "text-[#7c8793]"}>{official ? "WhatsApp oficial" : "WAHA · no oficial"}</span>
+                        {waiting && <span className="rounded-full bg-[#fff5df] px-2 py-0.5 text-[#8d6a26]">Nuevo</span>}
+                      </span>
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </aside>
+
+          <section className={`${selected ? "flex" : "hidden lg:flex"} min-h-0 min-w-0 bg-[#f7f8fa]`} aria-label="Conversación seleccionada">
+            {selected ? (
+              <ConversationThread
+                key={selected.id}
+                conversation={selected}
+                onBack={() => setSelectedId(null)}
+                onConversationChange={updateConversation}
+              />
+            ) : (
+              <div className="flex min-h-full flex-1 items-center justify-center p-8 text-center">
+                <div>
+                  <div className="mx-auto flex size-12 items-center justify-center rounded-full bg-[#edf2f6] text-[#3f5f7b]"><CheckCircle2 className="size-5" /></div>
+                  <h2 className="mt-4 text-sm font-semibold text-[#172238]">Selecciona una conversación</h2>
+                  <p className="mt-2 max-w-xs text-xs leading-5 text-[#7c8998]">Las conversaciones oficiales de WhatsApp aparecerán aquí.</p>
+                </div>
+              </div>
+            )}
+          </section>
+
+          {selected && <DetailRail conversation={selected} onConversationChange={updateConversation} />}
+        </div>
       </div>
     </main>
   );
 }
 
+function phoneLabel(conversation: WaConversation) {
+  return formatWhatsAppPhone(conversation.contactPhone || conversation.contactWaId) || conversation.contactWaId;
+}

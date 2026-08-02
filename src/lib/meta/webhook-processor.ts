@@ -3,6 +3,8 @@ import {
   updateMessageStatusByWaId,
   upsertConversation,
 } from "@/lib/whatsapp-inbox-db";
+import { enqueueAutoReplyJob } from "@/lib/auto-reply";
+import { normalizeWhatsAppPhone } from "@/lib/phone";
 import { markWhatsAppConnectionStatusByWaba } from "@/lib/whatsapp-connections-db";
 import { normalizeMetaWebhook } from "@/lib/meta/cloud-whatsapp-provider";
 import type { WhatsAppNormalizedEvent } from "@/lib/whatsapp-provider";
@@ -51,8 +53,7 @@ async function persistNormalizedEvent(event: WhatsAppNormalizedEvent): Promise<n
   if (event.type === "error.received") throw new Error(event.reason);
 
   if (event.type === "message.status.updated") {
-    await updateMessageStatusByWaId(event.messageId, event.status);
-    return 1;
+    return (await updateMessageStatusByWaId(event.messageId, event.status)) ? 1 : 0;
   }
 
   if (event.type === "connection.updated") {
@@ -71,6 +72,8 @@ async function persistNormalizedEvent(event: WhatsAppNormalizedEvent): Promise<n
     channelKind: "cloud_api",
     channelKey: event.phoneNumberId,
     contactWaId,
+    contactPhone: normalizeWhatsAppPhone(event.message.contactPhone),
+    contactName: event.message.contactName,
     direction,
     occurredAt: event.occurredAt,
   });
@@ -82,6 +85,8 @@ async function persistNormalizedEvent(event: WhatsAppNormalizedEvent): Promise<n
     msgType: event.message.type,
     body: event.message.text ?? null,
     payload: event,
+    occurredAt: event.occurredAt,
   });
+  if (inserted && direction === "in") await enqueueAutoReplyJob(conversation.id, inserted.id);
   return inserted ? 1 : 0;
 }

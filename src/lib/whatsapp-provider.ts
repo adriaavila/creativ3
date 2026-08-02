@@ -62,6 +62,8 @@ export type WhatsAppMessageReceivedEvent = WhatsAppNormalizedEventBase & {
     source: "cloud_api" | "business_app" | "waha" | "phone";
     type: string;
     text?: string;
+    contactName?: string;
+    contactPhone?: string;
   };
 };
 

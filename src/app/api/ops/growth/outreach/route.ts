@@ -1,5 +1,6 @@
-import { createHmac } from "node:crypto";
 import { z } from "zod";
+import { authorizeOps } from "@/lib/ops-auth";
+import { listMessageTemplates, type MetaMessageTemplate } from "@/lib/meta/server";
 import {
   completeGrowthOutreachAttempt,
   createGrowthOutreachAttempt,
@@ -7,73 +8,103 @@ import {
   updateLeadFields,
   updateLeadStatus,
 } from "@/lib/growth-db";
-import { authorizeOps } from "@/lib/ops-auth";
+import { getWhatsAppProviderConnection } from "@/lib/whatsapp-connections-db";
+import {
+  getWahaConnection,
+  upsertConversation,
+} from "@/lib/whatsapp-inbox-db";
+import { normalizeWhatsAppId } from "@/lib/phone";
+import { OutsideFreeTextWindowError, sendToConversation } from "@/lib/whatsapp-send";
 
 export const runtime = "nodejs";
 
-const schema = z.object({
+export const growthOutreachSchema = z.object({
   leadId: z.string().uuid(),
-  phone: z.string().regex(/^\+[1-9]\d{7,14}$/, "Usa formato internacional, por ejemplo +58412…"),
+  connectionId: z.string().trim().min(2).max(200),
+  channel: z.enum(["cloud_api", "waha"]),
+  phone: z.string().regex(/^\+?[1-9]\d{7,14}$/, "Usa formato internacional, por ejemplo +58412…"),
   message: z.string().trim().min(10).max(1000),
+  templateName: z.string().trim().min(1).max(100).optional(),
+  templateLanguage: z.string().trim().min(2).max(20).optional(),
   contactSourceUrl: z.url().max(500).nullable().optional(),
   confirmed: z.literal(true),
 });
+
+export function growthTemplateComponents(message: string) {
+  return [
+    {
+      type: "body",
+      parameters: [{ type: "text", text: message }],
+    },
+  ];
+}
 
 export async function POST(request: Request) {
   const authorization = await authorizeOps();
   if (!authorization.authorized) return authorization.response;
 
-  const input = schema.parse(await request.json());
+  const input = growthOutreachSchema.parse(await request.json());
   const lead = await getGrowthLeadById(input.leadId);
   if (!lead) return Response.json({ error: "Lead no encontrado." }, { status: 404 });
 
-  const secret = process.env.N8N_WEBHOOK_SECRET;
-  if (!secret) {
-    return Response.json({ error: "N8N_WEBHOOK_SECRET no está configurado." }, { status: 503 });
+  const phone = normalizeWhatsAppId(input.phone);
+  const connection = await resolveConnection(input.channel, input.connectionId);
+  let selectedTemplate: MetaMessageTemplate | null = null;
+  if (input.channel === "cloud_api") {
+    if (!input.templateName || !input.templateLanguage) {
+      return Response.json({ error: "Selecciona una plantilla aprobada y su idioma." }, { status: 400 });
+    }
+    try {
+      selectedTemplate = await findApprovedTemplate(
+        connection.providerConnection,
+        input.templateName,
+        input.templateLanguage,
+      );
+    } catch (error) {
+      return Response.json(
+        { error: error instanceof Error ? error.message : "No se pudo validar la plantilla de WhatsApp." },
+        { status: 400 },
+      );
+    }
   }
-
+  const conversation = await upsertConversation({
+    channelKind: input.channel,
+    channelKey: connection.channelKey,
+    contactWaId: phone,
+    direction: "out",
+    connectionId: connection.connectionId,
+  });
   const attemptId = await createGrowthOutreachAttempt({
     leadId: input.leadId,
     recipient: input.phone,
     content: input.message,
     sentBy: authorization.userId,
+    channelKind: input.channel,
   });
-  const payload = {
-    requestId: attemptId,
-    leadId: input.leadId,
-    businessName: lead.businessName,
-    to: input.phone.replace(/\D/g, ""),
-    message: input.message,
-  };
-  const serialized = JSON.stringify(payload);
-  const signature = createHmac("sha256", secret).update(serialized).digest("hex");
-  const webhookUrl =
-    process.env.GROWTH_OUTREACH_WEBHOOK_URL ??
-    "https://n8n.allok.fun/webhook/ops/growth-outreach";
 
   try {
-    const response = await fetch(webhookUrl, {
-      method: "POST",
-      headers: {
-        "content-type": "application/json",
-        "x-ops-signature": signature,
-      },
-      body: serialized,
-      cache: "no-store",
-      signal: AbortSignal.timeout(20_000),
+    const message = await sendToConversation({
+      conversationId: conversation.id,
+      text: input.channel === "waha" ? input.message : undefined,
+      template:
+        input.channel === "cloud_api"
+          ? {
+              name: selectedTemplate!.name,
+              languageCode: selectedTemplate!.language,
+              components: growthTemplateComponents(input.message),
+            }
+          : undefined,
+      source: "api",
     });
-    const result = (await response.json().catch(() => ({}))) as {
-      messageId?: string;
-      error?: string;
-    };
-    if (!response.ok || !result.messageId) {
-      throw new Error(result.error ?? `El gateway respondió ${response.status}`);
-    }
+
+    if (!message) throw new Error("El proveedor no devolvió un mensaje enviado.");
 
     await Promise.all([
       completeGrowthOutreachAttempt(attemptId, {
         status: "sent",
-        providerMessageId: result.messageId,
+        providerMessageId: message.waMessageId ?? undefined,
+        conversationId: conversation.id,
+        channelKind: input.channel,
       }),
       updateLeadFields(input.leadId, {
         businessPhone: input.phone,
@@ -81,10 +112,69 @@ export async function POST(request: Request) {
       }),
       updateLeadStatus(input.leadId, "contacted"),
     ]);
-    return Response.json({ ok: true, messageId: result.messageId });
+
+    return Response.json({
+      ok: true,
+      messageId: message.waMessageId ?? String(message.id),
+      conversationId: conversation.id,
+      channelKind: input.channel,
+    });
   } catch (error) {
     const message = error instanceof Error ? error.message : "No se pudo enviar el mensaje.";
-    await completeGrowthOutreachAttempt(attemptId, { status: "failed", error: message });
-    return Response.json({ error: message }, { status: 502 });
+    await completeGrowthOutreachAttempt(attemptId, {
+      status: "failed",
+      conversationId: conversation.id,
+      channelKind: input.channel,
+      error: message,
+    });
+    return Response.json(
+      {
+        error:
+          error instanceof OutsideFreeTextWindowError
+            ? error.message
+            : input.channel === "cloud_api"
+              ? `${message} Verifica que la plantilla seleccionada esté aprobada en Meta.`
+              : message,
+      },
+      { status: 502 },
+    );
   }
+}
+
+async function resolveConnection(channel: "cloud_api" | "waha", connectionId: string) {
+  if (channel === "cloud_api") {
+    const connection = await getWhatsAppProviderConnection(connectionId);
+    if (!connection) throw new Error("La conexión oficial no está disponible.");
+    return {
+      channelKey: connection.phoneNumberId,
+      connectionId: null,
+      providerConnection: connection,
+    };
+  }
+
+  const connection = await getWahaConnection(connectionId);
+  if (!connection) throw new Error("La sesión WAHA no existe.");
+  if (connection.status !== "connected") {
+    throw new Error(`La sesión WAHA no está conectada (${connection.status}).`);
+  }
+  return {
+    channelKey: connection.wahaSessionId,
+    connectionId: connection.connectionId,
+    providerConnection: null,
+  };
+}
+
+async function findApprovedTemplate(
+  connection: Awaited<ReturnType<typeof getWhatsAppProviderConnection>>,
+  name: string,
+  language: string,
+) {
+  if (!connection) throw new Error("La conexión oficial no está disponible.");
+  const templates = await listMessageTemplates({
+    wabaId: connection.wabaId,
+    businessToken: connection.businessToken,
+  });
+  const template = templates.find((item) => item.name === name && item.language === language);
+  if (!template) throw new Error("La plantilla seleccionada no está aprobada para esta conexión.");
+  return template;
 }

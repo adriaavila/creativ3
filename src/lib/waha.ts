@@ -23,6 +23,11 @@ export type WahaSnapshot = {
   sessions: WahaSession[];
 };
 
+export type WahaContact = {
+  name: string | null;
+  phone: string | null;
+};
+
 const WAHA_URL = process.env.WAHA_URL?.replace(/\/+$/, "");
 
 export function isWahaConfigured() {
@@ -33,6 +38,44 @@ export function isWahaConfigured() {
 export function getWahaConfig(): { baseUrl: string; apiKey: string } | null {
   if (!WAHA_URL || !process.env.WAHA_API_KEY) return null;
   return { baseUrl: WAHA_URL, apiKey: process.env.WAHA_API_KEY };
+}
+
+export async function getWahaContact(sessionId: string, contactId: string): Promise<WahaContact | null> {
+  const config = getWahaConfig();
+  if (!config) return null;
+
+  try {
+    const contactUrl = new URL(`${config.baseUrl}/api/contacts`);
+    contactUrl.searchParams.set("contactId", contactId);
+    contactUrl.searchParams.set("session", sessionId);
+    const response = await fetch(contactUrl, {
+      headers: { "X-Api-Key": config.apiKey },
+      cache: "no-store",
+      signal: AbortSignal.timeout(5_000),
+    });
+    const rawContact = response.ok ? await response.json() : null;
+    const contact = isRecord(rawContact) ? rawContact : {};
+    let phone = normalizeWahaPhone(contact.number ?? contact.id);
+
+    if (!phone && /@lid(?:$|\?)/i.test(contactId)) {
+      const lidUrl = `${config.baseUrl}/api/${encodeURIComponent(sessionId)}/lids/${encodeURIComponent(contactId)}`;
+      const lidResponse = await fetch(lidUrl, {
+        headers: { "X-Api-Key": config.apiKey },
+        cache: "no-store",
+        signal: AbortSignal.timeout(5_000),
+      });
+      const rawMapping = lidResponse.ok ? await lidResponse.json() : null;
+      const mapping = isRecord(rawMapping) ? rawMapping : {};
+      phone = normalizeWahaPhone(mapping.pn);
+    }
+
+    return {
+      name: stringValue(contact.name) ?? stringValue(contact.pushname) ?? stringValue(contact.shortName),
+      phone,
+    };
+  } catch {
+    return null;
+  }
 }
 
 /** Lists all sessions, or filters to one by name — WAHA's /api/sessions already returns every session. */
@@ -98,8 +141,13 @@ export function normalizeWahaEngine(value: unknown): string | null {
 
 export function normalizeWahaPhone(value: unknown): string | null {
   if (typeof value !== "string") return null;
+  if (/@lid(?:$|\?)/i.test(value)) return null;
   const local = value.split("@")[0]?.split(":")[0]?.replace(/\D/g, "") ?? "";
   return local.length >= 8 ? local : null;
+}
+
+function stringValue(value: unknown): string | null {
+  return typeof value === "string" && value.trim() ? value.trim() : null;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

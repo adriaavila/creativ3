@@ -1,9 +1,7 @@
 "use client";
 
-import Link from "next/link";
 import { useMemo, useState } from "react";
 import {
-  ArrowLeft,
   CheckCircle2,
   ExternalLink,
   Images,
@@ -50,14 +48,8 @@ export default function OpsPortfolioClient({ projects, lastSyncedAt }: OpsPortfo
 
   return (
     <main className="min-h-dvh bg-[#08090a] pb-24 text-white md:pb-8">
-      <div className="mx-auto max-w-[1400px] px-4 pb-5 sm:px-7 lg:px-10">
-        <Link
-          href="/ops"
-          className="mt-6 inline-flex min-h-10 items-center gap-2 text-sm text-white/55 transition hover:text-white"
-        >
-          <ArrowLeft className="size-4" /> Ops
-        </Link>
-        <header className="mt-8 flex flex-wrap items-end justify-between gap-4">
+      <div className="mx-auto w-full max-w-[1500px] px-4 pb-10 pt-8 sm:px-6 lg:px-10 lg:pt-12">
+        <header className="flex flex-wrap items-end justify-between gap-4">
           <div>
             <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-[#c5f04a]">
               Sync portafolio
@@ -107,7 +99,7 @@ export default function OpsPortfolioClient({ projects, lastSyncedAt }: OpsPortfo
           </p>
         )}
 
-        <section className="mt-8 overflow-hidden rounded-2xl border border-white/10">
+        <section className="mt-8 overflow-hidden rounded-none border border-white/10 bg-white/[0.015]">
           <table className="w-full text-left text-sm">
             <thead className="bg-white/[0.04] text-[11px] uppercase tracking-[0.12em] text-white/45">
               <tr>

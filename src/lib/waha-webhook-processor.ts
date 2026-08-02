@@ -10,7 +10,9 @@ import {
   upsertConversation,
   type WahaConnectionRecord,
 } from "@/lib/whatsapp-inbox-db";
-import { getWahaSnapshot } from "@/lib/waha";
+import { enqueueAutoReplyJob } from "@/lib/auto-reply";
+import { normalizeWhatsAppPhone } from "@/lib/phone";
+import { getWahaContact, getWahaSnapshot } from "@/lib/waha";
 import { WahaWhatsAppProvider } from "@/lib/waha-provider";
 
 const provider = new WahaWhatsAppProvider(async (connectionId) => {
@@ -50,15 +52,20 @@ async function persistEvent(
     const contactWaId = event.message.from;
     if (!contactWaId) throw new Error("waha_message_missing_contact_id");
     const direction = event.message.direction === "outbound" ? "out" : "in";
+    const contact = direction === "in"
+      ? await getWahaContact(connection.wahaSessionId, contactWaId)
+      : null;
     const conversation = await upsertConversation({
       connectionId: connection.connectionId,
       channelKind: "waha",
       channelKey: connection.wahaSessionId,
       contactWaId,
+      contactPhone: contact?.phone ?? normalizeWhatsAppPhone(contactWaId),
+      contactName: contact?.name ?? event.message.contactName,
       direction,
       occurredAt: event.occurredAt,
     });
-    await insertMessage({
+    const inserted = await insertMessage({
       conversationId: conversation.id,
       waMessageId: event.message.id,
       direction,
@@ -66,7 +73,9 @@ async function persistEvent(
       msgType: event.message.type,
       body: event.message.text ?? null,
       payload,
+      occurredAt: event.occurredAt,
     });
+    if (inserted && direction === "in") await enqueueAutoReplyJob(conversation.id, inserted.id);
     await noteWahaConnectionActivity(connection.connectionId, direction);
     return;
   }

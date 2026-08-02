@@ -188,18 +188,26 @@ export function normalizeMetaWebhook(payload: unknown): WhatsAppNormalizedEvent[
             continue;
           }
 
+          const contact = findMetaContact(message, records(value.contacts));
+          const contactName = isRecord(contact?.profile)
+            ? optionalString(contact.profile.name)
+            : undefined;
+          const contactPhone = optionalString(message.from ?? contact?.wa_id);
+
           events.push({
             ...base,
             type: "message.received",
             occurredAt: normalizeTimestamp(message.timestamp) ?? entryTimestamp,
             message: {
               id,
-              from: optionalString(message.from),
+              from: optionalString(message.from ?? contact?.wa_id ?? message.from_user_id),
               to: optionalString(metadata?.display_phone_number),
               direction: "inbound",
               source: "cloud_api",
               type: optionalString(message.type) ?? "unknown",
               text: textBody(message),
+              ...(contactName ? { contactName } : {}),
+              ...(contactPhone ? { contactPhone } : {}),
             },
           });
         }
@@ -291,6 +299,17 @@ export function normalizeMetaWebhook(payload: unknown): WhatsAppNormalizedEvent[
   }
 
   return events;
+}
+
+function findMetaContact(message: Record<string, unknown>, contacts: Record<string, unknown>[]) {
+  const from = optionalString(message.from);
+  const fromUserId = optionalString(message.from_user_id);
+  const match = contacts.find((contact) => {
+    const waId = optionalString(contact.wa_id);
+    const userId = optionalString(contact.user_id);
+    return (from && waId === from) || (fromUserId && userId === fromUserId);
+  });
+  return match ?? (contacts.length === 1 ? contacts[0] : undefined);
 }
 
 function messageResult(response: MetaMessageResponse): WhatsAppSendResult {

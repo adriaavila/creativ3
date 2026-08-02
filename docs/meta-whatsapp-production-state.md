@@ -10,6 +10,26 @@ The application and infrastructure are hardened for a supervised Coexistence pil
 
 Do not describe the integration as fully production-accepted until the checklist under **Real acceptance test** passes with an eligible number.
 
+## What the business owner sees in allok
+
+The `/embedded-whatsapp` screen uses Meta Embedded Signup with the Coexistence variation. The owner does not paste a token into allok or enter a phone credential in the browser:
+
+1. An authenticated Ops user opens the connection screen and chooses **Conectar con Meta**.
+2. Meta opens the official flow. The owner authorizes the verified business, accepts Meta's terms, and selects the WhatsApp Business App number to connect.
+3. Meta returns a short-lived authorization code and the selected WABA/phone identifiers. allok exchanges the code on the server, resolves the phone profile, subscribes the WABA to the app, and stores the encrypted business token and connection metadata in Neon.
+4. The number remains usable in the WhatsApp Business App under Coexistence. The Cloud API powers the allok inbox, delivery states, team workflows, and supervised automation.
+
+The connection card shows the stored display phone number, verified name, connection mode, status, name status, and quality rating when Meta provides them. A successful connection is not a promise that all historical app messages will appear: incoming messages and supported status/echo events are delivered through Meta webhooks, while `history` and `smb_app_state_sync` remain deliberately unclaimed until real Meta fixtures are verified.
+
+Meta's messaging rules still apply. Free-form replies are available inside the 24-hour customer-care window; outside that window, the CRM must use an approved template. Coexistence does not remove that policy.
+
+Official references:
+
+- [Onboard WhatsApp Business App users with Coexistence](https://developers.facebook.com/docs/whatsapp/embedded-signup/custom-flows/onboarding-business-app-users/)
+- [Cloud API get started](https://developers.facebook.com/docs/whatsapp/cloud-api/get-started)
+- [Cloud API phone numbers](https://developers.facebook.com/docs/whatsapp/cloud-api/phone-numbers)
+- [Cloud API registration](https://developers.facebook.com/docs/whatsapp/cloud-api/registration)
+
 ## Verified Meta configuration
 
 - Meta app: `servicioscreativos` (`4459170630986606`), published.

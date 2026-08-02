@@ -291,6 +291,11 @@
   html.theme-dark body:has(.studio)::after {
     content: none;
   }
+
+  html.theme-dark body:has(.ops-shell)::before,
+  html.theme-dark body:has(.ops-shell)::after {
+    content: none;
+  }
 }
 
 .outcome-paper-grid {

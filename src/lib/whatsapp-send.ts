@@ -3,8 +3,9 @@ import { MetaCloudWhatsAppProvider } from "@/lib/meta/cloud-whatsapp-provider";
 import { getWhatsAppProviderConnection } from "@/lib/whatsapp-connections-db";
 import { sendWahaText } from "@/lib/waha-send";
 import { getConversationById, insertMessage, type WaConversation, type WaMessage } from "@/lib/whatsapp-inbox-db";
+import { isWithinFreeTextWindow } from "@/lib/whatsapp-window";
 
-const FREE_TEXT_WINDOW_MS = 24 * 60 * 60 * 1000;
+export { isWithinFreeTextWindow } from "@/lib/whatsapp-window";
 
 export type SendToConversationInput = {
   conversationId: number;
@@ -12,6 +13,7 @@ export type SendToConversationInput = {
   template?: { name: string; languageCode: string; components?: unknown[] };
   /** Who authored this outbound message: a human via /ops/inbox ("api") or the AI auto-reply ("ai"). */
   source?: "api" | "ai";
+  metadata?: Record<string, unknown>;
 };
 
 export class OutsideFreeTextWindowError extends Error {
@@ -38,9 +40,7 @@ async function sendCloudApi(conversation: WaConversation, input: SendToConversat
   }
   const provider = new MetaCloudWhatsAppProvider(async () => connection);
 
-  const withinWindow = conversation.lastInboundAt
-    ? Date.now() - new Date(conversation.lastInboundAt).getTime() < FREE_TEXT_WINDOW_MS
-    : false;
+  const withinWindow = isWithinFreeTextWindow(conversation.lastInboundAt);
 
   let waMessageId: string | undefined;
   let body: string | null;
@@ -75,6 +75,7 @@ async function sendCloudApi(conversation: WaConversation, input: SendToConversat
     source: input.source ?? "api",
     msgType: input.template ? "template" : "text",
     body,
+    payload: input.metadata,
     status: "sent",
   });
 }
@@ -89,6 +90,7 @@ async function sendWaha(conversation: WaConversation, input: SendToConversationI
     source: input.source ?? "api",
     msgType: "text",
     body: input.text,
+    payload: input.metadata,
     status: "sent",
   });
 }

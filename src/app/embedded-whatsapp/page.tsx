@@ -1,8 +1,14 @@
 import { redirect } from "next/navigation";
 import EmbeddedSignupClient from "@/components/whatsapp/EmbeddedSignupClient";
+import OpsShell from "@/components/ops/OpsShell";
 import { authorizeOps } from "@/lib/ops-auth";
 
 export const dynamic = "force-dynamic";
+
+export const metadata = {
+  title: "Conectar WhatsApp oficial | allok",
+  description: "Conecta tu número de WhatsApp Business con allok mediante Meta Embedded Signup.",
+};
 
 export default async function EmbeddedWhatsappPage({
   searchParams,
@@ -23,5 +29,9 @@ export default async function EmbeddedWhatsappPage({
       ? requestedWorkspace
       : authorization.userId;
 
-  return <EmbeddedSignupClient workspace={workspace} />;
+  return (
+    <OpsShell>
+      <EmbeddedSignupClient workspace={workspace} />
+    </OpsShell>
+  );
 }

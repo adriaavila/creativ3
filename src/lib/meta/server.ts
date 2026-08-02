@@ -96,6 +96,15 @@ export type MetaMessageResponse = {
   }>;
 };
 
+export type MetaMessageTemplate = {
+  name: string;
+  language: string;
+  category: string;
+  bodyText: string;
+  variableCount: number;
+  headerText?: string;
+};
+
 export type ResolvedMetaSignupPayload = MetaEmbeddedSignupPayload & {
   waba_id: string;
   phone_number_id: string;
@@ -549,6 +558,28 @@ export async function sendTemplateMessage(input: {
   });
 }
 
+export async function listMessageTemplates(input: {
+  wabaId: string;
+  businessToken: string;
+  graphVersion?: string;
+}): Promise<MetaMessageTemplate[]> {
+  const response = await graphRequest<{ data?: unknown[] }>({
+    requestName: "list_message_templates",
+    graphVersion: input.graphVersion ?? getGraphVersion(),
+    path: `${encodeURIComponent(input.wabaId)}/message_templates`,
+    accessToken: input.businessToken,
+    searchParams: {
+      status: "APPROVED",
+      limit: "100",
+      fields: "name,language,status,category,components",
+    },
+  });
+
+  return (Array.isArray(response.data) ? response.data : [])
+    .map(mapMessageTemplate)
+    .filter((template): template is MetaMessageTemplate => template !== null);
+}
+
 export async function deregisterPhoneNumber(input: {
   phoneNumberId: string;
   businessToken: string;
@@ -661,6 +692,45 @@ function normalizeGraphError(body: unknown): GraphErrorBody | { raw: string } {
     error_subcode: numberOrUndefined(value.error_subcode),
     fbtrace_id: stringOrUndefined(value.fbtrace_id),
   };
+}
+
+function mapMessageTemplate(value: unknown): MetaMessageTemplate | null {
+  if (!value || typeof value !== "object") return null;
+
+  const template = value as Record<string, unknown>;
+  const name = stringOrUndefined(template.name);
+  const language = stringOrUndefined(template.language);
+  const category = stringOrUndefined(template.category);
+  const status = stringOrUndefined(template.status);
+  if (!name || !language || !category || status?.toUpperCase() !== "APPROVED") return null;
+
+  let bodyText = "";
+  let headerText: string | undefined;
+  const components = Array.isArray(template.components) ? template.components : [];
+
+  for (const value of components) {
+    if (!value || typeof value !== "object") continue;
+    const component = value as Record<string, unknown>;
+    const type = stringOrUndefined(component.type)?.toUpperCase();
+    const text = typeof component.text === "string" ? component.text : undefined;
+
+    if (type === "BODY" && text !== undefined) bodyText = text;
+    if (type === "HEADER" && text !== undefined) headerText = text;
+  }
+
+  const result: MetaMessageTemplate = {
+    name,
+    language,
+    category,
+    bodyText,
+    variableCount: countTemplateVariables(bodyText),
+  };
+  if (headerText !== undefined) result.headerText = headerText;
+  return result;
+}
+
+function countTemplateVariables(text: string) {
+  return text.match(/\{\{\d+\}\}/g)?.length ?? 0;
 }
 
 function decodeBase64Url(value: string) {

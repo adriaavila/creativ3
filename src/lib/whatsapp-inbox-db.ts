@@ -1,4 +1,11 @@
 import { neon, type NeonQueryFunction } from "@neondatabase/serverless";
+import {
+  conversationUpdatedEvent,
+  messageCreatedEvent,
+  messageUpdatedEvent,
+  publishRealtimeEvent,
+  type RealtimeConversationChange,
+} from "@/lib/realtime-ingest";
 
 // Data access for the real WhatsApp inbox (migration 006). One conversation/message
 // model shared by both channels, discriminated by channel_kind/channel_key — see
@@ -15,9 +22,11 @@ export type ConversationOutcome = "cita" | "cotizacion" | "descarte";
 export type WaConversation = {
   id: number;
   connectionId: string | null;
+  leadId: string | null;
   channelKind: ChannelKind;
   channelKey: string;
   contactWaId: string;
+  contactPhone: string | null;
   contactName: string | null;
   status: ConversationStatus;
   assignedMode: AssignedMode;
@@ -84,9 +93,11 @@ function mapConversation(row: any): WaConversation {
   return {
     id: Number(row.id),
     connectionId: row.connection_id ? String(row.connection_id) : null,
+    leadId: row.lead_id ? String(row.lead_id) : null,
     channelKind: row.channel_kind,
     channelKey: String(row.channel_key),
     contactWaId: String(row.contact_wa_id),
+    contactPhone: row.contact_phone ? String(row.contact_phone) : null,
     contactName: row.contact_name ? String(row.contact_name) : null,
     status: row.status,
     assignedMode: row.assigned_mode,
@@ -137,34 +148,40 @@ function mapWahaConnection(row: any): WahaConnectionRecord {
   };
 }
 
-/** Upserts the conversation and bumps last_message_at (+ last_inbound_at on inbound). */
+/** Resolves the conversation before its message is inserted. Timestamps move in insertMessage(). */
 export async function upsertConversation(input: {
   channelKind: ChannelKind;
   channelKey: string;
   contactWaId: string;
+  contactPhone?: string | null;
   contactName?: string | null;
   direction: MessageDirection;
   occurredAt?: string;
   connectionId?: string | null;
 }): Promise<WaConversation> {
   const sql = getSql();
-  const occurredAt = input.occurredAt ?? new Date().toISOString();
+  const leadPhone = input.contactPhone ?? input.contactWaId;
   const rows = await sql`
     INSERT INTO wa_conversations (
-      channel_kind, channel_key, contact_wa_id, contact_name, last_message_at, last_inbound_at, connection_id
+      channel_kind, channel_key, contact_wa_id, contact_phone, contact_name,
+      last_message_at, last_inbound_at, connection_id, lead_id
     )
     VALUES (
-      ${input.channelKind}, ${input.channelKey}, ${input.contactWaId}, ${input.contactName ?? null},
-      ${occurredAt},
-      ${input.direction === "in" ? occurredAt : null},
-      ${input.connectionId ?? null}
+      ${input.channelKind}, ${input.channelKey}, ${input.contactWaId}, ${input.contactPhone ?? null}, ${input.contactName ?? null},
+      ${null},
+      ${null},
+      ${input.connectionId ?? null},
+      (SELECT id FROM leads
+       WHERE regexp_replace(COALESCE(business_phone, ''), '\\D', '', 'g') = regexp_replace(${leadPhone}, '\\D', '', 'g')
+       ORDER BY updated_at DESC
+       LIMIT 1)
     )
     ON CONFLICT (channel_kind, channel_key, contact_wa_id)
     DO UPDATE SET
+      contact_phone = COALESCE(EXCLUDED.contact_phone, wa_conversations.contact_phone),
       contact_name = COALESCE(EXCLUDED.contact_name, wa_conversations.contact_name),
       connection_id = COALESCE(EXCLUDED.connection_id, wa_conversations.connection_id),
-      last_message_at = ${occurredAt},
-      last_inbound_at = CASE WHEN ${input.direction} = 'in' THEN ${occurredAt}::timestamptz ELSE wa_conversations.last_inbound_at END,
+      lead_id = COALESCE(wa_conversations.lead_id, EXCLUDED.lead_id),
       updated_at = now()
     RETURNING *
   `;
@@ -187,26 +204,51 @@ export async function listConversations(limit = 100): Promise<WaConversation[]> 
   return rows.map(mapConversation);
 }
 
-export async function setConversationAssignedMode(id: number, mode: AssignedMode): Promise<void> {
+export async function setConversationAssignedMode(id: number, mode: AssignedMode): Promise<WaConversation | null> {
   const sql = getSql();
-  await sql`
-    UPDATE wa_conversations SET assigned_mode = ${mode}, updated_at = now() WHERE id = ${id}
+  const rows = await sql`
+    UPDATE wa_conversations
+    SET assigned_mode = ${mode}, updated_at = now()
+    WHERE id = ${id} AND assigned_mode IS DISTINCT FROM ${mode}
+    RETURNING *
   `;
+  return emitConversationUpdate(rows[0], ["assignedMode"]);
+}
+
+export async function setConversationLeadId(id: number, leadId: string | null): Promise<WaConversation | null> {
+  const sql = getSql();
+  const rows = await sql`
+    UPDATE wa_conversations
+    SET lead_id = ${leadId}, updated_at = now()
+    WHERE id = ${id} AND lead_id IS DISTINCT FROM ${leadId}
+    RETURNING *
+  `;
+  return emitConversationUpdate(rows[0], ["leadId"]);
 }
 
 /** Marks (or, with null, un-marks) the commercial result of a conversation. */
 export async function setConversationOutcome(
   id: number,
   outcome: ConversationOutcome | null,
-): Promise<void> {
+): Promise<WaConversation | null> {
   const sql = getSql();
-  await sql`
+  const rows = await sql`
     UPDATE wa_conversations
     SET outcome = ${outcome},
         outcome_at = ${outcome === null ? null : new Date().toISOString()},
         updated_at = now()
-    WHERE id = ${id}
+    WHERE id = ${id} AND outcome IS DISTINCT FROM ${outcome}
+    RETURNING *
   `;
+  return emitConversationUpdate(rows[0], ["outcome"]);
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function emitConversationUpdate(row: any, changed: RealtimeConversationChange[]) {
+  if (!row) return null;
+  const conversation = mapConversation(row);
+  await publishRealtimeEvent(conversationUpdatedEvent(conversation, changed));
+  return conversation;
 }
 
 export type NextStepSummary = {
@@ -263,33 +305,70 @@ export async function insertMessage(input: {
   body?: string | null;
   payload?: Record<string, unknown>;
   status?: string | null;
+  occurredAt?: string;
 }): Promise<WaMessage | null> {
   const sql = getSql();
+  const occurredAt = input.occurredAt ?? null;
   const rows = await sql`
-    INSERT INTO wa_messages (
-      conversation_id, wa_message_id, direction, source, msg_type, body, payload, status
+    WITH inserted AS (
+      INSERT INTO wa_messages (
+        conversation_id, wa_message_id, direction, source, msg_type, body, payload, status
+      )
+      VALUES (
+        ${input.conversationId},
+        ${input.waMessageId ?? null},
+        ${input.direction},
+        ${input.source},
+        ${input.msgType ?? "text"},
+        ${input.body ?? null},
+        ${JSON.stringify(input.payload ?? {})}::jsonb,
+        ${input.status ?? null}
+      )
+      ON CONFLICT (wa_message_id) WHERE wa_message_id IS NOT NULL DO NOTHING
+      RETURNING *
+    ), updated AS (
+      UPDATE wa_conversations AS conversation
+      SET last_message_at = GREATEST(
+            COALESCE(conversation.last_message_at, COALESCE(${occurredAt}::timestamptz, inserted.created_at)),
+            COALESCE(${occurredAt}::timestamptz, inserted.created_at)
+          ),
+          last_inbound_at = CASE
+            WHEN inserted.direction = 'in' THEN GREATEST(
+              COALESCE(conversation.last_inbound_at, COALESCE(${occurredAt}::timestamptz, inserted.created_at)),
+              COALESCE(${occurredAt}::timestamptz, inserted.created_at)
+            )
+            ELSE conversation.last_inbound_at
+          END,
+          updated_at = now()
+      FROM inserted
+      WHERE conversation.id = inserted.conversation_id
+      RETURNING conversation.*
     )
-    VALUES (
-      ${input.conversationId},
-      ${input.waMessageId ?? null},
-      ${input.direction},
-      ${input.source},
-      ${input.msgType ?? "text"},
-      ${input.body ?? null},
-      ${JSON.stringify(input.payload ?? {})}::jsonb,
-      ${input.status ?? null}
-    )
-    ON CONFLICT (wa_message_id) WHERE wa_message_id IS NOT NULL DO NOTHING
-    RETURNING *
+    SELECT inserted.*, row_to_json(updated) AS conversation_row
+    FROM inserted
+    JOIN updated ON updated.id = inserted.conversation_id
   `;
-  return rows[0] ? mapMessage(rows[0]) : null;
+  if (!rows[0]) return null;
+  const message = mapMessage(rows[0]);
+  const conversation = mapConversation(rows[0].conversation_row);
+  await publishRealtimeEvent(conversationUpdatedEvent(conversation, ["lastMessageAt"]));
+  await publishRealtimeEvent(messageCreatedEvent(conversation, message));
+  return message;
 }
 
-export async function updateMessageStatusByWaId(waMessageId: string, status: string): Promise<void> {
+export async function updateMessageStatusByWaId(waMessageId: string, status: string): Promise<WaMessage | null> {
   const sql = getSql();
-  await sql`
-    UPDATE wa_messages SET status = ${status} WHERE wa_message_id = ${waMessageId}
+  const rows = await sql`
+    UPDATE wa_messages
+    SET status = ${status}
+    WHERE wa_message_id = ${waMessageId} AND status IS DISTINCT FROM ${status}
+    RETURNING *
   `;
+  if (!rows[0]) return null;
+  const message = mapMessage(rows[0]);
+  const conversation = await getConversationById(message.conversationId);
+  if (conversation) await publishRealtimeEvent(messageUpdatedEvent(conversation, message));
+  return message;
 }
 
 export async function listMessages(conversationId: number, limit = 200): Promise<WaMessage[]> {

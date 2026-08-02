@@ -28,7 +28,7 @@ NEXT_PUBLIC_META_GRAPH_VERSION=v25.0
 NEXT_PUBLIC_APP_URL=https://YOUR_DOMAIN
 ```
 
-`DATABASE_URL` stores the durable connected-number inventory and webhook queue shown in `/ops`. Connected-account tokens are encrypted in Postgres and are never forwarded to n8n. `META_APP_SECRET`, connected-account business tokens, webhook secrets, and database URLs must stay server-side.
+`DATABASE_URL` stores the durable connected-number inventory, webhook queue, and auto-reply queue shown in `/ops`. Connected-account tokens are encrypted in Postgres and are never forwarded to n8n. `META_APP_SECRET`, connected-account business tokens, webhook secrets, and database URLs must stay server-side.
 
 ## Meta Dashboard Checks
 
@@ -80,6 +80,8 @@ https://n8n.allok.fun/webhook/meta/embedded-signup
 
 The app no longer forwards signup authorization codes or business tokens to n8n. Neon is the only connection source of truth. The legacy signup workflow remains only for lifecycle/diagnostic compatibility and must not store credentials.
 
+The protected drain also claims `auto_reply_jobs`. The worker only responds when the conversation is in IA mode, matches a safe predefined rule, and the inbound message is still the latest event. Outside the Cloud API 24-hour window it sends only when `WHATSAPP_AUTO_REPLY_TEMPLATE_NAME` points to an approved template; otherwise it records a skipped job for review.
+
 The VPS n8n container must define the same `N8N_WEBHOOK_SECRET` used by Vercel. The workflow reads it through `$env.N8N_WEBHOOK_SECRET`.
 
 WhatsApp events are durably stored and normalized inside allok. The former direct n8n message-event workflow is intentionally unpublished because it could bypass human takeover and duplicate replies. Its old endpoint was:
@@ -96,4 +98,4 @@ Import `n8n/meta-embedded-signup.workflow.json` or `n8n/meta-webhook-drain.workf
 
 After a successful onboarding, the exchange route reads the number's visible profile from Meta and upserts it into `whatsapp_connections`. Open `/ops` and use **Números conectados** to see the display number, verified name, subscription status, connection mode, quality rating, WABA ID, and connection time.
 
-Provision a database by applying the checked-in migrations in order. The current production schema includes `004_whatsapp_connections.sql`, `006_whatsapp_channels_inbox.sql`, `008_conversation_outcomes.sql`, `010_meta_whatsapp_webhook_events.sql`, `011_waha_connection_lifecycle.sql`, and `012_waha_webhook_queue.sql`. Runtime code does not create or alter schema.
+Provision a database by applying the checked-in migrations in order. The current production schema includes `004_whatsapp_connections.sql`, `006_whatsapp_channels_inbox.sql`, `008_conversation_outcomes.sql`, `010_meta_whatsapp_webhook_events.sql`, `011_waha_connection_lifecycle.sql`, `012_waha_webhook_queue.sql`, `013_crm_conversation_links.sql`, and `014_contact_phone_and_auto_replies.sql`. Runtime code does not create or alter schema.

@@ -1,6 +1,7 @@
 import { timingSafeEqual } from "node:crypto";
 import { processMetaWebhookQueue } from "@/lib/meta/webhook-processor";
 import { processWahaWebhookQueue } from "@/lib/waha-webhook-processor";
+import { processAutoReplyQueue } from "@/lib/auto-reply";
 
 export const dynamic = "force-dynamic";
 
@@ -19,11 +20,12 @@ export async function GET(request: Request) {
   if (!cronAuthorized && !n8nAuthorized) {
     return Response.json({ error: "Unauthorized." }, { status: 401 });
   }
-  const [meta, waha] = await Promise.all([
+  const [meta, waha, autoReplies] = await Promise.all([
     processMetaWebhookQueue(25),
     processWahaWebhookQueue(25),
+    processAutoReplyQueue(25),
   ]);
-  return Response.json({ meta, waha });
+  return Response.json({ meta, waha, autoReplies });
 }
 
 function safeEqual(value: string | null, expected: string) {

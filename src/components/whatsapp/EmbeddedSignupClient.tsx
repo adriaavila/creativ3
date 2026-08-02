@@ -1,8 +1,22 @@
 "use client";
 
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { Shield, CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
+import Link from "next/link";
+import {
+  AlertCircle,
+  ArrowRight,
+  CheckCircle2,
+  CircleHelp,
+  Clock3,
+  ExternalLink,
+  FileText,
+  Loader2,
+  ShieldCheck,
+  Smartphone,
+  type LucideIcon,
+} from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
+import AllokLogo from "@/components/brand/AllokLogo";
 import {
   isMetaMessageOrigin,
   type MetaEmbeddedSignupConfig,
@@ -57,15 +71,25 @@ type PendingSignup = {
 
 type Status = "idle" | "loading" | "exchanging" | "success" | "error";
 
+type ConnectionDetails = {
+  wabaId?: string;
+  phoneNumberId?: string;
+  businessId?: string | null;
+  displayPhoneNumber?: string | null;
+  verifiedName?: string | null;
+  qualityRating?: string | null;
+  nameStatus?: string | null;
+  status?: string | null;
+  connectionMode?: string | null;
+  connectedAt?: string | null;
+};
+
 export default function EmbeddedSignupClient({ workspace }: { workspace: string }) {
   const [config, setConfig] = useState<MetaEmbeddedSignupConfig | null>(null);
   const [sdkReady, setSdkReady] = useState(false);
   const [status, setStatus] = useState<Status>("idle");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [successDetails, setSuccessDetails] = useState<{
-    waba_id?: string;
-    phone_number_id?: string;
-  } | null>(null);
+  const [successDetails, setSuccessDetails] = useState<ConnectionDetails | null>(null);
   const pendingSignupRef = useRef<PendingSignup>({});
   const exchangeStartedRef = useRef(false);
   const signupStateRef = useRef<string>("");
@@ -106,13 +130,12 @@ export default function EmbeddedSignupClient({ workspace }: { workspace: string 
       return;
     }
 
-    const connectedAccount = result.connected_account as
-      | { waba_id?: string; phone_number_id?: string }
-      | undefined;
-    setSuccessDetails({
-      waba_id: connectedAccount?.waba_id ?? pending.waba_id,
-      phone_number_id: connectedAccount?.phone_number_id ?? pending.phone_number_id,
-    });
+    setSuccessDetails(
+      normalizeConnection(result.connected_account, {
+        waba_id: pending.waba_id,
+        phone_number_id: pending.phone_number_id,
+      }),
+    );
     setStatus("success");
   }, [workspace]);
 
@@ -138,10 +161,7 @@ export default function EmbeddedSignupClient({ workspace }: { workspace: string 
         setConfig(metaConfig);
         signupStateRef.current = metaConfig.state;
         if (metaConfig.connection) {
-          setSuccessDetails({
-            waba_id: metaConfig.connection.wabaId,
-            phone_number_id: metaConfig.connection.phoneNumberId,
-          });
+          setSuccessDetails(normalizeConnection(metaConfig.connection));
           setStatus("success");
         }
 
@@ -280,14 +300,14 @@ export default function EmbeddedSignupClient({ workspace }: { workspace: string 
   };
 
   const disconnectWhatsApp = async () => {
-    if (!successDetails?.phone_number_id) return;
+    if (!successDetails?.phoneNumberId) return;
     setStatus("loading");
     setErrorMessage(null);
     const response = await fetch("/api/meta/embedded-signup/disconnect", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        phone_number_id: successDetails.phone_number_id,
+        phone_number_id: successDetails.phoneNumberId,
         workspace,
       }),
     });
@@ -304,125 +324,284 @@ export default function EmbeddedSignupClient({ workspace }: { workspace: string 
   const busy = status === "loading" || status === "exchanging";
 
   return (
-    <div className="min-h-screen bg-[#ffffff] text-[#0a0a0a] flex flex-col items-center justify-center px-4 relative overflow-hidden">
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-[#1c1d20]/8 rounded-full blur-[140px]" />
-      </div>
-
-      <motion.div
-        initial={{ opacity: 0, y: 24 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-        className="relative z-10 w-full max-w-md"
-      >
-        <div className="rounded-3xl border border-[#0a0a0a]/10 bg-[#0a0a0a]/5 backdrop-blur-xl p-10 md:p-14 text-center">
-          <div className="w-16 h-16 rounded-2xl bg-green-500/10 border border-green-500/20 flex items-center justify-center mx-auto mb-8">
-            <svg
-              viewBox="0 0 24 24"
-              className="w-8 h-8 fill-green-500"
-              aria-hidden="true"
-            >
-              <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.886 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
-            </svg>
+    <main className="min-h-dvh bg-[#f7f8fa] text-[#142b4b]">
+      <header className="border-b border-[#e5e9ed] bg-white">
+        <div className="mx-auto flex max-w-[1180px] items-center justify-between gap-4 px-5 py-4 sm:px-8">
+          <div className="flex items-center gap-3">
+            <AllokLogo variant="mark" theme="light" className="size-9" />
+            <div>
+              <p className="font-display text-[17px] font-semibold tracking-[-0.04em] text-[#142b4b]">
+                allok<span className="text-[#97c51e]">.</span>
+              </p>
+              <p className="text-[11px] text-[#7a8797]">Conexión oficial de WhatsApp</p>
+            </div>
           </div>
+          <Link
+            href="/ops/crm?view=connections#connections"
+            className="inline-flex min-h-10 items-center gap-2 rounded-[10px] border border-[#dce2e8] px-3 text-[13px] font-medium text-[#526174] transition hover:border-[#142b4b] hover:text-[#142b4b] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#142b4b]"
+          >
+            Volver a conexiones
+            <ArrowRight className="size-4" aria-hidden="true" />
+          </Link>
+        </div>
+      </header>
 
-          <h1 className="text-3xl md:text-4xl font-normal mb-3 tracking-tight leading-tight">
-            Conecta tu WhatsApp Business
+      <div className="mx-auto grid max-w-[1180px] gap-7 px-5 py-8 sm:px-8 lg:grid-cols-[minmax(0,1fr)_350px] lg:gap-10 lg:py-12">
+        <motion.section
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.35 }}
+          aria-labelledby="whatsapp-onboarding-title"
+        >
+          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#718096]">
+            WhatsApp oficial · Meta Embedded Signup
+          </p>
+          <h1 id="whatsapp-onboarding-title" className="mt-3 max-w-2xl font-display text-4xl font-semibold leading-[1.04] tracking-[-0.055em] text-[#142b4b] sm:text-5xl">
+            Conecta el número que ya usa tu negocio.
           </h1>
-          <p className="text-[#0a0a0a]/55 font-mono text-sm leading-relaxed mb-10">
-            Autoriza la conexión para activar automatizaciones, seguimiento y
-            atención desde Servicios Creativos.
+          <p className="mt-5 max-w-2xl text-[16px] leading-7 text-[#617086]">
+            Vincula tu WhatsApp Business con allok desde el flujo oficial de Meta.
+            Tu equipo puede seguir atendiendo desde la app mientras el CRM recibe y
+            organiza las nuevas conversaciones.
           </p>
 
-          <AnimatePresence mode="wait">
-            {status === "success" && (
-              <motion.div
-                key="success"
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                className="flex items-center gap-3 bg-green-500/10 border border-green-500/20 rounded-2xl px-5 py-4 mb-8 text-left"
-              >
-                <CheckCircle2 className="h-5 w-5 text-green-500 shrink-0" />
-                <div>
-                  <p className="text-sm font-semibold text-green-700">
-                    Conexión autorizada y guardada.
-                  </p>
-                  <p className="text-xs text-[#6b6b6b]/80 font-mono mt-0.5">
-                    WABA {successDetails?.waba_id} · número {successDetails?.phone_number_id}
-                  </p>
+          <div className="mt-8 overflow-hidden rounded-2xl border border-[#e1e6eb] bg-white shadow-[0_16px_42px_rgba(20,43,75,0.06)]">
+            <div className="flex items-center justify-between gap-4 border-b border-[#edf0f3] px-5 py-4 sm:px-7">
+              <div>
+                <p className="text-[13px] font-semibold text-[#142b4b]">
+                  {successDetails ? "Conexión actual" : "Activa tu conexión"}
+                </p>
+                <p className="mt-1 text-[12px] text-[#7a8797]">
+                  {successDetails ? "Estado registrado en allok" : "Toma unos minutos y requiere acceso de administrador"}
+                </p>
+              </div>
+              <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold ${successDetails ? "bg-[#eef8dd] text-[#52720f]" : "bg-[#f1f4f7] text-[#65758a]"}`}>
+                <span className={`size-1.5 rounded-full ${successDetails ? "bg-[#86b51c]" : "bg-[#9aa8b8]"}`} aria-hidden="true" />
+                {successDetails ? connectionStatusLabel(successDetails.status) : "Sin conectar"}
+              </span>
+            </div>
+
+            <div className="p-5 sm:p-7">
+              {successDetails ? (
+                <div className="rounded-xl border border-[#dcebd0] bg-[#f8fcf3] p-4 sm:p-5">
+                  <div className="flex items-start gap-3">
+                    <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-[#e8f6ca] text-[#638416]">
+                      <CheckCircle2 className="size-5" aria-hidden="true" />
+                    </span>
+                    <div className="min-w-0">
+                      <p className="font-semibold text-[#29420d]">
+                        {successDetails.verifiedName || "WhatsApp Business conectado"}
+                      </p>
+                      <p className="mt-1 text-[13px] text-[#63734b]">
+                        {successDetails.displayPhoneNumber || "Número conectado"}
+                        {successDetails.connectionMode === "META_COEXISTENCE" ? " · Coexistencia oficial" : " · Meta Cloud API"}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="mt-5 grid gap-2 border-t border-[#deebd1] pt-4 text-[12px] sm:grid-cols-3">
+                    <ConnectionMetric label="Calidad" value={formatQuality(successDetails.qualityRating)} />
+                    <ConnectionMetric label="Nombre" value={formatNameStatus(successDetails.nameStatus)} />
+                    <ConnectionMetric label="Sincronizado" value={formatSyncStatus(successDetails.status)} />
+                  </div>
                 </div>
-              </motion.div>
-            )}
-
-            {status === "error" && errorMessage && (
-              <motion.div
-                key="error"
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                className="flex items-center gap-3 bg-red-500/10 border border-red-500/20 rounded-2xl px-5 py-4 mb-8 text-left"
-              >
-                <AlertCircle className="h-5 w-5 text-red-500 shrink-0" />
-                <div>
-                  <p className="text-sm font-semibold text-red-600">
-                    No pudimos completar la conexión.
-                  </p>
-                  <p className="text-xs text-[#6b6b6b]/80 font-mono mt-0.5">
-                    {errorMessage}
-                  </p>
+              ) : (
+                <div className="grid gap-3 sm:grid-cols-3">
+                  <OnboardingStep number="01" title="Autoriza en Meta" text="Usa el acceso de administrador de tu negocio." />
+                  <OnboardingStep number="02" title="Elige tu número" text="Selecciona el WhatsApp Business que ya utilizas." />
+                  <OnboardingStep number="03" title="Empieza en allok" text="Conserva la app y centraliza las conversaciones nuevas." />
                 </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
+              )}
 
-          <button
-            onClick={launchWhatsAppSignup}
-            disabled={!sdkReady || busy}
-            className="w-full h-14 rounded-2xl bg-[#1877f2] hover:bg-[#6b6b6b] active:bg-[#4a4b4f] disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold text-base transition-all duration-200 flex items-center justify-center gap-2 shadow-lg shadow-[#1877f2]/20"
-          >
-            {busy ? (
-              <>
-                <Loader2 className="h-5 w-5 animate-spin" />
-                {status === "exchanging" ? "Guardando conexión..." : "Abriendo Meta..."}
-              </>
-            ) : status === "success" ? (
-              <>
-                <CheckCircle2 className="h-5 w-5" />
-                Reconectar WhatsApp
-              </>
-            ) : (
-              "Conectar mi WhatsApp"
-            )}
-          </button>
+              <AnimatePresence mode="wait">
+                {status === "error" && errorMessage && (
+                  <motion.div
+                    key="error"
+                    initial={{ opacity: 0, y: -4 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -4 }}
+                    className="mt-5 flex items-start gap-3 rounded-xl border border-[#f1d3d0] bg-[#fff8f7] px-4 py-3 text-left"
+                    role="alert"
+                  >
+                    <AlertCircle className="mt-0.5 size-4 shrink-0 text-[#b34c43]" aria-hidden="true" />
+                    <div>
+                      <p className="text-[13px] font-semibold text-[#8f3932]">No pudimos completar la conexión.</p>
+                      <p className="mt-1 text-[12px] leading-5 text-[#a05b54]">{errorMessage}</p>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
 
-          {status === "success" && (
-            <button
-              onClick={disconnectWhatsApp}
-              className="mt-4 text-xs font-mono text-[#0a0a0a]/50 hover:text-red-600 hover:underline transition-colors cursor-pointer"
-            >
-              Desconectar de allok
-            </button>
-          )}
+              <button
+                type="button"
+                onClick={launchWhatsAppSignup}
+                disabled={!sdkReady || busy}
+                className="mt-6 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-[10px] bg-[#142b4b] px-5 text-[14px] font-semibold text-white shadow-[0_8px_20px_rgba(20,43,75,0.16)] transition hover:bg-[#234466] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#142b4b] disabled:cursor-not-allowed disabled:opacity-45"
+              >
+                {busy ? (
+                  <>
+                    <Loader2 className="size-4 animate-spin" aria-hidden="true" />
+                    {status === "exchanging" ? "Guardando conexión..." : "Abriendo Meta..."}
+                  </>
+                ) : (
+                  <>
+                    {successDetails ? "Volver a conectar con Meta" : "Conectar con Meta"}
+                    <ArrowRight className="size-4" aria-hidden="true" />
+                  </>
+                )}
+              </button>
 
-          {!sdkReady && status === "idle" && (
-            <p className="text-[#6b6b6b]/60 font-mono text-xs mt-3">
-              Cargando SDK de Meta...
-            </p>
-          )}
+              {status === "success" && (
+                <button
+                  type="button"
+                  onClick={disconnectWhatsApp}
+                  className="mt-4 block w-full text-center text-[12px] text-[#7a8797] transition hover:text-[#a53e35] hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#142b4b]"
+                >
+                  Desconectar de allok
+                </button>
+              )}
 
-          <div className="flex items-center justify-center gap-2 mt-8 text-[#0a0a0a]/35 font-mono text-xs">
-            <Shield className="h-3.5 w-3.5 shrink-0" />
-            <span>La clave secreta de Meta se usa solo en el servidor.</span>
+              {!sdkReady && status === "idle" && (
+                <p className="mt-3 text-center text-[12px] text-[#8b98a8]">Cargando el acceso seguro de Meta...</p>
+              )}
+            </div>
           </div>
-        </div>
 
-        <p className="text-center text-[#0a0a0a]/25 font-mono text-xs mt-6">
-          Servicios Creativos · Integración oficial Meta WhatsApp API
-        </p>
-      </motion.div>
+          <div className="mt-5 flex items-start gap-3 rounded-xl border border-[#e1e6eb] bg-white px-4 py-4 text-[12px] leading-5 text-[#718096]">
+            <ShieldCheck className="mt-0.5 size-4 shrink-0 text-[#6c8c19]" aria-hidden="true" />
+            <p>El código de autorización se intercambia en el servidor. Nunca mostramos tokens ni credenciales en el navegador.</p>
+          </div>
+        </motion.section>
+
+        <aside className="space-y-4" aria-label="Información de la conexión">
+          <InfoCard icon={Smartphone} title="Tu número permanece en WhatsApp Business">
+            <p>Con <strong className="font-semibold text-[#344b68]">Coexistencia</strong>, la app móvil sigue siendo tuya. allok usa la API oficial de Meta para el inbox, el equipo y la automatización supervisada.</p>
+          </InfoCard>
+
+          <InfoCard icon={Clock3} title="La regla de las 24 horas">
+            <p>Después de un mensaje del cliente puedes responder con texto libre durante 24 horas. Fuera de esa ventana, Meta exige una plantilla aprobada.</p>
+          </InfoCard>
+
+          <InfoCard icon={FileText} title="Qué se sincroniza">
+            <ul className="space-y-2">
+              <li className="flex gap-2"><CheckCircle2 className="mt-0.5 size-3.5 shrink-0 text-[#78a01b]" aria-hidden="true" />Mensajes nuevos y estados que Meta entregue al webhook.</li>
+              <li className="flex gap-2"><CircleHelp className="mt-0.5 size-3.5 shrink-0 text-[#91a0b0]" aria-hidden="true" />No prometemos importar automáticamente todo el historial de la app.</li>
+            </ul>
+          </InfoCard>
+
+          <div className="rounded-xl border border-[#e1e6eb] bg-white p-5">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#8a97a6]">Más información</p>
+            <div className="mt-3 space-y-2">
+              <a href="https://developers.facebook.com/docs/whatsapp/embedded-signup/custom-flows/onboarding-business-app-users/" target="_blank" rel="noreferrer" className="flex items-center justify-between gap-3 text-[13px] font-medium text-[#526174] hover:text-[#142b4b]">
+                Coexistencia en Meta <ExternalLink className="size-3.5" aria-hidden="true" />
+              </a>
+              <a href="https://developers.facebook.com/docs/whatsapp/cloud-api/get-started" target="_blank" rel="noreferrer" className="flex items-center justify-between gap-3 text-[13px] font-medium text-[#526174] hover:text-[#142b4b]">
+                Cloud API oficial <ExternalLink className="size-3.5" aria-hidden="true" />
+              </a>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </main>
+  );
+}
+
+function OnboardingStep({ number, title, text }: { number: string; title: string; text: string }) {
+  return (
+    <div className="rounded-xl border border-[#e6ebef] bg-[#fbfcfd] p-4">
+      <p className="text-[11px] font-semibold tracking-[0.14em] text-[#8a97a6]">{number}</p>
+      <p className="mt-3 text-[13px] font-semibold text-[#263d59]">{title}</p>
+      <p className="mt-1 text-[12px] leading-5 text-[#718096]">{text}</p>
     </div>
   );
+}
+
+function ConnectionMetric({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#8a9a78]">{label}</p>
+      <p className="mt-1 font-medium text-[#415536]">{value}</p>
+    </div>
+  );
+}
+
+function InfoCard({
+  icon: Icon,
+  title,
+  children,
+}: {
+  icon: LucideIcon;
+  title: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <section className="rounded-xl border border-[#e1e6eb] bg-white p-5 text-[13px] leading-5 text-[#718096]">
+      <div className="flex items-start gap-3">
+        <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-[#f1f5f8] text-[#526b87]">
+          <Icon className="size-4" aria-hidden="true" />
+        </span>
+        <div>
+          <h2 className="font-semibold text-[#263d59]">{title}</h2>
+          <div className="mt-2">{children}</div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function normalizeConnection(value: unknown, fallback: Record<string, unknown> = {}): ConnectionDetails | null {
+  const record = value && typeof value === "object" ? (value as Record<string, unknown>) : {};
+  const stringValue = (...keys: string[]) => {
+    for (const key of keys) {
+      const candidate = record[key] ?? fallback[key];
+      if (typeof candidate === "string" && candidate.trim()) return candidate;
+    }
+    return null;
+  };
+
+  const wabaId = stringValue("wabaId", "waba_id");
+  const phoneNumberId = stringValue("phoneNumberId", "phone_number_id");
+  if (!wabaId && !phoneNumberId) return null;
+
+  return {
+    wabaId: wabaId ?? undefined,
+    phoneNumberId: phoneNumberId ?? undefined,
+    businessId: stringValue("businessId", "business_id"),
+    displayPhoneNumber: stringValue("displayPhoneNumber", "display_phone_number"),
+    verifiedName: stringValue("verifiedName", "verified_name"),
+    qualityRating: stringValue("qualityRating", "quality_rating"),
+    nameStatus: stringValue("nameStatus", "name_status"),
+    status: stringValue("status"),
+    connectionMode: stringValue("connectionMode", "connection_mode"),
+    connectedAt: stringValue("connectedAt", "connected_at"),
+  };
+}
+
+function connectionStatusLabel(status?: string | null) {
+  if (status === "subscribed") return "Conectado";
+  if (status === "connected") return "Conectado";
+  if (status === "deauthorized") return "Desconectado";
+  return status || "Conectado";
+}
+
+function formatQuality(value?: string | null) {
+  if (!value) return "No disponible";
+  if (value.toUpperCase() === "GREEN") return "Saludable";
+  if (value.toUpperCase() === "YELLOW") return "En observación";
+  if (value.toUpperCase() === "RED") return "Limitada";
+  return value;
+}
+
+function formatNameStatus(value?: string | null) {
+  if (!value) return "No disponible";
+  if (value.toUpperCase() === "APPROVED") return "Aprobado";
+  return value;
+}
+
+function formatSyncStatus(value?: string | null) {
+  if (value === "subscribed") return "Webhook activo";
+  if (value === "connected") return "Conectado";
+  return value || "No disponible";
 }
 
 function parseSignupEvent(data: unknown): SignupEvent | null {

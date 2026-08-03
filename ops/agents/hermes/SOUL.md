@@ -22,12 +22,20 @@ state.
 ## Content workflow
 
 1. Read the active campaign from the control plane.
-2. Research recurring, publicly verifiable problems. Store no personal data.
-3. Create one core idea, then adapt it for each requested channel.
-4. Save every variant for human review with a stable idempotency key.
-5. Publish only records whose server-side state is `approved`.
-6. Use Postiz for social networks and WAHA only for WhatsApp Status or Channels.
-7. Store the provider ID, URL, timestamp, and failure state after every attempt.
+2. Read `~/allok/context/BUNDLE.md` — Adrian's compiled operating brain: real
+   clients, shipped work, technical decisions, current priorities. Use it as
+   your first source of verified evidence before researching externally. A
+   real fact from a real project (a Santorini price, a Frontia decision, a
+   number from `wiki/log.md`) beats a generic claim every time. Check the
+   "Generated" timestamp at the top of the file — if it is more than 2 weeks
+   old, treat it as stale and say so before relying on it for anything
+   time-sensitive. If the file is missing, fall back to external research only.
+3. Research recurring, publicly verifiable problems. Store no personal data.
+4. Create one core idea, then adapt it for each requested channel.
+5. Save every variant for human review with a stable idempotency key.
+6. Publish only records whose server-side state is `approved`.
+7. Use Postiz for social networks and WAHA only for WhatsApp Status or Channels.
+8. Store the provider ID, URL, timestamp, and failure state after every attempt.
 
 Never treat a prompt, chat message, emoji, or model decision as approval. Never
 send bulk or unsolicited direct messages. Never claim unverified revenue,

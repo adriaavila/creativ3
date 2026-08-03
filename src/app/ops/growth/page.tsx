@@ -2,6 +2,7 @@ import GrowthOpsClient from "@/components/ops/GrowthOpsClient";
 import {
   getGrowthLeads,
   getGrowthRuns,
+  getOutreachDraftById,
   getOutreachDrafts,
   isGrowthDatabaseConfigured,
 } from "@/lib/growth-db";
@@ -12,7 +13,11 @@ import { authorizeOps, isOpsAuthConfigured } from "@/lib/ops-auth";
 
 export const dynamic = "force-dynamic";
 
-export default async function GrowthOpsPage() {
+export default async function GrowthOpsPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ tab?: string; draft?: string | string[] }>;
+}) {
   if (!isOpsAuthConfigured() || !isGrowthDatabaseConfigured()) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-[#08090a] p-6 text-white">
@@ -30,12 +35,25 @@ export default async function GrowthOpsPage() {
   const authorization = await authorizeOps();
   if (!authorization.authorized) redirect("/ops-login");
 
-  const [runs, leads, drafts, marketing, waha] = await Promise.all([
+  const params = searchParams ? await searchParams : {};
+  const rawDraftId = typeof params.draft === "string" ? params.draft : "";
+  const requestedDraftId = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(rawDraftId) ? rawDraftId : null;
+  const [runs, leads, listedDrafts, marketing, waha, requestedDraft] = await Promise.all([
     getGrowthRuns(),
     getGrowthLeads(),
     getOutreachDrafts(),
     getMarketingSnapshot(),
     getWahaSnapshot(),
+    requestedDraftId ? getOutreachDraftById(requestedDraftId).catch(() => null) : null,
   ]);
-  return <GrowthOpsClient initialRuns={runs} initialLeads={leads} initialDrafts={drafts} marketing={marketing} waha={waha} />;
+  const drafts = requestedDraft && !listedDrafts.some(({ id }) => id === requestedDraft.id)
+    ? [requestedDraft, ...listedDrafts]
+    : listedDrafts;
+  const initialDraftId = requestedDraft?.id ?? null;
+  const initialTab = initialDraftId || params.tab === "drafts"
+    ? "drafts"
+    : params.tab === "runs" || params.tab === "leads" || params.tab === "marketing"
+      ? params.tab
+      : "hoy";
+  return <GrowthOpsClient key={`${initialTab}:${initialDraftId ?? "none"}`} initialRuns={runs} initialLeads={leads} initialDrafts={drafts} initialTab={initialTab} initialDraftId={initialDraftId} marketing={marketing} waha={waha} />;
 }

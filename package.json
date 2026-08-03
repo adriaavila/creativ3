@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "node --import tsx --test src/lib/crm-rules.test.ts",
+    "test": "node --import tsx --test src/lib/*.test.ts",
     "check:billing": "tsx scripts/check-billing-catalog.ts && tsx scripts/check-project-payment-email.ts",
     "check:meta-provider": "tsx scripts/check-meta-provider.ts",
     "check:meta-webhook-db": "tsx scripts/check-meta-webhook-db.ts",

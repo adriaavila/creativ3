@@ -1,620 +1,180 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useTransition } from "react";
 import {
-  Activity,
+  AlertTriangle,
   ArrowRight,
+  CalendarCheck2,
   CheckCircle2,
-  Database,
-  Key,
-  LoaderCircle,
-  Play,
-  Server,
-  Webhook,
-  XCircle,
-  AlertCircle,
-  FileText,
-  MessageCircle,
+  Clock3,
+  FileCheck2,
+  Inbox,
+  MessageSquareReply,
   RefreshCw,
+  Target,
+  TrendingUp,
 } from "lucide-react";
-import type { WhatsAppConnectionView } from "@/lib/whatsapp-connections-db";
-import OnboardingLinkGenerator from "./OnboardingLinkGenerator";
-import type { NextStepSummary } from "@/lib/whatsapp-inbox-db";
-import type { GrowthLead } from "@/lib/growth-types";
-import type { GrowthPromptInfo } from "@/lib/growth-prompts";
-import type { CrmChannel } from "@/lib/crm-types";
-import GrowthOutreachPanel from "@/components/ops/GrowthOutreachPanel";
-import { DISPLAY_TIGHT, TapButton } from "@/components/ops/apple";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
+import { Separator } from "@/components/ui/separator";
+import { useOpsRealtime } from "@/hooks/useOpsRealtime";
+import type { OpsAction, OpsCommandCenter, OpsHealthStatus } from "@/lib/ops-command-center";
 
-type DiagnosticsResult = {
-  env: Record<string, boolean>;
-  database: { ok: boolean; error: string };
-  growthAgent: { ok: boolean; error: string; statusText: string };
-  n8n: { ok: boolean; error: string; statusText: string };
-  callbackUrl: { ok: boolean; error: string; statusText: string };
-  webhookEvents: Record<string, number>;
-  metaVersion: string;
-} | null;
+const COUNT_CARDS = [
+  { key: "waitingReplies", label: "Esperan respuesta", detail: "Conversaciones entrantes", icon: MessageSquareReply, href: "/ops/inbox" },
+  { key: "dueFollowUps", label: "Follow-ups vencidos", detail: "Acciones comerciales", icon: Clock3, href: "/ops/crm" },
+  { key: "pendingApprovals", label: "Por aprobar", detail: "Borradores humanos", icon: FileCheck2, href: "/ops/growth?tab=drafts" },
+  { key: "incidents", label: "Incidentes", detail: "Canales y entregas", icon: AlertTriangle, href: "/ops/crm?view=connections" },
+] as const;
 
-type OpsDashboardClientProps = {
-  stats: {
-    leadsCount: number;
-    draftsCount: number;
-    runsCount: number;
-  };
-  nextStep: NextStepSummary;
-  initialWhatsAppConnections: WhatsAppConnectionView[];
-  initialWhatsAppConnectionsError: string | null;
-  initialGrowthLeads: GrowthLead[];
-  growthPrompts: GrowthPromptInfo[];
-  crmChannels: CrmChannel[];
-  /** Whether the plain Cloud API Embedded Signup variation is configured in Meta. */
-  cloudApiOnboardingAvailable: boolean;
-};
-
-export default function OpsDashboardClient({
-  stats,
-  nextStep,
-  initialWhatsAppConnections,
-  initialWhatsAppConnectionsError,
-  initialGrowthLeads,
-  growthPrompts,
-  crmChannels,
-  cloudApiOnboardingAvailable,
-}: OpsDashboardClientProps) {
-  const [running, setRunning] = useState(false);
-  const [results, setResults] = useState<DiagnosticsResult>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [whatsappConnections, setWhatsAppConnections] = useState(initialWhatsAppConnections);
-  const [whatsappConnectionsError, setWhatsAppConnectionsError] = useState(
-    initialWhatsAppConnectionsError,
-  );
-  const [refreshingWhatsApp, setRefreshingWhatsApp] = useState(false);
-
-  const runDiagnostics = async () => {
-    setRunning(true);
-    setError(null);
-    try {
-      const res = await fetch("/api/ops/diagnose", { method: "POST" });
-      if (!res.ok) {
-        throw new Error(`Diagnostics failed with status ${res.status}`);
-      }
-      const data = await res.json();
-      setResults(data);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
-    } finally {
-      setRunning(false);
-    }
-  };
-
-  const refreshWhatsAppConnections = async () => {
-    setRefreshingWhatsApp(true);
-    setWhatsAppConnectionsError(null);
-    try {
-      const response = await fetch("/api/ops/whatsapp-connections", {
-        cache: "no-store",
-      });
-      if (!response.ok) {
-        throw new Error(`La consulta respondió con estado ${response.status}`);
-      }
-      const data = (await response.json()) as { connections: WhatsAppConnectionView[] };
-      setWhatsAppConnections(data.connections);
-    } catch (refreshError) {
-      setWhatsAppConnectionsError(
-        refreshError instanceof Error
-          ? refreshError.message
-          : "No se pudo actualizar la lista.",
-      );
-    } finally {
-      setRefreshingWhatsApp(false);
-    }
-  };
+export default function OpsDashboardClient({ snapshot }: { snapshot: OpsCommandCenter }) {
+  const router = useRouter();
+  const [refreshing, startTransition] = useTransition();
+  const realtime = useOpsRealtime({ onReconnect: () => router.refresh() });
+  const realtimeLabel = realtime.status === "connected"
+    ? "Realtime conectado"
+    : realtime.status === "reconnecting"
+      ? "Reconectando"
+      : realtime.status === "connecting"
+        ? "Conectando"
+        : "Realtime offline";
 
   return (
-    <main className="min-h-dvh bg-[#08090a] pb-24 text-white md:pb-8">
-      <div className="mx-auto w-full max-w-[1500px] px-4 pb-10 pt-8 sm:px-6 lg:px-10 lg:pt-12">
-        <header className="flex flex-wrap items-end justify-between gap-4">
+    <main className="min-h-dvh bg-[#f7f8fa] px-4 py-7 text-[#142b4b] sm:px-6 lg:px-8 lg:py-9">
+      <div className="mx-auto max-w-[1440px]">
+        <header className="flex flex-wrap items-end justify-between gap-5">
           <div>
-            <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-[#c5f04a]">Vista de hoy</div>
-            <h1 className={`mt-2 font-display text-4xl ${DISPLAY_TIGHT}`}>allok Ops</h1>
-            <p className="mt-2 text-sm text-white/45">Estado del sistema y las acciones que necesitan atención.</p>
+            <div className="flex items-center gap-2 font-mono text-[10px] font-semibold uppercase tracking-[0.2em] text-[#6c7d90]">
+              <span className={`size-2 rounded-full ${realtime.status === "connected" ? "bg-[#a8d52d] shadow-[0_0_0_4px_rgba(168,213,45,0.16)]" : "bg-[#aeb8c3]"}`} />
+              {realtimeLabel}
+            </div>
+            <h1 className="mt-3 font-display text-4xl font-semibold tracking-[-0.055em] text-[#142b4b] sm:text-5xl">Hoy</h1>
+            <p className="mt-2 text-sm capitalize text-[#647388]">{formatBusinessDate(snapshot.businessDate)}</p>
           </div>
-          <div className="flex flex-wrap gap-2">
-            <Link href="/ops/crm" className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-white/10 px-4 text-sm font-semibold text-white/70 transition hover:bg-white/[0.06] hover:text-white"><MessageCircle className="size-4" /> Abrir CRM</Link>
-            <TapButton id="btn-run-diagnostics" type="button" disabled={running} onClick={runDiagnostics} className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-[#c5f04a] px-4 text-sm font-semibold text-[#0a0a0a] transition hover:bg-white disabled:opacity-50">
-              {running ? <LoaderCircle className="size-4 animate-spin" /> : <Activity className="size-4" />} Ejecutar diagnóstico
-            </TapButton>
+          <div className="flex gap-2">
+            <Button asChild variant="outline" size="lg" className="h-11 border-[#dce2e8] bg-white px-4">
+              <Link href="/ops/inbox"><Inbox data-icon="inline-start" /> Bandeja</Link>
+            </Button>
+            <Button
+              type="button"
+              size="lg"
+              disabled={refreshing}
+              onClick={() => startTransition(() => router.refresh())}
+              className="h-11 bg-[#142b4b] px-4 text-white hover:bg-[#203d5e]"
+            >
+              <RefreshCw className={refreshing ? "animate-spin" : ""} /> Actualizar
+            </Button>
           </div>
         </header>
 
-        {/* Overview Stats */}
-        <section className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          {[
-            {
-              // The number the Revenue Desk is sold and billed on — see
-              // db/migrations/008_conversation_outcomes.sql.
-              label: "Chats con siguiente paso",
-              value: nextStep.share === null ? "—" : `${nextStep.share}%`,
-              desc:
-                `${nextStep.citas} citas este mes · mes anterior ` +
-                (nextStep.prevShare === null ? "sin datos" : `${nextStep.prevShare}%`),
-            },
-            {
-              label: "Leads Investigados",
-              value: stats.leadsCount,
-              desc: "Prospectos calificados en base de datos",
-            },
-            {
-              label: "Borradores Pendientes",
-              value: stats.draftsCount,
-              desc: "Mensajes listos para revisión manual",
-            },
-            {
-              label: "Historial de Runs",
-              value: stats.runsCount,
-              desc: "Sesiones de adquisición ejecutadas",
-            },
-            {
-              label: "Números WhatsApp",
-              value: whatsappConnections.filter(
-                (connection) => connection.status !== "deauthorized",
-              ).length,
-              desc: "Conexiones registradas por Embedded Signup",
-            },
-          ].map((item) => (
-            <div
-              key={item.label}
-              className="rounded-none border border-white/10 bg-white/[0.015] p-6 transition duration-300 hover:border-white/20"
-            >
-              <div className="font-mono text-[9px] uppercase tracking-[0.18em] text-white/40">
-                {item.label}
-              </div>
-              <div className="mt-3 font-display text-4xl text-[#c5f04a]">{item.value}</div>
-              <p className="mt-2 text-xs text-white/50">{item.desc}</p>
-            </div>
-          ))}
+        {snapshot.sourceErrors.length > 0 && (
+          <div className="mt-6 flex items-start gap-3 rounded-xl border border-[#ead9b3] bg-[#fffaf0] px-4 py-3 text-sm text-[#755b16]" role="status">
+            <AlertTriangle className="mt-0.5 size-4 shrink-0" />
+            Datos no disponibles: {snapshot.sourceErrors.join(", ")}. Los demás módulos siguen mostrando valores reales.
+          </div>
+        )}
+
+        <section aria-label="Trabajo pendiente" className="mt-7 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          {COUNT_CARDS.map(({ key, label, detail, icon: Icon, href }) => {
+            const value = snapshot.counts[key];
+            const attention = value !== null && value > 0;
+            return (
+              <Card key={key} className="gap-3 rounded-[14px] bg-white py-5 shadow-none ring-[#e2e7ec]">
+                <CardHeader className="px-5">
+                  <CardTitle className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.09em] text-[#667589]"><Icon className="size-4" /> {label}</CardTitle>
+                  <CardAction><span className={`block size-2 rounded-full ${value === null ? "bg-[#aeb8c3]" : attention ? "bg-[#e38b37]" : "bg-[#9fc72a]"}`} /></CardAction>
+                </CardHeader>
+                <CardContent className="px-5">
+                  <div className="font-display text-[34px] font-semibold leading-none tracking-[-0.05em] tabular-nums">{value ?? "—"}</div>
+                  <div className="mt-3 flex items-center justify-between gap-3 text-xs text-[#748296]">
+                    <span>{value === null ? "No disponible" : detail}</span>
+                    <Link href={href} aria-label={`Abrir ${label}`} className="text-[#405b77] hover:text-[#142b4b]"><ArrowRight className="size-4" /></Link>
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })}
         </section>
 
-        <GrowthOutreachPanel initialLeads={initialGrowthLeads} prompts={growthPrompts} channels={crmChannels} />
+        <Card className="mt-5 gap-0 rounded-[16px] bg-white py-0 shadow-none ring-[#e2e7ec]">
+          <CardHeader className="border-b border-[#e8ecf0] px-6 py-5 sm:px-7">
+            <CardTitle className="font-display text-xl font-semibold tracking-[-0.035em]">Necesita atención</CardTitle>
+            <CardDescription>Una cola, priorizada por impacto y antigüedad.</CardDescription>
+            <CardAction><Badge variant="secondary" className="bg-[#eef3f7] text-[#526174]">{snapshot.actions.length} visibles</Badge></CardAction>
+          </CardHeader>
+          <CardContent className="px-0">
+            {snapshot.actions.length === 0 ? (
+              <div className="flex items-center justify-center gap-3 px-6 py-12 text-sm text-[#68778a]"><CheckCircle2 className="size-5 text-[#8aaa27]" /> No hay acciones abiertas en las fuentes disponibles.</div>
+            ) : snapshot.actions.map((item, index) => (
+              <ActionRow key={item.id} action={item} last={index === snapshot.actions.length - 1} />
+            ))}
+          </CardContent>
+        </Card>
 
-        <div className="mt-8 grid gap-6 lg:grid-cols-[1fr_400px]">
-          {/* Main Console & Diagnostic Output */}
-          <div className="space-y-6">
-            {/* Action Cards */}
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="flex flex-col justify-between rounded-none border border-white/10 bg-white/[0.02] p-6 transition duration-300 hover:bg-white/[0.035]">
-                <div>
-                  <div className="inline-flex size-10 items-center justify-center rounded-xl bg-[#c5f04a]/10 text-[#c5f04a]">
-                    <Play className="size-5" />
-                  </div>
-                  <h3 className="mt-4 font-display text-xl">Growth OS Agent Console</h3>
-                  <p className="mt-2 text-sm leading-6 text-white/60">
-                    Administra los prospectos, revisa borradores de DM/Email/WhatsApp,
-                    aprueba copias comerciales generadas por el agente de IA Eve y
-                    monitorea ejecuciones de búsqueda.
-                  </p>
-                </div>
-                <div className="mt-6">
-                  <Link
-                    id="lnk-growth-os"
-                    href="/ops/growth"
-                    className="inline-flex items-center gap-2 text-sm font-semibold text-[#c5f04a] transition hover:text-white"
-                  >
-                    Abrir consola de crecimiento <ArrowRight className="size-4" />
-                  </Link>
-                </div>
-              </div>
-
-              <div className="flex flex-col justify-between rounded-none border border-white/10 bg-white/[0.02] p-6 transition duration-300 hover:bg-white/[0.035]">
-                <div>
-                  <div className="inline-flex size-10 items-center justify-center rounded-xl bg-[#c5f04a]/10 text-[#c5f04a]">
-                    <Webhook className="size-5" />
-                  </div>
-                  <h3 className="mt-4 font-display text-xl">WhatsApp Embedded Signup</h3>
-                  <p className="mt-2 text-sm leading-6 text-white/60">
-                    Configuración de Meta para integración de WhatsApp como Tech Provider.
-                    Administra webhooks, intercambio de tokens a través de n8n,
-                    y registros de números de teléfono.
-                  </p>
-                </div>
-                <div className="mt-6">
-                  <a
-                    href="#whatsapp-connections"
-                    className="inline-flex items-center gap-2 text-sm font-semibold text-[#c5f04a] transition hover:text-white"
-                  >
-                    Ver números conectados <ArrowRight className="size-4" />
-                  </a>
-                </div>
-              </div>
-            </div>
-
-            <OnboardingLinkGenerator cloudApiAvailable={cloudApiOnboardingAvailable} />
-
-            <section
-              id="whatsapp-connections"
-              className="scroll-mt-6 rounded-none border border-white/10 bg-white/[0.015] p-6"
-            >
-              <div className="flex flex-wrap items-start justify-between gap-4 border-b border-white/10 pb-4">
-                <div>
-                  <div className="flex items-center gap-2">
-                    <MessageCircle className="size-5 text-[#c5f04a]" />
-                    <h2 className="font-display text-xl">Números conectados</h2>
-                  </div>
-                  <p className="mt-2 text-sm text-white/50">
-                    Inventario persistente de números autorizados mediante coexistencia.
-                  </p>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  <TapButton
-                    type="button"
-                    onClick={refreshWhatsAppConnections}
-                    disabled={refreshingWhatsApp}
-                    className="inline-flex min-h-10 items-center gap-2 rounded-full border border-white/10 px-4 text-sm font-semibold text-white/70 transition hover:bg-white/5 hover:text-white disabled:opacity-50"
-                  >
-                    <RefreshCw
-                      className={`size-4 ${refreshingWhatsApp ? "animate-spin" : ""}`}
-                    />
-                    Actualizar
-                  </TapButton>
-                  <Link
-                    href="/embedded-whatsapp"
-                    className="inline-flex min-h-10 items-center gap-2 rounded-full bg-[#c5f04a] px-4 text-sm font-semibold text-[#0a0a0a] transition hover:bg-white"
-                  >
-                    Conectar otro número <ArrowRight className="size-4" />
-                  </Link>
-                </div>
-              </div>
-
-              {whatsappConnectionsError && (
-                <div className="mt-4 flex items-center gap-3 rounded-xl border border-red-500/20 bg-red-500/5 p-4 text-sm text-red-300">
-                  <AlertCircle className="size-5 shrink-0" />
-                  {whatsappConnectionsError}
-                </div>
-              )}
-
-              {whatsappConnections.length === 0 ? (
-                <div className="mt-5 rounded-xl border border-dashed border-white/10 px-5 py-10 text-center">
-                  <p className="text-sm text-white/55">Todavía no hay números conectados.</p>
-                  <Link
-                    href="/embedded-whatsapp"
-                    className="mt-3 inline-flex items-center gap-2 text-sm font-semibold text-[#c5f04a] hover:text-white"
-                  >
-                    Iniciar el primer onboarding <ArrowRight className="size-4" />
-                  </Link>
-                </div>
-              ) : (
-                <div className="mt-5 overflow-x-auto">
-                  <table className="w-full min-w-[780px] text-left text-sm">
-                    <thead className="font-mono text-[9px] uppercase tracking-[0.16em] text-white/35">
-                      <tr className="border-b border-white/10">
-                        <th className="px-3 py-3 font-medium">Número</th>
-                        <th className="px-3 py-3 font-medium">Nombre verificado</th>
-                        <th className="px-3 py-3 font-medium">Estado</th>
-                        <th className="px-3 py-3 font-medium">Calidad</th>
-                        <th className="px-3 py-3 font-medium">WABA</th>
-                        <th className="px-3 py-3 font-medium">Conectado</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {whatsappConnections.map((connection) => (
-                        <tr
-                          key={`${connection.wabaId}:${connection.phoneNumberId}`}
-                          className="border-b border-white/[0.06] last:border-0"
-                        >
-                          <td className="px-3 py-4">
-                            <div className="font-semibold text-white">
-                              {connection.displayPhoneNumber ?? "Pendiente de Meta"}
-                            </div>
-                            <div className="mt-1 font-mono text-[10px] text-white/35">
-                              ID {connection.phoneNumberId}
-                            </div>
-                          </td>
-                          <td className="px-3 py-4 text-white/65">
-                            {connection.verifiedName ?? "Sin nombre verificado"}
-                          </td>
-                          <td className="px-3 py-4">
-                            <span
-                              className={`rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide ${
-                                connection.status === "deauthorized"
-                                  ? "bg-red-500/10 text-red-300"
-                                  : "bg-[#c5f04a]/10 text-[#c5f04a]"
-                              }`}
-                            >
-                              {connection.status}
-                            </span>
-                          </td>
-                          <td className="px-3 py-4 text-white/65">
-                            {connection.qualityRating ?? "Sin dato"}
-                          </td>
-                          <td className="px-3 py-4 font-mono text-[11px] text-white/45">
-                            {connection.wabaId}
-                          </td>
-                          <td className="px-3 py-4 text-white/55">
-                            {formatConnectionDate(connection.connectedAt)}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </section>
-
-            {/* Diagnostics Report */}
-            <div className="rounded-none border border-white/10 bg-white/[0.015] p-6">
-              <div className="flex items-center justify-between border-b border-white/10 pb-4">
-                <h3 className="font-display text-lg">Estado de Conectividad</h3>
-                <span className="font-mono text-[9px] uppercase tracking-wider text-white/40">
-                  {results ? "Reporte activo" : "Requiere escaneo"}
-                </span>
-              </div>
-
-              {error && (
-                <div className="mt-4 flex items-center gap-3 rounded-xl border border-red-500/20 bg-red-500/5 p-4 text-sm text-red-400">
-                  <AlertCircle className="size-5 shrink-0" />
-                  <div>
-                    <span className="font-semibold">Error al diagnosticar:</span> {error}
-                  </div>
-                </div>
-              )}
-
-              {!results && !running && !error && (
-                <div className="mt-6 py-10 text-center text-sm text-white/40">
-                  Haz clic en <span className="text-[#c5f04a] font-semibold">&quot;Ejecutar Diagnóstico&quot;</span> para comprobar la conexión con la base de datos, el agente de IA Eve y n8n.
-                </div>
-              )}
-
-              {running && (
-                <div className="mt-6 flex flex-col items-center justify-center py-10 text-sm text-white/50">
-                  <LoaderCircle className="size-8 animate-spin text-[#c5f04a]" />
-                  <span className="mt-4 font-mono text-xs">Pingeando servidores y servicios...</span>
-                </div>
-              )}
-
-              {results && (
-                <div className="mt-6 space-y-4">
-                  {/* Neon Database */}
-                  <div className="flex items-start justify-between rounded-xl bg-white/[0.02] p-4">
-                    <div className="flex gap-3">
-                      <div className="mt-0.5 text-[#c5f04a]">
-                        <Database className="size-5" />
-                      </div>
-                      <div>
-                        <div className="text-sm font-semibold">Neon Serverless Database</div>
-                        <div className="text-xs text-white/50">Conexión directa Postgres por pooler HTTP</div>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      {results.database.ok ? (
-                        <>
-                          <span className="font-mono text-xs text-[#c5f04a]">{results.database.error}</span>
-                          <CheckCircle2 className="size-5 text-[#c5f04a]" />
-                        </>
-                      ) : (
-                        <>
-                          <span className="font-mono text-xs text-red-400 max-w-[200px] truncate" title={results.database.error}>
-                            {results.database.error}
-                          </span>
-                          <XCircle className="size-5 text-red-400" />
-                        </>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Growth Agent */}
-                  <div className="flex items-start justify-between rounded-xl bg-white/[0.02] p-4">
-                    <div className="flex gap-3">
-                      <div className="mt-0.5 text-[#c5f04a]">
-                        <Server className="size-5" />
-                      </div>
-                      <div>
-                        <div className="text-sm font-semibold">Growth Agent Runtime</div>
-                        <div className="text-xs text-white/50">Runtime configurable: Eve o Hermes Agent</div>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      {results.growthAgent.ok ? (
-                        <>
-                          <span className="font-mono text-xs text-[#c5f04a]">{results.growthAgent.statusText}</span>
-                          <CheckCircle2 className="size-5 text-[#c5f04a]" />
-                        </>
-                      ) : (
-                        <>
-                          <span className="font-mono text-xs text-red-400 max-w-[200px] truncate" title={results.growthAgent.error || results.growthAgent.statusText}>
-                            {results.growthAgent.error || results.growthAgent.statusText}
-                          </span>
-                          <XCircle className="size-5 text-red-400" />
-                        </>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* n8n Webhook */}
-                  <div className="flex items-start justify-between rounded-xl bg-white/[0.02] p-4">
-                    <div className="flex gap-3">
-                      <div className="mt-0.5 text-[#c5f04a]">
-                        <Webhook className="size-5" />
-                      </div>
-                      <div>
-                        <div className="text-sm font-semibold">n8n Workflow Webhook</div>
-                        <div className="text-xs text-white/50">Recibe eventos de registro WABA y sincronizaciones</div>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      {results.n8n.ok ? (
-                        <>
-                          <span className="font-mono text-xs text-[#c5f04a]">{results.n8n.statusText}</span>
-                          <CheckCircle2 className="size-5 text-[#c5f04a]" />
-                        </>
-                      ) : (
-                        <>
-                          <span className="font-mono text-xs text-red-400 max-w-[200px] truncate" title={results.n8n.error}>
-                            {results.n8n.error}
-                          </span>
-                          <XCircle className="size-5 text-red-400" />
-                        </>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Meta Webhook Callback */}
-                  <div className="flex items-start justify-between rounded-xl bg-white/[0.02] p-4">
-                    <div className="flex gap-3">
-                      <div className="mt-0.5 text-[#c5f04a]">
-                        <Webhook className="size-5" />
-                      </div>
-                      <div>
-                        <div className="text-sm font-semibold">Meta Callback Webhook URL</div>
-                        <div className="text-xs text-white/50">Endpoint público de retorno HTTPS para Meta</div>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      {results.callbackUrl.ok ? (
-                        <>
-                          <span className="font-mono text-xs text-[#c5f04a]">{results.callbackUrl.statusText}</span>
-                          <CheckCircle2 className="size-5 text-[#c5f04a]" />
-                        </>
-                      ) : (
-                        <>
-                          <span className="font-mono text-xs text-red-400 max-w-[200px] truncate" title={results.callbackUrl.error}>
-                            {results.callbackUrl.error}
-                          </span>
-                          <XCircle className="size-5 text-red-400" />
-                        </>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="flex items-start justify-between rounded-xl bg-white/[0.02] p-4">
-                    <div className="flex gap-3">
-                      <div className="mt-0.5 text-[#c5f04a]">
-                        <FileText className="size-5" />
-                      </div>
-                      <div>
-                        <div className="text-sm font-semibold">Cola durable de Meta</div>
-                        <div className="text-xs text-white/50">Eventos guardados antes de confirmar recepción</div>
-                      </div>
-                    </div>
-                    <div className="text-right font-mono text-xs">
-                      <div className={(results.webhookEvents.failed ?? 0) > 0 ? "text-red-400" : "text-[#c5f04a]"}>
-                        {results.webhookEvents.failed ?? 0} fallidos
-                      </div>
-                      <div className="mt-1 text-white/40">
-                        {results.webhookEvents.pending ?? 0} pendientes · {results.webhookEvents.processed ?? 0} procesados
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
+        <section className="mt-5" aria-labelledby="pulse-heading">
+          <div className="mb-3 flex items-end justify-between gap-4">
+            <div><h2 id="pulse-heading" className="font-display text-xl font-semibold tracking-[-0.035em]">Pulso comercial</h2><p className="mt-1 text-xs text-[#748296]">KPIs y objetivos del mes.</p></div>
+            <Badge variant="outline" className="border-[#dce2e8] bg-white text-[#667589]">OKRs mensuales</Badge>
           </div>
-
-          {/* Right Sidebar: Env Status & Static Checklist */}
-          <div className="space-y-6">
-            {/* Env Status */}
-            <div className="rounded-none border border-white/10 bg-white/[0.015] p-6">
-              <div className="flex items-center gap-2 border-b border-white/10 pb-4">
-                <Key className="size-4 text-[#c5f04a]" />
-                <h3 className="font-display text-md font-semibold">Variables de Entorno</h3>
-              </div>
-              <ul className="mt-4 space-y-3 font-mono text-xs">
-                {[
-                  { key: "DATABASE_URL", isOptional: false },
-                  { key: "GROWTH_AGENT_URL", isOptional: false },
-                  { key: "META_APP_ID", isOptional: false },
-                  { key: "META_APP_SECRET", isOptional: false },
-                  { key: "META_CONFIG_ID", isOptional: false },
-                  { key: "N8N_WEBHOOK_URL", isOptional: false },
-                  { key: "META_WEBHOOK_VERIFY_TOKEN", isOptional: false },
-                  { key: "APP_URL", isOptional: false },
-                  { key: "N8N_WEBHOOK_SECRET", isOptional: false },
-                ].map((item) => {
-                  const configured = results ? results.env[item.key] : true; // assume true before run
-                  return (
-                    <li key={item.key} className="flex items-center justify-between gap-4">
-                      <span className="truncate text-white/70" title={item.key}>
-                        {item.key}
-                      </span>
-                      {results ? (
-                        configured ? (
-                          <span className="rounded bg-[#c5f04a]/10 px-1.5 py-0.5 text-[10px] text-[#c5f04a]">
-                            LISTO
-                          </span>
-                        ) : (
-                          <span className={`rounded px-1.5 py-0.5 text-[10px] ${item.isOptional ? 'bg-yellow-500/10 text-yellow-500' : 'bg-red-500/10 text-red-500'}`}>
-                            {item.isOptional ? 'OPCIONAL' : 'FALTA'}
-                          </span>
-                        )
-                      ) : (
-                        <span className="h-1.5 w-1.5 rounded-full bg-white/20"></span>
-                      )}
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
-
-            {/* Checklist */}
-            <div className="rounded-none border border-white/10 bg-[#08090a] p-6">
-              <div className="flex items-center gap-2 border-b border-white/10 pb-4">
-                <FileText className="size-4 text-[#c5f04a]" />
-                <h3 className="font-display text-md font-semibold">Verificación Manual</h3>
-              </div>
-              <ul className="mt-4 space-y-4 text-xs text-white/70">
-                <li className="flex items-start gap-2.5">
-                  <input
-                    type="checkbox"
-                    className="mt-0.5 rounded border-white/20 bg-transparent text-[#c5f04a] focus:ring-[#c5f04a]/30"
-                    id="chk-1"
-                  />
-                  <label htmlFor="chk-1" className="leading-5">
-                    App publicada y permisos aprobados (`whatsapp_business_management`, `whatsapp_business_messaging`).
-                  </label>
-                </li>
-                <li className="flex items-start gap-2.5">
-                  <input
-                    type="checkbox"
-                    className="mt-0.5 rounded border-white/20 bg-transparent text-[#c5f04a] focus:ring-[#c5f04a]/30"
-                    id="chk-2"
-                  />
-                  <label htmlFor="chk-2" className="leading-5">
-                    Configuración de redirección OAuth e HTTPS habilitados en Meta Business.
-                  </label>
-                </li>
-                <li className="flex items-start gap-2.5">
-                  <input
-                    type="checkbox"
-                    className="mt-0.5 rounded border-white/20 bg-transparent text-[#c5f04a] focus:ring-[#c5f04a]/30"
-                    id="chk-3"
-                  />
-                  <label htmlFor="chk-3" className="leading-5">
-                    El workflow `Meta Embedded Signup` en n8n está activo.
-                  </label>
-                </li>
-                <li className="flex items-start gap-2.5">
-                  <input
-                    type="checkbox"
-                    className="mt-0.5 rounded border-white/20 bg-transparent text-[#c5f04a] focus:ring-[#c5f04a]/30"
-                    id="chk-4"
-                  />
-                  <label htmlFor="chk-4" className="leading-5">
-                    El daemon de Eve está corriendo y escuchando en el puerto local o de staging.
-                  </label>
-                </li>
-              </ul>
-            </div>
+          <div className="grid gap-3 lg:grid-cols-3">
+            <PulseCard icon={TrendingUp} label="Conversaciones con próximo paso" value={formatPercent(snapshot.pulse.nextStepShare)} target="Meta 65%" progress={snapshot.pulse.nextStepShare === null ? null : Math.min(100, snapshot.pulse.nextStepShare / 65 * 100)} />
+            <PulseCard icon={CalendarCheck2} label="Citas confirmadas" value={snapshot.pulse.citas === null ? "—" : String(snapshot.pulse.citas)} target="Meta 12" progress={snapshot.pulse.citas === null ? null : Math.min(100, snapshot.pulse.citas / 12 * 100)} />
+            <PulseCard icon={Target} label="Pipeline ponderado" value={formatMoney(snapshot.pulse.weightedPipeline)} target="Valor × probabilidad" progress={null} />
           </div>
-        </div>
+        </section>
+
+        <Card className="mt-5 gap-0 rounded-[16px] bg-white py-0 shadow-none ring-[#e2e7ec]">
+          <CardHeader className="border-b border-[#e8ecf0] px-6 py-4">
+            <CardTitle className="font-display text-lg font-semibold">Salud del sistema</CardTitle>
+            <CardDescription>Lecturas observacionales; no disparan pruebas ni mensajes.</CardDescription>
+          </CardHeader>
+          <CardContent className="grid gap-0 px-0 sm:grid-cols-3">
+            {snapshot.health.map((item, index) => (
+              <div key={item.id} className={`flex items-center gap-3 px-6 py-5 ${index > 0 ? "border-t border-[#e8ecf0] sm:border-l sm:border-t-0" : ""}`}>
+                <span className={`size-2.5 rounded-full ${healthColor(item.status)}`} />
+                <span className="min-w-0"><strong className="block text-sm font-semibold">{item.label}</strong><span className="mt-1 block truncate text-xs text-[#748296]">{item.detail}</span></span>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
       </div>
     </main>
   );
 }
 
-function formatConnectionDate(value: string) {
-  return new Intl.DateTimeFormat("es-VE", {
-    dateStyle: "medium",
-    timeStyle: "short",
-  }).format(new Date(value));
+function ActionRow({ action, last }: { action: OpsAction; last: boolean }) {
+  return (
+    <div className={`grid gap-3 px-6 py-5 sm:grid-cols-[150px_minmax(0,1fr)_auto] sm:items-center sm:px-7 ${last ? "" : "border-b border-[#edf0f3]"}`}>
+      <div><Badge variant={action.kind === "incident" ? "destructive" : "secondary"} className={action.kind === "incident" ? undefined : "bg-[#eef3f7] text-[#526174]"}>{kindLabel(action.kind)}</Badge><time className="mt-2 block font-mono text-[10px] text-[#8a96a5]">{formatActionTime(action.occurredAt)}</time></div>
+      <div className="min-w-0"><h3 className="truncate text-sm font-semibold text-[#172b43]">{action.title}</h3><p className="mt-1 text-xs leading-5 text-[#68778a]">{action.reason}</p></div>
+      <Button asChild variant="outline" className="h-10 border-[#dce2e8] bg-white"><Link href={action.href}>{action.cta} <ArrowRight data-icon="inline-end" /></Link></Button>
+    </div>
+  );
 }
+
+function PulseCard({ icon: Icon, label, value, target, progress }: { icon: typeof Target; label: string; value: string; target: string; progress: number | null }) {
+  return (
+    <Card className="gap-4 rounded-[14px] bg-white py-5 shadow-none ring-[#e2e7ec]">
+      <CardHeader className="px-5"><CardTitle className="flex items-center gap-2 text-xs font-semibold text-[#667589]"><Icon className="size-4" /> {label}</CardTitle><CardAction className="font-mono text-[10px] uppercase text-[#8a96a5]">{target}</CardAction></CardHeader>
+      <CardContent className="px-5"><div className="font-display text-3xl font-semibold tracking-[-0.045em] tabular-nums">{value}</div>{progress !== null && <><Separator className="my-4" /><Progress value={progress} className="h-2 bg-[#edf1f4] [&_[data-slot=progress-indicator]]:bg-[#a8d52d]" /></>}</CardContent>
+    </Card>
+  );
+}
+
+function formatBusinessDate(value: string) {
+  return new Intl.DateTimeFormat("es-VE", { dateStyle: "full", timeZone: "America/Caracas" }).format(new Date(`${value}T12:00:00-04:00`));
+}
+
+function formatActionTime(value: string | null) {
+  if (!value) return "Sin fecha";
+  return new Intl.DateTimeFormat("es-VE", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", timeZone: "America/Caracas" }).format(new Date(value));
+}
+
+function formatPercent(value: number | null) { return value === null ? "—" : `${value}%`; }
+function formatMoney(value: number | null) { return value === null ? "—" : new Intl.NumberFormat("es-VE", { style: "currency", currency: "USD", notation: "compact", maximumFractionDigits: 1 }).format(value); }
+function healthColor(status: OpsHealthStatus) { return status === "healthy" ? "bg-[#9fc72a]" : status === "unhealthy" ? "bg-[#d95f59]" : "bg-[#aeb8c3]"; }
+function kindLabel(kind: OpsAction["kind"]) { return kind === "reply" ? "Responder" : kind === "follow_up" ? "Follow-up" : kind === "approval" ? "Aprobar" : kind === "proposal" ? "Propuesta" : "Incidente"; }

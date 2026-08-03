@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import {
   BarChart3,
   Check,
@@ -44,21 +44,34 @@ export default function GrowthOpsClient({
   initialRuns,
   initialLeads,
   initialDrafts,
+  initialTab,
+  initialDraftId,
   marketing,
   waha,
 }: {
   initialRuns: GrowthRun[];
   initialLeads: GrowthLead[];
   initialDrafts: OutreachDraft[];
+  initialTab: Tab;
+  initialDraftId: string | null;
   marketing: MarketingSnapshot;
   waha: WahaSnapshot;
 }) {
-  const [tab, setTab] = useState<Tab>("hoy");
+  const [tab, setTab] = useState<Tab>(initialTab);
   const [drafts, setDrafts] = useState(initialDrafts);
   const [leads, setLeads] = useState(initialLeads);
   const [running, setRunning] = useState(false);
   const [busyLead, setBusyLead] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!initialDraftId || tab !== "drafts") return;
+    const target = document.getElementById(`draft-${initialDraftId}`);
+    if (!target) return;
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    target.focus({ preventScroll: true });
+    target.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "center" });
+  }, [initialDraftId, tab]);
 
   const leadById = useMemo(() => new Map(leads.map((lead) => [lead.id, lead])), [leads]);
 
@@ -360,7 +373,7 @@ export default function GrowthOpsClient({
                     </div>
                     <div className="grid gap-4 lg:grid-cols-2">
                       {leadDrafts.map((draft) => (
-                        <article key={draft.id} className="rounded-none border border-white/10 bg-white/[0.02] p-5">
+                        <article id={`draft-${draft.id}`} tabIndex={-1} key={draft.id} className="scroll-mt-6 rounded-none border border-white/10 bg-white/[0.02] p-5 outline-none focus:border-[#c5f04a]/60">
                           <div className="flex items-center justify-between gap-4">
                             <div className="flex items-center gap-2">
                               <span className="rounded-full bg-[#c5f04a]/15 px-2.5 py-1 text-[10px] font-semibold text-[#c5f04a]">{KIND_LABELS[draft.kind]}</span>

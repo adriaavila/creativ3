@@ -114,7 +114,11 @@ export default function ContactsClient({ initialLeads, initialConversations }: C
                 <tbody>
                   {filtered.map((contact) => {
                     const official = contact.conversation?.channelKind === "cloud_api";
-                    const destination = contact.conversation ? "/ops/inbox" : "/ops/crm";
+                    const destination = contact.conversation
+                      ? `/ops/inbox?conversation=${contact.conversation.id}`
+                      : contact.lead
+                        ? `/ops/crm?lead=${encodeURIComponent(contact.lead.id)}`
+                        : "/ops/crm";
                     const activity = contact.conversation?.lastMessageAt ?? contact.lead?.lastContactedAt ?? contact.lead?.createdAt;
                     return (
                       <tr key={contact.key} className="border-t border-[#edf0f3] transition hover:bg-[#fafbfd]">

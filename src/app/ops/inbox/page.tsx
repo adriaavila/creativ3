@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { authorizeOps, isOpsAuthConfigured } from "@/lib/ops-auth";
-import { listConversations } from "@/lib/whatsapp-inbox-db";
+import { getConversationById, listConversations } from "@/lib/whatsapp-inbox-db";
 import InboxClient from "@/components/ops/InboxClient";
 
 export const dynamic = "force-dynamic";
@@ -10,7 +10,11 @@ export const metadata = {
   description: "Bandeja unificada de conversaciones de WhatsApp (Cloud API + WAHA).",
 };
 
-export default async function OpsInboxPage() {
+export default async function OpsInboxPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ conversation?: string | string[] }>;
+}) {
   if (!isOpsAuthConfigured() || !process.env.DATABASE_URL) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-[#08090a] p-6 text-white">
@@ -33,7 +37,17 @@ export default async function OpsInboxPage() {
   const authorization = await authorizeOps();
   if (!authorization.authorized) redirect("/ops-login?next=/ops/inbox");
 
-  const conversations = await listConversations().catch(() => []);
+  const query = searchParams ? await searchParams : {};
+  const rawId = typeof query.conversation === "string" ? query.conversation : "";
+  const requestedId = /^\d+$/.test(rawId) && Number(rawId) > 0 ? Number(rawId) : null;
+  const [listed, requested] = await Promise.all([
+    listConversations().catch(() => []),
+    requestedId ? getConversationById(requestedId).catch(() => null) : null,
+  ]);
+  const conversations = requested && !listed.some(({ id }) => id === requested.id)
+    ? [requested, ...listed]
+    : listed;
+  const initialSelectedId = requested?.id ?? conversations[0]?.id ?? null;
 
-  return <InboxClient initialConversations={conversations} />;
+  return <InboxClient key={initialSelectedId ?? "empty"} initialConversations={conversations} initialSelectedId={initialSelectedId} />;
 }

@@ -11,6 +11,7 @@ type InboxFilter = "all" | "official" | "waiting" | "open";
 
 type InboxClientProps = {
   initialConversations: WaConversation[];
+  initialSelectedId: number | null;
 };
 
 function initials(name: string | null, fallback = "WA") {
@@ -132,9 +133,9 @@ function DetailRail({ conversation, onConversationChange }: { conversation: WaCo
   );
 }
 
-export default function InboxClient({ initialConversations }: InboxClientProps) {
+export default function InboxClient({ initialConversations, initialSelectedId }: InboxClientProps) {
   const [conversations, setConversations] = useState(initialConversations);
-  const [selectedId, setSelectedId] = useState<number | null>(initialConversations[0]?.id ?? null);
+  const [selectedId, setSelectedId] = useState<number | null>(initialSelectedId);
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<InboxFilter>("all");
 

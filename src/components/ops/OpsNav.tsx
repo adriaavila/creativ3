@@ -5,24 +5,35 @@ import { usePathname, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import {
   Bot,
+  BriefcaseBusiness,
   ContactRound,
   FlaskConical,
+  LayoutDashboard,
   Inbox,
   KanbanSquare,
   Link2,
   LogOut,
   Menu,
+  TrendingUp,
   X,
   type LucideIcon,
 } from "lucide-react";
 import AllokLogo from "@/components/brand/AllokLogo";
 
-const items: Array<{ href: string; label: string; icon: LucideIcon }> = [
+type NavItem = { href: string; label: string; icon: LucideIcon };
+
+const primaryItems: NavItem[] = [
+  { href: "/ops", label: "Hoy", icon: LayoutDashboard },
   { href: "/ops/inbox", label: "Bandeja", icon: Inbox },
   { href: "/ops/crm", label: "Pipeline", icon: KanbanSquare },
+  { href: "/ops/growth", label: "Growth", icon: TrendingUp },
+] as const;
+
+const systemItems: NavItem[] = [
   { href: "/ops/contacts", label: "Contactos", icon: ContactRound },
   { href: "/ops/agents", label: "Agentes", icon: Bot },
   { href: "/ops/lab", label: "Laboratorio", icon: FlaskConical },
+  { href: "/ops/portfolio", label: "Portafolio", icon: BriefcaseBusiness },
 ] as const;
 
 function isConnectionsActive(pathname: string, view: string | null) {
@@ -30,6 +41,7 @@ function isConnectionsActive(pathname: string, view: string | null) {
 }
 
 function isItemActive(pathname: string, href: string, connectionsActive: boolean) {
+  if (href === "/ops") return pathname === href;
   return href === "/ops/crm"
     ? pathname.startsWith(href) && !connectionsActive
     : pathname === href || pathname.startsWith(`${href}/`);
@@ -47,7 +59,7 @@ export default function OpsNav({ global = false }: OpsNavProps) {
 
   if (!global) return null;
 
-  const renderItem = (item: (typeof items)[number]) => {
+  const renderItem = (item: NavItem) => {
     const active = isItemActive(pathname, item.href, connectionsActive);
     const Icon = item.icon;
 
@@ -56,7 +68,7 @@ export default function OpsNav({ global = false }: OpsNavProps) {
         key={item.href}
         href={item.href}
         aria-current={active ? "page" : undefined}
-          onClick={() => setMobileMenuOpen(false)}
+        onClick={() => setMobileMenuOpen(false)}
         className={`flex min-h-11 items-center gap-3 rounded-[10px] px-3 text-[14px] font-medium transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#142b4b] ${
           active
             ? "bg-[#eef3f7] text-[#142b4b]"
@@ -83,6 +95,19 @@ export default function OpsNav({ global = false }: OpsNavProps) {
       <Link2 className={`size-[18px] shrink-0 ${connectionsActive ? "text-[#385875]" : "text-[#738196]"}`} strokeWidth={1.8} aria-hidden="true" />
       Conexiones
     </Link>
+  );
+
+  const renderNavigation = () => (
+    <>
+      <div className="space-y-1">{primaryItems.map(renderItem)}</div>
+      <div className="my-5 border-t border-[#edf0f3]" />
+      <p className="px-3 pb-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-[#9aa5b2]">Sistema</p>
+      <div className="space-y-1">
+        {renderItem(systemItems[0])}
+        {renderConnections()}
+        {systemItems.slice(1).map(renderItem)}
+      </div>
+    </>
   );
 
   const renderLogout = () => (
@@ -135,12 +160,11 @@ export default function OpsNav({ global = false }: OpsNavProps) {
         <div className="px-2">{renderBrand()}</div>
 
         <nav className="mt-8 space-y-1" aria-label="Páginas de Ops">
-          {items.map(renderItem)}
+          {renderNavigation()}
         </nav>
 
         <div className="mt-auto">
           <div className="space-y-1">
-            {renderConnections()}
             {renderLogout()}
           </div>
           {renderProfile()}
@@ -171,11 +195,10 @@ export default function OpsNav({ global = false }: OpsNavProps) {
           <aside className="fixed inset-y-0 left-0 z-50 flex w-[min(292px,86vw)] flex-col border-r border-[#e5e9ed] bg-white px-3 py-5 shadow-2xl md:hidden" aria-label="Navegación móvil">
             <div className="px-2">{renderBrand(true)}</div>
             <nav className="mt-8 space-y-1" aria-label="Páginas de Ops">
-              {items.map(renderItem)}
+              {renderNavigation()}
             </nav>
             <div className="mt-auto">
               <div className="space-y-1">
-                {renderConnections()}
                 {renderLogout()}
               </div>
               {renderProfile()}

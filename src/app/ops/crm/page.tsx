@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import CrmWorkspaceClient from "@/components/ops/CrmWorkspaceClient";
 import type { CrmChannel } from "@/lib/crm-types";
-import { getGrowthLeads, isGrowthDatabaseConfigured } from "@/lib/growth-db";
+import { getGrowthLeadById, getGrowthLeads, isGrowthDatabaseConfigured } from "@/lib/growth-db";
 import { authorizeOps, isOpsAuthConfigured } from "@/lib/ops-auth";
 import { listConversations, listWahaConnections } from "@/lib/whatsapp-inbox-db";
 import { listWhatsAppConnections } from "@/lib/whatsapp-connections-db";
@@ -17,7 +17,7 @@ export const metadata = {
 export default async function OpsCrmPage({
   searchParams,
 }: {
-  searchParams?: Promise<{ view?: string }>;
+  searchParams?: Promise<{ view?: string; lead?: string | string[] }>;
 }) {
   if (!isOpsAuthConfigured() || !isGrowthDatabaseConfigured()) {
     return (
@@ -34,22 +34,31 @@ export default async function OpsCrmPage({
   const authorization = await authorizeOps();
   if (!authorization.authorized) redirect("/ops-login?next=/ops/crm");
 
-  const [leads, conversations, metaConnections, wahaConnections] = await Promise.all([
+  const params = searchParams ? await searchParams : {};
+  const rawLeadId = typeof params.lead === "string" ? params.lead : "";
+  const requestedLeadId = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(rawLeadId) ? rawLeadId : null;
+  const [listedLeads, conversations, metaConnections, wahaConnections, requestedLead] = await Promise.all([
     getGrowthLeads(100),
     listConversations(100).catch(() => []),
     listWhatsAppConnections().catch(() => []),
     listWahaConnections().catch(() => []),
+    requestedLeadId ? getGrowthLeadById(requestedLeadId).catch(() => null) : null,
   ]);
+  const leads = requestedLead && !listedLeads.some(({ id }) => id === requestedLead.id)
+    ? [requestedLead, ...listedLeads]
+    : listedLeads;
 
   const channels: CrmChannel[] = buildCrmChannels(metaConnections, wahaConnections);
 
-  const params = searchParams ? await searchParams : {};
   return (
     <CrmWorkspaceClient
+      key={`${params.view ?? "workspace"}:${requestedLead?.id ?? "none"}`}
       initialLeads={leads}
       initialConversations={conversations}
       channels={channels}
       initialView={params.view === "connections" ? "connections" : "workspace"}
+      initialLeadId={requestedLead?.id ?? null}
+      cloudApiOnboardingAvailable={Boolean(process.env.META_CONFIG_ID_CLOUD_API?.trim())}
     />
   );
 }

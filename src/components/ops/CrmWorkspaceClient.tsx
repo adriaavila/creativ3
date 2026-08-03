@@ -26,6 +26,7 @@ import {
   isCrmChannelActive,
 } from "@/lib/crm-channels";
 import ConversationThread from "@/components/ops/ConversationThread";
+import OnboardingLinkGenerator from "@/components/ops/OnboardingLinkGenerator";
 import { TapButton } from "@/components/ops/apple";
 import { eventConversation, useOpsRealtime, type OpsRealtimeEvent } from "@/hooks/useOpsRealtime";
 
@@ -54,6 +55,8 @@ type CrmWorkspaceClientProps = {
   initialConversations: WaConversation[];
   channels: CrmChannel[];
   initialView?: "workspace" | "connections";
+  initialLeadId?: string | null;
+  cloudApiOnboardingAvailable: boolean;
 };
 
 type ApprovedTemplate = {
@@ -101,11 +104,13 @@ export default function CrmWorkspaceClient({
   initialConversations,
   channels: initialChannels,
   initialView = "workspace",
+  initialLeadId = null,
+  cloudApiOnboardingAvailable,
 }: CrmWorkspaceClientProps) {
   const [leads, setLeads] = useState(initialLeads);
   const [conversations, setConversations] = useState(initialConversations);
   const [channels, setChannels] = useState(initialChannels);
-  const [selectedLeadId, setSelectedLeadId] = useState<string | null>(null);
+  const [selectedLeadId, setSelectedLeadId] = useState<string | null>(initialLeadId);
   const [query, setQuery] = useState("");
   const [view, setView] = useState(initialView);
 
@@ -188,6 +193,9 @@ export default function CrmWorkspaceClient({
         {view === "connections" ? (
           <section className="mt-7" aria-labelledby="connections-heading">
             <ConnectionsPanel initialChannels={channels} onChannelsChange={setChannels} />
+            <div className="mt-5 rounded-xl bg-[#08090a] p-4 text-white sm:p-6">
+              <OnboardingLinkGenerator cloudApiAvailable={cloudApiOnboardingAvailable} />
+            </div>
           </section>
         ) : (
           <>

@@ -215,6 +215,26 @@ export async function getOutreachDrafts(limit = 50): Promise<OutreachDraft[]> {
   }));
 }
 
+export async function getOutreachDraftById(id: string): Promise<OutreachDraft | null> {
+  const sql = getSql();
+  if (!sql) return null;
+  const [row] = await sql`
+    SELECT id, lead_id, channel, kind, content, status, updated_at
+    FROM outreach_drafts
+    WHERE id = ${id}
+    LIMIT 1
+  `;
+  return row ? {
+    id: String(row.id),
+    leadId: String(row.lead_id),
+    channel: row.channel as OutreachDraft["channel"],
+    kind: (row.kind as OutreachDraft["kind"]) ?? "dm",
+    content: String(row.content),
+    status: row.status as DraftStatus,
+    updatedAt: new Date(String(row.updated_at)).toISOString(),
+  } : null;
+}
+
 export async function updateDraft(
   id: string,
   input: { content?: string; status?: DraftStatus; reviewedBy?: string },

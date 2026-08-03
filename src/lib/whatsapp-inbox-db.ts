@@ -274,20 +274,21 @@ export function outcomeShare(marked: number, total: number): number | null {
  */
 export async function getNextStepSummary(): Promise<NextStepSummary> {
   const sql = getSql();
-  // ponytail: month buckets in UTC. Venezuela is UTC-4, so the first 4h of a
-  // month land in the previous bucket. Add `AT TIME ZONE 'America/Caracas'` if a
-  // close month ever decides an invoice.
   const rows = await sql`
+    WITH boundaries AS (
+      SELECT date_trunc('month', now() AT TIME ZONE 'America/Caracas')
+        AT TIME ZONE 'America/Caracas' AS current_start
+    )
     SELECT
-      count(*) FILTER (WHERE last_message_at >= date_trunc('month', now()))::int AS cur_total,
-      count(outcome) FILTER (WHERE last_message_at >= date_trunc('month', now()))::int AS cur_marked,
+      count(*) FILTER (WHERE last_message_at >= current_start)::int AS cur_total,
+      count(outcome) FILTER (WHERE last_message_at >= current_start)::int AS cur_marked,
       count(*) FILTER (
-        WHERE last_message_at >= date_trunc('month', now()) AND outcome = 'cita'
+        WHERE last_message_at >= current_start AND outcome = 'cita'
       )::int AS cur_citas,
-      count(*) FILTER (WHERE last_message_at < date_trunc('month', now()))::int AS prev_total,
-      count(outcome) FILTER (WHERE last_message_at < date_trunc('month', now()))::int AS prev_marked
-    FROM wa_conversations
-    WHERE last_message_at >= date_trunc('month', now()) - interval '1 month'
+      count(*) FILTER (WHERE last_message_at < current_start)::int AS prev_total,
+      count(outcome) FILTER (WHERE last_message_at < current_start)::int AS prev_marked
+    FROM wa_conversations, boundaries
+    WHERE last_message_at >= current_start - interval '1 month'
   `;
   const row = rows[0] ?? {};
   return {

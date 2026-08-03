@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ExternalLink, Loader2, RefreshCw, Send } from "lucide-react";
 import Link from "next/link";
 
@@ -70,6 +70,8 @@ export default function TemplateComposer({ conversationId, channelKey, onSent }:
   const [values, setValues] = useState<Record<string, string>>({});
   const [sending, setSending] = useState(false);
   const [sendError, setSendError] = useState<string | null>(null);
+  const [deliveryUnconfirmed, setDeliveryUnconfirmed] = useState(false);
+  const actionIdRef = useRef<string | null>(null);
 
   const loadTemplates = useCallback(async () => {
     setState("loading");
@@ -127,6 +129,8 @@ export default function TemplateComposer({ conversationId, channelKey, onSent }:
   const preview = selected ? previewBody(selected.bodyText, values) : "";
 
   function selectTemplate(name: string) {
+    actionIdRef.current = null;
+    setDeliveryUnconfirmed(false);
     setSelectedKey(name);
     setValues({});
     setSendError(null);
@@ -142,12 +146,16 @@ export default function TemplateComposer({ conversationId, channelKey, onSent }:
 
     setSending(true);
     setSendError(null);
+    const actionId = actionIdRef.current ?? crypto.randomUUID();
+    actionIdRef.current = actionId;
+    let responseReceived = false;
     try {
       const response = await fetch(`/api/ops/inbox/${conversationId}/reply`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           mode: "send",
+          actionId,
           template: {
             name: selected.name,
             languageCode: selected.language,
@@ -155,11 +163,20 @@ export default function TemplateComposer({ conversationId, channelKey, onSent }:
           },
         }),
       });
-      const data = (await response.json()) as { error?: string };
+      responseReceived = true;
+      const data = (await response.json()) as { error?: string; status?: string };
+      if (response.status === 202 || data.status === "pending" || data.status === "unknown") {
+        setDeliveryUnconfirmed(true);
+        setSendError(data.error ?? "Entrega no confirmada; no reintentes esta plantilla.");
+        return;
+      }
       if (!response.ok) throw new Error(data.error ?? "No se pudo enviar la plantilla.");
+      actionIdRef.current = null;
+      setDeliveryUnconfirmed(false);
       setValues({});
       onSent?.();
     } catch (error) {
+      if (!responseReceived) setDeliveryUnconfirmed(true);
       setSendError(error instanceof Error ? error.message : "No se pudo enviar la plantilla.");
     } finally {
       setSending(false);
@@ -232,7 +249,11 @@ export default function TemplateComposer({ conversationId, channelKey, onSent }:
                   Variable {`{{${id}}}`}
                   <input
                     value={values[id] ?? ""}
-                    onChange={(event) => setValues((current) => ({ ...current, [id]: event.target.value }))}
+                    onChange={(event) => {
+                      actionIdRef.current = null;
+                      setDeliveryUnconfirmed(false);
+                      setValues((current) => ({ ...current, [id]: event.target.value }));
+                    }}
                     placeholder={`Texto para {{${id}}}`}
                     aria-label={`Texto para variable ${id}`}
                     className="mt-1 min-h-10 w-full rounded-md border border-[#dfe5eb] bg-white px-2.5 text-xs text-[#172238] outline-none placeholder:text-[#a2acb8] focus:border-[#3f5f7b]"
@@ -245,7 +266,7 @@ export default function TemplateComposer({ conversationId, channelKey, onSent }:
           <button
             type="button"
             onClick={() => void sendTemplate()}
-            disabled={sending}
+            disabled={sending || deliveryUnconfirmed}
             className="inline-flex min-h-10 items-center gap-2 rounded-md bg-[#3f5f7b] px-3 text-xs font-semibold text-white transition hover:bg-[#2e4b65] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3f5f7b] disabled:opacity-50"
           >
             {sending ? <Loader2 className="size-3.5 animate-spin" /> : <Send className="size-3.5" />}

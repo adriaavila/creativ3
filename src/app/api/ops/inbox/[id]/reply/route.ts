@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { authorizeOps } from "@/lib/ops-auth";
 import { getConversationById } from "@/lib/whatsapp-inbox-db";
-import { OutsideFreeTextWindowError, sendToConversation } from "@/lib/whatsapp-send";
+import { OutsideFreeTextWindowError, outboundActionOutcome, sendToConversation } from "@/lib/whatsapp-send";
 import { suggestReply } from "@/lib/whatsapp-ai";
 
 export const runtime = "nodejs";
@@ -14,6 +14,7 @@ const bodySchema = z.discriminatedUnion("mode", [
   z.object({ mode: z.literal("suggest") }),
   z.object({
     mode: z.literal("send"),
+    actionId: z.string().uuid(),
     text: z.string().trim().min(1).max(4096).optional(),
     template: z
       .object({
@@ -57,11 +58,22 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   try {
     const message = await sendToConversation({
       conversationId,
+      actionId: input.actionId,
       text: input.text,
       template: input.template,
       source: "api",
     });
-    return Response.json({ ok: true, message });
+    const outcome = outboundActionOutcome(message.status);
+    if (outcome === "unknown") {
+      return Response.json(
+        { ok: false, status: message.status, error: "Entrega no confirmada; no reintentes este mensaje." },
+        { status: 202 },
+      );
+    }
+    if (outcome === "failed") {
+      return Response.json({ error: "El proveedor confirmó que el mensaje falló." }, { status: 409 });
+    }
+    return Response.json({ ok: true, message: message.message });
   } catch (error) {
     if (error instanceof OutsideFreeTextWindowError) {
       return Response.json({ error: error.message, requiresTemplate: true }, { status: 409 });

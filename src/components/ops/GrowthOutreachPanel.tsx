@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Bot, CheckCircle2, ExternalLink, LoaderCircle, MessageCircle, Search } from "lucide-react";
 import type { GrowthPromptInfo } from "@/lib/growth-prompts";
 import type { GrowthLead } from "@/lib/growth-types";
@@ -39,6 +39,8 @@ export default function GrowthOutreachPanel({
   const [confirmed, setConfirmed] = useState(false);
   const [sending, setSending] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
+  const [deliveryUnconfirmed, setDeliveryUnconfirmed] = useState(false);
+  const actionIdRef = useRef<string | null>(null);
   const [channelId, setChannelId] = useState(defaultChannel(channels));
   const [templates, setTemplates] = useState<ApprovedTemplate[]>([]);
   const [templateName, setTemplateName] = useState("");
@@ -46,6 +48,11 @@ export default function GrowthOutreachPanel({
   const [templatesLoadedFor, setTemplatesLoadedFor] = useState<string | null>(null);
 
   const selectedChannel = channels.find((channel) => channel.id === channelId) ?? null;
+
+  const resetAction = () => {
+    actionIdRef.current = null;
+    setDeliveryUnconfirmed(false);
+  };
 
   useEffect(() => {
     let cancelled = false;
@@ -89,6 +96,7 @@ export default function GrowthOutreachPanel({
   }, [leads, query]);
 
   const selectLead = (lead: GrowthLead) => {
+    resetAction();
     setSelectedId(lead.id);
     setPhone(lead.businessPhone ?? "");
     setSourceUrl(lead.contactSourceUrl ?? "");
@@ -101,37 +109,51 @@ export default function GrowthOutreachPanel({
     if (!selected || !confirmed) return;
     setSending(true);
     setNotice(null);
-    const response = await fetch("/api/ops/growth/outreach", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({
-        leadId: selected.id,
-        connectionId: channelId,
-        channel: selectedChannel?.channel,
-        ...(selectedChannel?.workspace ? { workspace: selectedChannel.workspace } : {}),
-        ...(selectedChannel?.official ? { templateName, templateLanguage } : {}),
-        phone,
-        message,
-        contactSourceUrl: sourceUrl || null,
-        confirmed: true,
-      }),
-    });
-    const payload = (await response.json().catch(() => ({}))) as { error?: string };
-    setSending(false);
-    if (!response.ok) {
-      setNotice(payload.error ?? "No se pudo enviar el mensaje.");
-      return;
+    const actionId = actionIdRef.current ?? crypto.randomUUID();
+    actionIdRef.current = actionId;
+    let responseReceived = false;
+    try {
+      const response = await fetch("/api/ops/growth/outreach", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          actionId,
+          leadId: selected.id,
+          connectionId: channelId,
+          channel: selectedChannel?.channel,
+          ...(selectedChannel?.workspace ? { workspace: selectedChannel.workspace } : {}),
+          ...(selectedChannel?.official ? { templateName, templateLanguage } : {}),
+          phone,
+          message,
+          contactSourceUrl: sourceUrl || null,
+          confirmed: true,
+        }),
+      });
+      responseReceived = true;
+      const payload = (await response.json().catch(() => ({}))) as { error?: string; status?: string };
+      if (response.status === 202 || payload.status === "pending" || payload.status === "unknown") {
+        setDeliveryUnconfirmed(true);
+        setNotice(payload.error ?? "Entrega no confirmada; no reintentes este mensaje.");
+        return;
+      }
+      if (!response.ok) throw new Error(payload.error ?? "No se pudo enviar el mensaje.");
+      resetAction();
+      setLeads((items) =>
+        items.map((lead) =>
+          lead.id === selected.id
+            ? { ...lead, status: "contacted", businessPhone: phone, contactSourceUrl: sourceUrl || null, lastContactedAt: new Date().toISOString() }
+            : lead,
+        ),
+      );
+      setMessage("");
+      setConfirmed(false);
+      setNotice("Mensaje enviado y registrado en el historial del lead.");
+    } catch (error) {
+      if (!responseReceived) setDeliveryUnconfirmed(true);
+      setNotice(error instanceof Error ? error.message : "No se pudo enviar el mensaje.");
+    } finally {
+      setSending(false);
     }
-    setLeads((items) =>
-      items.map((lead) =>
-        lead.id === selected.id
-          ? { ...lead, status: "contacted", businessPhone: phone, contactSourceUrl: sourceUrl || null, lastContactedAt: new Date().toISOString() }
-          : lead,
-      ),
-    );
-    setMessage("");
-    setConfirmed(false);
-    setNotice("Mensaje enviado y registrado en el historial del lead.");
   };
 
   return (
@@ -216,18 +238,18 @@ export default function GrowthOutreachPanel({
               <div className="mt-5 grid gap-3 sm:grid-cols-2">
                 <label className="text-xs text-white/45">
                   WhatsApp público del negocio
-                  <input value={phone} onChange={(event) => setPhone(event.target.value)} placeholder="+58412…" className="mt-1.5 w-full rounded-xl border border-white/10 bg-black/20 px-3 py-2.5 text-sm text-white outline-none focus:border-[#c5f04a]/45" />
+                  <input value={phone} onChange={(event) => { resetAction(); setPhone(event.target.value); }} placeholder="+58412…" className="mt-1.5 w-full rounded-xl border border-white/10 bg-black/20 px-3 py-2.5 text-sm text-white outline-none focus:border-[#c5f04a]/45" />
                 </label>
                 <label className="text-xs text-white/45">
                   URL donde se verificó el contacto
-                  <input value={sourceUrl} onChange={(event) => setSourceUrl(event.target.value)} placeholder="https://…" className="mt-1.5 w-full rounded-xl border border-white/10 bg-black/20 px-3 py-2.5 text-sm text-white outline-none focus:border-[#c5f04a]/45" />
+                  <input value={sourceUrl} onChange={(event) => { resetAction(); setSourceUrl(event.target.value); }} placeholder="https://…" className="mt-1.5 w-full rounded-xl border border-white/10 bg-black/20 px-3 py-2.5 text-sm text-white outline-none focus:border-[#c5f04a]/45" />
                 </label>
               </div>
               <label className="mt-4 block text-xs text-white/45">
                 Canal de envío
                 <select
                   value={channelId}
-                  onChange={(event) => setChannelId(event.target.value)}
+                  onChange={(event) => { resetAction(); setChannelId(event.target.value); }}
                   disabled={channels.length === 0}
                   className="mt-1.5 min-h-11 w-full rounded-xl border border-white/10 bg-black/20 px-3 py-2.5 text-sm text-white outline-none focus:border-[#c5f04a]/45 disabled:opacity-50"
                 >
@@ -250,6 +272,7 @@ export default function GrowthOutreachPanel({
                   <select
                     value={`${templateName}|${templateLanguage}`}
                     onChange={(event) => {
+                      resetAction();
                       const [name, language] = event.target.value.split("|");
                       setTemplateName(name ?? "");
                       setTemplateLanguage(language ?? "");
@@ -264,7 +287,7 @@ export default function GrowthOutreachPanel({
               )}
               <label className="mt-4 block text-xs text-white/45">
                 Mensaje personalizado de la plantilla
-                <textarea value={message} onChange={(event) => setMessage(event.target.value)} rows={6} placeholder="Escribe un mensaje breve y personalizado basado en la evidencia…" className="mt-1.5 w-full resize-y rounded-xl border border-white/10 bg-black/20 p-3 text-sm leading-6 text-white outline-none focus:border-[#c5f04a]/45" />
+                <textarea value={message} onChange={(event) => { resetAction(); setMessage(event.target.value); }} rows={6} placeholder="Escribe un mensaje breve y personalizado basado en la evidencia…" className="mt-1.5 w-full resize-y rounded-xl border border-white/10 bg-black/20 p-3 text-sm leading-6 text-white outline-none focus:border-[#c5f04a]/45" />
               </label>
               <p className="mt-2 text-[11px] leading-5 text-white/35">
                 Meta valida el nombre e idioma contra el catálogo aprobado. Si no hay una plantilla aprobada disponible, el envío oficial queda bloqueado.
@@ -274,7 +297,7 @@ export default function GrowthOutreachPanel({
                 Confirmo que revisé el mensaje y que el número pertenece públicamente a este negocio. Este envío quedará auditado.
               </label>
               {notice && <div className="mt-4 rounded-xl border border-[#c5f04a]/20 bg-[#c5f04a]/8 px-4 py-3 text-sm text-[#c5f04a]">{notice}</div>}
-              <TapButton type="button" onClick={() => void sendMessage()} disabled={sending || !confirmed || !channelId || !phone || message.trim().length < 10 || (selectedChannel?.official && (templatesLoadedFor !== selectedChannel.id || !templateName || !templateLanguage))} className="mt-4 inline-flex min-h-11 items-center gap-2 rounded-full bg-[#c5f04a] px-5 text-sm font-semibold text-[#0a0a0a] transition hover:bg-white disabled:cursor-not-allowed disabled:opacity-40">
+              <TapButton type="button" onClick={() => void sendMessage()} disabled={sending || deliveryUnconfirmed || !confirmed || !channelId || !phone || message.trim().length < 10 || (selectedChannel?.official && (templatesLoadedFor !== selectedChannel.id || !templateName || !templateLanguage))} className="mt-4 inline-flex min-h-11 items-center gap-2 rounded-full bg-[#c5f04a] px-5 text-sm font-semibold text-[#0a0a0a] transition hover:bg-white disabled:cursor-not-allowed disabled:opacity-40">
                 {sending ? <LoaderCircle className="size-4 animate-spin" /> : <MessageCircle className="size-4" />}
                 Enviar plantilla por WhatsApp
               </TapButton>

@@ -280,6 +280,7 @@ export async function updateLeadFields(
 }
 
 export async function createGrowthOutreachAttempt(input: {
+  actionId: string;
   leadId: string;
   recipient: string;
   content: string;
@@ -288,18 +289,28 @@ export async function createGrowthOutreachAttempt(input: {
 }) {
   const sql = getSql();
   if (!sql) throw new Error("DATABASE_URL is not configured");
-  const [row] = await sql`
-    INSERT INTO growth_outreach_messages (lead_id, recipient, content, sent_by, channel_kind)
-    VALUES (${input.leadId}, ${input.recipient}, ${input.content}, ${input.sentBy}, ${input.channelKind ?? null})
-    RETURNING id
+  const rows = await sql`
+    INSERT INTO growth_outreach_messages (
+      client_action_id, lead_id, recipient, content, sent_by, channel_kind
+    ) VALUES (
+      ${input.actionId}, ${input.leadId}, ${input.recipient}, ${input.content},
+      ${input.sentBy}, ${input.channelKind ?? null}
+    )
+    ON CONFLICT (client_action_id) WHERE client_action_id IS NOT NULL DO NOTHING
+    RETURNING id, status
   `;
-  return String(row.id);
+  if (rows[0]) return { id: String(rows[0].id), status: String(rows[0].status), created: true };
+  const [existing] = await sql`
+    SELECT id, status FROM growth_outreach_messages WHERE client_action_id = ${input.actionId}
+  `;
+  if (!existing) throw new Error("No se pudo recuperar el intento de outreach persistido.");
+  return { id: String(existing.id), status: String(existing.status), created: false };
 }
 
 export async function completeGrowthOutreachAttempt(
   id: string,
   input: {
-    status: "sent" | "failed";
+    status: "sent" | "failed" | "unknown";
     providerMessageId?: string;
     conversationId?: number;
     channelKind?: "cloud_api" | "waha";
@@ -316,6 +327,6 @@ export async function completeGrowthOutreachAttempt(
         channel_kind = COALESCE(${input.channelKind ?? null}, channel_kind),
         error = ${input.error?.slice(0, 800) ?? null},
         sent_at = CASE WHEN ${input.status} = 'sent' THEN now() ELSE sent_at END
-    WHERE id = ${id}
+    WHERE id = ${id} AND status = 'pending'
   `;
 }

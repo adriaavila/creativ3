@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   CheckCircle2,
   ChevronDown,
@@ -240,7 +240,7 @@ export default function CrmWorkspaceClient({
                   {selectedConversation ? (
                     <ConversationThread key={selectedConversation.id} conversation={selectedConversation} leadId={selectedLead.id} onConversationChange={updateConversation} />
                   ) : (
-                    <LeadOutreachForm lead={selectedLead} channels={channels} onLeadUpdate={updateLead} onRefreshConversations={refreshConversations} />
+                    <LeadOutreachForm key={selectedLead.id} lead={selectedLead} channels={channels} onLeadUpdate={updateLead} onRefreshConversations={refreshConversations} />
                   )}
                 </div>
               </section>
@@ -297,12 +297,19 @@ function LeadOutreachForm({ lead, channels, onLeadUpdate, onRefreshConversations
   const [confirmed, setConfirmed] = useState(false);
   const [sending, setSending] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
+  const [deliveryUnconfirmed, setDeliveryUnconfirmed] = useState(false);
+  const actionIdRef = useRef<string | null>(null);
   const [channelId, setChannelId] = useState(defaultChannel(channels));
   const [templates, setTemplates] = useState<ApprovedTemplate[]>([]);
   const [templateName, setTemplateName] = useState("");
   const [templateLanguage, setTemplateLanguage] = useState("");
   const [templatesLoadedFor, setTemplatesLoadedFor] = useState<string | null>(null);
   const channel = channels.find((item) => item.id === channelId);
+
+  function resetAction() {
+    actionIdRef.current = null;
+    setDeliveryUnconfirmed(false);
+  }
 
   useEffect(() => {
     let cancelled = false;
@@ -333,16 +340,27 @@ function LeadOutreachForm({ lead, channels, onLeadUpdate, onRefreshConversations
     if (!channel || !confirmed || (channel.official && (templatesLoadedFor !== channel.id || !templateName || !templateLanguage))) return;
     setSending(true);
     setNotice(null);
+    const actionId = actionIdRef.current ?? crypto.randomUUID();
+    actionIdRef.current = actionId;
+    let responseReceived = false;
     try {
-      const response = await fetch("/api/ops/growth/outreach", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ leadId: lead.id, connectionId: channel.id, channel: channel.channel, ...(channel.workspace ? { workspace: channel.workspace } : {}), phone, message, ...(channel.official ? { templateName, templateLanguage } : {}), contactSourceUrl: sourceUrl || null, confirmed: true }) });
-      const data = (await response.json().catch(() => ({}))) as { error?: string };
+      const response = await fetch("/api/ops/growth/outreach", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ actionId, leadId: lead.id, connectionId: channel.id, channel: channel.channel, ...(channel.workspace ? { workspace: channel.workspace } : {}), phone, message, ...(channel.official ? { templateName, templateLanguage } : {}), contactSourceUrl: sourceUrl || null, confirmed: true }) });
+      responseReceived = true;
+      const data = (await response.json().catch(() => ({}))) as { error?: string; status?: string };
+      if (response.status === 202 || data.status === "pending" || data.status === "unknown") {
+        setDeliveryUnconfirmed(true);
+        setNotice(data.error ?? "Entrega no confirmada; no reintentes este mensaje.");
+        return;
+      }
       if (!response.ok) throw new Error(data.error ?? "No se pudo enviar el mensaje.");
+      resetAction();
       onLeadUpdate({ ...lead, status: "contacted", businessPhone: phone, contactSourceUrl: sourceUrl || null, lastContactedAt: new Date().toISOString() });
       await onRefreshConversations();
       setMessage("");
       setConfirmed(false);
       setNotice("Mensaje enviado y registrado en el CRM.");
     } catch (error) {
+      if (!responseReceived) setDeliveryUnconfirmed(true);
       setNotice(error instanceof Error ? error.message : "No se pudo enviar el mensaje.");
     } finally {
       setSending(false);
@@ -354,16 +372,16 @@ function LeadOutreachForm({ lead, channels, onLeadUpdate, onRefreshConversations
       <div className="flex items-center gap-2 text-sm font-semibold text-[#172238]"><Sparkles className="size-4 text-[#526d87]" aria-hidden="true" /> Primer contacto</div>
       <p className="mt-2 max-w-lg text-sm leading-6 text-[#68778a]">Prepara el mensaje para {lead.businessName}. No se enviará hasta que confirmes el número y el texto.</p>
       <div className="mt-6 grid gap-4 sm:grid-cols-2">
-        <label className="text-xs text-[#526174]">WhatsApp público<input value={phone} onChange={(event) => setPhone(event.target.value)} placeholder="+58412…" className="mt-2 min-h-11 w-full rounded-lg border border-[#dce3ea] bg-[#fafbfc] px-3 text-sm text-[#172238] outline-none focus:border-[#3f5f7b]" /></label>
-        <label className="text-xs text-[#526174]">Fuente del contacto<input value={sourceUrl} onChange={(event) => setSourceUrl(event.target.value)} placeholder="https://…" className="mt-2 min-h-11 w-full rounded-lg border border-[#dce3ea] bg-[#fafbfc] px-3 text-sm text-[#172238] outline-none focus:border-[#3f5f7b]" /></label>
+        <label className="text-xs text-[#526174]">WhatsApp público<input value={phone} onChange={(event) => { resetAction(); setPhone(event.target.value); }} placeholder="+58412…" className="mt-2 min-h-11 w-full rounded-lg border border-[#dce3ea] bg-[#fafbfc] px-3 text-sm text-[#172238] outline-none focus:border-[#3f5f7b]" /></label>
+        <label className="text-xs text-[#526174]">Fuente del contacto<input value={sourceUrl} onChange={(event) => { resetAction(); setSourceUrl(event.target.value); }} placeholder="https://…" className="mt-2 min-h-11 w-full rounded-lg border border-[#dce3ea] bg-[#fafbfc] px-3 text-sm text-[#172238] outline-none focus:border-[#3f5f7b]" /></label>
       </div>
-      <label className="mt-4 text-xs text-[#526174]">Canal de envío<select value={channelId} onChange={(event) => setChannelId(event.target.value)} className="mt-2 min-h-11 w-full rounded-lg border border-[#dce3ea] bg-[#fafbfc] px-3 text-sm text-[#172238] outline-none focus:border-[#3f5f7b]" disabled={!channels.length}><option value="">Conecta un canal activo</option>{channels.map((item) => <option key={item.id} value={item.id} disabled={!isCrmChannelActive(item)}>{item.label} · {item.detail} · {crmChannelStatusLabel(item)}{!isCrmChannelActive(item) ? " · no disponible" : ""}</option>)}</select></label>
-      {channel?.official && <label className="mt-4 text-xs text-[#526174]">Plantilla aprobada por Meta<select value={`${templateName}|${templateLanguage}`} onChange={(event) => { const [name, language] = event.target.value.split("|"); setTemplateName(name ?? ""); setTemplateLanguage(language ?? ""); }} disabled={templatesLoadedFor !== channel.id || !templates.length} className="mt-2 min-h-11 w-full rounded-lg border border-[#dce3ea] bg-[#fafbfc] px-3 text-sm text-[#172238] outline-none focus:border-[#3f5f7b] disabled:opacity-50"><option value="">{templatesLoadedFor !== channel.id ? "Cargando catálogo…" : templates.length ? "Selecciona una plantilla" : "No hay plantillas aprobadas"}</option>{templates.map((template) => <option key={`${template.name}|${template.language}`} value={`${template.name}|${template.language}`}>{template.name} · {template.language}</option>)}</select></label>}
-      <label className="mt-4 text-xs text-[#526174]">Mensaje revisado<textarea value={message} onChange={(event) => setMessage(event.target.value)} rows={5} placeholder="Escribe una observación concreta sobre su negocio…" className="mt-2 w-full resize-y rounded-lg border border-[#dce3ea] bg-[#fafbfc] p-3 text-sm leading-6 text-[#172238] outline-none focus:border-[#3f5f7b]" /></label>
+      <label className="mt-4 text-xs text-[#526174]">Canal de envío<select value={channelId} onChange={(event) => { resetAction(); setChannelId(event.target.value); }} className="mt-2 min-h-11 w-full rounded-lg border border-[#dce3ea] bg-[#fafbfc] px-3 text-sm text-[#172238] outline-none focus:border-[#3f5f7b]" disabled={!channels.length}><option value="">Conecta un canal activo</option>{channels.map((item) => <option key={item.id} value={item.id} disabled={!isCrmChannelActive(item)}>{item.label} · {item.detail} · {crmChannelStatusLabel(item)}{!isCrmChannelActive(item) ? " · no disponible" : ""}</option>)}</select></label>
+      {channel?.official && <label className="mt-4 text-xs text-[#526174]">Plantilla aprobada por Meta<select value={`${templateName}|${templateLanguage}`} onChange={(event) => { resetAction(); const [name, language] = event.target.value.split("|"); setTemplateName(name ?? ""); setTemplateLanguage(language ?? ""); }} disabled={templatesLoadedFor !== channel.id || !templates.length} className="mt-2 min-h-11 w-full rounded-lg border border-[#dce3ea] bg-[#fafbfc] px-3 text-sm text-[#172238] outline-none focus:border-[#3f5f7b] disabled:opacity-50"><option value="">{templatesLoadedFor !== channel.id ? "Cargando catálogo…" : templates.length ? "Selecciona una plantilla" : "No hay plantillas aprobadas"}</option>{templates.map((template) => <option key={`${template.name}|${template.language}`} value={`${template.name}|${template.language}`}>{template.name} · {template.language}</option>)}</select></label>}
+      <label className="mt-4 text-xs text-[#526174]">Mensaje revisado<textarea value={message} onChange={(event) => { resetAction(); setMessage(event.target.value); }} rows={5} placeholder="Escribe una observación concreta sobre su negocio…" className="mt-2 w-full resize-y rounded-lg border border-[#dce3ea] bg-[#fafbfc] p-3 text-sm leading-6 text-[#172238] outline-none focus:border-[#3f5f7b]" /></label>
       <p className="mt-2 text-[11px] leading-5 text-[#7a8797]">Meta valida el nombre e idioma contra el catálogo aprobado. WAHA envía texto libre y es un canal no oficial.</p>
       <label className="mt-4 flex items-start gap-3 rounded-lg border border-[#e3e8ed] bg-[#fafbfc] p-3 text-xs leading-5 text-[#68778a]"><input type="checkbox" checked={confirmed} onChange={(event) => setConfirmed(event.target.checked)} className="mt-0.5 size-4 accent-[#3f5f7b]" /> Confirmo que revisé el mensaje y que el número pertenece públicamente a este negocio.</label>
       {notice && <p className="mt-4 rounded-lg border border-[#dce3ea] bg-[#f1f5f9] px-3 py-2.5 text-sm text-[#526174]" role="status">{notice}</p>}
-      <div className="mt-auto pt-6"><TapButton type="button" onClick={() => void send()} disabled={sending || !channel || !confirmed || !phone || message.trim().length < 10 || (channel.official && (templatesLoadedFor !== channel.id || !templateName || !templateLanguage))} className="inline-flex min-h-11 items-center gap-2 rounded-lg bg-[#c5f04a] px-4 text-sm font-semibold text-[#142b4b] transition hover:bg-[#b7e63b] disabled:opacity-40">{sending ? <Loader2 className="size-4 animate-spin" /> : <MessageCircle className="size-4" />} Enviar mensaje</TapButton></div>
+      <div className="mt-auto pt-6"><TapButton type="button" onClick={() => void send()} disabled={sending || deliveryUnconfirmed || !channel || !confirmed || !phone || message.trim().length < 10 || (channel.official && (templatesLoadedFor !== channel.id || !templateName || !templateLanguage))} className="inline-flex min-h-11 items-center gap-2 rounded-lg bg-[#c5f04a] px-4 text-sm font-semibold text-[#142b4b] transition hover:bg-[#b7e63b] disabled:opacity-40">{sending ? <Loader2 className="size-4 animate-spin" /> : <MessageCircle className="size-4" />} Enviar mensaje</TapButton></div>
     </div>
   );
 }

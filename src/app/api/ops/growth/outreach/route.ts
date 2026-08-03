@@ -17,11 +17,12 @@ import {
   upsertConversation,
 } from "@/lib/whatsapp-inbox-db";
 import { normalizeWhatsAppId } from "@/lib/phone";
-import { OutsideFreeTextWindowError, sendToConversation } from "@/lib/whatsapp-send";
+import { OutsideFreeTextWindowError, outboundActionOutcome, sendToConversation } from "@/lib/whatsapp-send";
 
 export const runtime = "nodejs";
 
 export const growthOutreachSchema = z.object({
+  actionId: z.string().uuid(),
   leadId: z.string().uuid(),
   connectionId: z.string().trim().min(2).max(200),
   channel: z.enum(["cloud_api", "waha"]),
@@ -83,7 +84,8 @@ export async function POST(request: Request) {
     direction: "out",
     connectionId: connection.connectionId,
   });
-  const attemptId = await createGrowthOutreachAttempt({
+  const attempt = await createGrowthOutreachAttempt({
+    actionId: input.actionId,
     leadId: input.leadId,
     recipient: input.phone,
     content: input.message,
@@ -94,6 +96,7 @@ export async function POST(request: Request) {
   try {
     const message = await sendToConversation({
       conversationId: conversation.id,
+      actionId: input.actionId,
       text: input.channel === "waha" ? input.message : undefined,
       template:
         input.channel === "cloud_api"
@@ -106,12 +109,33 @@ export async function POST(request: Request) {
       source: "api",
     });
 
-    if (!message) throw new Error("El proveedor no devolvió un mensaje enviado.");
+    const outcome = outboundActionOutcome(message.status);
+    if (outcome === "unknown") {
+      await completeGrowthOutreachAttempt(attempt.id, {
+        status: "unknown",
+        conversationId: conversation.id,
+        channelKind: input.channel,
+        error: "Entrega no confirmada; no reintentar sin reconciliar con el proveedor.",
+      });
+      return Response.json(
+        { ok: false, status: message.status, error: "Entrega no confirmada; no reintentes este mensaje." },
+        { status: 202 },
+      );
+    }
+    if (outcome === "failed") {
+      await completeGrowthOutreachAttempt(attempt.id, {
+        status: "failed",
+        conversationId: conversation.id,
+        channelKind: input.channel,
+        error: "El proveedor confirmó que el mensaje falló.",
+      });
+      return Response.json({ error: "El proveedor confirmó que el mensaje falló." }, { status: 409 });
+    }
 
     await Promise.all([
-      completeGrowthOutreachAttempt(attemptId, {
+      completeGrowthOutreachAttempt(attempt.id, {
         status: "sent",
-        providerMessageId: message.waMessageId ?? undefined,
+        providerMessageId: message.message.waMessageId ?? undefined,
         conversationId: conversation.id,
         channelKind: input.channel,
       }),
@@ -124,13 +148,13 @@ export async function POST(request: Request) {
 
     return Response.json({
       ok: true,
-      messageId: message.waMessageId ?? String(message.id),
+      messageId: message.message.waMessageId ?? String(message.message.id),
       conversationId: conversation.id,
       channelKind: input.channel,
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : "No se pudo enviar el mensaje.";
-    await completeGrowthOutreachAttempt(attemptId, {
+    await completeGrowthOutreachAttempt(attempt.id, {
       status: "failed",
       conversationId: conversation.id,
       channelKind: input.channel,

@@ -74,6 +74,9 @@ function DeliveryStatus({ message }: { message: WaMessage }) {
     const reason = safeFailureReason(message.payload);
     return <span className="inline-flex max-w-full items-center gap-1 text-[#f1a4a4]" title={reason} aria-label={`Falló: ${reason}`}><AlertTriangle className="size-3 shrink-0" aria-hidden="true" /><span className="truncate">{reason}</span></span>;
   }
+  if (status === "pending" || status === "unknown") {
+    return <span className="inline-flex items-center gap-1 text-[#f4cf79]" aria-label="Entrega no confirmada"><AlertTriangle className="size-3" aria-hidden="true" />Sin confirmar</span>;
+  }
   if (status === "read") return <CheckCheck className="size-3 text-[#9bc9ff]" aria-label="Leído" role="img" />;
   if (status === "delivered") return <CheckCheck className="size-3 text-[#c4d49b]" aria-label="Entregado" role="img" />;
   return <Check className="size-3" aria-label="Enviado" role="img" />;
@@ -95,9 +98,11 @@ export default function ConversationThread({ conversation, leadId, onConversatio
   const [markingOutcome, setMarkingOutcome] = useState(false);
   const [linking, setLinking] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [deliveryUnconfirmed, setDeliveryUnconfirmed] = useState(false);
   const [windowNow, setWindowNow] = useState(0);
   const [templateModeKey, setTemplateModeKey] = useState<string | null>(null);
   const threadEndRef = useRef<HTMLDivElement | null>(null);
+  const actionIdRef = useRef<string | null>(null);
   const onConversationChangeRef = useRef(onConversationChange);
   const phone = formatWhatsAppPhone(current.contactPhone || current.contactWaId);
   const conversationId = current.id;
@@ -165,6 +170,8 @@ export default function ConversationThread({ conversation, leadId, onConversatio
   }, [conversationId, sendTyping]);
 
   const handleDraftChange = useCallback((value: string) => {
+    actionIdRef.current = null;
+    setDeliveryUnconfirmed(false);
     setDraftText(value);
     if (!value.trim()) {
       stopTyping();
@@ -211,6 +218,8 @@ export default function ConversationThread({ conversation, leadId, onConversatio
       const response = await fetch(`/api/ops/inbox/${current.id}/reply`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ mode: "suggest" }) });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error ?? "No se pudo sugerir una respuesta.");
+      actionIdRef.current = null;
+      setDeliveryUnconfirmed(false);
       setDraftText(data.suggestion.text);
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : "Error al sugerir.");
@@ -232,16 +241,28 @@ export default function ConversationThread({ conversation, leadId, onConversatio
     stopTyping();
     setSending(true);
     setError(null);
+    const actionId = actionIdRef.current ?? crypto.randomUUID();
+    actionIdRef.current = actionId;
+    let responseReceived = false;
     try {
-      const response = await fetch(`/api/ops/inbox/${current.id}/reply`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ mode: "send", text: draftText.trim() }) });
-      const data = (await response.json()) as { error?: string; requiresTemplate?: boolean };
+      const response = await fetch(`/api/ops/inbox/${current.id}/reply`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ mode: "send", actionId, text: draftText.trim() }) });
+      responseReceived = true;
+      const data = (await response.json()) as { error?: string; requiresTemplate?: boolean; status?: string };
+      if (response.status === 202 || data.status === "pending" || data.status === "unknown") {
+        setDeliveryUnconfirmed(true);
+        setError(data.error ?? "Entrega no confirmada; no reintentes este mensaje.");
+        return;
+      }
       if (!response.ok) {
         if (response.status === 409 && data.requiresTemplate) setTemplateModeKey(`${conversationId}:${current.lastInboundAt ?? ""}`);
         throw new Error(data.error ?? "No se pudo enviar.");
       }
+      actionIdRef.current = null;
+      setDeliveryUnconfirmed(false);
       setDraftText("");
       await refreshThread();
     } catch (reason) {
+      if (!responseReceived) setDeliveryUnconfirmed(true);
       setError(reason instanceof Error ? reason.message : "Error al enviar.");
     } finally {
       setSending(false);
@@ -343,7 +364,7 @@ export default function ConversationThread({ conversation, leadId, onConversatio
             <textarea id={`reply-${conversationId}`} value={draftText} onChange={(event) => handleDraftChange(event.target.value)} onBlur={stopTyping} disabled={showTemplateComposer} placeholder={showTemplateComposer ? "La ventana libre está cerrada; selecciona una plantilla." : "Escribe una respuesta…"} rows={2} className="min-h-11 w-full resize-none rounded-[9px] border border-[#dfe5eb] bg-white px-3 py-2.5 text-sm text-[#172238] outline-none placeholder:text-[#9aa5b2] focus:border-[#3f5f7b] disabled:cursor-not-allowed disabled:bg-[#fafbfc] disabled:text-[#9aa5b2]" />
           </div>
           <button type="button" onClick={() => void requestSuggestion()} disabled={suggesting || showTemplateComposer} aria-label="Sugerir respuesta con IA" className="flex size-11 shrink-0 items-center justify-center rounded-[9px] border border-[#dfe5eb] text-[#3f5f7b] transition hover:border-[#3f5f7b] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#3f5f7b] disabled:opacity-50">{suggesting ? <Loader2 className="size-4 animate-spin" /> : <Sparkles className="size-4" />}</button>
-          <motion.button type="button" onClick={() => void sendMessage()} disabled={sending || showTemplateComposer || !draftText.trim()} whileTap={reduceMotion ? undefined : { scale: 0.94 }} aria-label="Enviar respuesta" className="flex size-11 shrink-0 items-center justify-center rounded-[9px] bg-[#3f5f7b] text-white transition hover:bg-[#2e4b65] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3f5f7b] disabled:opacity-40">{sending ? <Loader2 className="size-4 animate-spin" /> : <Send className="size-4" />}</motion.button>
+          <motion.button type="button" onClick={() => void sendMessage()} disabled={sending || deliveryUnconfirmed || showTemplateComposer || !draftText.trim()} whileTap={reduceMotion ? undefined : { scale: 0.94 }} aria-label="Enviar respuesta" className="flex size-11 shrink-0 items-center justify-center rounded-[9px] bg-[#3f5f7b] text-white transition hover:bg-[#2e4b65] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3f5f7b] disabled:opacity-40">{sending ? <Loader2 className="size-4 animate-spin" /> : <Send className="size-4" />}</motion.button>
         </div>
         {showTemplateComposer && <div className="mt-3"><TemplateComposer conversationId={conversationId} channelKey={current.channelKey} onSent={handleTemplateSent} /></div>}
         {typingCount > 0 && <p className="mt-2 text-[11px] text-[#3f5f7b]" role="status" aria-live="polite">Alguien está escribiendo…</p>}

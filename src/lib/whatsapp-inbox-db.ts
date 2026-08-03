@@ -44,6 +44,7 @@ export type WaMessage = {
   id: number;
   conversationId: number;
   waMessageId: string | null;
+  clientActionId: string | null;
   direction: MessageDirection;
   source: MessageSource;
   msgType: string;
@@ -119,6 +120,7 @@ function mapMessage(row: any): WaMessage {
     id: Number(row.id),
     conversationId: Number(row.conversation_id),
     waMessageId: row.wa_message_id ? String(row.wa_message_id) : null,
+    clientActionId: row.client_action_id ? String(row.client_action_id) : null,
     direction: row.direction,
     source: row.source,
     msgType: String(row.msg_type),
@@ -356,6 +358,88 @@ export async function insertMessage(input: {
   const conversation = mapConversation(rows[0].conversation_row);
   await publishRealtimeEvent(conversationUpdatedEvent(conversation, ["lastMessageAt"]));
   await publishRealtimeEvent(messageCreatedEvent(conversation, message));
+  return message;
+}
+
+export async function beginOutboundMessage(input: {
+  conversationId: number;
+  clientActionId: string;
+  source: MessageSource;
+  msgType: string;
+  body: string | null;
+  payload?: Record<string, unknown>;
+}): Promise<{ message: WaMessage; created: boolean }> {
+  const sql = getSql();
+  const rows = await sql`
+    WITH inserted AS (
+      INSERT INTO wa_messages (
+        conversation_id, client_action_id, direction, source, msg_type, body, payload, status
+      ) VALUES (
+        ${input.conversationId}, ${input.clientActionId}, 'out', ${input.source},
+        ${input.msgType}, ${input.body}, ${JSON.stringify(input.payload ?? {})}::jsonb, 'pending'
+      )
+      ON CONFLICT (client_action_id) WHERE client_action_id IS NOT NULL DO NOTHING
+      RETURNING *
+    ), updated AS (
+      UPDATE wa_conversations AS conversation
+      SET last_message_at = GREATEST(COALESCE(conversation.last_message_at, inserted.created_at), inserted.created_at),
+          updated_at = now()
+      FROM inserted
+      WHERE conversation.id = inserted.conversation_id
+      RETURNING conversation.*
+    )
+    SELECT inserted.*, row_to_json(updated) AS conversation_row
+    FROM inserted
+    JOIN updated ON updated.id = inserted.conversation_id
+  `;
+
+  if (rows[0]) {
+    const message = mapMessage(rows[0]);
+    const conversation = mapConversation(rows[0].conversation_row);
+    await publishRealtimeEvent(conversationUpdatedEvent(conversation, ["lastMessageAt"]));
+    await publishRealtimeEvent(messageCreatedEvent(conversation, message));
+    return { message, created: true };
+  }
+
+  const existing = await sql`
+    SELECT * FROM wa_messages WHERE client_action_id = ${input.clientActionId} LIMIT 1
+  `;
+  if (!existing[0]) throw new Error("No se pudo recuperar la acción outbound persistida.");
+  return { message: mapMessage(existing[0]), created: false };
+}
+
+export async function finalizeOutboundMessage(
+  id: number,
+  waMessageId: string | null,
+): Promise<WaMessage | null> {
+  const sql = getSql();
+  const rows = await sql`
+    UPDATE wa_messages
+    SET wa_message_id = ${waMessageId}, status = 'sent'
+    WHERE id = ${id} AND status = 'pending'
+    RETURNING *
+  `;
+  if (!rows[0]) return null;
+  const message = mapMessage(rows[0]);
+  const conversation = await getConversationById(message.conversationId);
+  if (conversation) await publishRealtimeEvent(messageUpdatedEvent(conversation, message));
+  return message;
+}
+
+export async function markOutboundMessageUnknown(id: number, error: unknown): Promise<WaMessage | null> {
+  const sql = getSql();
+  const safeError = error instanceof Error ? error.message.slice(0, 300) : "Resultado del proveedor no confirmado.";
+  const rows = await sql`
+    UPDATE wa_messages
+    SET status = 'unknown',
+        payload = payload || ${JSON.stringify({ deliveryError: safeError })}::jsonb
+    WHERE id = ${id} AND status = 'pending'
+    RETURNING *
+  `;
+  if (!rows[0]) return null;
+  const message = mapMessage(rows[0]);
+  const conversation = await getConversationById(message.conversationId);
+  if (conversation) await publishRealtimeEvent(messageUpdatedEvent(conversation, message));
   return message;
 }
 

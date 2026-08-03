@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { growthOutreachSchema, growthTemplateComponents } from "@/app/api/ops/growth/outreach/route";
 import { formatWhatsAppPhone, normalizeWhatsAppId, normalizeWhatsAppPhone, isWhatsAppId } from "@/lib/phone";
-import { isWithinFreeTextWindow } from "@/lib/whatsapp-send";
+import { isWithinFreeTextWindow, mayDispatchOutboundAction, outboundActionOutcome } from "@/lib/whatsapp-send";
 import { FREE_TEXT_WINDOW_MS, freeTextWindow } from "@/lib/whatsapp-window";
 import { matchAutoReply } from "@/lib/auto-reply";
 import { statusOutranks } from "@/lib/whatsapp-inbox-db";
@@ -127,6 +127,7 @@ test("maps approved Meta templates to the narrow catalog contract", async () => 
 
 test("outreach requires explicit approval and builds a reviewed template body", () => {
   const valid = growthOutreachSchema.safeParse({
+    actionId: "00000000-0000-4000-8000-000000000001",
     leadId: "00000000-0000-4000-8000-000000000000",
     connectionId: "allok-main",
     channel: "waha",
@@ -135,6 +136,7 @@ test("outreach requires explicit approval and builds a reviewed template body", 
     confirmed: true,
   });
   const rejected = growthOutreachSchema.safeParse({
+    actionId: "00000000-0000-4000-8000-000000000001",
     leadId: "00000000-0000-4000-8000-000000000000",
     connectionId: "allok-main",
     channel: "waha",
@@ -148,6 +150,38 @@ test("outreach requires explicit approval and builds a reviewed template body", 
   assert.deepEqual(growthTemplateComponents("Mensaje revisado"), [
     { type: "body", parameters: [{ type: "text", text: "Mensaje revisado" }] },
   ]);
+});
+
+test("human outreach requires one durable action UUID", () => {
+  const base = {
+    leadId: "00000000-0000-4000-8000-000000000000",
+    connectionId: "allok-main",
+    channel: "waha",
+    phone: "+584125550198",
+    message: "Hola, vimos una oportunidad concreta para tu negocio.",
+    confirmed: true,
+  };
+
+  assert.equal(growthOutreachSchema.safeParse(base).success, false);
+  assert.equal(growthOutreachSchema.safeParse({ ...base, actionId: "retry-me" }).success, false);
+  assert.equal(
+    growthOutreachSchema.safeParse({ ...base, actionId: "00000000-0000-4000-8000-000000000001" }).success,
+    true,
+  );
+});
+
+test("only a newly persisted outbound action may reach the provider", () => {
+  assert.equal(mayDispatchOutboundAction({ created: true, status: "pending" }), true);
+  assert.equal(mayDispatchOutboundAction({ created: false, status: "pending" }), false);
+  assert.equal(mayDispatchOutboundAction({ created: false, status: "unknown" }), false);
+  assert.equal(mayDispatchOutboundAction({ created: false, status: "sent" }), false);
+});
+
+test("an unknown delivery is ambiguous, not a confirmed failure", () => {
+  assert.equal(outboundActionOutcome("pending"), "unknown");
+  assert.equal(outboundActionOutcome("unknown"), "unknown");
+  assert.equal(outboundActionOutcome("failed"), "failed");
+  assert.equal(outboundActionOutcome("sent"), "confirmed");
 });
 
 test("delivery status never moves backwards", () => {

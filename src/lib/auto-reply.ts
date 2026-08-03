@@ -1,6 +1,7 @@
 import { neon, type NeonQueryFunction } from "@neondatabase/serverless";
 import { getConversationById, setConversationAssignedMode, type AssignedMode, type ConversationStatus, type MessageDirection, type WaConversation } from "@/lib/whatsapp-inbox-db";
 import { isWithinFreeTextWindow, OutsideFreeTextWindowError, sendToConversation } from "@/lib/whatsapp-send";
+import { getTenantBotConfig, resolveAutoReplyText } from "@/lib/tenant-bot-config";
 
 type AutoReplyJob = {
   id: number;
@@ -13,33 +14,28 @@ type AutoReplyJob = {
   assignedMode: AssignedMode;
   conversationStatus: ConversationStatus;
   channelKind: WaConversation["channelKind"];
+  channelKey: string;
   lastMessageAt: string | null;
   lastInboundAt: string | null;
 };
 
+/**
+ * What the keyword matcher decided. Intentionally carries no copy: the sentence
+ * belongs to the tenant (tenant_bot_config.auto_replies), not to this file — see
+ * db/migrations/016. `handoff` needs no sentence, it only moves the conversation
+ * back to a person.
+ */
 export type AutoReplyDecision =
-  | { key: string; reply: string; handoff?: false }
-  | { key: "handoff"; reply: null; handoff: true }
+  | { key: string; handoff?: false }
+  | { key: "handoff"; handoff: true }
   | null;
 
 const RULES: Array<Exclude<AutoReplyDecision, null>> = [
-  { key: "handoff", reply: null, handoff: true },
-  {
-    key: "saludo",
-    reply: "¡Hola! Gracias por escribir a allok. ¿Qué tipo de sistema necesitas?",
-  },
-  {
-    key: "servicios",
-    reply: "En allok hacemos webs, automatizaciones, CRM y sistemas a medida. Cuéntame qué quieres resolver y te orientamos.",
-  },
-  {
-    key: "precio",
-    reply: "Podemos orientarte con una cotización. ¿Qué necesitas, para qué negocio y en qué ciudad?",
-  },
-  {
-    key: "cita",
-    reply: "Claro. Para agendar, dime qué día y horario te conviene y una persona del equipo te confirma.",
-  },
+  { key: "handoff", handoff: true },
+  { key: "saludo" },
+  { key: "servicios" },
+  { key: "precio" },
+  { key: "cita" },
 ];
 
 const MATCHES: Record<string, string[]> = {
@@ -107,7 +103,8 @@ async function claimAutoReplyJobs(limit: number): Promise<AutoReplyJob[]> {
     SELECT claimed.id, claimed.conversation_id, claimed.message_id, claimed.attempts,
       message.direction, message.msg_type, message.body,
       conversation.assigned_mode, conversation.status AS conversation_status,
-      conversation.channel_kind, conversation.last_message_at, conversation.last_inbound_at
+      conversation.channel_kind, conversation.channel_key,
+      conversation.last_message_at, conversation.last_inbound_at
     FROM claimed
     JOIN wa_messages AS message ON message.id = claimed.message_id
     JOIN wa_conversations AS conversation ON conversation.id = claimed.conversation_id
@@ -123,6 +120,7 @@ async function claimAutoReplyJobs(limit: number): Promise<AutoReplyJob[]> {
     assignedMode: row.assigned_mode as AssignedMode,
     conversationStatus: row.conversation_status as ConversationStatus,
     channelKind: row.channel_kind as AutoReplyJob["channelKind"],
+    channelKey: String(row.channel_key),
     lastMessageAt: row.last_message_at ? new Date(String(row.last_message_at)).toISOString() : null,
     lastInboundAt: row.last_inbound_at ? new Date(String(row.last_inbound_at)).toISOString() : null,
   }));
@@ -219,6 +217,22 @@ export async function processAutoReplyQueue(limit = 10) {
         continue;
       }
 
+      // The sentence belongs to whoever owns this number. No copy for this rule
+      // means stay silent — never answer a client's customer with another
+      // business's words. A person picks it up from the inbox instead.
+      const tenantConfig = await getTenantBotConfig(job.channelKey).catch(() => null);
+      const reply = resolveAutoReplyText(tenantConfig, decision.key);
+      if (!reply) {
+        await setConversationAssignedMode(job.conversationId, "human");
+        await markSkipped(
+          job.id,
+          decision.key,
+          "Este número no tiene una respuesta configurada para esa regla.",
+        );
+        skipped += 1;
+        continue;
+      }
+
       const current = await getConversationById(job.conversationId);
       if (!current || current.assignedMode !== "ai") {
         await markSkipped(job.id, "human_mode", "La conversación pasó a una persona antes del envío.");
@@ -243,17 +257,17 @@ export async function processAutoReplyQueue(limit = 10) {
         ? {
             name: templateName,
             languageCode: process.env.WHATSAPP_AUTO_REPLY_TEMPLATE_LANGUAGE ?? "es",
-            components: [{ type: "body", parameters: [{ type: "text", text: decision.reply }] }],
+            components: [{ type: "body", parameters: [{ type: "text", text: reply }] }],
           }
         : undefined;
       await sendToConversation({
         conversationId: job.conversationId,
-        text: decision.reply,
+        text: reply,
         template,
         source: "ai",
         metadata: { autoReplyJobId: job.id, ruleKey: decision.key },
       });
-      await markSent(job.id, decision.key, decision.reply);
+      await markSent(job.id, decision.key, reply);
       sent += 1;
     } catch (error) {
       if (error instanceof OutsideFreeTextWindowError) {

@@ -24,6 +24,17 @@ export async function authorizeOps(): Promise<OpsAuthorization> {
   return { authorized: true, userId: session.userId };
 }
 
+/**
+ * Resolves which workspace an ops request acts on. A request may name one, but the
+ * signed session is the fallback, so a missing or malformed value can never widen
+ * scope. ponytail: charset check only — every ops user shares one gate today.
+ * Swap for a real membership lookup before onboarding unrelated customers.
+ */
+export function resolveOpsWorkspace(requested: string | null | undefined, userId: string) {
+  const value = typeof requested === "string" ? requested.trim() : "";
+  return value && /^[a-zA-Z0-9._-]{1,80}$/.test(value) ? value : userId;
+}
+
 /** Signs a fresh session token. Throws if OPS_SESSION_SECRET is unset — callers already gate on isOpsAuthConfigured(). */
 export function issueOpsSessionToken(userId = "allok-ops-owner") {
   const secret = process.env.OPS_SESSION_SECRET;

@@ -307,7 +307,8 @@ function LeadOutreachForm({ lead, channels, onLeadUpdate, onRefreshConversations
   useEffect(() => {
     let cancelled = false;
     if (!channel?.official) return;
-    void fetch(`/api/ops/whatsapp/templates?connectionId=${encodeURIComponent(channel.id)}`, { cache: "no-store" })
+    const workspaceParam = channel.workspace ? `&workspace=${encodeURIComponent(channel.workspace)}` : "";
+    void fetch(`/api/ops/whatsapp/templates?connectionId=${encodeURIComponent(channel.id)}${workspaceParam}`, { cache: "no-store" })
       .then((response) => (response.ok ? response.json() : { templates: [] }))
       .then((data: { templates?: ApprovedTemplate[] }) => {
         if (cancelled) return;
@@ -333,7 +334,7 @@ function LeadOutreachForm({ lead, channels, onLeadUpdate, onRefreshConversations
     setSending(true);
     setNotice(null);
     try {
-      const response = await fetch("/api/ops/growth/outreach", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ leadId: lead.id, connectionId: channel.id, channel: channel.channel, phone, message, ...(channel.official ? { templateName, templateLanguage } : {}), contactSourceUrl: sourceUrl || null, confirmed: true }) });
+      const response = await fetch("/api/ops/growth/outreach", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ leadId: lead.id, connectionId: channel.id, channel: channel.channel, ...(channel.workspace ? { workspace: channel.workspace } : {}), phone, message, ...(channel.official ? { templateName, templateLanguage } : {}), contactSourceUrl: sourceUrl || null, confirmed: true }) });
       const data = (await response.json().catch(() => ({}))) as { error?: string };
       if (!response.ok) throw new Error(data.error ?? "No se pudo enviar el mensaje.");
       onLeadUpdate({ ...lead, status: "contacted", businessPhone: phone, contactSourceUrl: sourceUrl || null, lastContactedAt: new Date().toISOString() });

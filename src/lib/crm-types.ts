@@ -11,4 +11,7 @@ export type CrmChannel = {
   qualityRating?: string | null;
   nameStatus?: string | null;
   lastSyncedAt?: string | null;
+  /** Owning workspace (whatsapp_connections.client). Sent back on template/outreach
+   *  calls so the server scopes the connection lookup to the right tenant. */
+  workspace?: string | null;
 };

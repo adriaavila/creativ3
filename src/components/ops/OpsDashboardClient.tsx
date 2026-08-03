@@ -19,6 +19,7 @@ import {
   RefreshCw,
 } from "lucide-react";
 import type { WhatsAppConnectionView } from "@/lib/whatsapp-connections-db";
+import OnboardingLinkGenerator from "./OnboardingLinkGenerator";
 import type { NextStepSummary } from "@/lib/whatsapp-inbox-db";
 import type { GrowthLead } from "@/lib/growth-types";
 import type { GrowthPromptInfo } from "@/lib/growth-prompts";
@@ -48,6 +49,8 @@ type OpsDashboardClientProps = {
   initialGrowthLeads: GrowthLead[];
   growthPrompts: GrowthPromptInfo[];
   crmChannels: CrmChannel[];
+  /** Whether the plain Cloud API Embedded Signup variation is configured in Meta. */
+  cloudApiOnboardingAvailable: boolean;
 };
 
 export default function OpsDashboardClient({
@@ -58,6 +61,7 @@ export default function OpsDashboardClient({
   initialGrowthLeads,
   growthPrompts,
   crmChannels,
+  cloudApiOnboardingAvailable,
 }: OpsDashboardClientProps) {
   const [running, setRunning] = useState(false);
   const [results, setResults] = useState<DiagnosticsResult>(null);
@@ -225,6 +229,8 @@ export default function OpsDashboardClient({
                 </div>
               </div>
             </div>
+
+            <OnboardingLinkGenerator cloudApiAvailable={cloudApiOnboardingAvailable} />
 
             <section
               id="whatsapp-connections"

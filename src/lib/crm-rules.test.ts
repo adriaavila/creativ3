@@ -5,6 +5,9 @@ import { formatWhatsAppPhone, normalizeWhatsAppId, normalizeWhatsAppPhone, isWha
 import { isWithinFreeTextWindow } from "@/lib/whatsapp-send";
 import { FREE_TEXT_WINDOW_MS, freeTextWindow } from "@/lib/whatsapp-window";
 import { matchAutoReply } from "@/lib/auto-reply";
+import { statusOutranks } from "@/lib/whatsapp-inbox-db";
+import { composeSystemPrompt, resolveAutoReplyText } from "@/lib/tenant-bot-config";
+import { buildOnboardingUrl, toWorkspaceSlug } from "@/components/ops/OnboardingLinkGenerator";
 import { normalizeMetaWebhook } from "@/lib/meta/cloud-whatsapp-provider";
 import { listMessageTemplates } from "@/lib/meta/server";
 
@@ -145,4 +148,80 @@ test("outreach requires explicit approval and builds a reviewed template body", 
   assert.deepEqual(growthTemplateComponents("Mensaje revisado"), [
     { type: "body", parameters: [{ type: "text", text: "Mensaje revisado" }] },
   ]);
+});
+
+test("delivery status never moves backwards", () => {
+  // Meta delivers status webhooks out of order: a late `delivered` must not
+  // overwrite a `read`, and nothing overwrites a `failed`.
+  assert.equal(statusOutranks("sent", "delivered"), true);
+  assert.equal(statusOutranks("delivered", "read"), true);
+  assert.equal(statusOutranks("read", "delivered"), false);
+  assert.equal(statusOutranks("read", "sent"), false);
+  assert.equal(statusOutranks("read", "read"), false);
+  assert.equal(statusOutranks(null, "sent"), true);
+  assert.equal(statusOutranks("delivered", "failed"), true);
+  assert.equal(statusOutranks("failed", "read"), false);
+});
+
+test("each tenant answers with its own persona and facts", () => {
+  const shared = composeSystemPrompt({ base: "PERSONA COMPARTIDA", config: null });
+  assert.equal(shared, "PERSONA COMPARTIDA");
+
+  const scoped = composeSystemPrompt({
+    base: "PERSONA COMPARTIDA",
+    config: {
+      phoneNumberId: "123",
+      systemPrompt: "Sos el asistente de Panadería Rosa.",
+      businessFacts: "Abrimos 7am-7pm. Torta desde 25$.",
+      handoffNote: "Te paso con Rosa.",
+      autoReplies: {},
+      enabled: true,
+    },
+    summary: "El cliente pidió una torta para el sábado.",
+  });
+
+  assert.match(scoped, /Panadería Rosa/);
+  assert.match(scoped, /7am-7pm/);
+  assert.match(scoped, /Te paso con Rosa/);
+  assert.match(scoped, /torta para el sábado/);
+  assert.doesNotMatch(scoped, /PERSONA COMPARTIDA/);
+});
+
+test("auto reply copy belongs to the tenant, never to allok", () => {
+  const rosa = {
+    phoneNumberId: "123",
+    systemPrompt: null,
+    businessFacts: null,
+    handoffNote: null,
+    autoReplies: { saludo: "¡Hola! Panadería Rosa por aquí." },
+    enabled: true,
+  };
+
+  assert.equal(resolveAutoReplyText(rosa, "saludo"), "¡Hola! Panadería Rosa por aquí.");
+  // No copy for this rule -> stay silent, do not borrow someone else's words.
+  assert.equal(resolveAutoReplyText(rosa, "precio"), null);
+  // No config at all -> silent.
+  assert.equal(resolveAutoReplyText(null, "saludo"), null);
+  // Disabled tenant -> silent even with copy present.
+  assert.equal(resolveAutoReplyText({ ...rosa, enabled: false }, "saludo"), null);
+  // Blank string is not copy.
+  assert.equal(resolveAutoReplyText({ ...rosa, autoReplies: { saludo: "   " } }, "saludo"), null);
+});
+
+test("onboarding links carry a safe workspace slug and the right mode", () => {
+  assert.equal(toWorkspaceSlug("Panadería Rosa"), "panaderia-rosa");
+  assert.equal(toWorkspaceSlug("  Café  &  Té!! "), "cafe-te");
+  assert.equal(toWorkspaceSlug("!!!"), "");
+  // The slug must satisfy the server-side check in /embedded-whatsapp.
+  assert.match(toWorkspaceSlug("Ñandú S.A."), /^[a-zA-Z0-9._-]{1,80}$/);
+  assert.ok(toWorkspaceSlug("x".repeat(200)).length <= 80);
+
+  assert.equal(
+    buildOnboardingUrl("https://allok.fun", "panaderia-rosa", false),
+    "https://allok.fun/embedded-whatsapp?workspace=panaderia-rosa",
+  );
+  assert.equal(
+    buildOnboardingUrl("https://allok.fun", "panaderia-rosa", true),
+    "https://allok.fun/embedded-whatsapp?workspace=panaderia-rosa&mode=cloud_api",
+  );
 });

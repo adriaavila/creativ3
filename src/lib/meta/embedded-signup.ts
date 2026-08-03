@@ -34,10 +34,24 @@ export type MetaSignupSession = {
   received_at?: string;
 };
 
+/**
+ * Which Embedded Signup variation produced this connection. They are not
+ * interchangeable: coexistence keeps the number inside the client's WhatsApp
+ * Business App and must never be /register-ed, while a plain Cloud API number
+ * stays PENDING until it is.
+ */
+export type MetaConnectionMode = "META_CLOUD_API" | "META_COEXISTENCE";
+
+export const META_CONNECTION_MODES: readonly MetaConnectionMode[] = [
+  "META_CLOUD_API",
+  "META_COEXISTENCE",
+];
+
 export type MetaEmbeddedSignupPayload = {
   code: string;
   waba_id: string;
   phone_number_id: string;
+  connection_mode?: MetaConnectionMode;
   business_id?: string;
   state?: string;
   client?: string;
@@ -49,7 +63,10 @@ export type MetaEmbeddedSignupPayload = {
 
 export type MetaEmbeddedSignupConfig = {
   appId: string;
+  /** Coexistence variation — the default for a client already on WhatsApp Business App. */
   configId: string;
+  /** Plain Cloud API variation. Absent until META_CONFIG_ID_CLOUD_API is set in Meta. */
+  cloudApiConfigId?: string;
   graphVersion: string;
   appUrl?: string;
   state: string;

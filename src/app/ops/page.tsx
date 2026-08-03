@@ -96,6 +96,7 @@ export default async function OpsPage() {
       initialGrowthLeads={growthLeads}
       growthPrompts={growthPrompts}
       crmChannels={crmChannels}
+      cloudApiOnboardingAvailable={Boolean(process.env.META_CONFIG_ID_CLOUD_API?.trim())}
     />
   );
 }

@@ -3,15 +3,20 @@ import {
   buildTokenMetadata,
   debugBusinessToken,
   exchangeCodeForBusinessToken,
+  generateRegistrationPin,
   getExchangeEnv,
   getMissingTokenPermissions,
   META_SIGNUP_STATE_COOKIE,
+  registerPhoneNumber,
   resolveMetaSignupConnection,
   safeMetaError,
   subscribeWabaToApp,
   validateSignupPayload,
 } from "@/lib/meta/server";
-import { upsertWhatsAppConnection } from "@/lib/whatsapp-connections-db";
+import {
+  getStoredRegistrationPin,
+  upsertWhatsAppConnection,
+} from "@/lib/whatsapp-connections-db";
 import { authorizeOps } from "@/lib/ops-auth";
 
 export async function POST(req: NextRequest) {
@@ -109,11 +114,49 @@ export async function POST(req: NextRequest) {
       exchangeEnv.env.graphVersion,
     );
 
-    // Coexistence: the number is already registered by the WhatsApp Business app.
-    // Calling POST /{phone-number-id}/register here would take it off the app.
     const connectedAt = new Date().toISOString();
     const tokenMetadata = buildTokenMetadata(tokenExchange, debugData);
-    const status = subscribeResult.success ? "subscribed" : "connected";
+    const connectionMode = connectedPayload.connection_mode ?? "META_COEXISTENCE";
+
+    // Coexistence numbers are already registered by the client's WhatsApp Business
+    // app, and POST /{phone_number_id}/register would take the number off it.
+    // A plain Cloud API number is the opposite: PENDING and unusable until this
+    // call succeeds. Reuse the stored pin when the number was onboarded before —
+    // Meta rejects any other value once two-step verification exists.
+    let registration: { registered: boolean; alreadyRegistered: boolean } | null = null;
+    let registrationError: string | null = null;
+    let registrationPin: string | null = null;
+
+    if (connectionMode === "META_CLOUD_API") {
+      registrationPin =
+        (await getStoredRegistrationPin(
+          connectedPayload.waba_id,
+          connectedPayload.phone_number_id,
+        ).catch(() => null)) ?? generateRegistrationPin();
+
+      try {
+        registration = await registerPhoneNumber({
+          phoneNumberId: connectedPayload.phone_number_id,
+          businessToken,
+          pin: registrationPin,
+          graphVersion: exchangeEnv.env.graphVersion,
+        });
+      } catch (error) {
+        // Store the connection anyway: the token and identifiers are worth
+        // keeping, and /register is retryable. The response says it is pending.
+        const metaError = safeMetaError(error);
+        registrationError =
+          metaError && "message" in metaError.body
+            ? (metaError.body.message ?? "Meta rejected the registration.")
+            : errorText(error);
+      }
+    }
+
+    const status = registrationError
+      ? "pending_registration"
+      : subscribeResult.success
+        ? "subscribed"
+        : "connected";
 
     try {
       await upsertWhatsAppConnection({
@@ -123,6 +166,9 @@ export async function POST(req: NextRequest) {
         phoneProfile,
         status,
         connectedAt,
+        connectionMode,
+        registrationPin,
+        registeredAt: registration?.registered ? connectedAt : null,
       });
     } catch (error) {
       return NextResponse.json(
@@ -148,9 +194,20 @@ export async function POST(req: NextRequest) {
         verified_name: phoneProfile.verified_name,
         connected_at: connectedAt,
         status,
+        connection_mode: connectionMode,
       },
       token_metadata: tokenMetadata,
       waba_subscribe_succeeded: subscribeResult.success === true,
+      // Coexistence never registers, so `skipped` there is the healthy state.
+      registration:
+        connectionMode === "META_CLOUD_API"
+          ? {
+              required: true,
+              registered: registration?.registered === true,
+              already_registered: registration?.alreadyRegistered === true,
+              error: registrationError,
+            }
+          : { required: false, registered: false, already_registered: false, error: null },
       database: { ok: true },
       test_message: {
         endpoint: "/api/meta/embedded-signup/test-message",

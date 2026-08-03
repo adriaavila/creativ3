@@ -51,7 +51,10 @@ export default function GrowthOutreachPanel({
     let cancelled = false;
     if (!selectedChannel?.official) return;
 
-    void fetch(`/api/ops/whatsapp/templates?connectionId=${encodeURIComponent(selectedChannel.id)}`, { cache: "no-store" })
+    const workspaceParam = selectedChannel.workspace
+      ? `&workspace=${encodeURIComponent(selectedChannel.workspace)}`
+      : "";
+    void fetch(`/api/ops/whatsapp/templates?connectionId=${encodeURIComponent(selectedChannel.id)}${workspaceParam}`, { cache: "no-store" })
       .then((response) => (response.ok ? response.json() : { templates: [] }))
       .then((data: { templates?: ApprovedTemplate[] }) => {
         if (cancelled) return;
@@ -105,6 +108,7 @@ export default function GrowthOutreachPanel({
         leadId: selected.id,
         connectionId: channelId,
         channel: selectedChannel?.channel,
+        ...(selectedChannel?.workspace ? { workspace: selectedChannel.workspace } : {}),
         ...(selectedChannel?.official ? { templateName, templateLanguage } : {}),
         phone,
         message,

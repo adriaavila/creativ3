@@ -1,6 +1,6 @@
 import { sendTemplateMessage } from "@/lib/meta/server";
 import { MetaCloudWhatsAppProvider } from "@/lib/meta/cloud-whatsapp-provider";
-import { getWhatsAppProviderConnection } from "@/lib/whatsapp-connections-db";
+import { getWhatsAppProviderConnectionForStoredChannel } from "@/lib/whatsapp-connections-db";
 import { sendWahaText } from "@/lib/waha-send";
 import { getConversationById, insertMessage, type WaConversation, type WaMessage } from "@/lib/whatsapp-inbox-db";
 import { isWithinFreeTextWindow } from "@/lib/whatsapp-window";
@@ -34,7 +34,7 @@ export async function sendToConversation(input: SendToConversationInput): Promis
 }
 
 async function sendCloudApi(conversation: WaConversation, input: SendToConversationInput) {
-  const connection = await getWhatsAppProviderConnection(conversation.channelKey);
+  const connection = await getWhatsAppProviderConnectionForStoredChannel(conversation.channelKey);
   if (!connection) {
     throw new Error(`No hay conexión Cloud API activa para phone_number_id ${conversation.channelKey}.`);
   }

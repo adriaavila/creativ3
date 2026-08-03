@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { authorizeOps } from "@/lib/ops-auth";
+import { authorizeOps, resolveOpsWorkspace } from "@/lib/ops-auth";
 import { listMessageTemplates, type MetaMessageTemplate } from "@/lib/meta/server";
 import {
   completeGrowthOutreachAttempt,
@@ -8,7 +8,10 @@ import {
   updateLeadFields,
   updateLeadStatus,
 } from "@/lib/growth-db";
-import { getWhatsAppProviderConnection } from "@/lib/whatsapp-connections-db";
+import {
+  getWhatsAppProviderConnection,
+  getWhatsAppProviderConnectionForStoredChannel,
+} from "@/lib/whatsapp-connections-db";
 import {
   getWahaConnection,
   upsertConversation,
@@ -26,6 +29,8 @@ export const growthOutreachSchema = z.object({
   message: z.string().trim().min(10).max(1000),
   templateName: z.string().trim().min(1).max(100).optional(),
   templateLanguage: z.string().trim().min(2).max(20).optional(),
+  /** Owning workspace of the connection. Omitted = session-wide lookup (shared ops gate). */
+  workspace: z.string().trim().max(80).optional(),
   contactSourceUrl: z.url().max(500).nullable().optional(),
   confirmed: z.literal(true),
 });
@@ -48,7 +53,11 @@ export async function POST(request: Request) {
   if (!lead) return Response.json({ error: "Lead no encontrado." }, { status: 404 });
 
   const phone = normalizeWhatsAppId(input.phone);
-  const connection = await resolveConnection(input.channel, input.connectionId);
+  const connection = await resolveConnection(
+    input.channel,
+    input.connectionId,
+    input.workspace ? resolveOpsWorkspace(input.workspace, authorization.userId) : null,
+  );
   let selectedTemplate: MetaMessageTemplate | null = null;
   if (input.channel === "cloud_api") {
     if (!input.templateName || !input.templateLanguage) {
@@ -141,9 +150,15 @@ export async function POST(request: Request) {
   }
 }
 
-async function resolveConnection(channel: "cloud_api" | "waha", connectionId: string) {
+async function resolveConnection(
+  channel: "cloud_api" | "waha",
+  connectionId: string,
+  workspace: string | null,
+) {
   if (channel === "cloud_api") {
-    const connection = await getWhatsAppProviderConnection(connectionId);
+    const connection = workspace
+      ? await getWhatsAppProviderConnection(connectionId, workspace)
+      : await getWhatsAppProviderConnectionForStoredChannel(connectionId);
     if (!connection) throw new Error("La conexión oficial no está disponible.");
     return {
       channelKey: connection.phoneNumberId,

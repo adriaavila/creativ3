@@ -84,7 +84,13 @@ type ConnectionDetails = {
   connectedAt?: string | null;
 };
 
-export default function EmbeddedSignupClient({ workspace }: { workspace: string }) {
+export default function EmbeddedSignupClient({
+  workspace,
+  connectionMode = "META_COEXISTENCE",
+}: {
+  workspace: string;
+  connectionMode?: "META_CLOUD_API" | "META_COEXISTENCE";
+}) {
   const [config, setConfig] = useState<MetaEmbeddedSignupConfig | null>(null);
   const [sdkReady, setSdkReady] = useState(false);
   const [status, setStatus] = useState<Status>("idle");
@@ -118,6 +124,7 @@ export default function EmbeddedSignupClient({ workspace }: { workspace: string 
         business_id: pending.business_id,
         state: signupStateRef.current,
         client: workspace,
+        connection_mode: connectionMode,
         session: pending.session,
       }),
     });
@@ -137,7 +144,7 @@ export default function EmbeddedSignupClient({ workspace }: { workspace: string 
       }),
     );
     setStatus("success");
-  }, [workspace]);
+  }, [workspace, connectionMode]);
 
   useEffect(() => {
     let cancelled = false;
@@ -283,8 +290,22 @@ export default function EmbeddedSignupClient({ workspace }: { workspace: string 
     setErrorMessage(null);
     setStatus("loading");
 
+    // One Meta Login config = one Embedded Signup variation, so each mode needs its
+    // own config_id. `featureType` is what tells Meta to run the coexistence flow;
+    // a plain Cloud API onboarding must not send it.
+    const cloudApi = connectionMode === "META_CLOUD_API";
+    if (cloudApi && !config.cloudApiConfigId) {
+      // Never silently fall back to the coexistence config here: the connection
+      // would be stored as META_CLOUD_API and then /register-ed, which takes the
+      // number off the client's WhatsApp Business app.
+      setStatus("error");
+      setErrorMessage(
+        "Falta META_CONFIG_ID_CLOUD_API. Crea la configuración de Cloud API puro en Meta antes de usar este enlace.",
+      );
+      return;
+    }
     window.FB.login(fbLoginCallback, {
-      config_id: config.configId,
+      config_id: cloudApi ? (config.cloudApiConfigId as string) : config.configId,
       auth_type: "rerequest",
       response_type: "code",
       override_default_response_type: true,
@@ -293,7 +314,7 @@ export default function EmbeddedSignupClient({ workspace }: { workspace: string 
       state: signupStateRef.current,
       extras: {
         setup: {},
-        featureType: "whatsapp_business_app_onboarding",
+        ...(cloudApi ? {} : { featureType: "whatsapp_business_app_onboarding" }),
         sessionInfoVersion: "3",
       },
     });

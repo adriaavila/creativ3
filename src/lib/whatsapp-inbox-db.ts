@@ -34,6 +34,8 @@ export type WaConversation = {
   outcomeAt: string | null;
   lastMessageAt: string | null;
   lastInboundAt: string | null;
+  /** Rolling summary of older turns — migration 015. Null until one is written. */
+  summary: string | null;
   createdAt: string;
   updatedAt: string;
 };
@@ -105,6 +107,7 @@ function mapConversation(row: any): WaConversation {
     outcomeAt: row.outcome_at ? new Date(String(row.outcome_at)).toISOString() : null,
     lastMessageAt: row.last_message_at ? new Date(String(row.last_message_at)).toISOString() : null,
     lastInboundAt: row.last_inbound_at ? new Date(String(row.last_inbound_at)).toISOString() : null,
+    summary: row.summary ? String(row.summary) : null,
     createdAt: new Date(String(row.created_at)).toISOString(),
     updatedAt: new Date(String(row.updated_at)).toISOString(),
   };
@@ -356,12 +359,37 @@ export async function insertMessage(input: {
   return message;
 }
 
+/**
+ * Delivery lifecycle, weakest to strongest. Meta delivers status webhooks out of
+ * order, so a late `delivered` must never overwrite a `read` already stored.
+ * `failed` sits outside the ladder: it always wins, and nothing overwrites it.
+ */
+export const WA_STATUS_LADDER = ["accepted", "sent", "delivered", "read"] as const;
+
+/** Pure twin of the SQL guard in updateMessageStatusByWaId — same array drives both. */
+export function statusOutranks(current: string | null, next: string): boolean {
+  if (current === next) return false;
+  if (current === "failed") return false;
+  if (next === "failed") return true;
+  const rank = (value: string | null) =>
+    value ? WA_STATUS_LADDER.indexOf(value as (typeof WA_STATUS_LADDER)[number]) + 1 : 0;
+  return rank(next) > rank(current);
+}
+
 export async function updateMessageStatusByWaId(waMessageId: string, status: string): Promise<WaMessage | null> {
   const sql = getSql();
+  const ladder = [...WA_STATUS_LADDER];
   const rows = await sql`
     UPDATE wa_messages
     SET status = ${status}
-    WHERE wa_message_id = ${waMessageId} AND status IS DISTINCT FROM ${status}
+    WHERE wa_message_id = ${waMessageId}
+      AND status IS DISTINCT FROM ${status}
+      AND status IS DISTINCT FROM 'failed'
+      AND (
+        ${status} = 'failed'
+        OR COALESCE(array_position(${ladder}::text[], status), 0)
+         < COALESCE(array_position(${ladder}::text[], ${status}), 0)
+      )
     RETURNING *
   `;
   if (!rows[0]) return null;

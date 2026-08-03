@@ -43,15 +43,20 @@ export async function upsertWhatsAppConnection(input: {
   phoneProfile: WhatsAppPhoneProfile;
   status: string;
   connectedAt: string;
+  connectionMode: "META_CLOUD_API" | "META_COEXISTENCE";
+  /** Plaintext; encrypted here. Only set for META_CLOUD_API, which needs it to re-register. */
+  registrationPin?: string | null;
+  registeredAt?: string | null;
 }) {
   const sql = getSql();
   const encryptedToken = encryptToken(input.businessToken);
+  const encryptedPin = input.registrationPin ? encryptToken(input.registrationPin) : null;
   await sql`
     INSERT INTO whatsapp_connections (
       waba_id, phone_number_id, business_id, business_token, meta_user_id,
       display_phone_number, verified_name, quality_rating, name_status, status,
-      client, owner_user_id, team_id, account_id, token_metadata, connected_at,
-      last_synced_at, updated_at
+      client, owner_user_id, team_id, account_id, token_metadata, connection_mode,
+      registration_pin, registered_at, connected_at, last_synced_at, updated_at
     )
     VALUES (
       ${input.payload.waba_id},
@@ -69,6 +74,9 @@ export async function upsertWhatsAppConnection(input: {
       ${input.payload.team_id ?? null},
       ${input.payload.account_id ?? null},
       ${JSON.stringify(input.tokenMetadata)}::jsonb,
+      ${input.connectionMode},
+      ${encryptedPin},
+      ${input.registeredAt ?? null},
       ${input.connectedAt},
       now(),
       now()
@@ -88,10 +96,31 @@ export async function upsertWhatsAppConnection(input: {
       team_id = EXCLUDED.team_id,
       account_id = EXCLUDED.account_id,
       token_metadata = EXCLUDED.token_metadata,
+      connection_mode = EXCLUDED.connection_mode,
+      -- Keep the stored pin when this run did not produce one: Meta requires the
+      -- original pin on every later re-register, so overwriting it with null
+      -- would lock the number out.
+      registration_pin = COALESCE(EXCLUDED.registration_pin, whatsapp_connections.registration_pin),
+      registered_at = COALESCE(EXCLUDED.registered_at, whatsapp_connections.registered_at),
       connected_at = EXCLUDED.connected_at,
       last_synced_at = now(),
       updated_at = now()
   `;
+}
+
+/** Decrypted pin from a previous registration, or null if the number never had one. */
+export async function getStoredRegistrationPin(
+  wabaId: string,
+  phoneNumberId: string,
+): Promise<string | null> {
+  const sql = getSql();
+  const rows = await sql`
+    SELECT registration_pin FROM whatsapp_connections
+    WHERE waba_id = ${wabaId} AND phone_number_id = ${phoneNumberId}
+    LIMIT 1
+  `;
+  const stored = rows[0]?.registration_pin;
+  return stored ? decryptToken(String(stored)) : null;
 }
 
 export async function listWhatsAppConnections(): Promise<WhatsAppConnectionView[]> {
@@ -123,28 +152,42 @@ export async function getLatestWhatsAppConnectionForClient(
   return rows[0] ? mapWhatsAppConnection(rows[0]) : null;
 }
 
-export async function getWhatsAppProviderConnection(
-  phoneNumberId: string,
-  client?: string,
-) {
+/**
+ * Request-facing lookup. `client` is required: a caller that takes the
+ * phone_number_id from a request body must scope it to its own workspace, or one
+ * operator can send through another workspace's number.
+ */
+export async function getWhatsAppProviderConnection(phoneNumberId: string, client: string) {
   const sql = getSql();
-  const rows = client
-    ? await sql`
-        SELECT waba_id, phone_number_id, business_token, connection_mode
-        FROM whatsapp_connections
-        WHERE phone_number_id = ${phoneNumberId} AND client = ${client}
-          AND status != 'deauthorized'
-        ORDER BY updated_at DESC
-        LIMIT 1
-      `
-    : await sql`
-        SELECT waba_id, phone_number_id, business_token, connection_mode
-        FROM whatsapp_connections
-        WHERE phone_number_id = ${phoneNumberId} AND status != 'deauthorized'
-        ORDER BY updated_at DESC
-        LIMIT 1
-      `;
-  const row = rows[0];
+  const rows = await sql`
+    SELECT waba_id, phone_number_id, business_token, connection_mode
+    FROM whatsapp_connections
+    WHERE phone_number_id = ${phoneNumberId} AND client = ${client}
+      AND status != 'deauthorized'
+    ORDER BY updated_at DESC
+    LIMIT 1
+  `;
+  return mapProviderConnection(rows[0]);
+}
+
+/**
+ * Trusted lookup — only for a phone_number_id already read from a stored row
+ * (wa_conversations.channel_key), never one supplied by a request. The stored row
+ * is what scopes the tenant, so there is no workspace left to check.
+ */
+export async function getWhatsAppProviderConnectionForStoredChannel(phoneNumberId: string) {
+  const sql = getSql();
+  const rows = await sql`
+    SELECT waba_id, phone_number_id, business_token, connection_mode
+    FROM whatsapp_connections
+    WHERE phone_number_id = ${phoneNumberId} AND status != 'deauthorized'
+    ORDER BY updated_at DESC
+    LIMIT 1
+  `;
+  return mapProviderConnection(rows[0]);
+}
+
+function mapProviderConnection(row: Record<string, unknown> | undefined) {
   if (!row?.business_token) return null;
   return {
     id: String(row.phone_number_id),

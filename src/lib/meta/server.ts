@@ -1,5 +1,10 @@
 import crypto from "node:crypto";
-import { META_REQUIRED_PERMISSIONS, type MetaEmbeddedSignupPayload } from "./embedded-signup";
+import {
+  META_CONNECTION_MODES,
+  META_REQUIRED_PERMISSIONS,
+  type MetaConnectionMode,
+  type MetaEmbeddedSignupPayload,
+} from "./embedded-signup";
 
 const DEFAULT_GRAPH_VERSION = "v25.0";
 const REQUIRED_CONFIG_ENV = ["META_APP_ID", "META_CONFIG_ID"] as const;
@@ -146,6 +151,7 @@ export function getPublicMetaConfig() {
     config: {
       appId: process.env.META_APP_ID as string,
       configId: process.env.META_CONFIG_ID as string,
+      cloudApiConfigId: process.env.META_CONFIG_ID_CLOUD_API?.trim() || undefined,
       graphVersion: getGraphVersion(),
       appUrl: process.env.NEXT_PUBLIC_APP_URL || process.env.APP_URL,
     },
@@ -191,10 +197,20 @@ export function validateSignupPayload(input: unknown): {
     return { errors };
   }
 
+  // Anything other than the two known variations is treated as coexistence: the
+  // conservative side, since it never fires /register on a number that is live
+  // inside a client's WhatsApp Business App.
+  const requestedMode = stringOrUndefined(value.connection_mode);
+  const connectionMode: MetaConnectionMode =
+    requestedMode && META_CONNECTION_MODES.includes(requestedMode as MetaConnectionMode)
+      ? (requestedMode as MetaConnectionMode)
+      : "META_COEXISTENCE";
+
   return {
     errors,
     payload: {
       code: value.code as string,
+      connection_mode: connectionMode,
       waba_id: stringOrUndefined(value.waba_id),
       phone_number_id: stringOrUndefined(value.phone_number_id),
       business_id: stringOrUndefined(value.business_id),
@@ -261,6 +277,50 @@ export async function subscribeWabaToApp(
     method: "POST",
     accessToken: businessToken,
   });
+}
+
+/**
+ * Moves a number from PENDING to operational on the Cloud API. Embedded Signup
+ * alone does NOT do this: until /register succeeds the number can neither send
+ * nor receive, however clean the onboarding looked.
+ *
+ * Only for META_CLOUD_API. Calling it on a coexistence number takes the number
+ * off the client's WhatsApp Business App — see the guard in the exchange route.
+ *
+ * The pin is two-step-verification. A number that never had one accepts a fresh
+ * pin (store it: a re-onboarding produces a new phone_number_id that starts
+ * PENDING again and must reuse it). A number that already had one requires the
+ * existing pin, and any other value fails.
+ */
+export async function registerPhoneNumber(input: {
+  phoneNumberId: string;
+  businessToken: string;
+  pin: string;
+  graphVersion?: string;
+}): Promise<{ registered: boolean; alreadyRegistered: boolean }> {
+  try {
+    const result = await graphRequest<SubscribeResponse>({
+      requestName: "register_phone_number",
+      graphVersion: input.graphVersion ?? getGraphVersion(),
+      path: `${encodeURIComponent(input.phoneNumberId)}/register`,
+      method: "POST",
+      accessToken: input.businessToken,
+      body: { messaging_product: "whatsapp", pin: input.pin },
+    });
+    return { registered: result.success === true, alreadyRegistered: false };
+  } catch (error) {
+    // 133016 = the number is already registered. That is the desired end state,
+    // so a re-run of onboarding must not read as a failure.
+    if (error instanceof MetaGraphRequestError && "code" in error.body && error.body.code === 133016) {
+      return { registered: true, alreadyRegistered: true };
+    }
+    throw error;
+  }
+}
+
+/** Six digits, cryptographically random. Stored encrypted — it is needed again on re-register. */
+export function generateRegistrationPin() {
+  return String(crypto.randomInt(0, 1_000_000)).padStart(6, "0");
 }
 
 export async function getWhatsAppPhoneProfile(

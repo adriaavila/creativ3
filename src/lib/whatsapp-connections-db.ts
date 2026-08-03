@@ -2,6 +2,7 @@ import { neon, type NeonQueryFunction } from "@neondatabase/serverless";
 import type { MetaEmbeddedSignupPayload } from "@/lib/meta/embedded-signup";
 import type { TokenMetadata } from "@/lib/meta/server";
 import { decryptToken, encryptToken } from "@/lib/crypto/token-cipher";
+import type { AutomationMode, ModelTier } from "@/lib/tenant-automation";
 
 let sqlClient: NeonQueryFunction<false, false> | null = null;
 
@@ -26,6 +27,20 @@ export type WhatsAppConnectionView = {
   client: string | null;
   connectedAt: string;
   lastSyncedAt: string | null;
+  registeredAt: string | null;
+  webhookOverrideUri: string | null;
+  webhookOverrideScope: string | null;
+  botConfigured: boolean;
+  automationEnabled: boolean;
+  operatingMode: AutomationMode | null;
+  modelTier: ModelTier | null;
+};
+
+export type WhatsAppConnectionActivity = {
+  conversations: number;
+  waitingReplies: number;
+  messages: number;
+  lastMessageAt: string | null;
 };
 
 function getSql() {
@@ -128,9 +143,13 @@ export async function listWhatsAppConnections(): Promise<WhatsAppConnectionView[
   const rows = await sql`
     SELECT waba_id, phone_number_id, business_id, display_phone_number,
       verified_name, quality_rating, name_status, status, connection_mode, client,
-      connected_at, last_synced_at
-    FROM whatsapp_connections
-    ORDER BY connected_at DESC
+      connected_at, last_synced_at, registered_at, webhook_override_uri, webhook_override_scope,
+      bot.phone_number_id IS NOT NULL AS bot_configured,
+      COALESCE(bot.enabled, false) AS automation_enabled,
+      bot.operating_mode, bot.model_tier
+    FROM whatsapp_connections AS connection
+    LEFT JOIN tenant_bot_config AS bot USING (phone_number_id)
+    ORDER BY connection.connected_at DESC
   `;
 
   return rows.map(mapWhatsAppConnection);
@@ -150,6 +169,55 @@ export async function getLatestWhatsAppConnectionForClient(
     LIMIT 1
   `;
   return rows[0] ? mapWhatsAppConnection(rows[0]) : null;
+}
+
+export async function getWhatsAppConnectionByPhoneNumberId(
+  phoneNumberId: string,
+): Promise<WhatsAppConnectionView | null> {
+  const sql = getSql();
+  const rows = await sql`
+    SELECT connection.waba_id, connection.phone_number_id, connection.business_id,
+      connection.display_phone_number, connection.verified_name, connection.quality_rating,
+      connection.name_status, connection.status, connection.connection_mode, connection.client,
+      connection.connected_at, connection.last_synced_at, connection.registered_at,
+      connection.webhook_override_uri, connection.webhook_override_scope,
+      bot.phone_number_id IS NOT NULL AS bot_configured,
+      COALESCE(bot.enabled, false) AS automation_enabled,
+      bot.operating_mode, bot.model_tier
+    FROM whatsapp_connections AS connection
+    LEFT JOIN tenant_bot_config AS bot USING (phone_number_id)
+    WHERE connection.phone_number_id = ${phoneNumberId}
+    ORDER BY connection.updated_at DESC
+    LIMIT 1
+  `;
+  return rows[0] ? mapWhatsAppConnection(rows[0]) : null;
+}
+
+export async function getWhatsAppConnectionActivity(
+  phoneNumberId: string,
+): Promise<WhatsAppConnectionActivity> {
+  const sql = getSql();
+  const rows = await sql`
+    SELECT
+      count(DISTINCT conversation.id)::int AS conversations,
+      count(DISTINCT conversation.id) FILTER (
+        WHERE conversation.status = 'open'
+          AND conversation.last_inbound_at = conversation.last_message_at
+      )::int AS waiting_replies,
+      count(message.id)::int AS messages,
+      max(message.created_at) AS last_message_at
+    FROM wa_conversations AS conversation
+    LEFT JOIN wa_messages AS message ON message.conversation_id = conversation.id
+    WHERE conversation.channel_kind = 'cloud_api'
+      AND conversation.channel_key = ${phoneNumberId}
+  `;
+  const row = rows[0] ?? {};
+  return {
+    conversations: Number(row.conversations ?? 0),
+    waitingReplies: Number(row.waiting_replies ?? 0),
+    messages: Number(row.messages ?? 0),
+    lastMessageAt: row.last_message_at ? new Date(String(row.last_message_at)).toISOString() : null,
+  };
 }
 
 /**
@@ -237,6 +305,15 @@ function mapWhatsAppConnection(row: Record<string, unknown>): WhatsAppConnection
     lastSyncedAt: row.last_synced_at
       ? new Date(String(row.last_synced_at)).toISOString()
       : null,
+    registeredAt: row.registered_at ? new Date(String(row.registered_at)).toISOString() : null,
+    webhookOverrideUri: row.webhook_override_uri ? String(row.webhook_override_uri) : null,
+    webhookOverrideScope: row.webhook_override_scope ? String(row.webhook_override_scope) : null,
+    botConfigured: row.bot_configured === true,
+    automationEnabled: row.automation_enabled === true,
+    operatingMode: row.operating_mode === "off" || row.operating_mode === "approval" || row.operating_mode === "automatic"
+      ? row.operating_mode
+      : null,
+    modelTier: row.model_tier === "fast" || row.model_tier === "balanced" ? row.model_tier : null,
   };
 }
 

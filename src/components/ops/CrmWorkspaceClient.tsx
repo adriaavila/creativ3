@@ -4,6 +4,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
+  ArrowRight,
+  Bot,
   CheckCircle2,
   ChevronDown,
   Loader2,
@@ -21,7 +23,6 @@ import { normalizeWhatsAppId } from "@/lib/phone";
 import type { CrmChannel } from "@/lib/crm-types";
 import {
   crmChannelStatusLabel,
-  crmNameStatusLabel,
   crmQualityLabel,
   isCrmChannelActive,
 } from "@/lib/crm-channels";
@@ -452,11 +453,37 @@ function ConnectionsPanel({ initialChannels, onChannelsChange }: { initialChanne
       <div className="grid gap-7 p-5 sm:p-7 lg:grid-cols-[1fr_320px]">
         <div>
           {orderedChannels.length === 0 && <div className="rounded-lg border border-dashed border-[#dfe5eb] p-6 text-sm text-[#7a8797]">Todavía no hay un canal conectado.</div>}
-          {orderedChannels.map((channel) => <div key={channel.id} className="flex flex-wrap items-start justify-between gap-3 border-b border-[#edf0f3] py-4 first:pt-0"><div className="flex min-w-0 items-start gap-3"><span className={`mt-1.5 size-2 shrink-0 rounded-full ${isCrmChannelActive(channel) ? "bg-[#c5f04a]" : "bg-[#aeb8c2]"}`} /><div className="min-w-0"><p className="truncate text-sm font-semibold text-[#172238]">{channel.label}</p><p className="mt-1 text-xs text-[#7a8797]">{channel.detail} · {crmChannelStatusLabel(channel)}</p>{channel.official && <p className="mt-2 text-[11px] text-[#68778a]">Nombre: {crmNameStatusLabel(channel.nameStatus ?? null)} · Calidad: {crmQualityLabel(channel.qualityRating ?? null)}</p>}<p className="mt-1 text-[11px] text-[#8a96a5]">Última sincronización: {channel.lastSyncedAt ? formatDate(channel.lastSyncedAt) : "No disponible"}</p></div></div><span className="font-mono text-[10px] text-[#526174]">{channel.phone || "sin número"}</span></div>)}
+          {orderedChannels.map((channel) => <ChannelConnectionRow key={channel.id} channel={channel} />)}
           {error && <p className="mt-4 rounded-lg border border-[#f2caca] bg-[#fff5f5] px-3 py-2.5 text-sm text-[#9f4141]" role="alert">{error}</p>}
         </div>
         <div className="rounded-lg border border-[#e5dfc8] bg-[#fffdf5] p-4"><div className="flex items-start gap-3"><ShieldAlert className="mt-0.5 size-4 shrink-0 text-[#8b6b28]" aria-hidden="true" /><div><h3 className="text-sm font-semibold text-[#57451e]">WAHA · canal secundario</h3><p className="mt-1 text-xs leading-5 text-[#806b3b]">No oficial. Puede implicar riesgo de bloqueo del número.</p></div></div><label className="mt-5 block text-xs text-[#68778a]">Nombre de sesión<input value={session} onChange={(event) => setSession(event.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "-"))} className="mt-2 min-h-11 w-full rounded-lg border border-[#ddd6bc] bg-white px-3 text-sm text-[#172238] outline-none focus:border-[#3f5f7b]" /></label><TapButton type="button" onClick={() => void createWahaSession()} disabled={creating || session.length < 2} className="mt-3 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg border border-[#b9c5d2] bg-white text-sm font-medium text-[#526174] transition hover:border-[#3f5f7b] hover:text-[#142b4b] disabled:opacity-50">{creating ? <Loader2 className="size-4 animate-spin" /> : <Plus className="size-4" />} {pairingSession ? "Reiniciar sesión" : "Crear sesión WAHA"}</TapButton>{pairingSession && <p className="mt-3 text-xs text-[#68778a]">Sesión <span className="font-medium text-[#172238]">{pairingSession}</span> · espera el QR.</p>}{qr && <div className="mt-4 rounded-lg border border-[#e5e9ee] bg-white p-3"><Image src={`data:${qr.mimetype};base64,${qr.data}`} alt="Código QR para conectar WhatsApp a WAHA" width={260} height={260} unoptimized className="mx-auto h-auto w-full max-w-[220px]" /></div>}</div>
       </div>
     </div>
   );
+}
+
+function ChannelConnectionRow({ channel }: { channel: CrmChannel }) {
+  const content = (
+    <>
+      <div className="flex min-w-0 items-start gap-3">
+        <span className={`mt-1.5 size-2 shrink-0 rounded-full ${isCrmChannelActive(channel) ? "bg-[#c5f04a]" : "bg-[#aeb8c2]"}`} />
+        <div className="min-w-0">
+          <div className="flex flex-wrap items-center gap-2">
+            <p className="truncate text-sm font-semibold text-[#172238]">{channel.label}</p>
+            {channel.official && <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium ${channel.botConfigured ? "bg-[#edf7df] text-[#527526]" : "bg-[#f1f4f7] text-[#718096]"}`}><Bot className="size-3" /> {channel.botConfigured ? "Bot configurado" : "Bot pendiente"}</span>}
+          </div>
+          <p className="mt-1 text-xs text-[#7a8797]">{channel.detail} · {crmChannelStatusLabel(channel)}</p>
+          {channel.official && <p className="mt-2 text-[11px] text-[#68778a]">Cliente: {channel.workspace ?? "Sin asignar"} · Calidad: {crmQualityLabel(channel.qualityRating ?? null)}</p>}
+          {channel.official && <p className="mt-1 text-[11px] text-[#68778a]">Automatización: {channel.operatingMode === "automatic" ? "Automática" : channel.operatingMode === "approval" ? "Aprobación humana" : "Desactivada"}</p>}
+          <p className="mt-1 text-[11px] text-[#8a96a5]">Última sincronización: {channel.lastSyncedAt ? formatDate(channel.lastSyncedAt) : "No disponible"}</p>
+        </div>
+      </div>
+      <div className="flex shrink-0 items-center gap-3"><span className="font-mono text-[10px] text-[#526174]">{channel.phone || "sin número"}</span>{channel.official && <ArrowRight className="size-4 text-[#8a96a5]" />}</div>
+    </>
+  );
+
+  const className = "flex flex-wrap items-start justify-between gap-3 border-b border-[#edf0f3] py-4 first:pt-0 last:border-b-0 last:pb-0";
+  return channel.official
+    ? <Link href={`/ops/connections/${encodeURIComponent(channel.id)}`} className={`${className} rounded-lg px-2 transition hover:bg-[#f7f9fb] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#3f5f7b]`}>{content}</Link>
+    : <div className={className}>{content}</div>;
 }

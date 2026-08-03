@@ -51,6 +51,10 @@ export function buildCrmChannels(
       nameStatus: connection.nameStatus,
       lastSyncedAt: connection.lastSyncedAt,
       workspace: connection.client,
+      botConfigured: connection.botConfigured,
+      automationEnabled: connection.automationEnabled,
+      operatingMode: connection.operatingMode,
+      modelTier: connection.modelTier,
     })),
     ...waha.map((connection): CrmChannel => ({
       id: connection.wahaSessionId,

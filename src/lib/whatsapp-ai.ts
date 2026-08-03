@@ -1,6 +1,7 @@
 import { gateway, generateText } from "ai";
 import { getRecentMessagesForAi, type WaConversation } from "@/lib/whatsapp-inbox-db";
 import { composeSystemPrompt, getTenantBotConfig } from "@/lib/tenant-bot-config";
+import { automationRuntimePolicy } from "@/lib/tenant-automation";
 
 // Vercel AI Gateway, plain "provider/model" strings — same convention as
 // apps/growth-agent/agent/agent.ts. Needs AI_GATEWAY_API_KEY (or Vercel OIDC).
@@ -36,20 +37,19 @@ function toModelMessages(messages: Awaited<ReturnType<typeof getRecentMessagesFo
     }));
 }
 
-async function classify(history: ReturnType<typeof toModelMessages>): Promise<ReplyClassification> {
+async function classify(history: ReturnType<typeof toModelMessages>, model: string): Promise<ReplyClassification> {
   const { text } = await generateText({
-    model: gateway(FAQ_MODEL),
+    model: gateway(model),
     system: CLASSIFIER_SYSTEM,
     messages: history,
+    abortSignal: AbortSignal.timeout(20_000),
   });
   return text.trim().toLowerCase().startsWith("faq") ? "faq" : "qualify";
 }
 
 /**
- * Suggests a reply for a conversation — never sends it. Fase 3 keeps every
- * conversation in assigned_mode "human": a person reviews and presses send
- * (see src/app/api/ops/inbox/[id]/reply/route.ts). The classifier routes to
- * Haiku 4.5 for FAQ-shaped turns and Sonnet 5 for anything that needs judgment.
+ * Suggests a reply for a conversation — never sends it. The operator reviews
+ * and presses send (see src/app/api/ops/inbox/[id]/reply/route.ts).
  *
  * The persona comes from tenant_bot_config keyed by the conversation's
  * channel_key (= phone_number_id), so each connected client answers with its own
@@ -67,15 +67,33 @@ export async function suggestReply(conversation: WaConversation): Promise<Sugges
     throw new Error("No hay mensajes suficientes en la conversación para sugerir una respuesta.");
   }
 
-  const classification = await classify(history);
-  const model = classification === "faq" ? FAQ_MODEL : QUALIFY_MODEL;
+  const policy = automationRuntimePolicy(
+    config ?? { enabled: true, operatingMode: "approval", modelTier: "balanced" },
+    { fast: FAQ_MODEL, capable: QUALIFY_MODEL },
+  );
+  const classification = await classify(history, policy.classifyModel);
+  const preferredModel = classification === "faq" ? policy.classifyModel : policy.replyModel;
   const base = classification === "faq" ? FAQ_SYSTEM : QUALIFY_SYSTEM;
+  const system = composeSystemPrompt({ base, config, summary: conversation.summary });
+  let model = preferredModel;
+  let result;
+  try {
+    result = await generateText({
+      model: gateway(model),
+      system,
+      messages: history,
+      abortSignal: AbortSignal.timeout(20_000),
+    });
+  } catch (error) {
+    if (model === policy.fallbackModel) throw error;
+    model = policy.fallbackModel;
+    result = await generateText({
+      model: gateway(model),
+      system,
+      messages: history,
+      abortSignal: AbortSignal.timeout(20_000),
+    });
+  }
 
-  const { text } = await generateText({
-    model: gateway(model),
-    system: composeSystemPrompt({ base, config, summary: conversation.summary }),
-    messages: history,
-  });
-
-  return { text: text.trim(), model, classification };
+  return { text: result.text.trim(), model, classification };
 }

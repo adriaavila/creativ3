@@ -1,4 +1,5 @@
 import type { ChannelKind } from "@/lib/whatsapp-inbox-db";
+import type { AutomationMode, ModelTier } from "@/lib/tenant-automation";
 
 export type CrmChannel = {
   id: string;
@@ -14,4 +15,8 @@ export type CrmChannel = {
   /** Owning workspace (whatsapp_connections.client). Sent back on template/outreach
    *  calls so the server scopes the connection lookup to the right tenant. */
   workspace?: string | null;
+  botConfigured?: boolean;
+  automationEnabled?: boolean;
+  operatingMode?: AutomationMode | null;
+  modelTier?: ModelTier | null;
 };

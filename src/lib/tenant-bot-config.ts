@@ -1,4 +1,5 @@
 import { neon, type NeonQueryFunction } from "@neondatabase/serverless";
+import { isAutomaticAutomation, type AutomationMode, type ModelTier } from "@/lib/tenant-automation";
 
 // Per-tenant bot behavior (migration 015). Keyed by phone_number_id — the same
 // key the webhook routes on and wa_conversations stores as channel_key — so a
@@ -14,6 +15,8 @@ export type TenantBotConfig = {
   /** Keyword rule key -> this tenant's sentence. Missing key = do not auto-answer. */
   autoReplies: Record<string, string>;
   enabled: boolean;
+  operatingMode: AutomationMode;
+  modelTier: ModelTier;
 };
 
 /**
@@ -25,7 +28,7 @@ export function resolveAutoReplyText(
   config: TenantBotConfig | null,
   key: string,
 ): string | null {
-  if (!config?.enabled) return null;
+  if (!config || !isAutomaticAutomation(config)) return null;
   const text = config.autoReplies[key];
   return typeof text === "string" && text.trim() ? text.trim() : null;
 }
@@ -48,7 +51,8 @@ function getSql() {
 export async function getTenantBotConfig(phoneNumberId: string): Promise<TenantBotConfig | null> {
   const sql = getSql();
   const rows = await sql`
-    SELECT phone_number_id, system_prompt, business_facts, handoff_note, auto_replies, enabled
+    SELECT phone_number_id, system_prompt, business_facts, handoff_note, auto_replies,
+      enabled, operating_mode, model_tier
     FROM tenant_bot_config
     WHERE phone_number_id = ${phoneNumberId}
     LIMIT 1
@@ -62,6 +66,8 @@ export async function getTenantBotConfig(phoneNumberId: string): Promise<TenantB
     handoffNote: row.handoff_note ? String(row.handoff_note) : null,
     autoReplies: parseAutoReplies(row.auto_replies),
     enabled: row.enabled !== false,
+    operatingMode: row.operating_mode === "off" || row.operating_mode === "automatic" ? row.operating_mode : "approval",
+    modelTier: row.model_tier === "fast" ? "fast" : "balanced",
   };
 }
 
@@ -72,16 +78,19 @@ export async function upsertTenantBotConfig(input: {
   handoffNote?: string | null;
   autoReplies?: Record<string, string>;
   enabled?: boolean;
-}): Promise<void> {
+  operatingMode?: AutomationMode;
+  modelTier?: ModelTier;
+}): Promise<TenantBotConfig> {
   const sql = getSql();
   await sql`
     INSERT INTO tenant_bot_config (
-      phone_number_id, system_prompt, business_facts, handoff_note, auto_replies, enabled, updated_at
+      phone_number_id, system_prompt, business_facts, handoff_note, auto_replies,
+      enabled, operating_mode, model_tier, updated_at
     )
     VALUES (
       ${input.phoneNumberId}, ${input.systemPrompt ?? null}, ${input.businessFacts ?? null},
       ${input.handoffNote ?? null}, ${JSON.stringify(input.autoReplies ?? {})}::jsonb,
-      ${input.enabled ?? true}, now()
+      ${input.enabled ?? true}, ${input.operatingMode ?? "approval"}, ${input.modelTier ?? "balanced"}, now()
     )
     ON CONFLICT (phone_number_id) DO UPDATE SET
       system_prompt = EXCLUDED.system_prompt,
@@ -89,8 +98,11 @@ export async function upsertTenantBotConfig(input: {
       handoff_note = EXCLUDED.handoff_note,
       auto_replies = EXCLUDED.auto_replies,
       enabled = EXCLUDED.enabled,
+      operating_mode = EXCLUDED.operating_mode,
+      model_tier = EXCLUDED.model_tier,
       updated_at = now()
   `;
+  return (await getTenantBotConfig(input.phoneNumberId))!;
 }
 
 /**

@@ -169,7 +169,7 @@ export async function upsertConversation(input: {
   const rows = await sql`
     INSERT INTO wa_conversations (
       channel_kind, channel_key, contact_wa_id, contact_phone, contact_name,
-      last_message_at, last_inbound_at, connection_id, lead_id
+      last_message_at, last_inbound_at, connection_id, lead_id, assigned_mode
     )
     VALUES (
       ${input.channelKind}, ${input.channelKey}, ${input.contactWaId}, ${input.contactPhone ?? null}, ${input.contactName ?? null},
@@ -179,7 +179,15 @@ export async function upsertConversation(input: {
       (SELECT id FROM leads
        WHERE regexp_replace(COALESCE(business_phone, ''), '\\D', '', 'g') = regexp_replace(${leadPhone}, '\\D', '', 'g')
        ORDER BY updated_at DESC
-       LIMIT 1)
+       LIMIT 1),
+      CASE
+        WHEN ${input.channelKind} = 'cloud_api' AND EXISTS (
+          SELECT 1 FROM tenant_bot_config
+          WHERE phone_number_id = ${input.channelKey}
+            AND enabled = true AND operating_mode = 'automatic'
+        ) THEN 'ai'
+        ELSE 'human'
+      END
     )
     ON CONFLICT (channel_kind, channel_key, contact_wa_id)
     DO UPDATE SET

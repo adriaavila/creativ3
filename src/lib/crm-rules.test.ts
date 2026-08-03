@@ -210,6 +210,8 @@ test("each tenant answers with its own persona and facts", () => {
       handoffNote: "Te paso con Rosa.",
       autoReplies: {},
       enabled: true,
+      operatingMode: "approval",
+      modelTier: "balanced",
     },
     summary: "El cliente pidió una torta para el sábado.",
   });
@@ -229,6 +231,8 @@ test("auto reply copy belongs to the tenant, never to allok", () => {
     handoffNote: null,
     autoReplies: { saludo: "¡Hola! Panadería Rosa por aquí." },
     enabled: true,
+    operatingMode: "automatic" as const,
+    modelTier: "balanced" as const,
   };
 
   assert.equal(resolveAutoReplyText(rosa, "saludo"), "¡Hola! Panadería Rosa por aquí.");

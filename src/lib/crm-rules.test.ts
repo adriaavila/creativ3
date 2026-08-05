@@ -28,6 +28,10 @@ test("shows a real phone and hides provider ids", () => {
 test("auto replies only on safe predefined matches", () => {
   assert.equal(matchAutoReply("Hola, necesito información")?.key, "saludo");
   assert.equal(matchAutoReply("¿Cuánto cuesta?")?.key, "precio");
+  assert.deepEqual(matchAutoReply("Hola, quiero agendar una cita"), {
+    key: "cita",
+    handoffAfterReply: true,
+  });
   assert.equal(matchAutoReply("quiero hablar con una persona")?.handoff, true);
   assert.equal(matchAutoReply("Necesito algo muy específico"), null);
 });

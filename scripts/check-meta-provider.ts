@@ -88,6 +88,7 @@ assert.deepEqual(inbound.message, {
   source: "cloud_api",
   type: "text",
   text: "Hello from WhatsApp",
+  contactPhone: "15550002222",
 });
 
 const status = events.find((event) => event.type === "message.status.updated");

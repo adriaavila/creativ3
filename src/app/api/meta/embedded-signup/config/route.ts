@@ -37,6 +37,7 @@ export async function GET(request: NextRequest) {
   const response = NextResponse.json({
     appId: result.config.appId,
     configId: result.config.configId,
+    cloudApiConfigId: result.config.cloudApiConfigId,
     graphVersion: result.config.graphVersion,
     appUrl: result.config.appUrl,
     state,

@@ -26,16 +26,16 @@ type AutoReplyJob = {
  * back to a person.
  */
 export type AutoReplyDecision =
-  | { key: string; handoff?: false }
+  | { key: string; handoff?: false; handoffAfterReply?: boolean }
   | { key: "handoff"; handoff: true }
   | null;
 
 const RULES: Array<Exclude<AutoReplyDecision, null>> = [
   { key: "handoff", handoff: true },
-  { key: "saludo" },
-  { key: "servicios" },
+  { key: "cita", handoffAfterReply: true },
   { key: "precio" },
-  { key: "cita" },
+  { key: "servicios" },
+  { key: "saludo" },
 ];
 
 const MATCHES: Record<string, string[]> = {
@@ -126,18 +126,18 @@ async function claimAutoReplyJobs(limit: number): Promise<AutoReplyJob[]> {
   }));
 }
 
-async function hasSentReply(jobId: number): Promise<boolean> {
+async function sentReplyRule(jobId: number): Promise<string | null> {
   // ponytail: Neon audit recovers acknowledged sends; provider-level idempotency
   // is the upgrade path if remote-send retries become material.
   const sql = getSql();
   const rows = await sql`
-    SELECT 1
+    SELECT payload->>'ruleKey' AS rule_key
     FROM wa_messages
     WHERE direction = 'out'
       AND payload->>'autoReplyJobId' = ${String(jobId)}
     LIMIT 1
   `;
-  return rows.length > 0;
+  return rows[0]?.rule_key ? String(rows[0].rule_key) : null;
 }
 
 async function markSent(id: number, ruleKey: string, reply: string): Promise<void> {
@@ -177,7 +177,9 @@ export async function processAutoReplyQueue(limit = 10) {
 
   for (const job of jobs) {
     try {
-      if (await hasSentReply(job.id)) {
+      const recoveredRule = await sentReplyRule(job.id);
+      if (recoveredRule) {
+        if (recoveredRule === "cita") await setConversationAssignedMode(job.conversationId, "human");
         await markSent(job.id, "recovered", "[respuesta ya registrada]");
         sent += 1;
         continue;
@@ -267,6 +269,9 @@ export async function processAutoReplyQueue(limit = 10) {
         source: "ai",
         metadata: { autoReplyJobId: job.id, ruleKey: decision.key },
       });
+      if (decision.handoffAfterReply) {
+        await setConversationAssignedMode(job.conversationId, "human");
+      }
       await markSent(job.id, decision.key, reply);
       sent += 1;
     } catch (error) {

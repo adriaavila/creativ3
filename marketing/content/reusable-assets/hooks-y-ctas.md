@@ -23,7 +23,7 @@ Banco vivo. Al medir contenido, mover los ganadores arriba y anotar su performan
 
 | CTA | Cuándo usarlo |
 |---|---|
-| "Escríbeme 'diagnóstico'" | Piezas P1/P3 con dolor activado |
+| "Escríbeme 'diagnóstico'" | Piezas P1/P3 con dolor activado; diagnóstico gratuito de 2 hallazgos |
 | Link a `/cotizar` | Piezas P4 de oferta directa |
 | Link a página vertical (`/clinicas`, etc.) | Piezas dirigidas a un vertical |
 | "Guarda este post" | Piezas P3 de utilidad (alimenta alcance) |
@@ -31,6 +31,8 @@ Banco vivo. Al medir contenido, mover los ganadores arriba y anotar su performan
 
 ## Frases de oferta (consistentes con el sitio — no alterar precios)
 
+- "Te comparto 2 hallazgos gratuitos sobre tu web/WhatsApp y una ruta concreta."
+- "Si hay encaje, armamos un piloto IA de 14 días desde USD 899."
 - "Diagnóstico express: USD 150, entrega en 48h, acreditable si construimos después."
 - "Landing page: USD 199, lista en 3 días."
 - "Automatización desde USD 499. Web o producto desde USD 699."

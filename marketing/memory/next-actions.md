@@ -1,21 +1,40 @@
 # Próximas acciones
 
-Lo actualiza el Orchestrator cada viernes (y a diario si cambia el estado). Es la lista corta ejecutable; el panorama completo está en `../backlog.md`.
+Estado operativo al 2026-08-05. La campaña usa los 12 leads únicos sincronizados desde `/ops/growth`.
 
-## Esta semana (2026-W29, arranque)
+## Semana 1 — 10 al 14 de agosto
 
-### Humano (fundador) — en orden
-1. Resolver D-001 (precios) y D-002 (plataformas) en `memory/decisions.md` — 20 min, desbloquea oferta y publicación.
-2. Revisar/aprobar los 3 borradores de `content/drafts/` → mover a `approved/` — 30 min.
-3. Correr `playbooks/find-leads.md`: validar leads del panel `/ops/growth` + completar a 20 reales en el CSV (las 2 filas EJEMPLO se eliminan) — 90 min.
-4. Grabar Loom demo de 3 min (antes/después web + automatización) — asset del toque 2.
-5. Publicar pieza 1 (martes), enviar primeros 15 mensajes (martes) siguiendo `playbooks/contact-leads.md`.
+### Humano — en orden
 
-### Agentes (sin aprobación requerida)
-- Lead Research: corridas diarias (ya programadas en el growth agent) + espejo al CSV.
-- Market Research: WF-02 sobre Cliengo, Botmaker, Leadsales, Treble.ai → llenar `context/competitors.md`.
-- Content Strategist: briefs de la semana 2 del calendario.
-- Outreach: preparar cola del martes desde los leads validados.
+1. Revisar en `/ops/growth` los 4 leads con borrador: Emporio Dance, Academia Alta Costura, CMOL y Clínica Nueva Caracas.
+   - Hecho cuando: evidencia y canal quedan validados y los borradores aprobados o corregidos.
+2. Preparar un diagnóstico gratuito por lead: 2 hallazgos verificables + 1 recomendación.
+   - Hecho cuando: existen 12 notas breves, sin inventar métricas ni regalar la auditoría completa.
+3. Enviar 6 mensajes el martes y 6 el jueves.
+   - Hecho cuando: los 12 envíos humanos están registrados en `outreach/conversations.md`.
+4. Responder en el mismo día y agendar llamadas de 15 minutos con interesados.
+   - Hecho cuando: cada respuesta tiene `conversacion`, `diagnostico_profundo`, `piloto` o `nutrir` como próximo paso.
 
-## Bloqueado hasta decisión
-- Toda publicación automatizada (D-002), mensajes con precios de piloto/retainer (D-001), oferta de pilotos con descuento (D-003), referidos (D-004), cualquier gasto (D-005).
+## Semana 2 — 17 al 21 de agosto
+
+1. Hacer follow-up 1 a los no respondidos con un hallazgo nuevo; máximo 5 por día.
+2. Presentar piloto IA desde USD 899 solo a leads que confirmen dolor, capacidad y métrica.
+3. Entregar propuestas con alcance de 14 días, métrica de éxito y 50% de anticipo.
+4. Cerrar el primer piloto o registrar por qué no avanzó.
+5. Completar el scorecard y decidir si se repite el mismo vertical/ángulo.
+
+## Agentes
+
+- `/ops/growth`: mantener evidencia, borradores y estados actualizados; no enviar.
+- Outreach: preparar mensajes personalizados basados en los 12 leads; no inventar datos.
+- Analytics: registrar actividad y resultado el viernes 14 y viernes 21.
+
+## Oferta vigente
+
+- Diagnóstico gratuito: 2 hallazgos + siguiente paso.
+- Diagnóstico express profundo: USD 150/48h.
+- Piloto IA: desde USD 899/14 días.
+
+## Diferido
+
+Paid, newsletter, SEO nuevo, TikTok, descuentos y publicación automatizada. Se revisan después del primer piloto o una evidencia clara de bloqueo.

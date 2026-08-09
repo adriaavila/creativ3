@@ -32,12 +32,6 @@ export default function proxy(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
-  if (pathname === "/embedded-whatsapp") {
-    const loginUrl = new URL("/ops-login", request.url);
-    loginUrl.searchParams.set("next", `${pathname}${request.nextUrl.search}`);
-    return NextResponse.redirect(loginUrl);
-  }
-
   return NextResponse.next({ request: { headers: requestHeaders } });
 }
 

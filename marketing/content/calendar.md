@@ -1,42 +1,38 @@
-# Calendario de contenido — 4 semanas (2026-07-13 → 2026-08-07)
+# Plan operativo de marketing — 2 semanas (2026-08-10 → 2026-08-21)
 
-Cadencia sostenible para 1 persona: **3 piezas/semana** (lunes creación en bloque de 90 min; publicación Mar/Mié–Jue/Vie). Cross-post LinkedIn↔IG cuenta como la misma pieza adaptada.
+## Oferta de campaña
 
-## Semana 1 (13–17 jul) — Apertura: tesis + autoridad
-Sincronizada con outreach a clínicas y academias.
+**Diagnóstico gratuito:** 2 hallazgos verificables sobre web/WhatsApp + una recomendación concreta. No incluye auditoría completa ni 10 quick wins.
 
-| Día | Canal | Pieza | Pilar | CTA | Métrica esperada | Estado |
-|---|---|---|---|---|---|---|
-| Mar 14 | LinkedIn (+IG adaptado) | Tesis: "No necesitas IA, necesitas responder mejor" | P1 | Perfil/`/cotizar` | 3+ comentarios ICP | **borrador listo** |
-| Mié 15 | Instagram | Carrusel: 5 fugas de un WhatsApp que pierde ventas | P1 | "Escríbeme 'diagnóstico'" | 2 DMs | **borrador listo** |
-| Vie 17 | LinkedIn | Build in public: mi agente me investiga leads cada mañana | P2 | Seguir | 5+ reacciones de ICP | **borrador listo** |
+**Siguiente paso:** piloto IA desde **USD 899 / 14 días**, solo si el lead confirma dolor, capacidad y una métrica de éxito. El diagnóstico express profundo de USD 150 queda como alternativa.
 
-## Semana 2 (20–24 jul) — Valor práctico + primera oferta directa
+## Leads de `/ops/growth`
 
-| Día | Canal | Pieza | Pilar | CTA | Métrica esperada | Estado |
-|---|---|---|---|---|---|---|
-| Mar 21 | IG carrusel (+LI) | El flujo WhatsApp de 3 preguntas que separa curiosos de compradores (idea #5) | P3 | Link `/clinicas` | 5 guardados | brief |
-| Jue 23 | LinkedIn | Patrón real: "De N webs de clínicas revisadas esta semana, X sin CTA" (idea #4, con número real del agente) | P1 | "diagnóstico" | 2 DMs | brief |
-| Vie 24 | IG + stories + LI | **Oferta: 5 diagnósticos express USD 150/48h esta semana** (idea #6) | P4 | WhatsApp directo | 3 conversaciones | brief |
+12 leads únicos, todos score 7–8, en clínicas y academias de Caracas. Prioridad inicial: **Emporio Dance, Academia Alta Costura, CMOL y Clínica Nueva Caracas**, porque ya tienen borradores en el panel.
 
-## Semana 3 (27–31 jul) — Prueba de calidad + criterio técnico
+## Semana 1 — validar, enviar y entregar valor
 
-| Día | Canal | Pieza | Pilar | CTA | Métrica esperada | Estado |
-|---|---|---|---|---|---|---|
-| Mar 28 | IG carrusel | Antes/después diseño: proyecto Mística (idea #9) | P2 | `/projects` | Visitas perfil +20% | idea |
-| Jue 30 | LinkedIn | Qué NO automatizar todavía (idea #12) | P3 | Comentar | 3 comentarios | idea |
-| Vie 31 | IG (+LI) | Checklist: cómo evalúo un negocio en 10 min (idea #13, teaser diagnóstico) | P3 | "diagnóstico" | 2 DMs | idea |
+| Día | Comercial | Contenido | Hecho cuando |
+|---|---|---|---|
+| Lun 10 ago | Revisar los 12 leads en `/ops/growth`; confirmar evidencia, canal y duplicados | Preparar la tesis de la semana | 12 filas válidas y priorizadas |
+| Mar 11 ago | Aprobar borradores de los 4 leads prioritarios; enviar 6 diagnósticos gratuitos | Publicar tesis: “No necesitas IA, necesitas responder mejor” | 6 envíos humanos registrados |
+| Mié 12 ago | Entregar 2 hallazgos a quien responda; pedir llamada de 15 min | — | Cada respuesta tiene siguiente acción |
+| Jue 13 ago | Enviar diagnósticos gratuitos a los 6 leads restantes | Publicar carrusel: 5 fugas de WhatsApp | 12 leads contactados como máximo |
+| Vie 14 ago | Responder interesados y agendar llamadas; no presentar piloto sin descubrir el caso | Publicar build in public del agente | Scorecard de actividad actualizado |
 
-## Semana 4 (3–7 ago) — Seguimiento + segunda oferta + retro
+## Semana 2 — convertir interés en piloto
 
-| Día | Canal | Pieza | Pilar | CTA | Métrica esperada | Estado |
-|---|---|---|---|---|---|---|
-| Mar 4 | IG carrusel | 3 mensajes de seguimiento que reactivan un lead frío (idea #11) | P3 | Guardar/compartir | 8 guardados | idea |
-| Jue 6 | LinkedIn | El costo real de responder WhatsApp a mano (idea #14, cálculo transparente) | P1 | `/automatizar` | 2 DMs | idea |
-| Vie 7 | IG + LI | Oferta: Landing USD 199/3 días, qué incluye sin letra chica (idea #8) + retro del mes si hay algo honesto que contar | P4/P2 | `/cotizar` | 2 cotizaciones | idea |
+| Día | Comercial | Contenido | Hecho cuando |
+|---|---|---|---|
+| Lun 17 ago | Follow-up 1 a no respondidos: un hallazgo nuevo, no “¿viste mi mensaje?” | Preparar pieza de flujo de 3 preguntas | Máximo 5 follow-ups |
+| Mar 18 ago | Llamadas de 15 min con interesados; confirmar dolor, capacidad y métrica | Publicar flujo de WhatsApp que filtra compradores | Cada llamada termina en piloto, diagnóstico profundo o nurture |
+| Mié 19 ago | Enviar propuesta de piloto IA desde USD 899 solo a casos calificados | — | Alcance, métrica, 14 días y anticipo claros |
+| Jue 20 ago | Follow-up 2 con último hallazgo; cerrar hilo si no hay señal | Publicar “Qué no automatizar todavía” | Ningún lead recibe un cuarto toque |
+| Vie 21 ago | Revisar pipeline y elegir el primer piloto; registrar aprendizajes | Publicar oferta: diagnóstico gratuito → piloto IA | Scorecard completo y una decisión para la semana siguiente |
 
-## Reglas del calendario
-- Ninguna pieza sale sin pasar por `approved/` (aprobación humana).
-- Si una semana se cae, se corre el calendario; no se publica en lote para "recuperar".
-- Piezas con número pendiente (#4, #14) se completan con datos reales antes de redactar; si el dato no existe, la pieza se sustituye por una del banco.
-- Cada viernes: registrar performance de la semana anterior en `analytics/content-performance.csv`.
+## Reglas
+
+- Máximo 15 mensajes nuevos y 5 follow-ups por día; el fundador envía.
+- Todo diagnóstico usa evidencia pública del lead y se registra en `outreach/conversations.md`.
+- Ningún piloto se promete por mensaje frío; primero hay conversación y métrica.
+- Toda publicación pasa por `approved/`; automatización social sigue bloqueada por D-002.

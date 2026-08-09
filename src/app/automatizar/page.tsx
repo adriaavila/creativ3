@@ -5,52 +5,54 @@ import Colofon from "@/components/landing/Colofon";
 import { whatsappUrl } from "@/lib/contact";
 
 export const metadata: Metadata = {
-  title: "Automatización para reducir trabajo repetitivo",
+  title: "Automatización con supervisión",
   description:
-    "Calcula el costo de un proceso manual y revisa una automatización con alcance, supervisión y resultados visibles.",
+    "Automatizaciones de seguimiento y respuesta dentro del sistema comercial de Allok, con revisión humana donde importa.",
+  alternates: { canonical: "/automatizar" },
 };
 
 const PROCESS = [
-  ["01", "Medimos", "Personas, horas, pasos y excepciones del flujo actual."],
-  ["02", "Recortamos", "Elegimos una sola repetición costosa para el primer alcance."],
+  ["01", "Medimos", "Consultas, horas y pasos del flujo comercial actual."],
+  ["02", "Recortamos", "Elegimos el seguimiento que más oportunidades enfría hoy."],
   ["03", "Conectamos", "Automatizamos con trazabilidad y revisión humana donde importa."],
 ];
 
 export default function AutomatizarPage() {
   const intake = whatsappUrl(
-    "Hola, quiero revisar una automatización con allok. El proceso repetitivo es:"
+    "Hola, quiero revisar automatizaciones con Allok. El proceso que quiero ordenar es:"
   );
 
   return (
     <>
-      <main className="studio min-h-screen bg-white px-5 pb-24 pt-24 text-black selection:bg-[#c5f04a] selection:text-black sm:px-8 lg:px-12 lg:pt-32">
+      <main className="min-h-screen px-5 pb-24 pt-28 sm:px-8 lg:px-12 lg:pt-36">
         <div className="mx-auto max-w-[1380px]">
           <section className="grid gap-10 lg:grid-cols-[1.08fr_0.92fr] lg:items-end">
             <div>
-              <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-neutral-500">
-                Automatización con criterio
+              <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-[var(--text-tertiary)]">
+                Automatización supervisada
               </div>
-              <h1 className="mt-5 max-w-5xl text-[clamp(4rem,8vw,8.6rem)] leading-[0.82] tracking-[-0.055em] text-black">
-                Menos pasos.
-                <span className="block italic text-[#587615]">Más capacidad.</span>
+              <h1 className="mt-5 max-w-3xl text-[clamp(2.5rem,6vw,4.5rem)] font-medium leading-[0.98] tracking-[-0.03em] text-[var(--text-primary)]">
+                Menos seguimiento manual.
+                <span className="block text-[var(--lima)]">Más ventas cerradas.</span>
               </h1>
             </div>
             <div className="max-w-xl lg:justify-self-end">
-              <p className="text-base leading-7 text-neutral-600 sm:text-lg">
-                Empezamos por medir el trabajo manual. Después diseñamos el flujo más pequeño que puede liberar tiempo sin perder control.
+              <p className="text-base leading-7 text-[var(--text-secondary)] sm:text-lg">
+                Empezamos por medir cómo se pierde una oportunidad hoy. Después automatizamos el seguimiento más
+                pequeño que puede recuperarla, sin quitarle el control a tu equipo.
               </p>
               <div className="mt-7 flex flex-col gap-3 sm:flex-row">
                 <Link
                   href="/cotizar"
-                  className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-black px-6 text-sm font-semibold text-white transition-all hover:-translate-y-0.5 hover:bg-neutral-800"
+                  className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-[var(--lima)] px-6 text-sm font-semibold text-[var(--lima-ink)] transition-all hover:-translate-y-0.5"
                 >
-                  Calcular ahorro <ArrowRight className="size-4" aria-hidden />
+                  Diseñar mi sistema <ArrowRight className="size-4" aria-hidden />
                 </Link>
                 <a
                   href={intake}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-black/15 bg-white px-6 text-sm font-semibold text-black transition-colors hover:bg-[var(--studio-surface)]"
+                  className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-[var(--line)] px-6 text-sm font-semibold text-[var(--text-primary)] transition-colors hover:bg-[var(--surface-2)]"
                 >
                   <MessageCircle className="size-4" aria-hidden /> Contar el proceso
                 </a>
@@ -58,23 +60,28 @@ export default function AutomatizarPage() {
             </div>
           </section>
 
-          <section className="mt-20 overflow-hidden rounded-[2rem] border border-black/10 bg-[var(--studio-surface)] text-black">
+          <section className="mt-20 overflow-hidden rounded-[var(--r-xl)] border border-[var(--line)] bg-[var(--surface-1)]">
             <div className="grid lg:grid-cols-[0.75fr_1.25fr]">
-              <div className="border-b border-black/10 p-7 sm:p-10 lg:border-b-0 lg:border-r">
-                <div className="font-mono text-[9px] uppercase tracking-[0.18em] text-neutral-500">Primer alcance</div>
-                <h2 className="mt-5 text-4xl leading-[0.95] text-black sm:text-5xl">
-                  Un flujo completo vale más que diez automatizaciones sueltas.
+              <div className="border-b border-[var(--line)] p-7 sm:p-10 lg:border-b-0 lg:border-r">
+                <div className="font-mono text-[9px] uppercase tracking-[0.18em] text-[var(--text-tertiary)]">
+                  Primer alcance
+                </div>
+                <h2 className="mt-5 text-3xl font-medium leading-[1.05] text-[var(--text-primary)] sm:text-4xl">
+                  Un seguimiento automatizado bien hecho vale más que diez reglas sueltas.
                 </h2>
-                <p className="mt-6 text-sm leading-6 text-neutral-500">
-                  Desde USD 499 · 5–10 días · una integración medible de punta a punta.
+                <p className="mt-6 text-sm leading-6 text-[var(--text-tertiary)]">
+                  Incluido en la implementación · 7 días · una automatización medible de punta a punta.
                 </p>
               </div>
               <div className="grid sm:grid-cols-3">
                 {PROCESS.map(([index, title, description]) => (
-                  <article key={index} className="border-b border-black/10 p-7 last:border-b-0 sm:border-b-0 sm:border-r sm:last:border-r-0 sm:p-8">
-                    <div className="font-mono text-[9px] text-neutral-500">{index}</div>
-                    <h3 className="mt-8 text-3xl text-black">{title}</h3>
-                    <p className="mt-4 text-sm leading-6 text-neutral-500">{description}</p>
+                  <article
+                    key={index}
+                    className="border-b border-[var(--line)] p-7 last:border-b-0 sm:border-b-0 sm:border-r sm:p-8 sm:last:border-r-0"
+                  >
+                    <div className="font-mono text-[9px] text-[var(--text-tertiary)]">{index}</div>
+                    <h3 className="mt-8 text-2xl font-medium text-[var(--text-primary)]">{title}</h3>
+                    <p className="mt-4 text-sm leading-6 text-[var(--text-secondary)]">{description}</p>
                   </article>
                 ))}
               </div>
@@ -83,13 +90,16 @@ export default function AutomatizarPage() {
 
           <section className="mt-14 grid gap-3 sm:grid-cols-3">
             {[
-              "Sin simulaciones ni grabaciones falsas.",
-              "Sin outreach o decisiones automáticas.",
+              "Sin simulaciones ni respuestas falsas.",
+              "Sin outreach o decisiones automáticas sin revisión.",
               "Con estados, errores y responsables visibles.",
             ].map((item) => (
-              <div key={item} className="flex gap-3 rounded-2xl border border-black/10 bg-[var(--studio-surface)] p-5 text-sm text-neutral-700">
-                <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-black text-[#c5f04a]">
-                  <Check className="size-3" />
+              <div
+                key={item}
+                className="flex gap-3 rounded-[var(--r-lg)] border border-[var(--line)] bg-[var(--surface-1)] p-5 text-sm text-[var(--text-secondary)]"
+              >
+                <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-[var(--lima)] text-[var(--lima-ink)]">
+                  <Check className="size-3" aria-hidden />
                 </span>
                 {item}
               </div>

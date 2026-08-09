@@ -3,8 +3,8 @@ import AllokLogo from "@/components/brand/AllokLogo";
 import Waveform from "@/components/brand/Waveform";
 
 export const metadata = {
-  title: "Acceso Ops | allok",
-  description: "Acceso privado al centro operativo de allok.",
+  title: "Acceso Ops",
+  description: "Acceso privado al centro operativo de Allok.",
 };
 
 export default async function OpsLoginPage({

@@ -1,5 +1,6 @@
-# Creativ3 — Plan Lanzamiento "Primeros 10"
+# allok — Plan Lanzamiento "Primeros 10"
 > Generado: 2026-05-21 | Inicio objetivo: Junio 2026
+> **Documento histórico.** Para ejecución actual usar `marketing/strategy/90-day-plan.md`, `marketing/backlog.md` y `marketing/memory/decisions.md`.
 
 ## Resumen
 
@@ -31,7 +32,7 @@ Outbound quirúrgico + prueba pública LinkedIn/X + 1 lead magnet ROI = primeros
 | # | Mensaje | Prueba |
 |---|---------|--------|
 | 1 | Primer agente en 2 semanas, no 6 meses | Timeline + demo en vivo |
-| 2 | Si no recupera 3x en 90 días, no cobramos retainer | Calculadora ROI + case study |
+| 2 | Entrega corta y precio visible antes de ampliar alcance | `/cotizar` + diagnóstico acreditable |
 | 3 | Hecho para LATAM (MercadoPago, Tiendanube, WhatsApp Business API) | Integraciones LATAM-native |
 | 4 | Sin lock-in técnico — tu agente sigue funcionando si te vas | Arquitectura documentada |
 
@@ -43,7 +44,7 @@ Outbound quirúrgico + prueba pública LinkedIn/X + 1 lead magnet ROI = primeros
 | Canal | Uso | Frecuencia |
 |-------|-----|-----------|
 | LinkedIn personal fundador | Posts tesis + caso + howto | 1/día |
-| Blog creativ3.com | Case study + guías técnicas (SEO LATAM) | 2-3/sem |
+| Blog allok.fun | Case study + guías técnicas (SEO LATAM) | 2-3/sem |
 | Newsletter | "Automatización LATAM Semanal" | 1/sem |
 | Loom demos | Video 3-5min agente real | On demand |
 
@@ -144,7 +145,7 @@ Outbound quirúrgico + prueba pública LinkedIn/X + 1 lead magnet ROI = primeros
 
 ---
 
-## 9. Próximos Pasos (Inicio Junio)
+## 9. Próximos Pasos (referencia histórica; reemplazados por el plan 2026-W32)
 
 ### Semana 1
 1. Elegir 2 verticales foco → recomendado: **e-commerce + clínicas estéticas**

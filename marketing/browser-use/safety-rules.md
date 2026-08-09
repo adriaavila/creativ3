@@ -24,7 +24,7 @@ Reglas duras para cualquier automatización con navegador. Prevalecen sobre cual
 ## Prohibiciones absolutas
 
 - Eludir controles de seguridad, rate limits o detección de automatización.
-- Usar identidades falsas o cuentas que no sean las autorizadas de creativv.
+- Usar identidades falsas o cuentas que no sean las autorizadas de allok.
 - Enviar spam o mensajes masivos no autorizados.
 - Publicar contenido que no esté en `content/approved/`.
 - Comprar servicios, contratar publicidad o aceptar términos de pago.

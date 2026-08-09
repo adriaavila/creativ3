@@ -7,14 +7,77 @@ import { FREE_TEXT_WINDOW_MS, freeTextWindow } from "@/lib/whatsapp-window";
 import { matchAutoReply } from "@/lib/auto-reply";
 import { statusOutranks } from "@/lib/whatsapp-inbox-db";
 import { composeSystemPrompt, resolveAutoReplyText } from "@/lib/tenant-bot-config";
-import { buildOnboardingUrl, toWorkspaceSlug } from "@/components/ops/OnboardingLinkGenerator";
+import { buildOnboardingUrl, toWorkspaceSlug } from "@/lib/meta/onboarding-link";
 import { normalizeMetaWebhook } from "@/lib/meta/cloud-whatsapp-provider";
-import { listMessageTemplates } from "@/lib/meta/server";
+import { crmChannelStatusLabel, isCrmChannelActive } from "@/lib/crm-channels";
+import {
+  createMetaOnboardingInvite,
+  createMetaSignupState,
+  listMessageTemplates,
+  resolveMetaSignupConnection,
+  verifyMetaOnboardingInvite,
+  verifyMetaSignupState,
+} from "@/lib/meta/server";
 
 test("normalizes a WhatsApp number to the CRM contact id", () => {
   assert.equal(normalizeWhatsAppId("+58 (412) 555-0198"), "584125550198");
   assert.equal(isWhatsAppId("+584125550198"), true);
   assert.equal(isWhatsAppId("123"), false);
+});
+
+test("treats a confirmed Coexistence sync request as an operational CRM channel", () => {
+  assert.equal(isCrmChannelActive({ status: "coexistence_sync_requested" }), true);
+  assert.equal(
+    crmChannelStatusLabel({ status: "coexistence_sync_requested", official: true }),
+    "Operativo",
+  );
+  assert.equal(
+    crmChannelStatusLabel({ status: "coexistence_sync_action_required", official: true }),
+    "Requiere atención",
+  );
+});
+
+test("binds public Embedded Signup state to its workspace and mode", () => {
+  const previousSecret = process.env.META_APP_SECRET;
+  process.env.META_APP_SECRET = "test-meta-secret";
+
+  try {
+    const state = createMetaSignupState("optica-central", "META_COEXISTENCE");
+    assert(state);
+    const verified = verifyMetaSignupState(state);
+    assert(verified);
+    assert.equal(verified.workspace, "optica-central");
+    assert.equal(verified.connection_mode, "META_COEXISTENCE");
+    assert.equal(typeof verified.issued_at, "number");
+    assert.equal(typeof verified.expires_at, "number");
+    assert.equal(typeof verified.nonce, "string");
+    assert.equal(verifyMetaSignupState(`${state}tampered`), null);
+  } finally {
+    if (previousSecret === undefined) delete process.env.META_APP_SECRET;
+    else process.env.META_APP_SECRET = previousSecret;
+  }
+});
+
+test("requires a signed, expiring invitation for public onboarding", () => {
+  const previousSecret = process.env.META_APP_SECRET;
+  process.env.META_APP_SECRET = "test-meta-secret";
+
+  try {
+    const invite = createMetaOnboardingInvite("optica-central", "META_COEXISTENCE");
+    assert(invite);
+    const verified = verifyMetaOnboardingInvite(invite);
+    assert(verified);
+    assert.equal(verified.purpose, "meta_onboarding_invite");
+    assert.equal(verified.workspace, "optica-central");
+    assert.equal(verified.connection_mode, "META_COEXISTENCE");
+    assert.equal(typeof verified.issued_at, "number");
+    assert.equal(typeof verified.expires_at, "number");
+    assert.equal(typeof verified.nonce, "string");
+    assert.equal(verifyMetaOnboardingInvite(`${invite}tampered`), null);
+  } finally {
+    if (previousSecret === undefined) delete process.env.META_APP_SECRET;
+    else process.env.META_APP_SECRET = previousSecret;
+  }
 });
 
 test("shows a real phone and hides provider ids", () => {
@@ -55,6 +118,124 @@ test("keeps the profile name and phone from Meta contacts", () => {
   if (event?.type === "message.received") {
     assert.equal(event.message.from, "584125550198");
     assert.equal(event.message.contactName, "Ana");
+  }
+});
+
+test("normalizes official Coexistence history without guessing its direction", () => {
+  const events = normalizeMetaWebhook({
+    object: "whatsapp_business_account",
+    entry: [{
+      id: "waba",
+      changes: [{
+        field: "history",
+        value: {
+          metadata: { display_phone_number: "15550783881", phone_number_id: "business" },
+          history: [{
+            metadata: { phase: 0, chunk_order: 1, progress: 25 },
+            threads: [{
+              id: "16505551234",
+              messages: [
+                {
+                  from: "16505551234",
+                  id: "history-in",
+                  timestamp: "1738796547",
+                  type: "text",
+                  text: { body: "Hola" },
+                  history_context: { status: "delivered" },
+                },
+                {
+                  from: "15550783881",
+                  to: "16505551234",
+                  id: "history-out",
+                  timestamp: "1738796550",
+                  type: "text",
+                  text: { body: "Hola, ¿cómo te ayudo?" },
+                  history_context: { status: "read" },
+                },
+              ],
+            }],
+          }],
+        },
+      }],
+    }],
+  });
+
+  assert.equal(events.length, 2);
+  assert.equal(events[0]?.type, "message.received");
+  assert.equal(events[1]?.type, "message.received");
+  if (events[0]?.type === "message.received" && events[1]?.type === "message.received") {
+    assert.equal(events[0].message.direction, "inbound");
+    assert.equal(events[0].message.source, "cloud_api");
+    assert.equal(events[0].message.contactPhone, "16505551234");
+    assert.equal(events[0].message.status, "delivered");
+    assert.equal(events[1].message.direction, "outbound");
+    assert.equal(events[1].message.source, "business_app");
+    assert.equal(events[1].message.status, "read");
+  }
+});
+
+test("normalizes official Coexistence contact sync events", () => {
+  const [event] = normalizeMetaWebhook({
+    object: "whatsapp_business_account",
+    entry: [{
+      id: "waba",
+      changes: [{
+        field: "smb_app_state_sync",
+        value: {
+          metadata: { phone_number_id: "business" },
+          state_sync: [{
+            type: "contact",
+            contact: {
+              full_name: "Pablo Morales",
+              first_name: "Pablo",
+              phone_number: "16505551234",
+            },
+            action: "add",
+            metadata: { timestamp: "1738346006" },
+          }],
+        },
+      }],
+    }],
+  });
+
+  assert(event?.type === "contact.updated");
+  if (event?.type === "contact.updated") {
+    assert.equal(event.contactPhone, "16505551234");
+    assert.equal(event.contactName, "Pablo Morales");
+    assert.equal(event.action, "add");
+  }
+});
+
+test("accepts a browser phone id only when it belongs to the supplied WABA", async () => {
+  const originalFetch = globalThis.fetch;
+  let listedPhoneId = "different-phone";
+  globalThis.fetch = async (input) => {
+    assert.match(String(input), /\/waba-1\/phone_numbers/);
+    return Response.json({
+      data: [{ id: listedPhoneId, display_phone_number: "+15550001111" }],
+    });
+  };
+
+  const input = {
+    payload: {
+      code: "one-time-code",
+      waba_id: "waba-1",
+      phone_number_id: "phone-1",
+      connection_mode: "META_COEXISTENCE" as const,
+    },
+    debugData: {},
+    businessToken: "business-token",
+    graphVersion: "v25.0",
+  };
+
+  try {
+    assert.equal(await resolveMetaSignupConnection(input), null);
+    listedPhoneId = "phone-1";
+    const resolved = await resolveMetaSignupConnection(input);
+    assert.equal(resolved?.payload.waba_id, "waba-1");
+    assert.equal(resolved?.phoneProfile.id, "phone-1");
+  } finally {
+    globalThis.fetch = originalFetch;
   }
 });
 
@@ -259,11 +440,11 @@ test("onboarding links carry a safe workspace slug and the right mode", () => {
   assert.ok(toWorkspaceSlug("x".repeat(200)).length <= 80);
 
   assert.equal(
-    buildOnboardingUrl("https://allok.fun", "panaderia-rosa", false),
-    "https://allok.fun/embedded-whatsapp?workspace=panaderia-rosa",
+    buildOnboardingUrl("https://allok.fun", "panaderia-rosa", false, "signed-invite"),
+    "https://allok.fun/embedded-whatsapp?client=panaderia-rosa&invite=signed-invite",
   );
   assert.equal(
-    buildOnboardingUrl("https://allok.fun", "panaderia-rosa", true),
-    "https://allok.fun/embedded-whatsapp?workspace=panaderia-rosa&mode=cloud_api",
+    buildOnboardingUrl("https://allok.fun", "panaderia-rosa", true, "signed-invite"),
+    "https://allok.fun/embedded-whatsapp?client=panaderia-rosa&mode=cloud_api&invite=signed-invite",
   );
 });

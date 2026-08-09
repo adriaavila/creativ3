@@ -8,9 +8,9 @@ import {
 } from "@/lib/projects";
 
 export const metadata: Metadata = {
-  title: "Trabajos · allok",
+  title: "Trabajos · Allok",
   description:
-    "Trabajos recientes de allok: webs, web apps y automatizaciones en producción, sincronizados desde GitHub.",
+    "Trabajos recientes de Allok: sistemas comerciales, web apps y automatizaciones en producción, sincronizados desde GitHub.",
   alternates: { canonical: "/projects" },
 };
 
@@ -22,25 +22,24 @@ export default function ProjectsIndex() {
 
   return (
     <>
-      <main className="studio relative z-10 min-h-screen bg-white px-6 pb-28 pt-32 text-black selection:bg-[#c5f04a] selection:text-black sm:px-10 sm:pt-40">
+      <main className="min-h-screen px-6 pb-28 pt-32 sm:px-10 sm:pt-40">
         <div className="mx-auto max-w-7xl">
           <section className="mb-14 grid grid-cols-1 gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-end">
             <div>
-              <span className="font-mono text-xs uppercase tracking-[0.24em] text-neutral-500">
+              <span className="font-mono text-xs uppercase tracking-[0.24em] text-[var(--text-tertiary)]">
                 Trabajos · Sync con GitHub
               </span>
               <h1
-                className="mt-5 font-normal leading-[0.92] tracking-tight text-black"
-                style={{ fontSize: "clamp(52px, 9vw, 150px)" }}
+                className="mt-5 font-medium leading-[0.94] tracking-tight text-[var(--text-primary)]"
+                style={{ fontSize: "clamp(48px, 8vw, 120px)" }}
               >
-                Trabajos
+                Sistemas
                 <br />
-                <span className="italic text-[#587615]">en producción.</span>
+                <span className="text-[var(--lima)]">en producción.</span>
               </h1>
-              <p className="mt-7 max-w-2xl text-base leading-relaxed text-neutral-600 sm:text-lg">
-                Cada tarjeta es un sistema real: quién lo usa, qué problema
-                resuelve y qué stack lo sostiene. Sin mockups, capturas del
-                producto funcionando.
+              <p className="mt-7 max-w-2xl text-base leading-relaxed text-[var(--text-secondary)] sm:text-lg">
+                Cada tarjeta es un sistema real: quién lo usa, qué problema resuelve y qué stack lo sostiene. Sin
+                mockups, capturas del producto funcionando.
               </p>
             </div>
 
@@ -52,12 +51,12 @@ export default function ProjectsIndex() {
               ].map(([label, value]) => (
                 <div
                   key={label}
-                  className="rounded-2xl border border-black/10 bg-[var(--studio-surface)] p-4 text-black"
+                  className="rounded-[var(--r-lg)] border border-[var(--line)] bg-[var(--surface-1)] p-4"
                 >
-                  <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-neutral-500">
+                  <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--text-tertiary)]">
                     {label}
                   </div>
-                  <div className="mt-2 text-2xl font-semibold tracking-tight text-black">
+                  <div className="mt-2 text-2xl font-medium tracking-tight text-[var(--text-primary)]">
                     {value}
                   </div>
                 </div>
@@ -65,21 +64,17 @@ export default function ProjectsIndex() {
             </div>
           </section>
 
-          <ProjectsGallery
-            projects={PORTFOLIO_PROJECTS}
-            tone="light"
-            variant="page"
-          />
+          <ProjectsGallery projects={PORTFOLIO_PROJECTS} variant="page" />
 
-          <div className="mt-20 flex flex-col items-start gap-4 border-t border-black/10 pt-8 sm:flex-row sm:items-center sm:justify-between">
-            <p className="font-mono text-sm text-neutral-600">
-              Tu sistema puede ser el próximo en esta lista.
+          <div className="mt-20 flex flex-col items-start gap-4 border-t border-[var(--line)] pt-8 sm:flex-row sm:items-center sm:justify-between">
+            <p className="font-mono text-sm text-[var(--text-secondary)]">
+              Tu sistema comercial puede ser el próximo en esta lista.
             </p>
             <Link
               href="/cotizar"
-              className="inline-flex items-center gap-2 rounded-full bg-black px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-neutral-800"
+              className="inline-flex items-center gap-2 rounded-full bg-[var(--lima)] px-5 py-2.5 text-sm font-semibold text-[var(--lima-ink)] transition-transform hover:-translate-y-0.5"
             >
-              Pedir diagnóstico
+              Diseñar mi sistema
             </Link>
           </div>
         </div>

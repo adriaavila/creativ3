@@ -29,7 +29,7 @@ export default function CustomerPortalButton({
         if (body.url) window.location.assign(body.url);
         else setLoading(false);
       }}
-      className="rounded-full border border-black/15 px-7 py-3 text-sm font-semibold transition-colors duration-200 hover:border-black disabled:opacity-60"
+      className="rounded-full border border-[var(--line)] px-7 py-3 text-sm font-semibold text-[var(--text-primary)] transition-colors duration-200 hover:bg-[var(--surface-2)] disabled:opacity-60"
     >
       {loading ? "…" : label}
     </button>

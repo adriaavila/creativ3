@@ -1,148 +1,164 @@
 # Meta WhatsApp production state
 
-Snapshot: 2026-07-31 (America/Caracas)
+Snapshot: **2026-08-08 (America/Caracas)**. This file contains no credentials.
 
-This is the operational source of truth for the allok Meta WhatsApp integration. It records what was verified, what is deployed, and what still requires a real business owner action. It contains no credentials.
+## Verdict
 
-## Current verdict
+Allok WhatsApp Coexistence is implemented and suitable for a supervised pilot;
+fresh-onboarding E2E acceptance still requires the number owner. Existing
+production traffic is healthy. The public onboarding blocker was fixed,
+Facebook Login v4 opens correctly, Meta callbacks and webhooks are on Allok,
+Neon persistence is healthy, and n8n recovery is healthy.
 
-The application and infrastructure are hardened for a supervised Coexistence pilot. The final real-message acceptance test is not complete because the verified SAMER portfolio has no phone number attached, while the existing production WhatsApp Business App number belongs to a separate, unverified portfolio. Meta's Embedded Signup is currently stopped at the business owner's legal acceptance and asset-selection step.
+One acceptance step remains owner-dependent: complete a fresh v4 onboarding (or
+eligible re-onboarding) through WABA/number selection so the new one-shot
+contact/history imports can be observed from Meta. Existing production evidence
+already proves inbound messages, mobile-app echoes, Cloud API sending and queue
+processing.
 
-Do not describe the integration as fully production-accepted until the checklist under **Real acceptance test** passes with an eligible number.
+## Meta configuration verified
 
-## What the business owner sees in allok
-
-The `/embedded-whatsapp` screen uses Meta Embedded Signup with the Coexistence variation. The owner does not paste a token into allok or enter a phone credential in the browser:
-
-1. An authenticated Ops user opens the connection screen and chooses **Conectar con Meta**.
-2. Meta opens the official flow. The owner authorizes the verified business, accepts Meta's terms, and selects the WhatsApp Business App number to connect.
-3. Meta returns a short-lived authorization code and the selected WABA/phone identifiers. allok exchanges the code on the server, resolves the phone profile, subscribes the WABA to the app, and stores the encrypted business token and connection metadata in Neon.
-4. The number remains usable in the WhatsApp Business App under Coexistence. The Cloud API powers the allok inbox, delivery states, team workflows, and supervised automation.
-
-The connection card shows the stored display phone number, verified name, connection mode, status, name status, and quality rating when Meta provides them. A successful connection is not a promise that all historical app messages will appear: incoming messages and supported status/echo events are delivered through Meta webhooks, while `history` and `smb_app_state_sync` remain deliberately unclaimed until real Meta fixtures are verified.
-
-Meta's messaging rules still apply. Free-form replies are available inside the 24-hour customer-care window; outside that window, the CRM must use an approved template. Coexistence does not remove that policy.
-
-Official references:
-
-- [Onboard WhatsApp Business App users with Coexistence](https://developers.facebook.com/docs/whatsapp/embedded-signup/custom-flows/onboarding-business-app-users/)
-- [Cloud API get started](https://developers.facebook.com/docs/whatsapp/cloud-api/get-started)
-- [Cloud API phone numbers](https://developers.facebook.com/docs/whatsapp/cloud-api/phone-numbers)
-- [Cloud API registration](https://developers.facebook.com/docs/whatsapp/cloud-api/registration)
-
-## Verified Meta configuration
-
-- Meta app: `servicioscreativos` (`4459170630986606`), published.
-- Business: SAMER, verified and registered as a Tech Provider.
-- Advanced access verified in the dashboard for `whatsapp_business_management` and `whatsapp_business_messaging`.
-- Facebook Login for Business configuration: `1242395401244814`, Coexistence Embedded Signup variation.
-- Production domain: `allok.fun`.
-- OAuth redirects include `https://allok.fun/embedded-whatsapp` and `https://allok.fun/`.
-- JavaScript SDK domain includes `allok.fun`; client OAuth, web OAuth, HTTPS enforcement, strict redirect mode, JavaScript login, and embedded-browser OAuth are enabled.
+- Published app: `servicioscreativos` (`4459170630986606`).
+- Business portfolio shown by Facebook Login: **SAMER**, verified Tech Provider.
+- Coexistence Embedded Signup v4 config: `1529564728405358`.
+- Plain Cloud API config: `2209746449804987`.
+- Old Coexistence v2 config: `1242395401244814`; obsolete and no longer used by
+  Vercel/local runtime. Meta retires v2 on 2026-10-15.
+- Graph API: `v25.0`.
+- Required permissions: `whatsapp_business_management` and
+  `whatsapp_business_messaging`.
 - Deauthorization callback: `https://allok.fun/api/meta/deauthorize`.
-- Data deletion callback: `https://allok.fun/api/meta/data-deletion`.
-- WhatsApp webhook callback: `https://allok.fun/api/meta/whatsapp/webhook`, Graph API `v25.0`.
-- Subscribed fields visible in Meta: `account_update`, `history`, `messages`, `smb_app_state_sync`, and `smb_message_echoes`.
-- Opening the live onboarding launches the correct Coexistence flow and requests the expected WhatsApp permissions.
+- Data-deletion callback: `https://allok.fun/api/meta/data-deletion`.
+- WhatsApp callback: `https://allok.fun/api/meta/whatsapp/webhook`.
+- Subscribed fields: `account_update`, `history`, `messages`,
+  `smb_app_state_sync`, `smb_message_echoes`.
 
-The dashboard also shows that SAMER's WABA has no phone number. The existing high-quality WhatsApp Business App number is in another portfolio. Moving/selecting that asset and accepting Meta's displayed terms is a business-owner action, not an application defect.
+The live popup reached `facebook.com/v25.0/dialog/oauth`, used config v4 and
+displayed the expected Embedded Signup introduction. It currently presents the
+partner name **SAMER** to customers. Keep it if that is the intended legal name;
+otherwise branding must be changed in Meta Business/App settings, not in Allok.
 
-## Deployed application behavior
+Official references: [Coexistence onboarding](https://developers.facebook.com/documentation/business-messaging/whatsapp/embedded-signup/onboarding-business-app-users) and [Embedded Signup v4](https://developers.facebook.com/documentation/business-messaging/whatsapp/embedded-signup/version-4).
 
-### Onboarding and tenancy
+## Application behavior deployed
 
-- `/embedded-whatsapp` and all exchange/config/disconnect endpoints require a signed allok Ops session.
-- Workspace identifiers are allowlisted and are bound server-side; client-supplied user/team/account ownership is discarded.
-- The authorization code is exchanged only on the server.
-- The connected business, WABA, phone number, profile, status, encrypted token, and `META_COEXISTENCE` mode are stored in Neon.
-- A reconnect action is available. Disconnect uses the stored encrypted credential and only unsubscribes the app for Coexistence; it does not deregister the number from the WhatsApp Business app.
-- The UI reads the real stored connection state instead of assuming success.
+- Production deployment: `dpl_4fQoVDyY5v42xMpKeWCZUFSo1v6y`, `Ready` and
+  aliased to `https://allok.fun` on 2026-08-08.
+- Ops creates a signed seven-day invitation. A customer opens
+  `/embedded-whatsapp?client=<workspace>&invite=<signed>` without Ops login.
+- A missing/expired invite renders a safe customer message; the config API
+  rejects it with `403`.
+- The 15-minute signup `state` is separately signed and bound to workspace and
+  `META_COEXISTENCE`/`META_CLOUD_API` mode.
+- Code exchange, token validation and Graph calls occur server-side. Tokens are
+  encrypted before Neon storage and are never forwarded to n8n.
+- Allok persists the token, IDs and encrypted Cloud API PIN before any WABA
+  subscription or phone registration, so an interrupted final status update is
+  recoverable without inventing a new PIN.
+- Coexistence never calls `/{PHONE_ID}/register` or `/deregister`.
+- After WABA subscription, Allok verifies `is_on_biz_app`/`platform_type` and
+  makes each allowed `/{PHONE_ID}/smb_app_data` request once: contacts and
+  history. Outcomes are stored in connection metadata.
+- `history` normalizes exact thread/message direction and historical status;
+  existing unique `wa_message_id` enforces idempotency.
+- `smb_app_state_sync` upserts/removes the contact display name without creating
+  a fake message.
+- A customer-declined history import (`2593109`) is recorded as a valid no-op,
+  not a poisoned queue item.
+- Lifecycle callbacks update/delete Neon first. n8n notification is best effort,
+  so an n8n outage cannot make Meta's deauthorization/data-deletion callback fail.
 
-Current ceiling: this is secure operator-assisted, multi-workspace onboarding. It is not customer self-service identity isolation; all workspaces are administered behind the shared Ops access gate. Add customer identity/organization membership before exposing onboarding directly to unrelated customers.
+## Production evidence
 
-### Provider boundary
+At the snapshot:
 
-`WhatsAppProvider` and `MetaCloudWhatsAppProvider` isolate Graph operations from the inbox and sales workflow. The provider implements connection status, text/media sending, read receipts, normalization, and mode-aware disconnect. Stored connections explicitly use `META_CLOUD_API` or `META_COEXISTENCE`.
+- Meta queue: 1.816 `processed`, 0 `pending`, 0 `failed`.
+- Connections: one `META_COEXISTENCE` and one `META_CLOUD_API`, both subscribed.
+- Coexistence messages only: 587 inbound/API, 674 outbound/phone and 1
+  outbound/API. Cloud API pure separately had 3 inbound/API and 2 outbound/AI.
+  Recent real inbound and app-echo traffic was present on 2026-08-08.
+- A real Neon integration check persisted and removed inbound, historical
+  inbound/outbound and contact-sync fixtures; it verified durable enqueue,
+  webhook dedup, message idempotency and cleanup.
+- Signed production deauthorization and data-deletion probes returned success;
+  n8n executions `11043` and `11044` both completed successfully.
+- Webhook handshake returned its challenge; a bad signature returned `401`.
+- Authenticated drain returned zero pending/failed work.
+- Public signed onboarding returned `200`, used app `4459170630986606`, config
+  `1529564728405358`, Graph `v25.0`, and did not redirect to `/ops-login`.
 
-### Webhook safety
+## n8n/VPS state
 
-- Verification challenge and raw-body `X-Hub-Signature-256` HMAC verification are enforced.
-- Payloads over 2 MB are rejected.
-- A signed payload is inserted into `meta_whatsapp_webhook_events` before HTTP acknowledgement.
-- SHA-256 event keys and the existing unique message ID index provide delivery and message deduplication.
-- Processing is asynchronous after acknowledgement, with row locking, stuck-job recovery, ten attempts, exponential backoff, and structured logs that contain IDs/counts rather than message contents or tokens.
-- A protected drain endpoint is called every minute by n8n; the Vercel Hobby-compatible daily cron is a fallback.
-- Ops diagnostics shows pending, processed, and failed event counts.
-- `messages`, message statuses, `account_update`, and `smb_message_echoes` normalize to internal events and update the shared inbox.
-- Unknown, malformed, `history`, and `smb_app_state_sync` shapes remain durable and visible as failed events. They are deliberately not guessed. Capture real dashboard fixtures before enabling history/contact-state parsing.
+- URL: `https://n8n.frontia.app`.
+- Version/image: `docker.n8n.io/n8nio/n8n:2.29.10`, pinned on 2026-08-07.
+- Container health after controlled recreation: running, zero restarts,
+  `/healthz` OK.
+- Before the change, a consistent SQLite snapshot passed `PRAGMA integrity_check`
+  and was stored at
+  `/data/dumps/n8n-pre-allok-coexistence-20260807.sqlite`.
+- `allok - Drain Meta Webhook Queue` (`Yf3mR8qK2vL7sN5p`) remains active. It had
+  10.080 successes and zero errors over seven days; execution `11035` succeeded
+  after the version-pinned restart. Executions `12057`–`12059` also succeeded
+  after the final Allok production deployment.
+- `Meta Embedded Signup - Tech Provider` (`EA6f6q8SZkewllyJ`) remains active only
+  for lifecycle/diagnostic notifications; it does not exchange or store tokens.
+- Obsolete direct `Meta deauthorize` and `Meta data deletion` workflows were
+  unpublished. Meta now calls the durable Allok routes.
 
-Tenant resolution uses the Meta `phone_number_id` as the Cloud API channel key and resolves it through the encrypted `whatsapp_connections` inventory. No webhook calls an LLM or forwards raw message payloads/tokens to n8n.
-
-### Human supervision
-
-- New conversations default to `assigned_mode='human'`.
-- The inbox's AI action only creates a suggestion; sending requires an operator action.
-- Three autonomous/duplicate n8n paths were unpublished: `WCEv8bH3K2mQpR7x`, `GPivmpnxybZTGKUs`, and `anmJandpqVJXUyzb`.
-- Public probes of their former webhook paths return `404`, with no new executions.
-- The Embedded Signup, Meta lifecycle, and verification workflows remain active.
-
-## Infrastructure state
-
-- allok is deployed by the GitHub/Vercel integration; it is not a Coolify workload.
-- Production commit `cd8ba2f402b2c1c9b2ed77ad1e261011e07f0d0c` was merged through [PR #5](https://github.com/adriaavila/creativ3/pull/5) and deployed successfully by Vercel as `6NfmQA7MVxLwKUqzSmUKNvws8CSY`. The production alias and protected onboarding redirect were checked in a signed-in browser.
-- Neon migrations `010_meta_whatsapp_webhook_events.sql`, `011_waha_connection_lifecycle.sql`, and `012_waha_webhook_queue.sql` are applied. At the time of this snapshot there are zero customer connections and zero retained test events/messages.
-- Production has the required Meta, database, token-encryption, n8n, WAHA HMAC, and cron variables. Values were not printed or copied into this repository.
-- The production WAHA HMAC was synchronized with the live VPS session configuration. Live check: valid signature `200`; tampered and missing signatures `401`.
-- n8n and both WAHA containers are healthy. WAHA session directories are `0700`; files are `0600`.
-- n8n workflow `Yf3mR8qK2vL7sN5p` drains the durable Meta and WAHA queues every minute. Five consecutive post-restart executions (`462`-`466`) completed successfully, and signed manual drains returned no failed events.
-- The legacy Embedded Signup workflow `EA6f6q8SZkewllyJ` was replaced with the lifecycle/diagnostic-only definition. Its retained empty static-data container was cleared directly from the stopped SQLite database; the post-restart export is active and has no static data, credential field, or static-data call.
-- n8n's pre-change database and workflow exports are stored under `/data/n8n/backups/` with mode `0600`. The baseline snapshot is `20260731T140452Z`; the exact legacy workflow export is `workflow-EA6f6q8SZkewllyJ-20260731T145704Z.json`, and the pre-static-clear database is `database-pre-meta-static-clear-20260731T150354Z.sqlite`.
-
-Known infrastructure debt:
-
-- VPS TCP `6001/6002` are Coolify Realtime/terminal ports, not WAHA origins. They and SSH `22` were reachable from the current ProtonVPN egress even though the VPS harness says Hostinger drops all non-Cloudflare public traffic. Reconcile the attached Hostinger firewall and the required Coolify terminal/emergency-SSH access policy before changing rules; the harness requires explicit confirmation for firewall changes. Do not enable UFW blindly on this Docker/Coolify host.
-- Coolify named volumes are not included in the current `/data` restic backup scope.
-- n8n runs as one `latest` container without a worker/queue topology. This is adequate for the current empty/pilot load, not for high-volume multi-tenant delivery.
-
-## Verification evidence
-
-Run from the repository root:
+## Verification commands
 
 ```bash
-pnpm check:meta-provider
-pnpm check:webhook-signature
-pnpm check:waha-security
-WEBHOOK_DB_CHECK=1 pnpm check:meta-webhook-db
-WAHA_WEBHOOK_DB_CHECK=1 node --env-file=.env.local --import tsx scripts/check-waha-webhook-db.ts
-pnpm exec tsc --noEmit --incremental false
-pnpm lint
+pnpm test
+pnpm run check:meta-provider
+pnpm exec tsc --noEmit
 pnpm build
-node --env-file=.env.local scripts/waha-webhook-check.mjs https://allok.fun
+WEBHOOK_DB_CHECK=1 node --env-file=.env.local --import tsx scripts/check-meta-webhook-db.ts
+node --env-file=.env.local scripts/meta-embedded-signup-diagnostics.mjs --test-n8n
+node --env-file=.env.local --import tsx scripts/check-meta-coexistence-acceptance.ts <PHONE_NUMBER_ID>
 ```
 
-The 2026-07-31 gate passed provider Graph/normalization checks, immutable WAHA purchase ownership and active-subscription checks, signature tamper cases, real Neon durable-enqueue/dedup/process/cleanup round trips for Meta and WAHA, TypeScript, full ESLint, and the optimized Next `16.2.12` build. The production database was rechecked after cleanup and contained zero connections, events, conversations, and messages.
+The 2026-08-08 run passed 31/31 tests, provider Graph request checks, TypeScript,
+the Next.js 16.2.12 production build and the live Neon round trip.
 
-Production smoke checks also passed: Ops login `303` and authenticated diagnostics `200`; database, n8n, and callback checks healthy; Meta verification challenge `200`; a correctly signed Meta payload `200`, processed exactly once, then removed; unsigned/tampered Meta and WAHA requests rejected; and WAHA valid/tampered/missing signatures returned `200/401/401`. Missing diagnostic variables are optional growth-agent/Postiz alternatives, not dependencies of the Meta WhatsApp path.
+## Owner acceptance checklist
 
-Unused CLI/UI dependencies were removed, `next` and `eslint-config-next` were updated to `16.2.12`, and patched `sharp`, `postcss`, and Babel resolutions are locked. `pnpm why` confirms the patched resolved graph; the npm audit service may still attribute advisories to Next's declared ranges.
+1. Generate a new signed Coexistence URL in Ops.
+2. Complete Meta's WABA/number selection with an eligible WhatsApp Business App
+   owner and explicitly choose whether to share contacts/history.
+3. Confirm the connection status is `coexistence_sync_requested`, not
+   `coexistence_sync_action_required`.
+4. Confirm a real `smb_app_state_sync` contact and at least one `history` chunk
+   are processed, or document that the owner declined history.
+5. Send one inbound message and one Allok reply; verify delivery/read status.
+6. Send one reply from the mobile app; verify exactly one outbound `phone` echo.
+7. Disconnect from Allok and confirm the mobile app remains registered.
+8. Reconnect and repeat one inbound/outbound cycle.
 
-## Real acceptance test
+After steps 2–6, run the safe acceptance command above with the selected
+`PHONE_NUMBER_ID`. It prints no token, PIN, nonce or message body. Save its JSON
+next to the onboarding date and workspace. Required evidence is:
 
-This requires the business owner and an eligible WhatsApp Business App number:
+- connection mode `META_COEXISTENCE`, a completed sync state and no
+  `coexistence_sync_action_required` status;
+- processed `messages` and `smb_message_echoes` rows;
+- processed `smb_app_state_sync` and `history` rows when the owner authorized
+  them, or `history_declined > 0` when Meta reports code `2593109`;
+- at least one inbound/API message, one outbound/API message and one
+  outbound/phone echo for the full send/receive acceptance.
 
-1. Sign in to allok Ops and open `/embedded-whatsapp?workspace=<workspace>`.
-2. Continue through Meta's displayed SAMER authorization and accept its terms.
-3. Select or move an eligible WhatsApp Business App number into the verified portfolio and complete Coexistence onboarding.
-4. Confirm WABA/phone identifiers and encrypted connection state appear in allok Ops for the intended workspace.
-5. Send one inbound WhatsApp message; confirm one conversation and one message appear for that phone/workspace.
-6. Send an operator-approved reply from the platform within the 24-hour window; confirm receipt and delivery/read status.
-7. Reply from the WhatsApp Business mobile app; confirm one `smb_message_echoes` outbound message appears with source `phone`.
-8. Request an AI suggestion, take over manually, and confirm no autonomous n8n/agent reply is emitted.
-9. Disconnect from allok; confirm the mobile WhatsApp Business app remains registered and usable.
-10. Reconnect and repeat one inbound/outbound cycle.
+If a queue row reaches `failed`, do not blindly reset it or repeat
+`/smb_app_data`. Inspect `last_error`, fix the processor/root cause, then have an
+operator move only the identified webhook row back to `pending`. A one-shot
+contact/history request that failed ambiguously requires Meta review or a new
+eligible onboarding, not an automatic retry.
 
-Until those ten checks pass, message-history sync, contact-state sync, phone-change behavior, and mobile interruption recovery are unverified and must not be promised to customers.
+Until steps 2–8 are repeated with the owner's chosen number, advertise history
+as “available when authorized and delivered by Meta,” not as a guaranteed full
+backup.
 
-## n8n rollback
+## Security note
 
-The three unpublished workflows can be restored from the `20260731T140452Z` exports or republished with their recorded version IDs. The Embedded Signup workflow can be restored from `workflow-EA6f6q8SZkewllyJ-20260731T145704Z.json`; restore the whole pre-clear database only as a last resort because it reintroduces the obsolete static-data container. Only republish autonomous message workflows after adding tenant lookup, idempotency, human-takeover checks, and no plaintext token storage. Restart only n8n after a CLI publish, then retest execution counts and public webhook registration.
+Never put App Secrets, verify tokens, n8n secrets, database URLs or access tokens
+in notes, source control or client-side variables. Any credential previously
+copied into a chat or note should be rotated in Meta/Vercel/n8n even if the chat
+is private. IDs and callback URLs above are identifiers, not credentials.

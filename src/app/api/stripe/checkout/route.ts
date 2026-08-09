@@ -38,7 +38,8 @@ export async function POST(request: NextRequest) {
 
     const stripe = new Stripe(secret, { apiVersion: "2026-04-22.dahlia" });
     const origin =
-      process.env.NEXT_PUBLIC_URL ??
+      process.env.NEXT_PUBLIC_APP_URL ??
+      process.env.APP_URL ??
       request.headers.get("origin") ??
       "http://localhost:3000";
     const successPath =

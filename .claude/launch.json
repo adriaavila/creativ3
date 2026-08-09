@@ -37,6 +37,15 @@
       "port": 3000
     },
     {
+      "name": "allok dev (autoport)",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": [
+        "dev"
+      ],
+      "port": 3000,
+      "autoPort": true
+    },
+    {
       "name": "creativ3 dev (autoport)",
       "runtimeExecutable": "pnpm",
       "runtimeArgs": [

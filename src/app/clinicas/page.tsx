@@ -3,9 +3,9 @@ import VerticalLandingPage from "@/components/landing/VerticalLandingPage";
 import { VERTICALS } from "@/lib/verticals";
 import { serviceJsonLd } from "@/lib/seo";
 
-const TITLE = "Páginas web y agentes IA para clínicas";
+const TITLE = "Sistema comercial para clínicas estéticas y wellness";
 const DESCRIPTION =
-  "Landings premium, desarrollo web a medida y automatizaciones de WhatsApp para clínicas estéticas, wellness y salud privada en Venezuela y LatAm.";
+  "Allok organiza consultas, agenda y seguimiento por WhatsApp para clínicas estéticas, wellness y salud privada en Venezuela y LatAm.";
 
 export const metadata: Metadata = {
   title: TITLE,

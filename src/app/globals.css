@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "tw-animate-css";
 
 @theme inline {
   --color-noche: var(--noche);
@@ -14,13 +15,13 @@
   --color-papiro-soft: var(--papiro-soft);
   --color-guayoyo: var(--guayoyo);
 
-  /* allok is one grotesque, at every size. `font-display` is used on ~40
-     headings across the app; repointing the token retires the serif everywhere
-     in one line rather than editing each call site. */
+  /* allok is one grotesque, at every size. `font-display` is used across the
+     app; repointing the token retires any other face everywhere in one line
+     rather than editing each call site. */
   --font-display: var(--font-grotesk);
   --font-editorial: var(--font-grotesk);
   --font-mono: var(--font-jetbrains);
-  --font-body: var(--font-instrument-sans);
+  --font-body: var(--font-grotesk);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -31,6 +32,10 @@
   --color-secondary-foreground: var(--secondary-foreground);
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
@@ -39,289 +44,160 @@
 
 :root {
   /* ── allok ────────────────────────────────────────────────────
-     One neutral ramp, one accent. The old palette carried navy, sage,
-     forest green, cream and terracotta at once; the waveform mark only
-     works if nothing else in the frame competes with it.
+     One dark system, one accent, shared by the public site and the
+     product. Four surface steps carry hierarchy instead of colour;
+     lima is reserved for actions and active status — it is never a
+     text colour below display size (1.6:1 on the canvas).
 
-     The legacy names stay — 400+ call sites reference them — but they now
-     all point into the neutral ramp, so the whole app moves together.
-     --lima / --lima-electric are the single accent: background under
-     black type, or a mark. Never text on white (1.6:1). */
-  --noche: #08090a;
-  --noche-deep: #050506;
-  --noche-rise: #111214;
-  --ink: #0a0a0a;
-  --ink-rise: #131315;
-  --cobalto: #c5f04a;
-  --monte: #1c1d20;
+     The legacy names stay — 400+ call sites reference them — repointed
+     onto the new ramp so the whole app moves together. */
+  --surface-0: #08090a; /* canvas */
+  --surface-1: #0e0f11; /* section */
+  --surface-2: #141517; /* card */
+  --surface-3: #1b1c1f; /* raised / popover / hover */
+
+  --text-primary: #f2f1ee;
+  --text-secondary: #9a9a97;
+  --text-tertiary: #6c6c69;
+
+  --line-subtle: rgba(242, 241, 238, 0.07);
+  --line: rgba(242, 241, 238, 0.12);
+  --line-strong: rgba(242, 241, 238, 0.2);
+
   --lima: #c5f04a;
   --lima-electric: #d9f77e;
-  --papiro: #f5f5f4;
-  --papiro-soft: #a1a1a3;
-  --guayoyo: #8a8a8a;
-  --background: #ffffff;
-  --foreground: #0a0a0a;
-  --card: #ffffff;
-  --card-foreground: #0a0a0a;
-  --primary: #0a0a0a;
-  --primary-foreground: #ffffff;
-  --secondary: #f3f3f3;
-  --secondary-foreground: #0a0a0a;
-  --muted: #f3f3f3;
-  --muted-foreground: #6b6b6b;
-  --border: rgba(10, 10, 10, 0.1);
-  --input: rgba(10, 10, 10, 0.1);
-  --ring: #0a0a0a;
-  --destructive: #c0392b;
-  --radius: 0.9rem;
+  --lima-ink: #08090a;
+  --lima-dim: rgba(197, 240, 74, 0.14);
 
-  /* ── Studio landing palette ────────────────────────────────
-     Minimal modern: black on white, grey for emphasis, #F3F3F3
-     surfaces, hairline borders, near-imperceptible shadows.
+  --status-ok: #7ee0a8;
+  --status-info: #6cc7e8;
+  --status-warn: #f0c04a;
+  --status-risk: #f08a5a;
+  --status-lost: #e0687a;
 
-     Two greys, not one. The brief's #979797 measures 2.92:1 on
-     white — below the 3:1 minimum for large text and well below
-     the 4.5:1 for body. --studio-muted (#8A8A8A, 3.45:1) carries
-     the display emphasis; --studio-muted-text (#6B6B6B, 5.33:1)
-     carries anything set at body size. Same neutral grey family,
-     legible at both scales. */
-  --studio-fg: #000000;
-  --studio-bg: #ffffff;
-  --studio-muted: #8a8a8a;
-  --studio-muted-text: #6b6b6b;
-  --studio-surface: #f3f3f3;
-  --studio-hairline: #ebebeb;
-  --studio-shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 8px 24px rgba(0, 0, 0, 0.06);
-  /* Single accent. #c5f04a fails contrast as text on white, so it is only ever
-     a background under black type or a mark behind it — never a text colour. */
-  --studio-accent: #c5f04a;
+  --viz-cyan: #55c2d8;
+  --viz-teal: #4fb9a4;
+  --viz-amber: #e8b04b;
+  --viz-violet: #a58ae0;
+  --viz-coral: #e8836b;
+
+  --r-sm: 0.5rem;
+  --r-md: 0.75rem;
+  --r-lg: 1rem;
+  --r-xl: 1.375rem;
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --dur-fast: 120ms;
+  --dur-base: 220ms;
+  --dur-slow: 420ms;
+
+  --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.32);
+  --shadow-2: 0 4px 16px rgba(0, 0, 0, 0.36);
+  --shadow-3: 0 16px 48px rgba(0, 0, 0, 0.44);
+
+  /* Legacy token names, repointed onto the ramp above. */
+  --noche: var(--surface-0);
+  --noche-deep: #050506;
+  --noche-rise: var(--surface-2);
+  --ink: var(--lima-ink);
+  --ink-rise: #131315;
+  --cobalto: var(--lima);
+  --monte: var(--surface-3);
+  --lima: #c5f04a;
+  --papiro: var(--text-primary);
+  --papiro-soft: var(--text-secondary);
+  --guayoyo: var(--text-tertiary);
+
+  --background: var(--surface-0);
+  --foreground: var(--text-primary);
+  --card: var(--surface-2);
+  --card-foreground: var(--text-primary);
+  --primary: var(--lima);
+  --primary-foreground: var(--lima-ink);
+  --secondary: var(--surface-3);
+  --secondary-foreground: var(--text-primary);
+  --muted: var(--surface-2);
+  --muted-foreground: var(--text-secondary);
+  --accent: var(--surface-3);
+  --accent-foreground: var(--text-primary);
+  --popover: var(--surface-3);
+  --popover-foreground: var(--text-primary);
+  --border: var(--line);
+  --input: var(--line);
+  --ring: var(--lima);
+  --destructive: var(--status-lost);
+  --radius: var(--r-lg);
 }
-
-/* The logo resolves from ink into lime at its trailing edge. Display type uses
-   the contrarian inverse: lime appears early, then degrades into hard black.
-   The accessible green is confined to large type; body copy stays neutral. */
-.brand-tail-text {
-  color: #0a0a0a;
-  background-image: linear-gradient(105deg, #587615 0%, #0a0a0a 34%, #0a0a0a 100%);
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.brand-tail-text-dark {
-  color: #ffffff;
-  background-image: linear-gradient(105deg, #c5f04a 0%, #ffffff 34%, #ffffff 100%);
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.studio-header {
-  padding: 0.5rem 0.75rem 0;
-  pointer-events: none;
-}
-
-.studio-nav {
-  pointer-events: auto;
-  border: 1px solid rgba(10, 10, 10, 0.1);
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.88);
-  box-shadow: 0 12px 38px rgba(10, 10, 10, 0.08);
-  backdrop-filter: blur(18px);
-}
-
-@keyframes studio-nav-dock {
-  from {
-    max-width: 90rem;
-    border-color: transparent;
-    background: rgba(255, 255, 255, 0);
-    box-shadow: 0 0 0 rgba(10, 10, 10, 0);
-    backdrop-filter: blur(0);
-  }
-  to {
-    max-width: 72rem;
-    border-color: rgba(10, 10, 10, 0.1);
-    background: rgba(255, 255, 255, 0.88);
-    box-shadow: 0 12px 38px rgba(10, 10, 10, 0.08);
-    backdrop-filter: blur(18px);
-  }
-}
-
-@supports (animation-timeline: scroll()) {
-  .studio-nav {
-    animation: studio-nav-dock linear both;
-    animation-timeline: scroll();
-    animation-range: 0px 160px;
-  }
-}
-
-.studio-hero {
-  background:
-    radial-gradient(60% 75% at 9% 14%, rgba(197, 240, 74, 0.3), transparent 64%),
-    linear-gradient(115deg, #f5f5f4 0%, #ffffff 58%, #f0f0ef 100%);
-}
-
-.studio-hero > div:first-child {
-  background-image:
-    linear-gradient(rgba(10, 10, 10, 0.035) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(10, 10, 10, 0.035) 1px, transparent 1px);
-  background-size: 64px 64px;
-  mask-image: linear-gradient(to right, black, transparent 72%);
-}
-
-.studio-window {
-  border-radius: 1.5rem;
-  transform: rotate(1.25deg);
-  transition: transform 400ms cubic-bezier(.2, .8, .2, 1);
-}
-
-.studio-window:hover {
-  transform: rotate(0);
-}
-
-.brand-button {
-  border-radius: 999px;
-  box-shadow: 0.3rem 0.3rem 0 #c5f04a;
-}
-
-.brand-button:hover {
-  box-shadow: 0.15rem 0.15rem 0 #c5f04a;
-}
-
-/* Marquee edges fade instead of hard-cutting at the container. */
-.studio-marquee-mask {
-  mask-image: linear-gradient(90deg, transparent 0, black 6%, black 94%, transparent 100%);
-  -webkit-mask-image: linear-gradient(90deg, transparent 0, black 6%, black 94%, transparent 100%);
-}
-
-/* ─── Custom scrollbar ─────────────────────────────────────── */
-::-webkit-scrollbar { width: 3px; }
-::-webkit-scrollbar-track { background: var(--noche-deep); }
-::-webkit-scrollbar-thumb { background: var(--cobalto); border-radius: 2px; }
-::-webkit-scrollbar-thumb:hover { background: var(--papiro-soft); }
 
 @layer base {
+  html {
+    color-scheme: dark;
+  }
+
   body {
-    background-color: var(--noche);
-    color: var(--papiro);
+    background-color: var(--surface-0);
+    color: var(--text-primary);
     overflow-x: hidden;
-  }
-
-  html.theme-dark body {
-    font-family: var(--font-grotesk), 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  }
-
-  html.theme-light,
-  html.theme-light body {
-    background-color: #ffffff;
-    color: #0a0a0a;
-    font-family: var(--font-grotesk), 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family: var(--font-grotesk), "Helvetica Neue", Helvetica, Arial, sans-serif;
   }
 
   /* Display headings — same grotesque as the body, separated by weight and
      tracking instead of by typeface. Tracking tightens as type grows. */
-  html.theme-light h1,
-  html.theme-dark h1,
-  html.theme-light h2,
-  html.theme-dark h2 {
-    font-family: var(--font-grotesk), 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  h1, h2 {
+    font-family: var(--font-grotesk), "Helvetica Neue", Helvetica, Arial, sans-serif;
     font-weight: 500;
     letter-spacing: -0.032em;
   }
+  h1 { letter-spacing: -0.038em; line-height: 0.98; }
+  h2 { letter-spacing: -0.03em; line-height: 1.06; }
+  h3 { font-weight: 500; letter-spacing: -0.02em; }
 
-  /* ── Studio landing ─────────────────────────────────────────
-     Black on white, grotesque, tight tracking. Must come after the
-     theme-light serif headings above and outrank them: `html body .studio h1`
-     is 0-1-3 against that rule's 0-1-2, so the grotesque wins whether or not
-     RouteTheme has stamped theme-light on <html> yet. */
-  html body .studio {
-    background-color: var(--studio-bg);
-    color: var(--studio-fg);
-    font-family: var(--font-grotesk), 'Helvetica Neue', Helvetica, Arial, sans-serif;
-    font-optical-sizing: auto;
+  /* Metrics and IDs: tabular figures so numbers don't jitter as they change. */
+  .tabular-nums,
+  [data-metric] {
+    font-variant-numeric: tabular-nums;
   }
-
-  /* Tracking is size-specific — tighten as type grows, never one value for all. */
-  html body .studio h1 {
-    font-family: var(--font-grotesk), 'Helvetica Neue', Helvetica, Arial, sans-serif;
-    font-weight: 500;
-    letter-spacing: -0.038em;
-    line-height: 0.94;
-  }
-
-  html body .studio h2 {
-    font-family: var(--font-grotesk), 'Helvetica Neue', Helvetica, Arial, sans-serif;
-    font-weight: 500;
-    letter-spacing: -0.03em;
-    line-height: 1.05;
-  }
-
-  html body .studio h3 {
-    font-family: var(--font-grotesk), 'Helvetica Neue', Helvetica, Arial, sans-serif;
-    font-weight: 500;
-    letter-spacing: -0.02em;
-  }
-
-  /* Noise overlay (Paper grain) */
-  html.theme-dark body::before {
-    content: "";
-    position: fixed;
-    inset: 0;
-    pointer-events: none;
-    z-index: 100;
-    opacity: 0.22;
-    mix-blend-mode: soft-light;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 600 600' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.1 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  }
-
-  /* Vignette */
-  html.theme-dark body::after {
-    content: "";
-    position: fixed;
-    inset: 0;
-    pointer-events: none;
-    z-index: 40;
-    background: radial-gradient(circle, transparent 30%, rgba(5, 5, 6, 0.85) 150%);
-  }
-
-  /* The studio landing is a light page. RouteTheme stamps theme-dark on <html>
-     for every route, so without this the grain and the navy vignette above sit
-     on top of white and grey the whole thing out. */
-  html.theme-dark body:has(.studio)::before,
-  html.theme-dark body:has(.studio)::after {
-    content: none;
-  }
-
-  html.theme-dark body:has(.ops-shell)::before,
-  html.theme-dark body:has(.ops-shell)::after {
-    content: none;
-  }
-}
-
-.outcome-paper-grid {
-  background-image:
-    linear-gradient(rgba(10, 10, 10, 0.032) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(10, 10, 10, 0.032) 1px, transparent 1px);
-  background-size: 72px 72px;
-  mask-image: linear-gradient(to bottom, black 0%, rgba(0, 0, 0, 0.4) 72%, transparent 100%);
 }
 
 ::selection {
-  background: #c5f04a;
-  color: #0a0a0a;
+  background: var(--lima);
+  color: var(--lima-ink);
 }
 
 :focus-visible {
-  outline: 2px solid #0a0a0a;
+  outline: 2px solid var(--lima);
   outline-offset: 3px;
 }
 
-/* On dark chrome the black ring vanishes — the accent is the only thing that
-   clears 3:1 against both #08090a and white. */
-html.theme-dark :focus-visible {
-  outline-color: #c5f04a;
+/* ─── Custom scrollbar ─────────────────────────────────────── */
+::-webkit-scrollbar { width: 3px; }
+::-webkit-scrollbar-track { background: var(--surface-0); }
+::-webkit-scrollbar-thumb { background: var(--lima); border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-secondary); }
+
+/* ─── Ambient canvas texture ───────────────────────────────────
+   Opt-in, never global: dense app screens (tables, forms) stay flat.
+   Marketing hero/section wrappers apply .canvas-noise deliberately. */
+.canvas-noise {
+  position: relative;
+  isolation: isolate;
+}
+.canvas-noise::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.18;
+  mix-blend-mode: soft-light;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 600 600' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.1 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+.canvas-noise > * {
+  position: relative;
+  z-index: 1;
 }
 
+/* ─── Savings / range input (quote calculator) ─────────────── */
 .savings-range {
   --range-progress: 50%;
   height: 1.25rem;
@@ -329,241 +205,121 @@ html.theme-dark :focus-visible {
   background: transparent;
   cursor: pointer;
 }
-
 .savings-range::-webkit-slider-runnable-track {
   height: 0.4rem;
   border-radius: 999px;
   background: linear-gradient(
     to right,
-    #0a0a0a 0%,
-    #0a0a0a var(--range-progress),
-    #d4d4d4 var(--range-progress),
-    #d4d4d4 100%
+    var(--lima) 0%,
+    var(--lima) var(--range-progress),
+    var(--surface-3) var(--range-progress),
+    var(--surface-3) 100%
   );
 }
-
 .savings-range::-webkit-slider-thumb {
   width: 1.25rem;
   height: 1.25rem;
   margin-top: -0.425rem;
   appearance: none;
-  border: 3px solid #ffffff;
+  border: 3px solid var(--surface-0);
   border-radius: 999px;
-  background: #0a0a0a;
-  box-shadow: 0 2px 10px rgba(10, 10, 10, 0.24);
+  background: var(--lima);
+  box-shadow: var(--shadow-1);
 }
-
 .savings-range::-moz-range-track {
   height: 0.4rem;
   border-radius: 999px;
-  background: #d4d4d4;
+  background: var(--surface-3);
 }
-
 .savings-range::-moz-range-progress {
   height: 0.4rem;
   border-radius: 999px;
-  background: #0a0a0a;
+  background: var(--lima);
 }
-
 .savings-range::-moz-range-thumb {
   width: 1rem;
   height: 1rem;
-  border: 3px solid #ffffff;
+  border: 3px solid var(--surface-0);
   border-radius: 999px;
-  background: #0a0a0a;
-  box-shadow: 0 2px 10px rgba(10, 10, 10, 0.24);
+  background: var(--lima);
+  box-shadow: var(--shadow-1);
 }
 
-/* ─── Text utilities ───────────────────────────────────────── */
-.text-outline {
-  -webkit-text-stroke: 1px var(--papiro);
-  color: transparent;
+/* ─── Marquee / ticker edge fade ───────────────────────────── */
+.marquee-mask {
+  mask-image: linear-gradient(90deg, transparent 0, black 6%, black 94%, transparent 100%);
+  -webkit-mask-image: linear-gradient(90deg, transparent 0, black 6%, black 94%, transparent 100%);
 }
-
-.tesis-dropcap::first-letter {
-  font-family: var(--font-italiana);
-  font-size: 3.5em;
-  float: left;
-  line-height: 0.8;
-  margin-right: 0.1em;
-  color: var(--cobalto);
-}
-
-/* ─── Character reveal ─────────────────────────────────────── */
-@keyframes revealChar {
-  from { transform: translateY(100%); opacity: 0; }
-  to   { transform: translateY(0);    opacity: 1; }
-}
-.animate-reveal-char {
-  animation: revealChar 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
-}
-
-/* ─── Floating orbs ────────────────────────────────────────── */
-@keyframes orb-drift-a {
-  0%   { transform: translate(0, 0)   scale(1);    }
-  33%  { transform: translate(80px, -60px) scale(1.08); }
-  66%  { transform: translate(-40px, 80px) scale(0.95); }
-  100% { transform: translate(0, 0)   scale(1);    }
-}
-@keyframes orb-drift-b {
-  0%   { transform: translate(0, 0)   scale(1);    }
-  40%  { transform: translate(-100px, 60px) scale(1.1);  }
-  80%  { transform: translate(60px, -80px) scale(0.92); }
-  100% { transform: translate(0, 0)   scale(1);    }
-}
-@keyframes orb-drift-c {
-  0%   { transform: translate(0, 0)  rotate(0deg)   scale(1);    }
-  50%  { transform: translate(60px, 40px) rotate(180deg) scale(1.06); }
-  100% { transform: translate(0, 0)  rotate(360deg) scale(1);    }
-}
-
-/* ─── Pulse glow ───────────────────────────────────────────── */
-@keyframes pulse-glow {
-  0%, 100% { opacity: 0.35; filter: blur(60px); }
-  50%       { opacity: 0.55; filter: blur(40px); }
-}
-
-/* ─── Text shimmer ─────────────────────────────────────────── */
-@keyframes shimmer {
-  0%   { background-position: -200% center; }
-  100% { background-position:  200% center; }
-}
-.text-shimmer {
-  background: linear-gradient(
-    90deg,
-    var(--papiro) 0%,
-    var(--cobalto) 40%,
-    var(--papiro) 60%,
-    var(--papiro) 100%
-  );
-  background-size: 200% auto;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  animation: shimmer 4s linear infinite;
-}
-
-/* ─── Portfolio ticker ─────────────────────────────────────── */
-@keyframes project-marquee {
+@keyframes marquee-x {
   from { transform: translateX(0); }
   to   { transform: translateX(-50%); }
 }
 
-/* ─── Glow border ──────────────────────────────────────────── */
-@keyframes border-glow {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(197, 240, 74,0); }
-  50%       { box-shadow: 0 0 32px 4px rgba(197, 240, 74,0.35); }
+/* ─── Entrance: one restrained language, CSS-only ──────────── */
+@keyframes allok-enter {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
-.glow-border {
-  animation: border-glow 3s ease-in-out infinite;
-}
-
-/* ─── Scan line sweep ──────────────────────────────────────── */
-@keyframes scan-sweep {
-  0%   { top: -4px; opacity: 0; }
-  5%   { opacity: 1; }
-  95%  { opacity: 1; }
-  100% { top: 100%; opacity: 0; }
-}
-.scan-line {
-  position: absolute;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: linear-gradient(90deg, transparent 0%, rgba(197, 240, 74,0.6) 50%, transparent 100%);
-  animation: scan-sweep 8s linear infinite;
-  pointer-events: none;
+.allok-enter {
+  animation: allok-enter 280ms var(--ease-out) both;
 }
 
-/* ─── Gradient spin (pricing card) ────────────────────────── */
-@keyframes gradient-spin {
-  from { --angle: 0deg; }
-  to   { --angle: 360deg; }
-}
-@property --angle {
-  syntax: "<angle>";
-  initial-value: 0deg;
-  inherits: false;
-}
-.gradient-border-spin {
-  border: 1.5px solid transparent;
-  background-image:
-    linear-gradient(var(--noche-rise), var(--noche-rise)),
-    conic-gradient(from var(--angle), var(--cobalto), transparent 60%, var(--cobalto));
-  background-origin: border-box;
-  background-clip: padding-box, border-box;
-  animation: gradient-spin 4s linear infinite;
+/* `.allok-reveal` intentionally does not use `animation-timeline: view()`.
+   Scroll-linked animations paint incorrectly (a fully black frame past the
+   first viewport) in at least one Chromium-based engine this app is tested
+   in — a real cross-browser risk, not a cosmetic nice-to-have. Content
+   using this class is static and always visible. */
+.allok-reveal {
+  opacity: 1;
 }
 
-/* ─── Counter odometer ─────────────────────────────────────── */
+/* ─── Flow pulse: used along connector lines in system diagrams ─ */
+@keyframes flow-pulse {
+  0%   { stroke-dashoffset: 24; opacity: 0.35; }
+  50%  { opacity: 1; }
+  100% { stroke-dashoffset: 0; opacity: 0.35; }
+}
+.flow-line {
+  stroke-dasharray: 4 8;
+  animation: flow-pulse 2.4s linear infinite;
+}
+
+/* ─── Count-up (metrics) ───────────────────────────────────── */
 @keyframes count-up {
   from { transform: translateY(100%); opacity: 0; }
   to   { transform: translateY(0);    opacity: 1; }
 }
 
-/* ─── Loader bar ───────────────────────────────────────────── */
-@keyframes load-bar {
-  0%   { width: 0%; }
-  60%  { width: 80%; }
-  100% { width: 100%; }
-}
-
-/* ─── Float tick ───────────────────────────────────────────── */
-@keyframes float-tick {
-  0%   { transform: translateY(0px); }
-  50%  { transform: translateY(-8px); }
-  100% { transform: translateY(0px); }
-}
-
-/* ─── Horizontal light streak ──────────────────────────────── */
-@keyframes light-streak {
-  0%   { transform: translateX(-120%); opacity: 0; }
-  10%  { opacity: 1; }
-  90%  { opacity: 1; }
-  100% { transform: translateX(120%); opacity: 0; }
-}
-
-/* ─── Landing intent switch ───────────────────────────────── */
-@keyframes landing-intent-enter {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-    filter: blur(3px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-    filter: blur(0);
-  }
-}
-
-.landing-intent-enter {
-  animation: landing-intent-enter 520ms cubic-bezier(0.22, 1, 0.36, 1) both;
-}
-
 /* ─── Reduced motion ───────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
-  * {
+  *, ::before, ::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+
+  /* Crushing the duration of a scroll-linked (animation-timeline: view())
+     reveal doesn't guarantee it settles at opacity: 1 — its progress comes
+     from scroll position, not time. Drop the timeline explicitly so
+     reduced-motion users always see the settled, visible state. */
+  .allok-reveal,
+  .allok-enter {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
 }
 
 /* ─── Reduced transparency ─────────────────────────────────── */
-/* Translucent chrome (ops headers, floating panels) goes frosty-to-solid
-   rather than disappearing: raise background opacity, drop the blur. Reduced
-   motion and reduced transparency are independent signals — a user can ask for
-   one without the other, so this can't live inside the block above. */
 @media (prefers-reduced-transparency: reduce) {
   .backdrop-blur-xl,
   .backdrop-saturate-150 {
     backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;
   }
-  html.theme-dark .backdrop-blur-xl {
-    background-color: #08090a !important;
+  .backdrop-blur-xl {
+    background-color: var(--surface-0) !important;
   }
 }
 
@@ -572,44 +328,7 @@ html.theme-dark :focus-visible {
   .backdrop-blur-xl {
     backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;
-    background-color: #08090a !important;
+    background-color: var(--surface-0) !important;
     border-color: rgba(255, 255, 255, 0.4) !important;
   }
-}
-
-.hover-target {
-  /* Marker class for magnetic/hover effects on other routes */
-}
-
-/* ─── Theme kinetic (light playful) ───────────────────────── */
-.theme-kinetic {
-  color: #111214;
-}
-.theme-kinetic ::selection {
-  background: #8a8a8a;
-  color: #111214;
-}
-html.theme-dark .theme-kinetic ~ * { /* no-op selector to scope */ }
-
-/* allok marketing motion: one restrained entrance language, CSS-only. */
-@keyframes allok-enter {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.allok-enter {
-  animation: allok-enter 280ms ease-out both;
-}
-
-@supports (animation-timeline: view()) {
-  .allok-reveal {
-    animation: allok-enter linear both;
-    animation-timeline: view();
-    animation-range: entry 8% cover 24%;
-  }
-}
-
-.studio :is(a, button, summary):focus-visible {
-  outline: 2px solid #111214;
-  outline-offset: 3px;
 }

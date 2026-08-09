@@ -16,13 +16,13 @@ export default async function ConectarWhatsAppPage({
 
   if (!sessionId) {
     return (
-      <main className="studio flex min-h-screen items-center justify-center bg-white px-6 text-black selection:bg-[#c5f04a] selection:text-black">
-        <div className="max-w-md rounded-3xl border border-black/10 bg-[var(--studio-surface)] p-8 text-center text-black">
-          <div className="font-mono text-[9px] uppercase tracking-[0.2em] text-neutral-500 mb-2">
+      <main className="flex min-h-screen items-center justify-center bg-[var(--surface-0)] px-6">
+        <div className="max-w-md rounded-[var(--r-xl)] border border-[var(--line)] bg-[var(--surface-1)] p-8 text-center">
+          <div className="mb-2 font-mono text-[9px] uppercase tracking-[0.2em] text-[var(--text-tertiary)]">
             Verificación requerida
           </div>
-          <h1 className="text-2xl text-black tracking-[-0.02em]">Falta el enlace de tu compra</h1>
-          <p className="mt-3 text-sm leading-relaxed text-neutral-600">
+          <h1 className="text-2xl tracking-[-0.02em] text-[var(--text-primary)]">Falta el enlace de tu compra</h1>
+          <p className="mt-3 text-sm leading-relaxed text-[var(--text-secondary)]">
             Abrí esta página desde el enlace que recibiste tras el pago. Si lo perdiste, escribinos
             y te lo reenviamos.
           </p>

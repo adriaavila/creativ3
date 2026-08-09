@@ -291,6 +291,94 @@ export function normalizeMetaWebhook(payload: unknown): WhatsAppNormalizedEvent[
         continue;
       }
 
+      if (field === "history") {
+        const historyChunks = records(value.history);
+        if (historyChunks.length === 0) {
+          for (const error of records(value.errors)) {
+            events.push({ ...base, ...normalizeHistoryError(error) });
+          }
+          if (records(value.errors).length === 0) {
+            events.push({ ...base, ...webhookError("invalid_history_shape") });
+          }
+          continue;
+        }
+
+        const businessPhone = digitsOnly(metadata?.display_phone_number);
+        for (const history of historyChunks) {
+          for (const thread of records(history.threads)) {
+            const threadId = optionalString(thread.id);
+            for (const message of records(thread.messages)) {
+              const id = optionalString(message.id);
+              const from = optionalString(message.from);
+              const to = optionalString(message.to);
+              if (!id || !from || !threadId) {
+                events.push({ ...base, ...webhookError("invalid_history_message_shape") });
+                continue;
+              }
+
+              // Meta only includes `to` for messages sent from the Business App.
+              // Comparing the sender with the business number also preserves the
+              // correct direction if a fixture omits `to`.
+              const outbound = Boolean(to) || (businessPhone && digitsOnly(from) === businessPhone);
+              const historyContext = isRecord(message.history_context)
+                ? message.history_context
+                : undefined;
+              events.push({
+                ...base,
+                type: "message.received",
+                occurredAt: normalizeTimestamp(message.timestamp) ?? entryTimestamp,
+                message: {
+                  id,
+                  from,
+                  ...(to ? { to } : {}),
+                  direction: outbound ? "outbound" : "inbound",
+                  source: to ? "business_app" : "cloud_api",
+                  type: optionalString(message.type) ?? "unknown",
+                  text: textBody(message),
+                  status: optionalString(historyContext?.status),
+                  contactPhone: threadId,
+                },
+              });
+            }
+          }
+
+          for (const error of records(history.errors)) {
+            events.push({ ...base, ...normalizeHistoryError(error) });
+          }
+        }
+        continue;
+      }
+
+      if (field === "smb_app_state_sync") {
+        const stateChanges = records(value.state_sync);
+        if (stateChanges.length === 0) {
+          events.push({ ...base, ...webhookError("invalid_smb_app_state_sync_shape") });
+          continue;
+        }
+
+        for (const stateChange of stateChanges) {
+          if (stateChange.type !== "contact" || !isRecord(stateChange.contact)) continue;
+          const action = optionalString(stateChange.action);
+          const contactPhone = optionalString(stateChange.contact.phone_number);
+          if (!contactPhone || (action !== "add" && action !== "remove")) {
+            events.push({ ...base, ...webhookError("invalid_contact_sync_shape") });
+            continue;
+          }
+          const stateMetadata = isRecord(stateChange.metadata) ? stateChange.metadata : undefined;
+          events.push({
+            ...base,
+            type: "contact.updated",
+            occurredAt: normalizeTimestamp(stateMetadata?.timestamp) ?? entryTimestamp,
+            contactPhone,
+            contactName: optionalString(
+              stateChange.contact.full_name ?? stateChange.contact.first_name,
+            ),
+            action,
+          });
+        }
+        continue;
+      }
+
       events.push({
         ...base,
         ...webhookError("unsupported_webhook_shape", { unsupportedField: field }),
@@ -323,6 +411,14 @@ function normalizeGraphWebhookError(error: Record<string, unknown>): WhatsAppErr
     title: optionalString(error.title),
     details: optionalString(errorData?.details ?? error.message),
   });
+}
+
+function normalizeHistoryError(error: Record<string, unknown>): WhatsAppErrorReceivedEvent {
+  const normalized = normalizeGraphWebhookError(error);
+  if (normalized.code === 2593109) {
+    return { ...normalized, reason: "history_sync_not_shared" };
+  }
+  return normalized;
 }
 
 function webhookError(
@@ -358,6 +454,10 @@ function requireString(value: unknown, name: string) {
 
 function optionalString(value: unknown) {
   return typeof value === "string" && value.trim() ? value.trim() : undefined;
+}
+
+function digitsOnly(value: unknown) {
+  return optionalString(value)?.replace(/\D/g, "");
 }
 
 function finiteNumber(value: unknown) {

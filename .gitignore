@@ -50,3 +50,9 @@ next-env.d.ts
 
 # firecrawl CLI outputs
 .firecrawl/
+
+# workspace build output (apps/realtime tsc, etc.)
+/dist/
+
+# playwright-cli scratch output
+/.playwright-cli/

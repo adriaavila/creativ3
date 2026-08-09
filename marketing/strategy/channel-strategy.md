@@ -7,7 +7,7 @@ Principio: **pocos canales operados bien > muchos canales a medias**. Operación
 | Prioridad | Canal | Rol | Esfuerzo/día | Métrica que importa |
 |---|---|---|---|---|
 | 1 | **WhatsApp / Instagram DM (outbound local)** | Motor de conversaciones | 60–90 min | Respuestas → conversaciones |
-| 2 | **Instagram (perfil creativv)** | Prueba de autoridad para quien recibe DM | 30 min | Visitas perfil → DMs entrantes |
+| 2 | **Instagram (perfil allok)** | Prueba de autoridad para quien recibe DM | 30 min | Visitas perfil → DMs entrantes |
 | 3 | **LinkedIn (perfil fundador)** | Build in public + red LATAM para Fase 2 | 30 min | Comentarios de ICP, DMs entrantes |
 | 4 | **SEO programático** (`/paginas-web/[ciudad]/[vertical]`) | Compuesto a largo plazo, ya construido | 0 (mantener) | Visitas → clics a WhatsApp |
 | 5 | **Referidos/partners** | Mejor conversión, activar desde semana 3 | 1h/semana | Intros recibidas |

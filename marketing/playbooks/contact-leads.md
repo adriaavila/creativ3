@@ -23,7 +23,7 @@
 
 1. "¿Qué te interesa más ahora: más leads, mejor conversión web, o quitar trabajo manual?"
 2. "¿Cuánto vale para ti cerrar 1 cliente extra este mes?"
-3. Cierre a diagnóstico: "Te propongo empezar chico: diagnóstico express USD 150, entrega 48h — 10 mejoras priorizadas y ruta. Si avanzamos a proyecto en 14 días, se acredita. Y si no veo ROI claro, te digo que no construyas."
+3. Cierre inicial: "Te propongo empezar chico: te comparto un diagnóstico gratuito con 2 hallazgos concretos sobre tu web/WhatsApp. Si vemos encaje, te propongo un piloto IA de 14 días desde USD 899. Si necesitas una auditoría completa, existe el diagnóstico express de USD 150."
 
 ## Manejo de situaciones
 

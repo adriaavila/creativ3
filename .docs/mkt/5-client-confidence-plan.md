@@ -52,11 +52,11 @@ Total:
 
 ## Close path
 
-Step 1: free 2-idea tease.
+Step 1: free mini-diagnosis with 2 verified findings.
 
-Step 2: USD 150 diagnostic.
+Step 2: USD 150 deep diagnostic only when the prospect needs a full audit.
 
-Step 3: USD 900+ pilot or USD 1.500+ sprint.
+Step 3: piloto IA desde USD 899; las ofertas públicas de landing/automatización/web se mantienen en 199/499/699.
 
 Step 4: testimonial + case study after first measurable win.
 

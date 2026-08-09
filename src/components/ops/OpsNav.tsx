@@ -6,6 +6,7 @@ import { useState } from "react";
 import {
   Bot,
   BriefcaseBusiness,
+  Building2,
   ContactRound,
   FlaskConical,
   LayoutDashboard,
@@ -30,6 +31,7 @@ const primaryItems: NavItem[] = [
 ] as const;
 
 const systemItems: NavItem[] = [
+  { href: "/ops/clientes", label: "Clientes", icon: Building2 },
   { href: "/ops/contacts", label: "Contactos", icon: ContactRound },
   { href: "/ops/agents", label: "Agentes", icon: Bot },
   { href: "/ops/lab", label: "Laboratorio", icon: FlaskConical },

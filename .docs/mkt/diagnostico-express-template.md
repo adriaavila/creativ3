@@ -1,4 +1,4 @@
-# Diagnostico express creativv — plantilla de entrega
+# Diagnostico express allok — plantilla de entrega
 
 ## Datos
 

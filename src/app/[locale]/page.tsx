@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import AllokHome from "@/components/home/AllokHome";
+import Home from "@/components/site/Home";
 import {
   alternateLanguages,
   getMessages,
@@ -49,7 +49,7 @@ export default async function LocaleHome({ params }: PageProps<"/[locale]">) {
           ),
         }}
       />
-      <AllokHome locale={locale} messages={messages} />
+      <Home locale={locale} messages={messages} />
     </>
   );
 }

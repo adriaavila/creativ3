@@ -201,6 +201,52 @@ export async function upsertConversation(input: {
   return mapConversation(rows[0]);
 }
 
+/** Applies the Business App address-book sync without fabricating a message. */
+export async function syncMetaContact(input: {
+  phoneNumberId: string;
+  contactPhone: string;
+  contactName?: string | null;
+  action: "add" | "remove";
+}): Promise<WaConversation> {
+  const sql = getSql();
+  const rows = await sql`
+    INSERT INTO wa_conversations (
+      channel_kind, channel_key, contact_wa_id, contact_phone, contact_name,
+      last_message_at, last_inbound_at, lead_id, assigned_mode
+    )
+    VALUES (
+      'cloud_api', ${input.phoneNumberId}, ${input.contactPhone}, ${input.contactPhone},
+      ${input.action === "add" ? input.contactName ?? null : null},
+      ${null}, ${null},
+      (SELECT id FROM leads
+       WHERE regexp_replace(COALESCE(business_phone, ''), '\\D', '', 'g') = regexp_replace(${input.contactPhone}, '\\D', '', 'g')
+       ORDER BY updated_at DESC
+       LIMIT 1),
+      CASE
+        WHEN EXISTS (
+          SELECT 1 FROM tenant_bot_config
+          WHERE phone_number_id = ${input.phoneNumberId}
+            AND enabled = true AND operating_mode = 'automatic'
+        ) THEN 'ai'
+        ELSE 'human'
+      END
+    )
+    ON CONFLICT (channel_kind, channel_key, contact_wa_id)
+    DO UPDATE SET
+      contact_phone = EXCLUDED.contact_phone,
+      contact_name = CASE
+        WHEN ${input.action} = 'remove' THEN NULL
+        ELSE COALESCE(EXCLUDED.contact_name, wa_conversations.contact_name)
+      END,
+      lead_id = COALESCE(wa_conversations.lead_id, EXCLUDED.lead_id),
+      updated_at = now()
+    RETURNING *
+  `;
+  const conversation = mapConversation(rows[0]);
+  await publishRealtimeEvent(conversationUpdatedEvent(conversation, ["contactName"]));
+  return conversation;
+}
+
 export async function getConversationById(id: number): Promise<WaConversation | null> {
   const sql = getSql();
   const rows = await sql`SELECT * FROM wa_conversations WHERE id = ${id}`;

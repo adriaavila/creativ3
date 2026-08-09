@@ -1,83 +1,188 @@
 {
   "meta": {
-    "title": "allok | Tu negocio, funcionando mejor",
-    "description": "Sistemas digitales para vender más y operar mejor: sitios web, automatización con IA y allok Desk para ventas por WhatsApp."
+    "title": "Allok — Sistema comercial conectado a WhatsApp",
+    "description": "Organiza consultas, seguimientos y oportunidades en un sistema comercial instalado para tu negocio."
   },
   "common": {
-    "brand": "allok",
+    "brand": "Allok",
     "talk": "Hablemos",
     "whatsapp": "Escríbenos por WhatsApp",
-    "prices": "Ver soluciones",
+    "prices": "Ver precios",
     "privacy": "Privacidad",
     "terms": "Términos",
-    "back": "Volver al inicio"
+    "back": "Volver al inicio",
+    "enter": "Entrar",
+    "demoCta": "Ver demo personalizada"
   },
   "home": {
-    "nav": ["Soluciones", "Trabajo", "Proceso", "Precios", "Preguntas"],
-    "available": "Disponible para nuevos proyectos",
-    "heroTitle": "Tu negocio, funcionando mejor.",
-    "heroLead": "Sistemas digitales para vender más y operar mejor.",
-    "heroBody": "Diseñamos sitios, automatizaciones y sistemas de venta por WhatsApp que convierten interés en ingresos y reducen el trabajo manual.",
-    "trust": ["Primer entregable en 3 días", "Precio cerrado, sin sorpresas", "+10 productos en producción"],
-    "offersLabel": "Soluciones",
-    "offersTitle": "Un sistema claro para cada cuello de botella.",
-    "offersLead": "Empezamos por el resultado que más mueve tu negocio hoy.",
-    "offers": [
-      {
-        "name": "allok Launch",
-        "tag": "Vender más",
-        "description": "Landing pages y sitios rápidos, claros y diseñados para convertir visitas en conversaciones.",
-        "price": "Desde USD 199",
-        "cta": "Cotizar Launch",
-        "features": ["UX/UI a medida", "Next.js rápido y accesible", "SEO técnico", "Captura directa a WhatsApp"]
-      },
-      {
-        "name": "allok Automate",
-        "tag": "Operar mejor",
-        "description": "Automatización e integraciones con IA para quitar seguimiento manual y conectar tus herramientas.",
-        "price": "Desde USD 499",
-        "cta": "Cotizar Automate",
-        "features": ["Flujos n8n y API", "Integración con CRM", "Clasificación de leads", "Documentación y pruebas"]
-      },
-      {
-        "name": "allok Desk",
-        "tag": "Ventas por WhatsApp",
-        "description": "Inbox comercial, IA supervisada, calificación y seguimiento en un solo sistema.",
-        "price": "Desde USD 79/mes",
-        "cta": "Conocer allok Desk",
-        "features": ["Respuestas sugeridas", "Seguimiento automático", "Calificación comercial", "Activación guiada"]
-      }
-    ],
-    "workLabel": "Trabajo",
-    "workTitle": "Sistemas reales, funcionando hoy.",
-    "workLead": "Producto, comercio y operaciones construidos alrededor de resultados medibles.",
-    "work": [
-      ["REI", "Infraestructura inmobiliaria", "Marketplace, CRM y procesamiento de documentos con IA en un solo sistema."],
-      ["Shopea", "Comercio por WhatsApp", "Catálogo, checkout y pagos conectados a la conversación de venta."],
-      ["Frontia", "Sistema comercial", "Atención, calificación y seguimiento de oportunidades por WhatsApp."]
-    ],
-    "processLabel": "Proceso",
-    "processTitle": "De la idea a producción, sin teatro.",
-    "process": [
-      ["01", "Entendemos el objetivo", "Acordamos el problema, el usuario y el resultado esperado."],
-      ["02", "Cerramos alcance y precio", "Definimos el primer entregable útil antes de empezar."],
-      ["03", "Diseñamos y construimos", "Compartimos avances funcionales desde los primeros días."],
-      ["04", "Lanzamos y medimos", "Publicamos, observamos y mejoramos con evidencia."]
-    ],
-    "pricingLabel": "Precios",
-    "pricingTitle": "Un punto de partida claro.",
-    "pricingLead": "Alcance y precio se confirman antes de escribir la primera línea de código.",
+    "nav": ["Producto", "Cómo funciona", "Resultados", "Precios", "Recursos"],
+    "hero": {
+      "eyebrow": "Sistema comercial para negocios que venden por WhatsApp",
+      "title": "Convierte conversaciones en ventas.",
+      "lead": "Allok organiza tus consultas, seguimientos y oportunidades en un solo sistema comercial conectado a WhatsApp, Instagram y tu sitio web.",
+      "primaryCta": "Ver cómo funcionaría en mi negocio",
+      "secondaryCta": "Explorar el sistema",
+      "proof": ["Implementación en 7 días", "Acompañamiento real", "Sin necesidad técnica"]
+    },
+    "story": {
+      "label": "Cómo funciona",
+      "title": "Una conversación, de principio a fin.",
+      "steps": [
+        ["01", "Llega un mensaje", "Un cliente escribe por WhatsApp, Instagram o tu sitio web."],
+        ["02", "Allok identifica quién es", "Reconoce al cliente y la intención detrás del mensaje."],
+        ["03", "Se crea una oportunidad", "Cada consulta entra al pipeline. Nada se pierde en el chat."],
+        ["04", "Tu equipo recibe una sugerencia", "Una respuesta lista para revisar y enviar, no para confiar a ciegas."],
+        ["05", "Se programa un seguimiento", "Un recordatorio para que ningún cliente se enfríe por falta de tiempo."],
+        ["06", "La oportunidad avanza", "De nuevo contacto a negociación, con el pipeline siempre al día."],
+        ["07", "El dueño ve el resultado", "Consultas, respuestas, ventas y lo que falta por cerrar, en un lugar."]
+      ]
+    },
+    "benefits": {
+      "label": "Beneficios",
+      "title": "Lo que cambia en tu operación comercial.",
+      "items": [
+        ["Centraliza tus conversaciones", "WhatsApp, Instagram y tu sitio en un solo inbox, sin cambiar de número."],
+        ["Organiza cada oportunidad", "Un pipeline claro, desde el primer contacto hasta el cierre."],
+        ["Responde mejor", "Sugerencias de respuesta que tu equipo revisa antes de enviar."],
+        ["No olvides ningún seguimiento", "Recordatorios y mensajes programados para cada oportunidad abierta."],
+        ["Cierra más ventas", "Nada se pierde entre la consulta, el seguimiento y la negociación."],
+        ["Mide y mejora", "Consultas, tiempos de respuesta y conversión, siempre visibles."]
+      ]
+    },
+    "system": {
+      "label": "El sistema",
+      "title": "Seis capas conectadas, no seis herramientas sueltas.",
+      "layers": [
+        ["Captura", "Landing pages, formularios, publicidad, WhatsApp, Instagram y consultas web."],
+        ["Inbox", "Todas las conversaciones de tus clientes en un solo lugar."],
+        ["Pipeline", "Nuevo contacto, calificado, propuesta enviada, negociación y cierre."],
+        ["Asistente", "Resúmenes de conversación, respuestas sugeridas, próximos pasos y señales de riesgo."],
+        ["Seguimiento", "Recordatorios, mensajes programados, tareas pendientes y reactivación."],
+        ["Control", "Consultas, tiempos de respuesta, propuestas, conversión, ingresos y oportunidades perdidas."]
+      ]
+    },
+    "positioning": {
+      "label": "Por qué no es solo un CRM",
+      "title": "Un CRM te entrega herramientas. Allok estudia cómo vende tu negocio y te entrega el proceso funcionando.",
+      "items": ["Software", "Implementación", "Personalización acotada", "Entrenamiento", "Automatización progresiva", "Soporte continuo"]
+    },
+    "idealCustomer": {
+      "label": "Para quién es",
+      "title": "Negocios de servicios que venden por conversación.",
+      "traits": [
+        "Reciben entre 30 y 500 consultas al mes",
+        "Venden principalmente por WhatsApp",
+        "Necesitan seguimiento antes de cerrar",
+        "Manejan un ticket de venta relevante",
+        "Dependen del dueño o de un equipo comercial pequeño",
+        "Pierden oportunidades por lentitud o desorganización"
+      ],
+      "verticals": ["Inmobiliarias", "Servicios legales", "Clínicas estéticas", "Arquitectura", "Viajes", "Educación", "Instalación especializada", "Servicios profesionales"]
+    },
+    "proof": {
+      "label": "Resultados",
+      "title": "Sistemas en producción, no promesas.",
+      "lead": "Trabajo real con negocios reales. Sin clientes inventados ni cifras que no podamos sostener."
+    },
+    "pricing": {
+      "label": "Precios",
+      "title": "Un sistema instalado, no una licencia más.",
+      "lead": "Implementación, operación mensual y expansiones opcionales.",
+      "primaryCta": "Diseñar mi sistema comercial",
+      "secondaryCta": "Hablar por WhatsApp",
+      "cadence": { "one_time": "pago único", "monthly": "por mes", "optional": "opcional" },
+      "stages": [
+        {
+          "label": "Implementación",
+          "description": "Instalamos el sistema comercial: pipeline, canales y automatizaciones clave configuradas para tu negocio.",
+          "includes": ["Configuración del flujo comercial y del pipeline", "Conexión de WhatsApp", "Formularios y plantillas de mensajes", "Automatizaciones iniciales", "Entrenamiento del equipo"]
+        },
+        {
+          "label": "Operación",
+          "description": "El sistema queda operando: inbox, pipeline, seguimiento y control comercial, con soporte continuo.",
+          "includes": ["Usuarios y volumen de conversación", "Automatizaciones activas", "Integraciones conectadas", "Nivel de soporte"]
+        },
+        {
+          "label": "Expansiones",
+          "description": "Capas adicionales cuando el negocio las necesita, no antes.",
+          "includes": ["Campañas de adquisición", "Generación de propuestas", "Llamadas con IA", "Pagos", "Calendario", "Integraciones a medida", "Dashboards avanzados"]
+        }
+      ]
+    },
+    "timeline": {
+      "label": "Implementación",
+      "title": "En siete días organizamos cómo tu negocio recibe, atiende y da seguimiento a sus clientes.",
+      "dayLabel": "Día",
+      "note": "Integraciones avanzadas (pagos, calendario, IA para llamadas) pueden requerir fases adicionales.",
+      "days": [
+        { "title": "Entendemos el proceso actual", "description": "Cómo llegan hoy tus clientes y dónde se pierden." },
+        { "title": "Definimos pipeline y reglas", "description": "Etapas, responsables y criterios de calificación." },
+        { "title": "Configuramos canales y sistema", "description": "WhatsApp, formularios y el inbox comercial." },
+        { "title": "Automatizamos seguimientos clave", "description": "Recordatorios y mensajes que no dependen de que alguien se acuerde." },
+        { "title": "Probamos casos reales", "description": "Conversaciones reales, ajustes finos antes de activar." },
+        { "title": "Activamos y entrenamos al equipo", "description": "El sistema queda operando con tu equipo al mando." }
+      ]
+    },
     "faqLabel": "Preguntas frecuentes",
     "faqTitle": "Lo que conviene saber antes de empezar.",
     "faqs": [
-      ["¿Cuánto tarda un proyecto?", "Una landing puede salir en 3 días. Una automatización suele tomar entre 5 y 10 días. Un sistema completo se entrega por etapas."],
-      ["¿Necesito requerimientos técnicos?", "No. Empezamos por el problema de negocio y convertimos ese contexto en un alcance concreto."],
-      ["¿Qué pasa después del lanzamiento?", "El código y los accesos son tuyos. El soporte continuo es opcional, sin dependencia obligatoria."],
-      ["¿Cómo se paga?", "Los servicios se pagan por hitos. allok Desk combina una implementación inicial con una suscripción mensual."]
+      ["¿Allok reemplaza mi WhatsApp?", "No. Allok se conecta a tu WhatsApp, sea tu número oficial o el que ya usas, y organiza lo que pasa ahí. Seguís usando WhatsApp, ahora con un sistema detrás."],
+      ["¿Necesito cambiar mi número?", "No. Conectamos el número que ya usás. Si más adelante querés un número dedicado, también es posible."],
+      ["¿Es un chatbot?", "No. Allok incluye un asistente que sugiere respuestas y próximos pasos, pero una persona los revisa antes de enviar. Vos decidís cuánto se automatiza."],
+      ["¿Necesito saber usar un CRM?", "No. El sistema se instala configurado para cómo vendés hoy. Si tu equipo usa WhatsApp, ya sabe usar Allok."],
+      ["¿Qué incluye la implementación?", "Configuración del pipeline, conexión de canales, plantillas de mensajes, automatizaciones iniciales y entrenamiento del equipo."],
+      ["¿Cuánto tarda?", "Siete días para lo esencial. Integraciones avanzadas pueden sumar fases adicionales."],
+      ["¿Puedo empezar de forma manual y automatizar después?", "Sí. Empezamos con lo que tu equipo puede sostener hoy y sumamos automatización de forma progresiva."],
+      ["¿Qué ocurre con mis datos?", "Son tuyos. No los vendemos ni los compartimos más allá de lo necesario para operar el servicio."],
+      ["¿Puedo cancelar la suscripción?", "Sí, desde el portal de cliente, sin permanencia forzada."],
+      ["¿Sirve para mi industria?", "Si vendés por conversación y necesitás seguimiento antes de cerrar, sí. Trabajamos con inmobiliarias, clínicas, servicios legales, educación y más."]
     ],
-    "finalTitle": "Hagamos que tu negocio funcione mejor.",
-    "finalBody": "Cuéntanos qué quieres vender, automatizar o dejar de perseguir manualmente.",
-    "footer": "Sistemas digitales para vender más y operar mejor."
+    "finalCta": {
+      "title": "Clientes atendidos. Seguimientos hechos. Todo bajo control.",
+      "body": "Cuéntanos cómo recibe clientes tu negocio y te mostraremos cómo funcionaría Allok en tu operación.",
+      "cta": "Ver una demo para mi negocio"
+    },
+    "footer": "El sistema comercial para negocios que venden por conversación."
+  },
+  "qualify": {
+    "title": "Cuéntanos de tu negocio",
+    "eyebrow": "Demo personalizada",
+    "questions": [
+      {
+        "id": "businessType",
+        "label": "¿Qué tipo de negocio tienes?",
+        "options": ["Inmobiliaria", "Clínica o estética", "Servicios legales", "Educación", "Arquitectura o construcción", "Viajes", "Otro servicio profesional"]
+      },
+      {
+        "id": "volume",
+        "label": "¿Cuántas consultas recibes al mes, aproximadamente?",
+        "options": ["Menos de 30", "30–100", "100–300", "Más de 300"]
+      },
+      {
+        "id": "channel",
+        "label": "¿Cuál es tu canal principal de venta?",
+        "options": ["WhatsApp", "Instagram", "Sitio web o formulario", "Llamadas o presencial"]
+      },
+      {
+        "id": "followUp",
+        "label": "¿Cómo haces seguimiento hoy?",
+        "options": ["De memoria o notas sueltas", "Excel u hoja de cálculo", "Un CRM que no usamos del todo", "No hacemos seguimiento formal"]
+      },
+      {
+        "id": "bottleneck",
+        "label": "¿Cuál es tu mayor cuello de botella?",
+        "options": ["Respondemos tarde", "Se nos pierden consultas", "No sabemos qué falta cerrar", "Todo depende de una sola persona"]
+      }
+    ],
+    "back": "Atrás",
+    "next": "Siguiente",
+    "submit": "Ver mi resumen",
+    "progress": "Paso {current} de {total}",
+    "implementationLabel": "Implementación",
+    "summaryTitle": "Así se vería Allok en tu negocio",
+    "summaryLead": "Con lo que nos contaste, esto es lo que instalaríamos primero.",
+    "summaryCta": "Continuar por WhatsApp",
+    "restart": "Empezar de nuevo"
   },
   "desk": {
     "metaTitle": "allok Desk | Sistema de ventas por WhatsApp",

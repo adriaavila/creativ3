@@ -87,9 +87,13 @@ type ConnectionDetails = {
 export default function EmbeddedSignupClient({
   workspace,
   connectionMode = "META_COEXISTENCE",
+  publicAccess = false,
+  invite,
 }: {
   workspace: string;
   connectionMode?: "META_CLOUD_API" | "META_COEXISTENCE";
+  publicAccess?: boolean;
+  invite?: string;
 }) {
   const [config, setConfig] = useState<MetaEmbeddedSignupConfig | null>(null);
   const [sdkReady, setSdkReady] = useState(false);
@@ -151,8 +155,13 @@ export default function EmbeddedSignupClient({
 
     async function bootMetaSdk() {
       try {
+        const query = new URLSearchParams({
+          client: workspace,
+          mode: connectionMode === "META_CLOUD_API" ? "cloud_api" : "coexistence",
+        });
+        if (invite) query.set("invite", invite);
         const response = await fetch(
-          `/api/meta/embedded-signup/config?workspace=${encodeURIComponent(workspace)}`,
+          `/api/meta/embedded-signup/config?${query}`,
           {
             cache: "no-store",
           },
@@ -247,7 +256,7 @@ export default function EmbeddedSignupClient({
       cancelled = true;
       window.removeEventListener("message", handleMessage);
     };
-  }, [exchangeWhenReady, workspace]);
+  }, [connectionMode, exchangeWhenReady, invite, workspace]);
 
   const fbLoginCallback = (response: FBLoginResponse) => {
     const code = response.authResponse?.code;
@@ -357,13 +366,15 @@ export default function EmbeddedSignupClient({
               <p className="text-[11px] text-[#7a8797]">Conexión oficial de WhatsApp</p>
             </div>
           </div>
-          <Link
-            href="/ops/crm?view=connections#connections"
-            className="inline-flex min-h-10 items-center gap-2 rounded-[10px] border border-[#dce2e8] px-3 text-[13px] font-medium text-[#526174] transition hover:border-[#142b4b] hover:text-[#142b4b] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#142b4b]"
-          >
-            Volver a conexiones
-            <ArrowRight className="size-4" aria-hidden="true" />
-          </Link>
+          {!publicAccess && (
+            <Link
+              href="/ops/crm?view=connections#connections"
+              className="inline-flex min-h-10 items-center gap-2 rounded-[10px] border border-[#dce2e8] px-3 text-[13px] font-medium text-[#526174] transition hover:border-[#142b4b] hover:text-[#142b4b] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#142b4b]"
+            >
+              Volver a conexiones
+              <ArrowRight className="size-4" aria-hidden="true" />
+            </Link>
+          )}
         </div>
       </header>
 
@@ -430,7 +441,7 @@ export default function EmbeddedSignupClient({
                 <div className="grid gap-3 sm:grid-cols-3">
                   <OnboardingStep number="01" title="Autoriza en Meta" text="Usa el acceso de administrador de tu negocio." />
                   <OnboardingStep number="02" title="Elige tu número" text="Selecciona el WhatsApp Business que ya utilizas." />
-                  <OnboardingStep number="03" title="Empieza en allok" text="Conserva la app y centraliza las conversaciones nuevas." />
+                  <OnboardingStep number="03" title="Empieza en allok" text="Conserva la app y sincroniza contactos, historial permitido y mensajes nuevos." />
                 </div>
               )}
 
@@ -466,13 +477,13 @@ export default function EmbeddedSignupClient({
                   </>
                 ) : (
                   <>
-                    {successDetails ? "Volver a conectar con Meta" : "Conectar con Meta"}
+                    {successDetails ? "Volver a conectar con Meta" : "Conectar mi WhatsApp"}
                     <ArrowRight className="size-4" aria-hidden="true" />
                   </>
                 )}
               </button>
 
-              {status === "success" && (
+              {status === "success" && !publicAccess && (
                 <button
                   type="button"
                   onClick={disconnectWhatsApp}
@@ -505,15 +516,15 @@ export default function EmbeddedSignupClient({
 
           <InfoCard icon={FileText} title="Qué se sincroniza">
             <ul className="space-y-2">
-              <li className="flex gap-2"><CheckCircle2 className="mt-0.5 size-3.5 shrink-0 text-[#78a01b]" aria-hidden="true" />Mensajes nuevos y estados que Meta entregue al webhook.</li>
-              <li className="flex gap-2"><CircleHelp className="mt-0.5 size-3.5 shrink-0 text-[#91a0b0]" aria-hidden="true" />No prometemos importar automáticamente todo el historial de la app.</li>
+              <li className="flex gap-2"><CheckCircle2 className="mt-0.5 size-3.5 shrink-0 text-[#78a01b]" aria-hidden="true" />Mensajes nuevos, estados y envíos hechos desde la app.</li>
+              <li className="flex gap-2"><CircleHelp className="mt-0.5 size-3.5 shrink-0 text-[#91a0b0]" aria-hidden="true" />Si lo autorizas, Meta puede importar por etapas hasta 180 días de chats individuales; no incluye grupos.</li>
             </ul>
           </InfoCard>
 
           <div className="rounded-xl border border-[#e1e6eb] bg-white p-5">
             <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#8a97a6]">Más información</p>
             <div className="mt-3 space-y-2">
-              <a href="https://developers.facebook.com/docs/whatsapp/embedded-signup/custom-flows/onboarding-business-app-users/" target="_blank" rel="noreferrer" className="flex items-center justify-between gap-3 text-[13px] font-medium text-[#526174] hover:text-[#142b4b]">
+              <a href="https://developers.facebook.com/documentation/business-messaging/whatsapp/embedded-signup/onboarding-business-app-users" target="_blank" rel="noreferrer" className="flex items-center justify-between gap-3 text-[13px] font-medium text-[#526174] hover:text-[#142b4b]">
                 Coexistencia en Meta <ExternalLink className="size-3.5" aria-hidden="true" />
               </a>
               <a href="https://developers.facebook.com/docs/whatsapp/cloud-api/get-started" target="_blank" rel="noreferrer" className="flex items-center justify-between gap-3 text-[13px] font-medium text-[#526174] hover:text-[#142b4b]">
@@ -601,6 +612,9 @@ function normalizeConnection(value: unknown, fallback: Record<string, unknown> =
 function connectionStatusLabel(status?: string | null) {
   if (status === "subscribed") return "Conectado";
   if (status === "connected") return "Conectado";
+  if (status === "coexistence_sync_requested") return "Conectado";
+  if (status === "coexistence_sync_requested_unverified") return "Revisar conexión";
+  if (status === "coexistence_sync_action_required") return "Requiere atención";
   if (status === "deauthorized") return "Desconectado";
   return status || "Conectado";
 }
@@ -622,6 +636,9 @@ function formatNameStatus(value?: string | null) {
 function formatSyncStatus(value?: string | null) {
   if (value === "subscribed") return "Webhook activo";
   if (value === "connected") return "Conectado";
+  if (value === "coexistence_sync_requested") return "Importación solicitada";
+  if (value === "coexistence_sync_requested_unverified") return "Solicitud enviada · verificar";
+  if (value === "coexistence_sync_action_required") return "Requiere revisión";
   return value || "No disponible";
 }
 

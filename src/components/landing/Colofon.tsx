@@ -5,69 +5,56 @@ import Reveal from "./Reveal";
 
 const CTA_LINKS = [
   {
-    label: "Pedir landing page",
+    label: "Diseñar mi sistema comercial",
     href: whatsappUrl(
-      "Hola, quiero pedir la landing page de USD 199 en 3 días con allok. Mi negocio es:"
+      "Hola, quiero diseñar mi sistema comercial con Allok. Mi negocio es:"
     ),
     primary: true,
   },
   {
-    label: "Cotizar automatización",
+    label: "Ver una demo personalizada",
     href: whatsappUrl(
-      "Hola, quiero cotizar una automatización simple desde USD 499 con allok. El flujo que quiero ordenar es:"
+      "Hola, quiero ver cómo funcionaría Allok en mi negocio. Recibimos consultas por:"
     ),
   },
   {
-    label: "Cotizar web/producto",
-    href: whatsappUrl(
-      "Hola, quiero cotizar una web o producto desde USD 699 con allok. Necesito construir:"
-    ),
-  },
-  {
-    label: "Escribir por WhatsApp",
-    href: whatsappUrl(
-      "Hola, quiero mejorar mi presencia digital para captar más leads. Mi caso es:"
-    ),
+    label: "Hablar por WhatsApp",
+    href: whatsappUrl(),
   },
 ];
 
 const FOOTER_LINKS = [
-  { label: "Servicios", href: "/#soluciones" },
-  { label: "Trabajos", href: "/projects" },
-  { label: "Planes y Precios", href: "/#precios" },
-  { label: "WhatsApp IA", href: "/whatsapp" },
+  { label: "Producto", href: "/es#producto" },
+  { label: "Resultados", href: "/es#resultados" },
+  { label: "Precios", href: "/es#precios" },
+  { label: "Portfolio", href: "/projects" },
   { label: "Cotizar", href: "/cotizar" },
-  { label: "Términos", href: "/terminos" },
-  { label: "Privacidad", href: "/privacidad" },
+  { label: "Términos", href: "/es/terminos" },
+  { label: "Privacidad", href: "/es/privacidad" },
 ];
 
 export default function Colofon() {
   return (
-    <footer
-      id="contacto"
-      className="studio relative w-full overflow-hidden bg-white text-black scroll-mt-24"
-    >
-      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#c5f04a]/60 to-transparent" />
-
+    <footer id="contacto" className="relative w-full overflow-hidden border-t border-[var(--line)] scroll-mt-24">
       <div className="mx-auto max-w-6xl px-6 pb-12 pt-20 md:px-10 md:pb-16 md:pt-28">
         <Reveal className="mb-16 flex flex-col items-start gap-8 md:mb-20">
-          <div className="inline-flex items-center gap-2 rounded-full border border-black/15 bg-white/70 px-3.5 py-1.5 text-[12px] font-semibold backdrop-blur">
+          <div className="inline-flex items-center gap-2 rounded-full border border-[var(--line)] bg-[var(--surface-2)] px-3.5 py-1.5 text-[12px] font-semibold text-[var(--text-secondary)]">
             <span className="relative flex h-2 w-2">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#c5f04a] opacity-75" />
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-[#c5f04a]" />
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[var(--lima)] opacity-75" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-[var(--lima)]" />
             </span>
             Disponible para nuevos proyectos
           </div>
 
-          <h2 className="max-w-5xl text-5xl font-normal leading-[0.95] text-black sm:text-6xl md:text-7xl lg:text-[5.5rem]">
-            Cuéntame qué quieres construir y empezamos.
+          <h2 className="max-w-5xl text-5xl font-medium leading-[0.95] text-[var(--text-primary)] sm:text-6xl md:text-7xl lg:text-[5.5rem]">
+            Cuéntanos cómo recibe clientes tu negocio.
           </h2>
-          <p className="max-w-2xl text-base leading-relaxed text-neutral-600 md:text-lg">
-            Una landing page para vender mejor, un producto que validar o un flujo con WhatsApp que automatizar.
-            Conversamos tu caso directo y te doy el camino más simple.
+          <p className="max-w-2xl text-base leading-relaxed text-[var(--text-secondary)] md:text-lg">
+            Consultas, seguimiento y ventas por WhatsApp, hoy desordenadas. Conversamos tu caso y te mostramos cómo
+            funcionaría Allok en tu operación.
           </p>
 
-          <div className="grid w-full gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid w-full gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {CTA_LINKS.map((link) => (
               <a
                 key={link.label}
@@ -76,44 +63,33 @@ export default function Colofon() {
                 rel="noopener noreferrer"
                 className={`inline-flex min-h-12 items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-semibold transition-all duration-300 hover:-translate-y-0.5 ${
                   link.primary
-                    ? "bg-black text-white hover:bg-neutral-800"
-                    : "border border-black/15 bg-white text-black hover:bg-[var(--studio-surface)]"
+                    ? "bg-[var(--lima)] text-[var(--lima-ink)]"
+                    : "border border-[var(--line)] text-[var(--text-primary)] hover:bg-[var(--surface-2)]"
                 }`}
               >
                 {link.label}
-                <ArrowUpRight className="h-4 w-4" />
+                <ArrowUpRight className="h-4 w-4" aria-hidden />
               </a>
             ))}
           </div>
 
-          <div className="flex flex-wrap items-center gap-3">
-            <a
-              href={whatsappUrl()}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2.5 rounded-full bg-[#25D366] px-6 py-3 text-sm font-semibold text-black transition-all hover:-translate-y-0.5 hover:brightness-95"
-            >
-              <MessageCircle className="h-4 w-4 fill-black text-black" />
-              WhatsApp Directo
-            </a>
-            <a
-              href={`mailto:${CONTACT_EMAIL}?subject=Consulta%20allok`}
-              className="inline-flex items-center gap-2 rounded-full border border-black/15 bg-white px-5 py-3 text-sm font-semibold text-black transition-colors hover:bg-[var(--studio-surface)]"
-            >
-              <Mail className="h-4 w-4" aria-hidden />
-              {CONTACT_EMAIL}
-            </a>
-          </div>
+          <a
+            href={`mailto:${CONTACT_EMAIL}?subject=Consulta%20Allok`}
+            className="inline-flex items-center gap-2 rounded-full border border-[var(--line)] px-5 py-3 text-sm font-semibold text-[var(--text-primary)] transition-colors hover:bg-[var(--surface-2)]"
+          >
+            <Mail className="h-4 w-4" aria-hidden />
+            {CONTACT_EMAIL}
+          </a>
         </Reveal>
 
-        <div className="flex flex-col justify-between gap-10 border-t border-black/10 pt-10 md:flex-row md:items-end">
+        <div className="flex flex-col justify-between gap-10 border-t border-[var(--line)] pt-10 md:flex-row md:items-end">
           <div>
-            <div className="mb-4 flex items-center text-black">
-              <AllokLogo variant="lockup-bare" className="h-9 w-auto" />
+            <div className="mb-4 flex items-center">
+              <AllokLogo variant="lockup-bare" theme="dark" className="h-9 w-auto" />
             </div>
-            <p className="max-w-sm text-xs leading-relaxed text-neutral-500">
-              allok es un estudio independiente que diseña landing pages, productos digitales,
-              apps web y automatizaciones con IA para ayudar a negocios a crecer u operar con menos costo.
+            <p className="max-w-sm text-xs leading-relaxed text-[var(--text-tertiary)]">
+              Allok instala un sistema comercial que organiza consultas, seguimientos y oportunidades para negocios
+              que venden por WhatsApp.
             </p>
           </div>
 
@@ -122,21 +98,29 @@ export default function Colofon() {
               <a
                 key={link.href}
                 href={link.href}
-                className="group inline-flex items-center gap-1 text-neutral-600 transition-colors hover:text-black"
+                className="group inline-flex items-center gap-1 text-[var(--text-secondary)] transition-colors hover:text-[var(--text-primary)]"
               >
                 {link.label}
-                <ArrowUpRight className="h-3 w-3 opacity-0 transition-opacity group-hover:opacity-100" />
+                <ArrowUpRight className="h-3 w-3 opacity-0 transition-opacity group-hover:opacity-100" aria-hidden />
               </a>
             ))}
           </div>
         </div>
 
-        <div className="mt-12 flex flex-col items-start justify-between gap-2 border-t border-black/5 pt-6 text-xs text-neutral-400 md:flex-row md:items-center">
-          <span>© {new Date().getFullYear()} allok. Todos los derechos reservados.</span>
+        <div className="mt-12 flex flex-col items-start justify-between gap-2 border-t border-[var(--line)] pt-6 text-xs text-[var(--text-tertiary)] md:flex-row md:items-center">
+          <a
+            href={whatsappUrl()}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 transition-colors hover:text-[var(--text-primary)]"
+          >
+            <MessageCircle className="h-3.5 w-3.5" aria-hidden />
+            Escríbenos por WhatsApp
+          </a>
           <div className="flex items-center gap-4">
-            <span>ServiciosCreativos.online</span>
-            <span className="h-1 w-1 rounded-full bg-[#c5f04a]" />
-            <span className="text-neutral-500">Diseño & Construcción de Producto</span>
+            <span>© {new Date().getFullYear()} Allok</span>
+            <span className="h-1 w-1 rounded-full bg-[var(--lima)]" aria-hidden />
+            <span>Sistema comercial para WhatsApp</span>
           </div>
         </div>
       </div>

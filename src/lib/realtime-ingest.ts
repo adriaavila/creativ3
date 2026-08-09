@@ -5,7 +5,12 @@ import type { WaConversation, WaMessage } from "@/lib/whatsapp-inbox-db";
 const REQUEST_TIMEOUT_MS = 2_000;
 const MAX_RETRIES = 2;
 
-export type RealtimeConversationChange = "assignedMode" | "outcome" | "leadId" | "lastMessageAt";
+export type RealtimeConversationChange =
+  | "assignedMode"
+  | "outcome"
+  | "leadId"
+  | "lastMessageAt"
+  | "contactName";
 
 function sleep(ms: number) {
   return new Promise<void>((resolve) => setTimeout(resolve, ms));

@@ -1,18 +1,18 @@
-# Contexto de producto — creativv
+# Contexto de producto — allok
 
-> Fuente: análisis completo del repo (2026-07-07). Etiquetas: **[HECHO]** verificable en el repo/sitio, **[HIPÓTESIS]** requiere validación de mercado, **[INFERENCIA]** deducido del código o los docs.
+> Fuente: análisis del repo (2026-08-05). Etiquetas: **[HECHO]** verificable en el repo/sitio, **[HIPÓTESIS]** requiere validación de mercado, **[INFERENCIA]** deducido del código o los docs.
 
 ## Qué es
 
-**[HECHO]** creativv (servicioscreativos.online) es un estudio de diseño + código + IA que construye sistemas comerciales digitales para PYMEs de LATAM: landing pages, webs/productos, automatizaciones y agentes IA sobre WhatsApp. Marca operativa: "creativv"; dominio: servicioscreativos.online; contacto: contacto@servicioscreativos.online, WhatsApp +58 422 002 3684 (`src/lib/contact.ts`).
+**[HECHO]** allok (allok.fun) es un estudio de diseño + código + IA que construye sistemas comerciales digitales para PYMEs de LATAM: landing pages, webs/productos, automatizaciones y agentes IA sobre WhatsApp. Marca operativa: **allok**; dominio: **allok.fun**; contacto: **contacto@allok.fun**, WhatsApp +58 422 002 3684 (`src/lib/contact.ts`).
 
 **[INFERENCIA]** Operación de una sola persona (fundador), con base en Caracas, Venezuela (el growth agent limita su mercado inicial a Caracas/Venezuela en `apps/growth-agent/agent/instructions.md`).
 
 ## Problema que resuelve
 
-**[HECHO — copy del sitio]** Negocios que ya tienen demanda (Instagram activo, ads, WhatsApp lleno) pero la pierden por: web floja o inexistente que no justifica el precio, WhatsApp saturado de preguntas repetidas sin filtro ni seguimiento, y operación manual que enfría leads. creativv convierte web + WhatsApp + agenda en un sistema que filtra, califica y da seguimiento.
+**[HECHO — copy del sitio]** Negocios que ya tienen demanda (Instagram activo, ads, WhatsApp lleno) pero la pierden por: web floja o inexistente que no justifica el precio, WhatsApp saturado de preguntas repetidas sin filtro ni seguimiento, y operación manual que enfría leads. allok convierte web + WhatsApp + agenda en un sistema que filtra, califica y da seguimiento.
 
-## Oferta y precios publicados
+## Oferta y precios
 
 **[HECHO — visibles en `/cotizar` y `OfertaSection.tsx`]**
 
@@ -22,15 +22,15 @@
 | Automatización | Desde USD 499 | 5–10 días |
 | Web / Producto | Desde USD 699 | 10–21 días |
 
-**[HECHO — en docs internos, no en el sitio]** (`.docs/mkt/gtm-arranque-2026-05-25.md`):
+**[DECISIÓN OPERATIVA — aprobada 2026-08-05; falta reflejarla en `/cotizar`]**:
 
 | Oferta | Precio | Plazo |
 |---|---|---|
+| Diagnóstico inicial gratuito (2 hallazgos verificables + siguiente paso) | USD 0 | Entrega breve |
 | Diagnóstico express (auditoría + 10 quick wins + roadmap; acreditable a proyecto) | USD 150 | 48h |
-| Piloto IA (intake WhatsApp, cotizador, FAQ+escalamiento, dashboard) | Desde USD 900 | 14 días |
-| Sprint web/producto | Desde USD 1.500 | 10–21 días |
+| Piloto IA (intake WhatsApp, cotizador, FAQ + escalamiento, dashboard) | Desde USD 899 | 14 días |
 
-⚠️ **Contradicción detectada:** el sitio publica 199/499/699 y los scripts de outreach usan 150/900/1.500. Ver `memory/decisions.md` → decisión pendiente D-001. Hasta resolverla, el outreach usa los precios del sitio + diagnóstico USD 150 como entrada de bajo riesgo.
+La campaña de las próximas dos semanas usa el diagnóstico gratuito como entrada para los leads verificados de `/ops/growth`. Entrega solo dos hallazgos concretos y una recomendación; los 10 quick wins siguen siendo el diagnóstico express pagado de USD 150. El piloto IA desde USD 899 se propone solo después de confirmar encaje, dolor y métrica.
 
 ## Buyer personas
 
@@ -89,7 +89,8 @@ Tu negocio ya genera interés; nosotros hacemos que ese interés se convierta. W
 
 ## Oportunidades de venta inmediata
 
-1. **Diagnóstico express USD 150/48h** a negocios locales con dolor visible (web débil + IG activo) — ciclo de venta de días.
-2. **Landing USD 199/3 días** como producto de entrada autoservible vía `/cotizar` + WhatsApp.
-3. **Piloto IA WhatsApp 14 días** a clínicas/academias que ya respondieron — usar la infraestructura Meta ya construida.
-4. **Convertir el propio growth agent en contenido**: "construí un agente que me investiga leads cada mañana" es la demo más creíble disponible hoy.
+1. **Diagnóstico gratuito** a los leads verificados del panel `/ops` — dos hallazgos y una ruta concreta.
+2. **Piloto IA WhatsApp 14 días desde USD 899** a quien confirme dolor, capacidad y métrica de éxito.
+3. **Diagnóstico express USD 150/48h** cuando el prospecto necesita una auditoría completa antes de construir.
+4. **Landing USD 199/3 días** como alternativa cuando el cuello de botella es solo la presencia web.
+5. **Convertir el propio growth agent en contenido**: "construí un agente que me investiga leads cada mañana" es la demo más creíble disponible hoy.

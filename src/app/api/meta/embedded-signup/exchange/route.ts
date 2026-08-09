@@ -6,22 +6,26 @@ import {
   generateRegistrationPin,
   getExchangeEnv,
   getMissingTokenPermissions,
+  getWhatsAppPhoneCoexistenceStatus,
   META_SIGNUP_STATE_COOKIE,
   registerPhoneNumber,
+  requestBusinessAppDataSync,
   resolveMetaSignupConnection,
   safeMetaError,
   subscribeWabaToApp,
   validateSignupPayload,
+  verifyMetaSignupState,
 } from "@/lib/meta/server";
 import {
+  claimWhatsAppCoexistenceSync,
   getStoredRegistrationPin,
+  recordWhatsAppCoexistenceSync,
   upsertWhatsAppConnection,
 } from "@/lib/whatsapp-connections-db";
 import { authorizeOps } from "@/lib/ops-auth";
 
 export async function POST(req: NextRequest) {
   const authorization = await authorizeOps();
-  if (!authorization.authorized) return authorization.response;
 
   let input: unknown;
 
@@ -37,7 +41,8 @@ export async function POST(req: NextRequest) {
   }
 
   const expectedState = req.cookies.get(META_SIGNUP_STATE_COOKIE)?.value;
-  if (!expectedState || payload.state !== expectedState) {
+  const signupState = verifyMetaSignupState(expectedState);
+  if (!expectedState || payload.state !== expectedState || !signupState) {
     return NextResponse.json(
       { error: "The Embedded Signup session is missing or expired. Reload and try again." },
       { status: 403 },
@@ -84,8 +89,9 @@ export async function POST(req: NextRequest) {
 
     const ownedPayload = {
       ...payload,
-      client: payload.client ?? authorization.userId,
-      user_id: authorization.userId,
+      client: signupState.workspace,
+      connection_mode: signupState.connection_mode,
+      user_id: authorization.authorized ? authorization.userId : undefined,
       team_id: undefined,
       account_id: undefined,
     };
@@ -108,12 +114,6 @@ export async function POST(req: NextRequest) {
 
     const connectedPayload = resolved.payload;
     const phoneProfile = resolved.phoneProfile;
-    const subscribeResult = await subscribeWabaToApp(
-      connectedPayload.waba_id,
-      businessToken,
-      exchangeEnv.env.graphVersion,
-    );
-
     const connectedAt = new Date().toISOString();
     const tokenMetadata = buildTokenMetadata(tokenExchange, debugData);
     const connectionMode = connectedPayload.connection_mode ?? "META_COEXISTENCE";
@@ -133,7 +133,48 @@ export async function POST(req: NextRequest) {
           connectedPayload.waba_id,
           connectedPayload.phone_number_id,
         ).catch(() => null)) ?? generateRegistrationPin();
+    }
 
+    // Persist credentials, identifiers and the Cloud API PIN before any Graph
+    // mutation. If subscribe/register succeeds but a later database write
+    // fails, the operator can still recover using the original encrypted PIN.
+    try {
+      await upsertWhatsAppConnection({
+        payload: connectedPayload,
+        businessToken,
+        tokenMetadata,
+        phoneProfile,
+        status:
+          connectionMode === "META_CLOUD_API"
+            ? "pending_registration"
+            : "pending_subscription",
+        connectedAt,
+        connectionMode,
+        onboardingNonce: connectionMode === "META_COEXISTENCE" ? signupState.nonce : null,
+        registrationPin,
+        registeredAt: null,
+      });
+    } catch (error) {
+      return NextResponse.json(
+        {
+          error:
+            "Meta authorized the number, but the secure connection record could not be stored. No subscription or registration was attempted; retry once storage is back.",
+          waba_id: connectedPayload.waba_id,
+          phone_number_id: connectedPayload.phone_number_id,
+          waba_subscribe_succeeded: false,
+          database: { ok: false, error: errorText(error) },
+        },
+        { status: 502 },
+      );
+    }
+
+    const subscribeResult = await subscribeWabaToApp(
+      connectedPayload.waba_id,
+      businessToken,
+      exchangeEnv.env.graphVersion,
+    );
+
+    if (connectionMode === "META_CLOUD_API" && registrationPin) {
       try {
         registration = await registerPhoneNumber({
           phoneNumberId: connectedPayload.phone_number_id,
@@ -142,8 +183,6 @@ export async function POST(req: NextRequest) {
           graphVersion: exchangeEnv.env.graphVersion,
         });
       } catch (error) {
-        // Store the connection anyway: the token and identifiers are worth
-        // keeping, and /register is retryable. The response says it is pending.
         const metaError = safeMetaError(error);
         registrationError =
           metaError && "message" in metaError.body
@@ -167,6 +206,7 @@ export async function POST(req: NextRequest) {
         status,
         connectedAt,
         connectionMode,
+        onboardingNonce: connectionMode === "META_COEXISTENCE" ? signupState.nonce : null,
         registrationPin,
         registeredAt: registration?.registered ? connectedAt : null,
       });
@@ -174,14 +214,84 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         {
           error:
-            "Meta authorized the number, but the secure connection record could not be stored. Retry once storage is back.",
+            "Meta accepted the connection and the recovery credentials are stored, but its final database status could not be updated. Retry safely.",
           waba_id: connectedPayload.waba_id,
           phone_number_id: connectedPayload.phone_number_id,
           waba_subscribe_succeeded: subscribeResult.success === true,
-          database: { ok: false, error: errorText(error) },
+          database: { ok: false, credentials_stored: true, error: errorText(error) },
         },
         { status: 502 },
       );
+    }
+
+    let coexistence: Record<string, unknown> | null = null;
+    let finalStatus = status;
+    if (connectionMode === "META_COEXISTENCE") {
+      const requestedAt = new Date().toISOString();
+      const claim = await claimWhatsAppCoexistenceSync({
+        wabaId: connectedPayload.waba_id,
+        phoneNumberId: connectedPayload.phone_number_id,
+        onboardingNonce: signupState.nonce,
+        requestedAt,
+      });
+
+      if (!claim.claimed) {
+        coexistence = claim.metadata;
+        finalStatus = claim.status;
+      } else {
+        const [phoneState, contactSync, historySync] = await Promise.allSettled([
+          getWhatsAppPhoneCoexistenceStatus({
+            phoneNumberId: connectedPayload.phone_number_id,
+            businessToken,
+            graphVersion: exchangeEnv.env.graphVersion,
+          }),
+          requestBusinessAppDataSync({
+            phoneNumberId: connectedPayload.phone_number_id,
+            businessToken,
+            syncType: "smb_app_state_sync",
+            graphVersion: exchangeEnv.env.graphVersion,
+          }),
+          requestBusinessAppDataSync({
+            phoneNumberId: connectedPayload.phone_number_id,
+            businessToken,
+            syncType: "history",
+            graphVersion: exchangeEnv.env.graphVersion,
+          }),
+        ]);
+
+        const phoneStateResult = settledMetaResult(phoneState);
+        const contactSyncResult = settledMetaResult(contactSync);
+        const historySyncResult = settledMetaResult(historySync);
+        const confirmed =
+          phoneState.status === "fulfilled" &&
+          phoneState.value.is_on_biz_app === true &&
+          phoneState.value.platform_type === "CLOUD_API";
+        const syncAccepted =
+          contactSync.status === "fulfilled" && contactSync.value.success !== false &&
+          historySync.status === "fulfilled" && historySync.value.success !== false;
+
+        finalStatus = syncAccepted
+          ? confirmed
+            ? "coexistence_sync_requested"
+            : "coexistence_sync_requested_unverified"
+          : "coexistence_sync_action_required";
+        coexistence = {
+          onboarding_nonce: signupState.nonce,
+          requested_at: requestedAt,
+          state: "finished",
+          final_status: finalStatus,
+          confirmed,
+          phone_state: phoneStateResult,
+          contact_sync: contactSyncResult,
+          history_sync: historySyncResult,
+        };
+        await recordWhatsAppCoexistenceSync({
+          wabaId: connectedPayload.waba_id,
+          phoneNumberId: connectedPayload.phone_number_id,
+          status: finalStatus,
+          metadata: coexistence,
+        });
+      }
     }
 
     const response = NextResponse.json({
@@ -193,7 +303,7 @@ export async function POST(req: NextRequest) {
         display_phone_number: phoneProfile.display_phone_number,
         verified_name: phoneProfile.verified_name,
         connected_at: connectedAt,
-        status,
+        status: finalStatus,
         connection_mode: connectionMode,
       },
       token_metadata: tokenMetadata,
@@ -208,6 +318,7 @@ export async function POST(req: NextRequest) {
               error: registrationError,
             }
           : { required: false, registered: false, already_registered: false, error: null },
+      coexistence,
       database: { ok: true },
       test_message: {
         endpoint: "/api/meta/embedded-signup/test-message",
@@ -239,4 +350,20 @@ export async function POST(req: NextRequest) {
 
 function errorText(error: unknown) {
   return error instanceof Error ? error.message : "Unknown exchange error.";
+}
+
+function settledMetaResult<T extends Record<string, unknown>>(
+  result: PromiseSettledResult<T>,
+) {
+  if (result.status === "fulfilled") return { ok: result.value.success !== false, ...result.value };
+  const metaError = safeMetaError(result.reason);
+  return metaError
+    ? {
+        ok: false,
+        request: metaError.meta_request,
+        status: metaError.status,
+        code: "code" in metaError.body ? metaError.body.code : undefined,
+        message: "message" in metaError.body ? metaError.body.message : undefined,
+      }
+    : { ok: false, message: errorText(result.reason).slice(0, 300) };
 }

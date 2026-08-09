@@ -1,4 +1,4 @@
-# creativv outbound scripts
+# allok outbound scripts
 
 ## Regla
 
@@ -10,44 +10,46 @@ No vender "agencia". No vender "IA". Vender resultado medible.
 
 > Hola [Nombre], vi [detalle real de negocio].
 > Creo que podrian estar perdiendo conversaciones por [dolor observado].
-> Estoy abriendo 5 diagnosticos express con creativv esta semana: reviso web/oferta/proceso, te doy 10 quick wins y una ruta clara en 48h.
-> Si te sirve, te grabo 2 ideas gratis primero.
+> Estoy haciendo diagnósticos gratuitos para negocios que ya tienen demanda: te comparto 2 hallazgos concretos sobre web/WhatsApp y una ruta de mejora.
+> Si hay encaje, puedo proponerte un piloto IA de 14 días desde USD 899. ¿Te paso los 2 hallazgos?
 
 ## DM — clinicas
 
 > Hola [Nombre], vi que [clinica] mueve bastante interes en [Instagram/web].
 > Muchas clinicas pierden citas porque WhatsApp se llena de precio/horario/tratamiento y no queda seguimiento.
-> Estoy haciendo diagnosticos express para clinicas: web + WhatsApp + agenda, entrega 48h.
-> Te puedo grabar 2 hallazgos rapidos sobre su flujo?
+> Estoy haciendo diagnósticos gratuitos para clínicas: te comparto 2 hallazgos concretos sobre web + WhatsApp + agenda.
+> Si hay encaje, puedo proponerte un piloto IA de 14 días desde USD 899. ¿Te paso los 2 hallazgos?
 
 ## DM — inmobiliarias
 
 > Hola [Nombre], vi [propiedad/servicio/zona].
 > En real estate suele perderse tiempo con leads sin presupuesto, zona o fecha clara.
-> creativv arma landings y flujos WhatsApp para calificar antes de que el equipo llame.
-> Te paso 2 oportunidades concretas si te interesa.
+> allok arma landings y flujos WhatsApp para calificar antes de que el equipo llame.
+> Puedo compartirte 2 hallazgos gratuitos sobre su captación si te interesa.
 
 ## DM — ecommerce
 
 > Hola [Nombre], vi [producto/categoria].
 > Si estan vendiendo por IG/WhatsApp, seguro reciben preguntas repetidas de stock, envios, pagos y recomendaciones.
-> Estoy haciendo diagnosticos express para detectar mejoras de conversion + automatizaciones simples.
-> Quieres que te grabe 2 ideas?
+> Estoy haciendo diagnósticos gratuitos para detectar mejoras de conversión + automatizaciones simples.
+> ¿Quieres que te comparta 2 hallazgos?
 
 ## DM — academias
 
 > Hola [Nombre], vi [programa/clase].
 > Cuando la gente pregunta horarios/precio/cupos por WhatsApp, mucho seguimiento se pierde.
-> creativv puede armar landing + intake + reserva/prueba para convertir interesados en alumnos.
-> Te paso 2 ideas rapidas para [academia]?
+> allok puede armar landing + intake + reserva/prueba para convertir interesados en alumnos.
+> Puedo compartirte 2 hallazgos gratuitos sobre [academia]?
 
 ## Respuesta si dicen "manda info"
 
-> Buenisimo. Trabajo con 3 entradas:
+> Buenisimo. Trabajo con 4 entradas:
 > 1. Diagnostico express USD 150 / 48h.
-> 2. Piloto IA desde USD 900 / 14 dias.
-> 3. Sprint web/producto desde USD 1.500 / 10-21 dias.
-> Para tu caso empezaria por diagnostico: reviso [web/proceso], marco 10 quick wins y te digo si conviene construir o no.
+> 2. Landing desde USD 199 / 3 dias.
+> 3. Automatizacion desde USD 499 / 5-10 dias.
+> 4. Web/producto desde USD 699 / 10-21 dias.
+> Despues del diagnostico, un piloto IA puede empezar en USD 899 / 14 dias.
+> Para tu caso empezaria por el diagnóstico gratuito: reviso [web/proceso], marco 2 hallazgos y te digo si conviene construir o no.
 
 ## Respuesta si preguntan precio
 
@@ -57,7 +59,7 @@ No vender "agencia". No vender "IA". Vender resultado medible.
 
 ## Respuesta si dicen "luego"
 
-> Perfecto. Te dejo idea concreta: [quick win]. Si en junio quieren mejorar leads o quitar trabajo manual, ese seria primer punto que revisaria.
+> Perfecto. Te dejo idea concreta: [quick win]. Si mas adelante quieren mejorar leads o quitar trabajo manual, ese seria el primer punto que revisaria.
 
 ## Cierre de diagnostico
 
@@ -85,4 +87,4 @@ Dia 4:
 > Cierro cupos de diagnostico esta semana. Creo que [quick win] puede mover [metrica]. Lo revisamos?
 
 Dia 7:
-> Cierro hilo. Si mas adelante quieren mejorar [leads/agenda/operacion], creativv puede ayudar.
+> Cierro hilo. Si mas adelante quieren mejorar [leads/agenda/operacion], allok puede ayudar.

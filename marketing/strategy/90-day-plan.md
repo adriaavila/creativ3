@@ -1,17 +1,17 @@
-# Plan 90 días (2026-07-07 → 2026-10-05)
+# Plan 90 días (2026-08-10 → 2026-11-08)
 
 Meta: **5 clientes pagos, USD 4.000+, 2 case studies publicables.**
 
 ## Mes 1 — Motor encendido (semanas 1–4)
 
-**Objetivo: 10 conversaciones, 3 diagnósticos vendidos, 1 piloto.**
+**Objetivo: 10 conversaciones, 1 piloto IA y un caso medible.**
 
 | Semana | Foco | Entregables | Hito |
 |---|---|---|---|
-| 1 | Resolver decisiones D-001..D-004 (`memory/decisions.md`), grabar Loom demo 3 min, llenar base con 40 leads reales (agente + humano), publicar semana 1 del calendario | 40 leads score≥6, demo, 3 posts | Primeros 30 mensajes enviados |
-| 2 | Outreach pleno (15/día) + contenido semana 2 | 75 mensajes, 6+ respuestas | 3 conversaciones reales |
-| 3 | Outreach + follow-ups día 2/4/7 + contenido semana 3 | 75 mensajes, 25 follow-ups | 1er diagnóstico vendido |
-| 4 | Conversión: entregar diagnósticos impecables + contenido semana 4 + retro mensual | 2–3 diagnósticos entregados | 1er piloto con anticipo |
+| 1 | Validar 12 leads `/ops`, aprobar borradores, preparar diagnóstico gratuito y grabar Loom | 12 leads, 12 mini-diagnósticos, 3 posts | Primeros 12 mensajes enviados |
+| 2 | Follow-up + llamadas de 15 min + contenido de valor | 12 follow-ups, 3+ conversaciones | Primer interesado calificado |
+| 3 | Proponer piloto IA desde USD 899 y entregar diagnósticos profundos solo si hacen falta | 1–2 propuestas | 1er piloto con anticipo |
+| 4 | Ejecutar piloto y retro mensual | 1 piloto activo | Primera métrica de éxito registrada |
 
 ## Mes 2 — Primeras pruebas (semanas 5–8)
 
@@ -40,6 +40,6 @@ Ver `playbooks/weekly-growth-cycle.md`. Scorecard cada viernes sin excepción en
 ## Condiciones de cambio de plan
 
 - **Reply rate < 2% tras 150 mensajes** → detener volumen, A/B de ángulos, revisar ICP.
-- **2+ diagnósticos vendidos pero 0 pilotos** → problema de oferta/precio del piloto: revisar D-001.
+- **2+ diagnósticos vendidos pero 0 pilotos** → revisar alcance, prueba de valor y precio del piloto; registrar el aprendizaje antes de cambiar la escalera.
 - **Cierre local < 2% al día 45** → adelantar outbound remoto MX/CO por LinkedIn.
 - **Un canal genera 2x conversaciones que el resto combinado** → concentrar ahí el 80%.

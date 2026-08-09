@@ -7,9 +7,9 @@ Objetivo del contenido: **que el prospecto confíe lo suficiente para responder 
 | Pilar | Qué es | Por qué funciona | Formato típico | CTA |
 |---|---|---|---|---|
 | P1 — Fugas de conversión | Anatomía de dónde un negocio pierde leads (web, WhatsApp, seguimiento), con ejemplos anonimizados de la investigación diaria del agente | Es el dolor exacto del ICP, mostrado con detalle real | Carrusel IG, post LinkedIn | "Escríbeme 'diagnóstico'" |
-| P2 — Build in public | Cómo construimos creativv y su growth agent: decisiones, errores, sistema | Única prueba verificable disponible hoy; diferencia técnica visible | Post LinkedIn, video corto | Seguir + `/cotizar` |
+| P2 — Build in public | Cómo construimos allok y su growth agent: decisiones, errores, sistema | Única prueba verificable disponible hoy; diferencia técnica visible | Post LinkedIn, video corto | Seguir + `/cotizar` |
 | P3 — Cómo hacerlo | Mini-guías accionables: flujo WhatsApp que califica, landing que convierte, seguimiento en 3 mensajes | Genera guardados/compartidos y autoridad práctica | Carrusel, guía blog (Fase 2) | Link vertical del sitio |
-| P4 — Oferta directa | Diagnóstico 150/48h, landing 199/3 días, disponibilidad de la semana | Nada convierte si nunca ofreces | Post simple, story | WhatsApp directo |
+| P4 — Oferta directa | Diagnóstico gratuito de 2 hallazgos → piloto IA desde USD 899; diagnóstico profundo USD 150/48h | Nada convierte si nunca ofreces | Post simple, story | WhatsApp directo |
 
 Mezcla semanal: 40% P1, 25% P2, 25% P3, 10% P4.
 

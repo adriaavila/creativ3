@@ -5,9 +5,9 @@ Estado de autorización por plataforma. **Ninguna automatización corre sobre un
 | Plataforma | Uso previsto | Estado | Autorizada por / fecha | Límites conocidos | Notas |
 |---|---|---|---|---|---|
 | Web pública (sitios de negocios, directorios, Google Maps) | Investigación de leads y competidores (solo lectura) | **autorizada** | Implícita — datos públicos, solo lectura | Respetar robots/ritmo | Sin login; registrar fuentes |
-| servicioscreativos.online | Verificar enlaces, formularios, páginas publicadas | **autorizada** | Sitio propio | — | Solo lectura/verificación |
+| allok.fun | Verificar enlaces, formularios, páginas publicadas | **autorizada** | Sitio propio | — | Solo lectura/verificación |
 | Vercel Analytics | Recolección semanal de métricas | pendiente_autorizacion | — | Requiere sesión del dueño | Alternativa: export manual del dueño |
-| Instagram (cuenta creativv) | Cargar borradores/publicar aprobados; leer stats y comentarios | **no_autorizada** (pendiente decisión D-002) | — | Automatización agresiva → bloqueo; usar con extrema moderación | Considerar Postiz (ya integrado en growth agent) como vía oficial |
+| Instagram (cuenta allok) | Cargar borradores/publicar aprobados; leer stats y comentarios | **no_autorizada** (pendiente decisión D-002) | — | Automatización agresiva → bloqueo; usar con extrema moderación | Considerar Postiz (ya integrado en growth agent) como vía oficial |
 | LinkedIn (perfil fundador) | Publicar aprobados; leer stats | **no_autorizada** (pendiente D-002) | — | Muy sensible a automatización; preferir publicación manual o Postiz | |
 | X | Publicar aprobados | **no_autorizada** | — | — | Canal en pausa en Fase 1 |
 | Postiz (si configurado) | Encolar borradores programados para revisión | pendiente_verificacion | — | — | El subagente `content` del growth agent ya encola aquí; verificar credenciales activas |

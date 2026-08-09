@@ -15,6 +15,8 @@ const REQUIRED_EXCHANGE_ENV = [
 ] as const;
 
 export const META_SIGNUP_STATE_COOKIE = "meta_embedded_signup_state";
+const META_SIGNUP_STATE_TTL_SECONDS = 15 * 60;
+const META_ONBOARDING_INVITE_TTL_SECONDS = 7 * 24 * 60 * 60;
 
 export const META_ENV_CHECKS = [
   "META_APP_ID",
@@ -92,6 +94,17 @@ export type MetaWhatsAppPhoneProfile = {
   verified_name?: string;
   quality_rating?: string;
   name_status?: string;
+};
+
+export type MetaWhatsAppCoexistenceStatus = {
+  id?: string;
+  is_on_biz_app?: boolean;
+  platform_type?: string;
+};
+
+export type MetaBusinessAppSyncResponse = {
+  success?: boolean;
+  request_id?: string;
 };
 
 export type MetaMessageResponse = {
@@ -173,6 +186,138 @@ export function getExchangeEnv() {
       graphVersion: getGraphVersion(),
     },
   };
+}
+
+export type MetaSignupStateContext = {
+  workspace: string;
+  connection_mode: MetaConnectionMode;
+  issued_at: number;
+  expires_at: number;
+  nonce: string;
+};
+
+export type MetaOnboardingInviteContext = MetaSignupStateContext & {
+  purpose: "meta_onboarding_invite";
+};
+
+export function createMetaOnboardingInvite(
+  workspace: string,
+  connectionMode: MetaConnectionMode,
+): string | null {
+  const secret = process.env.META_APP_SECRET;
+  if (
+    !secret ||
+    !/^[a-zA-Z0-9._-]{1,80}$/.test(workspace) ||
+    !META_CONNECTION_MODES.includes(connectionMode)
+  ) {
+    return null;
+  }
+
+  const issuedAt = Math.floor(Date.now() / 1000);
+  const payload = Buffer.from(
+    JSON.stringify({
+      purpose: "meta_onboarding_invite",
+      workspace,
+      connection_mode: connectionMode,
+      issued_at: issuedAt,
+      expires_at: issuedAt + META_ONBOARDING_INVITE_TTL_SECONDS,
+      nonce: crypto.randomUUID(),
+    } satisfies MetaOnboardingInviteContext),
+  ).toString("base64url");
+  const signature = crypto.createHmac("sha256", secret).update(payload).digest("base64url");
+  return `${payload}.${signature}`;
+}
+
+export function verifyMetaOnboardingInvite(
+  value: string | undefined,
+  secret = process.env.META_APP_SECRET,
+): MetaOnboardingInviteContext | null {
+  const context = verifySignedMetaContext(value, secret);
+  if (
+    !context ||
+    context.purpose !== "meta_onboarding_invite" ||
+    typeof context.workspace !== "string" ||
+    !/^[a-zA-Z0-9._-]{1,80}$/.test(context.workspace) ||
+    !META_CONNECTION_MODES.includes(context.connection_mode as MetaConnectionMode) ||
+    typeof context.issued_at !== "number" ||
+    typeof context.expires_at !== "number" ||
+    typeof context.nonce !== "string" ||
+    context.expires_at < Math.floor(Date.now() / 1000)
+  ) {
+    return null;
+  }
+  return context as MetaOnboardingInviteContext;
+}
+
+export function createMetaSignupState(
+  workspace: string,
+  connectionMode: MetaConnectionMode,
+): string | null {
+  const secret = process.env.META_APP_SECRET;
+  if (!secret) return null;
+
+  const issuedAt = Math.floor(Date.now() / 1000);
+  const payload = Buffer.from(
+    JSON.stringify({
+      workspace,
+      connection_mode: connectionMode,
+      issued_at: issuedAt,
+      expires_at: issuedAt + META_SIGNUP_STATE_TTL_SECONDS,
+      nonce: crypto.randomUUID(),
+    } satisfies MetaSignupStateContext),
+  ).toString("base64url");
+  const signature = crypto.createHmac("sha256", secret).update(payload).digest("base64url");
+  return `${payload}.${signature}`;
+}
+
+export function verifyMetaSignupState(
+  value: string | undefined,
+  secret = process.env.META_APP_SECRET,
+): MetaSignupStateContext | null {
+  const context = verifySignedMetaContext(value, secret);
+  if (
+    !context ||
+    context.purpose !== undefined ||
+    typeof context.workspace !== "string" ||
+    !/^[a-zA-Z0-9._-]{1,80}$/.test(context.workspace) ||
+    !META_CONNECTION_MODES.includes(context.connection_mode as MetaConnectionMode) ||
+    typeof context.issued_at !== "number" ||
+    typeof context.expires_at !== "number" ||
+    typeof context.nonce !== "string" ||
+    context.expires_at < Math.floor(Date.now() / 1000)
+  ) {
+    return null;
+  }
+  return context as unknown as MetaSignupStateContext;
+}
+
+function verifySignedMetaContext(
+  value: string | undefined,
+  secret: string | undefined,
+): Record<string, unknown> | null {
+  if (!value || !secret) return null;
+
+  const [payload, signature, ...extraParts] = value.split(".");
+  if (!payload || !signature || extraParts.length > 0) return null;
+
+  const expected = crypto.createHmac("sha256", secret).update(payload).digest("base64url");
+  const receivedBuffer = Buffer.from(signature);
+  const expectedBuffer = Buffer.from(expected);
+  if (
+    receivedBuffer.length !== expectedBuffer.length ||
+    !crypto.timingSafeEqual(receivedBuffer, expectedBuffer)
+  ) {
+    return null;
+  }
+
+  try {
+    const context = JSON.parse(Buffer.from(payload, "base64url").toString("utf8"));
+    return context && typeof context === "object" && !Array.isArray(context)
+      ? context as Record<string, unknown>
+      : null;
+  } catch {
+    return null;
+  }
 }
 
 export function validateSignupPayload(input: unknown): {
@@ -269,6 +414,14 @@ export async function subscribeWabaToApp(
   wabaId: string,
   businessToken: string,
   graphVersion: string,
+  /**
+   * Manda los webhooks de ESTE WABA a otra URL en vez de a la callback de la
+   * app. Es lo que permite que un cliente que trabaja en otra app (REI CRM)
+   * reciba sus mensajes directo, sin que allok quede de puente en el camino
+   * caliente. Meta valida la URL con un GET hub.challenge antes de aceptar,
+   * así que el verify token tiene que ser el de esa app, no el de allok.
+   */
+  override?: { callbackUri: string; verifyToken: string },
 ) {
   return graphRequest<SubscribeResponse>({
     requestName: "subscribe_waba",
@@ -276,6 +429,9 @@ export async function subscribeWabaToApp(
     path: `${encodeURIComponent(wabaId)}/subscribed_apps`,
     method: "POST",
     accessToken: businessToken,
+    body: override
+      ? { override_callback_uri: override.callbackUri, verify_token: override.verifyToken }
+      : undefined,
   });
 }
 
@@ -339,6 +495,45 @@ export async function getWhatsAppPhoneProfile(
   });
 }
 
+/** Confirms that Meta kept the number in the WhatsApp Business App. */
+export async function getWhatsAppPhoneCoexistenceStatus(input: {
+  phoneNumberId: string;
+  businessToken: string;
+  graphVersion?: string;
+}) {
+  return graphRequest<MetaWhatsAppCoexistenceStatus>({
+    requestName: "get_whatsapp_coexistence_status",
+    graphVersion: input.graphVersion ?? getGraphVersion(),
+    path: encodeURIComponent(input.phoneNumberId),
+    accessToken: input.businessToken,
+    searchParams: { fields: "id,is_on_biz_app,platform_type" },
+  });
+}
+
+/**
+ * Requests one of Meta's one-shot Coexistence imports. Each sync type can only
+ * be requested once per onboarding, so callers must persist the outcome and
+ * must not retry blindly after an ambiguous network failure.
+ */
+export async function requestBusinessAppDataSync(input: {
+  phoneNumberId: string;
+  businessToken: string;
+  syncType: "history" | "smb_app_state_sync";
+  graphVersion?: string;
+}) {
+  return graphRequest<MetaBusinessAppSyncResponse>({
+    requestName: `request_${input.syncType}`,
+    graphVersion: input.graphVersion ?? getGraphVersion(),
+    path: `${encodeURIComponent(input.phoneNumberId)}/smb_app_data`,
+    method: "POST",
+    accessToken: input.businessToken,
+    body: {
+      messaging_product: "whatsapp",
+      sync_type: input.syncType,
+    },
+  });
+}
+
 export async function resolveMetaSignupConnection(input: {
   payload: ValidatedMetaSignupPayload;
   debugData: MetaDebugTokenData;
@@ -349,11 +544,16 @@ export async function resolveMetaSignupConnection(input: {
   phoneProfile: MetaWhatsAppPhoneProfile;
 } | null> {
   if (input.payload.waba_id && input.payload.phone_number_id) {
-    const phoneProfile = await getWhatsAppPhoneProfile(
-      input.payload.phone_number_id,
+    // `window.postMessage` supplies both IDs, but it is still browser input.
+    // Resolve the phone through the WABA edge so a mismatched pair cannot make
+    // Allok subscribe one WABA while storing a phone from another.
+    const phones = await listWabaPhoneNumbers(
+      input.payload.waba_id,
       input.businessToken,
       input.graphVersion,
     );
+    const phoneProfile = phones.find((phone) => phone.id === input.payload.phone_number_id);
+    if (!phoneProfile?.id) return null;
     return {
       payload: {
         ...input.payload,
@@ -379,17 +579,8 @@ export async function resolveMetaSignupConnection(input: {
 
   for (const wabaId of authorizedWabaIds) {
     try {
-      const response = await graphRequest<{ data?: MetaWhatsAppPhoneProfile[] }>({
-        requestName: "discover_whatsapp_phone_numbers",
-        graphVersion: input.graphVersion,
-        path: `${encodeURIComponent(wabaId)}/phone_numbers`,
-        accessToken: input.businessToken,
-        searchParams: {
-          fields: "id,display_phone_number,verified_name,quality_rating,name_status",
-        },
-      });
-
-      for (const phone of response.data ?? []) {
+      const phones = await listWabaPhoneNumbers(wabaId, input.businessToken, input.graphVersion);
+      for (const phone of phones) {
         if (!phone.id) continue;
         candidates.push({ wabaId, phone });
       }
@@ -414,6 +605,23 @@ export async function resolveMetaSignupConnection(input: {
     },
     phoneProfile: selected.phone,
   };
+}
+
+async function listWabaPhoneNumbers(
+  wabaId: string,
+  businessToken: string,
+  graphVersion: string,
+) {
+  const response = await graphRequest<{ data?: MetaWhatsAppPhoneProfile[] }>({
+    requestName: "discover_whatsapp_phone_numbers",
+    graphVersion,
+    path: `${encodeURIComponent(wabaId)}/phone_numbers`,
+    accessToken: businessToken,
+    searchParams: {
+      fields: "id,display_phone_number,verified_name,quality_rating,name_status",
+    },
+  });
+  return response.data ?? [];
 }
 
 export function buildTokenMetadata(
@@ -705,6 +913,7 @@ async function graphRequest<T>(input: {
     method: input.method ?? "GET",
     headers,
     body: input.body === undefined ? undefined : JSON.stringify(input.body),
+    signal: AbortSignal.timeout(10_000),
   });
   const body = await readSafeBody(response);
 

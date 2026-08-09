@@ -34,18 +34,20 @@ export async function POST(req: NextRequest) {
     deleteWhatsAppDataForMetaUser(payload.user_id),
   ]);
 
-  if (
-    forwarded.status === "rejected" ||
-    database.status === "rejected" ||
-    !forwarded.value.ok
-  ) {
+  if (database.status === "rejected") {
     return NextResponse.json(
       {
         error: "Could not process data deletion.",
-        forwarded_status: forwarded.status === "fulfilled" ? forwarded.value.status : 500,
       },
       { status: 502 },
     );
+  }
+
+  if (forwarded.status === "rejected" || !forwarded.value.ok) {
+    console.warn(JSON.stringify({
+      event: "meta_data_deletion_n8n_forward_failed",
+      status: forwarded.status === "fulfilled" ? forwarded.value.status : 500,
+    }));
   }
 
   const confirmationCode = crypto.randomBytes(12).toString("hex");

@@ -2,7 +2,7 @@
 
 > Etiquetas: **[HECHO]** verificado con fuente, **[HIPÓTESIS]** conocimiento general a validar con Browser Use (tarea en `backlog.md`). El Market Research Agent debe actualizar este archivo con URLs y fechas.
 
-## Marco: contra qué compite realmente creativv
+## Marco: contra qué compite realmente allok
 
 La competencia principal no es otra agencia: es la **inercia** del dueño que sigue respondiendo WhatsApp a mano. Orden real de alternativas en la cabeza del cliente:
 
@@ -14,7 +14,7 @@ La competencia principal no es otra agencia: es la **inercia** del dueño que si
 
 ## Matriz comparativa (borrador para contenido y objeciones)
 
-| Dimensión | creativv | Freelancer | Agencia tradicional | SaaS chatbot DIY |
+| Dimensión | allok | Freelancer | Agencia tradicional | SaaS chatbot DIY |
 |---|---|---|---|---|
 | Precio inicial | USD 150–199 visible | Variable, bajo | Cotización opaca, alto | USD 20–100/mes + tu tiempo |
 | Plazo | Días | Semanas, incierto | Meses | Inmediato pero incompleto |
@@ -32,7 +32,7 @@ Tarea permanente del Market Research Agent (ver `agents/market-research-agent.md
 
 ## Hallazgos
 
-_(vacío — se llena con investigación fechada: fecha, competidor, hallazgo, URL, implicación para creativv)_
+_(vacío — se llena con investigación fechada: fecha, competidor, hallazgo, URL, implicación para allok)_
 
 | Fecha | Competidor | Hallazgo | URL | Implicación |
 |---|---|---|---|---|

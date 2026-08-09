@@ -1,8 +1,8 @@
-# Posicionamiento — creativv
+# Posicionamiento — allok
 
 ## Declaración
 
-Para **dueños de negocios con demanda real pero operación manual** (clínicas, academias, inmobiliarias, ecommerce en LATAM), **creativv** es el **estudio de diseño + código + IA** que convierte web, WhatsApp y agenda en un **sistema comercial que filtra, responde y da seguimiento solo**, a diferencia de **agencias que cotizan a ciegas y tardan meses**, porque **publica precios, entrega en días y empieza con un diagnóstico de USD 150 acreditable**.
+Para **dueños de negocios con demanda real pero operación manual** (clínicas, academias, inmobiliarias, ecommerce en LATAM), **allok** es el **estudio de diseño + código + IA** que convierte web, WhatsApp y agenda en un **sistema comercial que filtra, responde y da seguimiento solo**, a diferencia de **agencias que cotizan a ciegas y tardan meses**, porque **publica precios, entrega en días y empieza con un diagnóstico de USD 150 acreditable**.
 
 ## Mensaje core
 

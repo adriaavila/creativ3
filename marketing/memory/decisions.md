@@ -10,8 +10,8 @@ Formato: ID, fecha, decisión, razón, quién decide, estado. Las `PENDIENTE` bl
 - **Estado:** activa.
 
 ### D-101 — 2026-07-07 — Outreach: precios del sitio (199/499/699) + diagnóstico USD 150 como entrada
-- **Razón:** son los únicos precios públicos y verificables; el diagnóstico existe en scripts y baja el riesgo de entrada. Evita prometer lo no publicado mientras se resuelve D-001.
-- **Estado:** activa hasta resolver D-001.
+- **Razón:** son los precios públicos y verificables para las compras pequeñas; el diagnóstico baja el riesgo de entrada y el piloto se ofrece solo después de descubrir el caso.
+- **Estado:** activa; la escalera completa queda definida por D-001.
 
 ### D-102 — 2026-07-07 — El growth agent existente es la implementación de Lead Research/Copywriter; marketing/ es la capa de estrategia y registro
 - **Razón:** no duplicar código; un solo estándar documentado en `agents/`.
@@ -21,10 +21,18 @@ Formato: ID, fecha, decisión, razón, quién decide, estado. Las `PENDIENTE` bl
 - **Razón:** coherente con el diseño del agente (sin tool de envío), evita spam/bans y protege reputación en fase de confianza cero.
 - **Estado:** activa, no negociable en Fase 1.
 
-## PENDIENTES — requieren al fundador
+### D-001 — 2026-08-05 — Escalera de precios de Fase 1
+- **Decisión:** diagnóstico express USD 150/48h, acreditable a proyecto; landing USD 199/3 días; automatización desde USD 499/5–10 días; web/producto desde USD 699/10–21 días; piloto IA desde USD 899/14 días después del diagnóstico.
+- **Razón:** alinea el sitio, el outreach y el siguiente paso comercial. El retainer queda fuera hasta tener casos reales.
+- **Estado:** activa. Falta publicar la sección del diagnóstico en `/cotizar`.
 
-### D-001 — Unificar escalera de precios ⚠️ BLOQUEA mensajes de oferta
-El sitio publica 199/499/699; los scripts internos usan diagnóstico 150 / piloto 900 / sprint 1500; el plan viejo menciona retainer 1.5k+800/mes. **Propuesta:** publicar el diagnóstico USD 150 en el sitio (sección en `/cotizar`), mantener 199/499/699, definir piloto IA "desde USD 899" y dejar retainer para cuando haya clientes. Falta: sí/no del fundador.
+### D-105 — 2026-08-05 — Campaña de leads `/ops`: diagnóstico gratuito → piloto IA
+- **Decisión:** ofrecer a los leads verificados por los agentes un diagnóstico breve gratuito con 2 hallazgos públicos y una recomendación. Si existe encaje y una métrica clara, proponer piloto IA desde USD 899/14 días.
+- **Límite:** el diagnóstico gratuito no incluye auditoría completa ni 10 quick wins; esa profundidad sigue siendo el diagnóstico express de USD 150.
+- **Razón:** reduce fricción en leads reales ya investigados y crea una conversación basada en evidencia antes de pedir un compromiso.
+- **Estado:** activa para la campaña 2026-08-10 → 2026-08-21.
+
+## PENDIENTES — requieren al fundador
 
 ### D-002 — Autorizar plataformas para Browser Use / Postiz
 Publicación y recolección de stats en IG/LinkedIn requieren autorización explícita de cuentas (ver `browser-use/supported-platforms.md`). Mientras: publicación manual. Falta: qué cuentas, qué alcance, y si Postiz está operativo con credenciales.

@@ -1,186 +1,36 @@
-"use client";
-
-import React, { useState, useEffect } from "react";
+import type { Metadata } from "next";
+import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 import Colofon from "@/components/landing/Colofon";
-import { Mic, Loader2, CheckCircle2, Square } from "lucide-react";
-import { motion, AnimatePresence } from "motion/react";
+
+export const metadata: Metadata = {
+  title: "Cuéntanos tu proyecto",
+  description: "Cuéntanos cómo recibe clientes tu negocio y te mostramos cómo funcionaría Allok en tu operación.",
+  alternates: { canonical: "/proyecto" },
+};
 
 export default function ProyectoPage() {
-  const [isRecording, setIsRecording] = useState(false);
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false);
-  const [recordingTime, setRecordingTime] = useState(0);
-
-  useEffect(() => {
-    let interval: NodeJS.Timeout;
-    if (isRecording) {
-      interval = setInterval(() => {
-        setRecordingTime((prev) => prev + 1);
-      }, 1000);
-    }
-    return () => clearInterval(interval);
-  }, [isRecording]);
-
-  const handleMicClick = () => {
-    if (isRecording) {
-      setIsRecording(false);
-      setIsProcessing(true);
-      
-      setTimeout(() => {
-        setIsProcessing(false);
-        setIsSuccess(true);
-      }, 3000);
-    } else {
-      setRecordingTime(0);
-      setIsRecording(true);
-      setIsSuccess(false);
-    }
-  };
-
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
-  };
-
   return (
-    <div className="studio min-h-screen bg-[#ffffff] text-[#0a0a0a] selection:bg-[#a1a1a3]/30 selection:text-[#0a0a0a] flex flex-col relative overflow-hidden">
-      <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[url('/noise.png')]" />
-      
-      <main className="flex-1 flex flex-col items-center justify-center pt-32 pb-24 px-6 relative z-10 min-h-[80vh]">
-        <div className="max-w-2xl mx-auto w-full flex flex-col items-center text-center">
-          
-          <AnimatePresence mode="wait">
-            {!isSuccess ? (
-              <motion.div
-                key="recording-ui"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                className="w-full flex flex-col items-center"
-              >
-                <div className="inline-flex mb-8 border border-[#1c1d20]/30 text-[#1c1d20] px-5 py-1.5 rounded-full bg-[#1c1d20]/5 backdrop-blur-xl font-mono tracking-widest text-[10px] uppercase">
-                  Arquitecto de Producto IA
-                </div>
-                
-                <h1 className="text-4xl md:text-6xl font-normal mb-6 leading-tight">
-                  Tu visión, <br />
-                  <span className="text-[#1c1d20] not-italic font-normal tracking-tight">nuestro software</span>
-                </h1>
-                
-                <p className="text-[#6b6b6b] text-lg mb-16 max-w-md mx-auto leading-relaxed font-mono">
-                  Presiona el micrófono y cuéntanos la idea que tienes en mente. Nuestro agente estructurará tu requerimiento en minutos.
-                </p>
-
-                <div className="relative flex flex-col items-center justify-center">
-                  {isRecording && (
-                    <>
-                      <motion.div 
-                        initial={{ opacity: 0.8, scale: 1 }}
-                        animate={{ opacity: 0, scale: 2 }}
-                        transition={{ repeat: Infinity, duration: 1.5, ease: "easeOut" }}
-                        className="absolute w-32 h-32 rounded-full bg-[#1c1d20]/30 pointer-events-none"
-                      />
-                      <motion.div 
-                        initial={{ opacity: 0.8, scale: 1 }}
-                        animate={{ opacity: 0, scale: 2.5 }}
-                        transition={{ repeat: Infinity, duration: 1.5, ease: "easeOut", delay: 0.5 }}
-                        className="absolute w-32 h-32 rounded-full bg-[#a1a1a3]/30 pointer-events-none"
-                      />
-                    </>
-                  )}
-
-                  <button
-                    onClick={handleMicClick}
-                    disabled={isProcessing}
-                    className={`relative w-32 h-32 rounded-full flex items-center justify-center shadow-2xl transition-all duration-500 z-10
-                      ${isProcessing 
-                        ? 'bg-[#ffffff] border border-[#0a0a0a]/15 cursor-wait' 
-                        : isRecording 
-                          ? 'bg-red-500/10 border-red-500 text-red-500 hover:bg-red-500/20' 
-                          : 'bg-[#1c1d20] hover:bg-[#1c1d20]/80 text-white hover:scale-105'
-                      }
-                    `}
-                  >
-                    {isProcessing ? (
-                      <Loader2 className="w-10 h-10 animate-spin text-[#1c1d20]" />
-                    ) : isRecording ? (
-                      <Square className="w-10 h-10 fill-current" />
-                    ) : (
-                      <Mic className="w-12 h-12" />
-                    )}
-                  </button>
-                  
-                  <div className="mt-8 h-8 flex items-center justify-center">
-                    <AnimatePresence mode="wait">
-                      {isProcessing ? (
-                        <motion.span 
-                          key="processing"
-                          initial={{ opacity: 0, y: 5 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: -5 }}
-                          className="font-mono text-sm text-[#1c1d20] animate-pulse"
-                        >
-                          Estructurando requerimientos...
-                        </motion.span>
-                      ) : isRecording ? (
-                        <motion.div 
-                          key="recording"
-                          initial={{ opacity: 0, y: 5 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: -5 }}
-                          className="flex flex-col items-center"
-                        >
-                          <span className="font-mono text-sm text-red-400 mb-1 animate-pulse">Grabando audio...</span>
-                          <span className="font-mono text-xl text-[#0a0a0a] font-light">{formatTime(recordingTime)}</span>
-                        </motion.div>
-                      ) : (
-                        <motion.span 
-                          key="ready"
-                          initial={{ opacity: 0, y: 5 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: -5 }}
-                          className="font-mono text-sm text-[#6b6b6b]/70"
-                        >
-                          Toca para hablar
-                        </motion.span>
-                      )}
-                    </AnimatePresence>
-                  </div>
-                </div>
-              </motion.div>
-            ) : (
-              <motion.div
-                key="success-ui"
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="w-full max-w-md bg-white/30 border border-[#0a0a0a]/10 rounded-[2rem] p-12 flex flex-col items-center relative overflow-hidden"
-              >
-                <div className="absolute -top-32 -right-32 w-64 h-64 bg-green-500/10 rounded-full blur-[80px] pointer-events-none" />
-                
-                <div className="w-20 h-20 bg-green-500/10 rounded-full flex items-center justify-center mb-8">
-                  <CheckCircle2 className="w-10 h-10 text-green-500" />
-                </div>
-                
-                <h2 className="text-3xl font-normal mb-4">Proyecto Recibido</h2>
-                <p className="text-[#6b6b6b] font-mono text-sm leading-relaxed mb-10">
-                  Hemos procesado tu idea. Nuestro equipo de diseño y producto se pondrá en contacto pronto para definir los próximos pasos.
-                </p>
-                
-                <button 
-                  onClick={() => setIsSuccess(false)}
-                  className="w-full border border-[#0a0a0a]/15 rounded-full py-4 font-mono text-sm hover:bg-[#0a0a0a] hover:text-[#ffffff] transition-colors"
-                >
-                  Contar otra idea
-                </button>
-              </motion.div>
-            )}
-          </AnimatePresence>
-
-        </div>
+    <>
+      <main className="flex min-h-[80vh] flex-col items-center justify-center px-6 pt-32 pb-24 text-center">
+        <span className="inline-flex items-center rounded-full border border-[var(--line)] bg-[var(--surface-2)] px-3 py-1 text-xs font-medium text-[var(--text-secondary)]">
+          Nuevo proyecto
+        </span>
+        <h1 className="mt-6 max-w-2xl text-4xl font-medium leading-[0.98] tracking-[-0.03em] text-[var(--text-primary)] sm:text-6xl">
+          Cuéntanos cómo recibe clientes tu negocio.
+        </h1>
+        <p className="mt-5 max-w-md text-base leading-relaxed text-[var(--text-secondary)]">
+          Cinco preguntas cortas y te mostramos cómo funcionaría Allok en tu operación.
+        </p>
+        <Link
+          href="/cotizar"
+          className="mt-8 inline-flex min-h-12 items-center gap-2 rounded-full bg-[var(--lima)] px-6 text-sm font-semibold text-[var(--lima-ink)] transition-transform hover:-translate-y-0.5"
+        >
+          Empezar
+          <ArrowRight className="size-4" aria-hidden />
+        </Link>
       </main>
-
       <Colofon />
-    </div>
+    </>
   );
 }

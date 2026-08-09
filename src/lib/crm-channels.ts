@@ -2,7 +2,7 @@ import type { CrmChannel } from "@/lib/crm-types";
 import type { WahaConnectionRecord } from "@/lib/whatsapp-inbox-db";
 import type { WhatsAppConnectionView } from "@/lib/whatsapp-connections-db";
 
-const ACTIVE_STATUSES = new Set(["connected", "subscribed"]);
+const ACTIVE_STATUSES = new Set(["connected", "subscribed", "coexistence_sync_requested"]);
 
 export function isCrmChannelActive(channel: Pick<CrmChannel, "status">) {
   return ACTIVE_STATUSES.has(channel.status.toLowerCase());
@@ -11,6 +11,9 @@ export function isCrmChannelActive(channel: Pick<CrmChannel, "status">) {
 export function crmChannelStatusLabel(channel: Pick<CrmChannel, "status" | "official">) {
   const status = channel.status.toLowerCase();
   if (isCrmChannelActive(channel)) return "Operativo";
+  if (["coexistence_sync_requested_unverified", "coexistence_sync_action_required"].includes(status)) {
+    return "Requiere atención";
+  }
   if (["pending", "starting", "scan_qr", "passkey"].includes(status)) return "Configurando";
   if (["failed", "error"].includes(status)) return "Requiere atención";
   if (["deauthorized", "stopped", "deleted", "disconnected"].includes(status)) return "Desconectado";

@@ -29,8 +29,8 @@ export async function generateMetadata({
   if (!resolved) return {};
   const { city, vertical } = resolved;
   const label = VERTICAL_LABELS[vertical.slug];
-  const title = `Páginas web para ${label} en ${city.label}`;
-  const description = `Diseño web, automatización de WhatsApp y agentes IA para ${label} en ${city.label}, Venezuela. Landings que captan, califican y dan seguimiento a leads.`;
+  const title = `Sistema comercial para ${label} en ${city.label}`;
+  const description = `Allok organiza consultas, seguimiento y oportunidades por WhatsApp para ${label} en ${city.label}, Venezuela.`;
   return {
     title,
     description,
@@ -48,16 +48,17 @@ export default async function CityVerticalPage({
   const { city, vertical } = resolved;
   const label = VERTICAL_LABELS[vertical.slug];
   const path = cityVerticalPath(city.slug, vertical.slug);
-  const title = `Páginas web para ${label} en ${city.label}`;
-  const description = `Diseño web, automatización de WhatsApp y agentes IA para ${label} en ${city.label}, Venezuela.`;
+  const title = `Sistema comercial para ${label} en ${city.label}`;
+  const description = `Allok organiza consultas, seguimiento y oportunidades por WhatsApp para ${label} en ${city.label}, Venezuela.`;
 
+  // Two levels only — there is no `/paginas-web/{city}` listing route to
+  // point an intermediate breadcrumb node at.
   const breadcrumb = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     itemListElement: [
       { "@type": "ListItem", position: 1, name: "Inicio", item: SITE_URL },
-      { "@type": "ListItem", position: 2, name: city.label, item: `${SITE_URL}/paginas-web/${city.slug}` },
-      { "@type": "ListItem", position: 3, name: title, item: `${SITE_URL}${path}` },
+      { "@type": "ListItem", position: 2, name: title, item: `${SITE_URL}${path}` },
     ],
   };
 

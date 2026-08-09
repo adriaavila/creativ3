@@ -18,8 +18,8 @@ Regla: máximo **1 experimento nuevo por semana**. Un experimento sin criterio d
 
 ### EXP-001 — Ángulo de apertura en DM frío (A: conversión web vs B: WhatsApp saturado)
 - **Hipótesis:** el ángulo B (WhatsApp saturado) responde mejor porque el dolor es diario y visceral, mientras la web "puede esperar".
-- **Métrica y umbral:** tasa de respuesta por ángulo con n = 30 envíos c/u; ganador si diferencia ≥ 2x o ≥ 4 puntos.
-- **Duración:** primeras 2 semanas de outreach (sem 2026-W29–W30).
+- **Métrica y umbral:** tasa de respuesta al diagnóstico gratuito por ángulo; primera ola n = 6 envíos c/u. No declarar ganador hasta n ≥ 30 por ángulo; diferencia final ≥ 2x o ≥ 4 puntos.
+- **Duración:** primera ola 2026-08-11 → 2026-08-13; continuar después si no se alcanza n ≥ 30 por ángulo.
 - **Esfuerzo:** bajo (mismos leads, mensaje alternado).
 - **Estado:** propuesto (arranca con el primer lote de envíos).
 - **Resultado:** —

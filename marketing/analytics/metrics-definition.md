@@ -19,8 +19,9 @@ Jerarquía: las métricas de negocio mandan; las de funnel explican; las de cana
 | Respuestas | Cualquier respuesta humana del prospecto | `conversations.md` |
 | Conversaciones comerciales | Intercambio donde el prospecto habla de SU negocio/dolor (no solo "gracias") | `conversations.md` clasificación `interesado/objecion` |
 | Leads calificados | Filas nuevas con score ≥ 6 | `lead-database.csv` + `/ops/growth` |
+| Diagnósticos gratuitos entregados | 2 hallazgos verificables enviados a un lead | `conversations.md` |
 | Tasa respuesta | respuestas / mensajes toque 1 (ventana 7 días) | Calculada |
-| Tasa conversación→diagnóstico | diagnósticos / conversaciones | Calculada |
+| Tasa conversación→piloto | pilotos propuestos o aceptados / conversaciones | Calculada |
 
 ## Capa 3 — Canal y contenido (contexto)
 

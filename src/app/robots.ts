@@ -7,7 +7,19 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: "*",
       allow: "/",
-      disallow: ["/api/", "/ops/", "/sign-in", "/pago/", "/es/pago/", "/en/payment/", "/proyecto"],
+      disallow: [
+        "/api/",
+        "/ops/",
+        "/ops-login",
+        "/demo/",
+        "/sign-in",
+        "/embedded-whatsapp",
+        "/conectar-whatsapp",
+        "/pago",
+        "/pago/",
+        "/es/pago/",
+        "/en/payment/",
+      ],
     },
     sitemap: `${BASE_URL}/sitemap.xml`,
   };

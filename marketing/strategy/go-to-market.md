@@ -1,39 +1,39 @@
-# Go-to-market — creativv
+# Go-to-market — allok
 
-## Situación (diagnóstico honesto, 2026-07-07)
+## Situación (diagnóstico honesto, 2026-08-05)
 
 - Producto y sitio listos para vender; **cero clientes/casos documentados públicamente**.
 - Operación de una persona + growth agent desplegado que investiga y prepara, pero no envía.
 - Planes GTM previos (`.docs/mkt/`) bien pensados pero sin evidencia de ejecución registrada. Este sistema añade lo que faltaba: registro, medición y ciclo de mejora.
+- Marca y dominio ya están unificados en allok/allok.fun; la ejecución comercial todavía arranca desde cero.
 
 ## Estrategia en una frase
 
-**Outbound quirúrgico local (motor principal) + prueba pública en redes (motor de confianza) + diagnóstico USD 150 como cuña de entrada**, hasta conseguir 3 casos con números; después escalar a LinkedIn LATAM con esos casos como munición.
+**Leads verificados por los agentes + diagnóstico gratuito breve + piloto IA desde USD 899**, con contenido público como prueba de confianza. El diagnóstico express de USD 150 queda como alternativa de profundidad; el objetivo es conseguir el primer piloto medible antes de abrir más canales.
 
 ## Escalera de ofertas (cómo entra y sube un cliente)
 
 ```
-Diagnóstico express USD 150 / 48h   ← cuña: bajo riesgo, filtra curiosos, se acredita
+Diagnóstico gratuito                  ← entrada: 2 hallazgos verificables + siguiente paso
         ↓
-Landing USD 199 / 3 días  ó  Piloto IA 14 días desde USD 900
+Piloto IA 14 días desde USD 899       ← oferta principal de esta campaña
         ↓
-Web/Producto desde USD 699  +  Automatización desde USD 499
         ↓
-Retainer de mejora continua (definir precio — decisión D-001 en memory/decisions.md)
+Retainer de mejora continua (se define después de los primeros casos)
         ↓
 Referidos + testimonio con números → case study → motor de Fase 2
 ```
 
 ## Fases
 
-### Fase 0 — Preparación (semana 1) ✅ mayormente hecha
-Sitio, verticales, cotizador, scripts, agente. Falta: resolver decisión de precios D-001, grabar 1 Loom demo, activar registro disciplinado.
+### Fase 0 — Preparación ✅
+Sitio, verticales, cotizador, scripts, agente, marca, oferta base y 12 leads reales del panel listos. Falta ejecutar: preparar diagnósticos gratuitos, grabar el Loom y comenzar el registro disciplinado.
 
 ### Fase 1 — Primeros 5 clientes (semanas 1–8)
-- Motor: 15 mensajes personalizados/día (WhatsApp warm, Instagram, LinkedIn) sobre leads investigados con dolor observado real.
+- Motor: 12 mensajes personalizados de primera ola sobre leads investigados con dolor observado real; el fundador envía y ofrece el diagnóstico gratuito.
 - Meta pipeline (de `.docs/mkt/5-client-confidence-plan.md`): 200 prospectos → ~13 respuestas → 6 conversaciones → 2–3 diagnósticos → pilotos.
 - Contenido: 3 piezas/semana que documentan la construcción (build in public del growth agent + tesis de conversión). Objetivo del contenido: que el prospecto que recibió un DM encuentre autoridad al revisar el perfil.
-- Cierre de los 2 primeros pilotos con incentivo (precio reducido a cambio de testimonio con números reales) — **requiere aprobación del fundador**.
+- Cierre del primer piloto desde USD 899 con métrica de éxito acordada antes de construir. El descuento queda fuera hasta resolver D-003.
 
 ### Fase 2 — Repetible (semanas 9–16)
 - Publicar 2–3 case studies con números.

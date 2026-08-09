@@ -18,7 +18,7 @@ Para cada etapa: acción esperada, responsable, datos, métrica, criterio de ava
 - **Aprobación humana:** SIEMPRE antes de publicar o enviar.
 
 ### 2. Visita
-- **Acción:** entra a servicioscreativos.online o al perfil IG/LinkedIn.
+- **Acción:** entra a `https://allok.fun` o al perfil IG/LinkedIn.
 - **Responsable:** sitio + perfiles (assets pasivos).
 - **Datos:** Vercel Analytics (páginas, referrers); visitas a perfil (stats nativas).
 - **Métrica:** visitas/sem; % que llega a `/cotizar` o página vertical.
@@ -49,21 +49,22 @@ Para cada etapa: acción esperada, responsable, datos, métrica, criterio de ava
 - **Responsable:** humano (fundador). El agente prepara contexto del lead.
 - **Datos:** notas en `outreach/conversations.md`: dolor, presupuesto, urgencia, objeción.
 - **Métrica:** conversaciones/sem; % conversación→oferta hecha.
-- **Avance →:** acepta diagnóstico (USD 150) o pide propuesta.
+- **Avance →:** acepta el diagnóstico gratuito breve o pide el diagnóstico express de USD 150.
 - **Automatización:** propuesta borrador (modo proposal del growth agent, ya existe).
 - **Aprobación:** toda propuesta la revisa y envía el humano.
 
 ### 6. Diagnóstico / Demo
-- **Acción:** paga USD 150; recibe auditoría + 10 quick wins + roadmap en 48h (plantilla en `.docs/mkt/diagnostico-express-template.md`).
+- **Acción gratuita:** recibe 2 hallazgos verificables sobre web/WhatsApp y una recomendación de siguiente paso. No incluye auditoría completa.
+- **Acción pagada:** si necesita profundidad, paga USD 150 y recibe auditoría + 10 quick wins + roadmap en 48h (plantilla en `.docs/mkt/diagnostico-express-template.md`).
 - **Responsable:** humano entrega; agente pre-llena investigación.
 - **Datos:** fecha venta, fecha entrega, hallazgos, recomendación de sprint.
-- **Métrica:** diagnósticos vendidos/mes; % diagnóstico→piloto.
-- **Avance →:** acepta piloto/sprint en ≤14 días (los 150 se acreditan).
+- **Métrica:** diagnósticos gratuitos entregados; conversaciones; diagnósticos pagados; % diagnóstico→piloto.
+- **Avance →:** acepta piloto IA desde USD 899 en ≤14 días; los USD 150 se acreditan si hubo diagnóstico express pagado.
 - **Automatización:** borrador de diagnóstico desde evidencia del lead.
 - **Aprobación:** entrega final siempre humana.
 
 ### 7. Piloto
-- **Acción:** proyecto 14 días (intake WhatsApp, landing, automatización). 50% anticipo.
+- **Acción:** piloto IA desde USD 899, 14 días (intake WhatsApp, landing, automatización). 50% anticipo.
 - **Responsable:** humano construye (con sus herramientas de dev).
 - **Datos:** alcance, fechas, anticipo, métrica de éxito acordada ANTES de empezar.
 - **Métrica:** pilotos activos; % piloto→cliente recurrente.

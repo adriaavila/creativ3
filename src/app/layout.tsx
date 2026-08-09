@@ -1,48 +1,20 @@
 import type { Metadata } from "next";
-import { Fraunces, Italiana, Instrument_Sans, JetBrains_Mono, Geist } from "next/font/google";
+import { JetBrains_Mono, Geist } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
-import SiteHeader from "@/components/sections/SiteHeader";
-import RouteTheme from "@/components/sections/RouteTheme";
+import SiteChrome from "@/components/site/SiteChrome";
 import { siteJsonLd } from "@/lib/seo";
 import { headers } from "next/headers";
 
-const fraunces = Fraunces({
-  weight: ["300", "400"],
-  style: ["normal", "italic"],
-  subsets: ["latin"],
-  variable: "--font-fraunces",
-  display: "swap",
-});
-
-const italiana = Italiana({
-  weight: "400",
-  subsets: ["latin"],
-  variable: "--font-italiana",
-  display: "swap",
-  preload: false,
-});
-
 const jetbrains = JetBrains_Mono({
-  weight: ["300", "400"],
+  weight: ["300", "400", "500"],
   subsets: ["latin"],
   variable: "--font-jetbrains",
   display: "swap",
-  preload: false,
 });
 
-const instrumentSans = Instrument_Sans({
-  weight: ["400", "500", "600", "700"],
-  subsets: ["latin"],
-  variable: "--font-instrument-sans",
-  display: "swap",
-});
-
-// Grotesque for the studio landing. Cabinet Grotesk (the face in the reference
-// asset pack) only ships via Fontshare's runtime @import — a render-blocking
-// external request with no next/font optimisation. Geist is the same modern
-// grotesque genre, self-hosted by next/font, zero external requests. Swap in
-// Cabinet Grotesk with next/font/local if you download its woff2 files.
+// The one grotesque, at every size, on the site and in the product.
+// Self-hosted by next/font, zero external requests.
 const geist = Geist({
   weight: ["400", "500", "600"],
   subsets: ["latin"],
@@ -53,42 +25,39 @@ const geist = Geist({
 export const metadata: Metadata = {
   metadataBase: new URL("https://allok.fun"),
   title: {
-    default: "allok | Tu negocio, funcionando mejor",
-    template: "%s | allok",
+    default: "Allok — Sistema comercial conectado a WhatsApp",
+    template: "%s | Allok",
   },
   description:
-    "Sistemas digitales para vender más y operar mejor: sitios web, automatización con IA y allok Desk.",
+    "Organiza consultas, seguimientos y oportunidades en un sistema comercial instalado para tu negocio.",
   verification: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION
     ? { google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION }
     : undefined,
   keywords: [
     "allok",
-    "landing pages",
-    "agentes IA para negocios",
-    "automatizaciones",
-    "captacion de leads",
-    "diseno web",
-    "productos digitales",
-    "MVP",
-    "dashboard",
-    "Next.js",
-    "WhatsApp",
+    "sistema comercial",
+    "CRM WhatsApp",
+    "seguimiento de clientes",
+    "pipeline de ventas",
+    "automatizacion de ventas",
+    "inbox WhatsApp",
+    "gestion de leads",
   ],
   openGraph: {
-    title: "allok | Tu negocio, funcionando mejor",
+    title: "Allok — Sistema comercial conectado a WhatsApp",
     description:
-      "Landing pages, sitios web y ecommerce para vender más. Automatizaciones, dashboards y apps para operar con menos fricción.",
+      "Allok organiza tus consultas, seguimientos y oportunidades en un solo sistema comercial conectado a WhatsApp, Instagram y tu sitio web.",
     url: "https://allok.fun",
-    siteName: "allok",
+    siteName: "Allok",
     locale: "es_VE",
     type: "website",
-    images: [{ url: "/opengraph-image", width: 1200, height: 630, alt: "allok" }],
+    images: [{ url: "/opengraph-image", width: 1200, height: 630, alt: "Allok" }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "allok | Tu negocio, funcionando mejor",
+    title: "Allok — Sistema comercial conectado a WhatsApp",
     description:
-      "Estrategia, UX/UI y software diseñados alrededor del resultado que tu negocio necesita.",
+      "Convierte conversaciones en ventas: consultas, seguimientos y oportunidades en un solo sistema.",
     images: ["/opengraph-image"],
   },
 };
@@ -98,27 +67,15 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // No `h-full` on <html>: a fixed 100%-height root makes the document a
-  // viewport-height scroller with the body overflowing it, which breaks
-  // ScrollTrigger's start/end measurement. `min-h-screen` on <body> gives the
-  // same full-viewport floor without pinning the root's height.
   const locale = (await headers()).get("x-allok-locale") === "en" ? "en" : "es";
   return (
-    <html
-      lang={locale}
-      className={`${fraunces.variable} ${italiana.variable} ${jetbrains.variable} ${instrumentSans.variable} ${geist.variable} theme-dark`}
-    >
-      {/* relative: GSAP ScrollTrigger's documented requirement whenever overflow
-          is set on <body> — without it, offset math against the window
-          scroller silently no-ops instead of erroring. */}
+    <html lang={locale} className={`${jetbrains.variable} ${geist.variable}`}>
       <body className="relative min-h-screen overflow-x-hidden antialiased">
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(siteJsonLd(locale)) }}
         />
-        <RouteTheme />
-        <SiteHeader />
-        {children}
+        <SiteChrome>{children}</SiteChrome>
         <Analytics mode={process.env.VERCEL ? "auto" : "development"} debug={false} />
       </body>
     </html>

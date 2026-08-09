@@ -21,6 +21,7 @@ Se llena cada viernes. Semana sin scorecard = semana que no cuenta. Historia má
 | Métrica | Valor | vs sem. anterior |
 |---|---|---|
 | Conversaciones comerciales | | |
+| Diagnósticos gratuitos entregados | | |
 | Diagnósticos vendidos | | |
 | Demos/propuestas enviadas | | |
 | Pilotos (nuevos / activos) | | |

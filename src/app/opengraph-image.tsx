@@ -2,7 +2,7 @@ import { ImageResponse } from "next/og";
 import { wavePath } from "@/lib/waveform";
 
 export const runtime = "edge";
-export const alt = "allok — Vende más. Reduce el costo de operar.";
+export const alt = "Allok — Convierte conversaciones en ventas.";
 export const size = {
   width: 1200,
   height: 630,
@@ -29,9 +29,9 @@ export default async function Image() {
         }}
       >
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <span style={{ fontSize: 34, fontWeight: 600, letterSpacing: "-0.03em" }}>allok</span>
+          <span style={{ fontSize: 34, fontWeight: 600, letterSpacing: "-0.03em" }}>Allok</span>
           <span style={{ fontSize: 22, color: "#8a8a8a", letterSpacing: "0.12em" }}>
-            SISTEMAS DIGITALES PARA NEGOCIOS
+            SISTEMA COMERCIAL PARA WHATSAPP
           </span>
         </div>
 
@@ -52,8 +52,8 @@ export default async function Image() {
               letterSpacing: "-0.04em",
             }}
           >
-            <span>Vende más.</span>
-            <span style={{ color: "#8a8a8a" }}>Reduce el costo de operar.</span>
+            <span>Convierte conversaciones</span>
+            <span style={{ color: "#8a8a8a" }}>en ventas.</span>
           </div>
           <div style={{ display: "flex", fontSize: 26, color: "#a1a1a3" }}>
             allok.fun

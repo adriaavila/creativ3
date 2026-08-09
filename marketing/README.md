@@ -1,4 +1,4 @@
-# marketing/ — Sistema de marketing agentic de creativv
+# marketing/ — Sistema de marketing de allok
 
 Centro de operaciones de adquisición de clientes. Todo lo que un agente (o un humano) necesita para investigar, crear contenido, prospectar, publicar, medir y mejorar vive aquí. El objetivo del sistema no son likes: son **conversaciones comerciales, diagnósticos vendidos, pilotos y clientes**.
 
@@ -21,7 +21,7 @@ Esta carpeta es la **capa de estrategia, contenido y memoria** que orquesta esos
 - `context/` — qué vendemos, a quién, contra quién, con qué posicionamiento. **Leer primero.**
 - `strategy/` — go-to-market, canales, contenido, funnel y plan de 90 días.
 - `agents/` — definición de cada agente: misión, entradas, salidas, límites, criterio de done.
-- `content/` — ideas, calendario de 4 semanas, borradores → aprobados → publicados, assets reutilizables.
+- `content/` — ideas, calendario quincenal, borradores → aprobados → publicados, assets reutilizables.
 - `outreach/` — base de leads, calificación, secuencias, conversaciones y seguimientos.
 - `analytics/` — definición de métricas, scorecard semanal, performance por canal/contenido, experimentos.
 - `browser-use/` — flujos automatizables con navegador, plataformas soportadas, reglas de seguridad, log de ejecución.
@@ -49,9 +49,10 @@ Detalle en `playbooks/weekly-growth-cycle.md`.
 5. Toda acción ejecutada deja registro: contenido en `content/published/`, mensajes en `outreach/conversations.md`, automatizaciones en `browser-use/execution-log.md`, decisiones en `memory/decisions.md`.
 6. Browser Use opera solo bajo `browser-use/safety-rules.md`.
 
-## Estado actual (2026-07-07)
+## Estado actual (2026-08-05)
 
-- Sistema documental completo: contexto, estrategia, agentes, playbooks, plantillas.
-- Calendario de contenido de 4 semanas creado con 3 borradores listos para revisión humana.
-- Base de leads con estructura y filas semilla (sin datos personales; se llena con investigación real).
-- Pendiente de aprobación humana: ver `backlog.md` sección "Needs approval".
+- Marca operativa unificada: **allok** en `allok.fun`; los documentos históricos ya fueron normalizados.
+- Campaña actual fijada: diagnóstico gratuito de 2 hallazgos → piloto IA desde USD 899; el diagnóstico profundo de USD 150 queda como alternativa.
+- Hay 3 borradores listos para aprobación, pero todavía no hay publicaciones ni scorecard de ejecución.
+- La base contiene 12 leads únicos reales sincronizados desde `/ops/growth`; el siguiente run debe llevarla a 20.
+- Publicación y envío siguen siendo acciones humanas; D-002 solo bloquea automatización.

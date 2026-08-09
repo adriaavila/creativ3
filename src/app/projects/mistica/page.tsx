@@ -7,6 +7,7 @@ export const metadata: Metadata = {
   title: "Mística · Escuela de natación, ordenada en una app",
   description:
     "Mística organiza tu escuela de natación: alumnos, asistencia y cobros en bolívares y divisa. Sin Excel, sin cuadernos.",
+  alternates: { canonical: "/projects/mistica" },
 };
 
 const FEATURES = [

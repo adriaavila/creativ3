@@ -62,9 +62,17 @@ export type WhatsAppMessageReceivedEvent = WhatsAppNormalizedEventBase & {
     source: "cloud_api" | "business_app" | "waha" | "phone";
     type: string;
     text?: string;
+    status?: string;
     contactName?: string;
     contactPhone?: string;
   };
+};
+
+export type WhatsAppContactUpdatedEvent = WhatsAppNormalizedEventBase & {
+  type: "contact.updated";
+  contactPhone: string;
+  contactName?: string;
+  action: "add" | "remove";
 };
 
 export type WhatsAppMessageStatusUpdatedEvent = WhatsAppNormalizedEventBase & {
@@ -92,6 +100,7 @@ export type WhatsAppErrorReceivedEvent = WhatsAppNormalizedEventBase & {
 
 export type WhatsAppNormalizedEvent =
   | WhatsAppMessageReceivedEvent
+  | WhatsAppContactUpdatedEvent
   | WhatsAppMessageStatusUpdatedEvent
   | WhatsAppConnectionUpdatedEvent
   | WhatsAppErrorReceivedEvent;

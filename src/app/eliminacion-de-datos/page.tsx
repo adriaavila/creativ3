@@ -4,6 +4,7 @@ import Colofon from "@/components/landing/Colofon";
 export const metadata: Metadata = {
   title: "Eliminación de datos de usuario | Servicios Creativos",
   description: "Instrucciones para solicitar la eliminación de datos de usuario en nuestras aplicaciones y sitios web.",
+  alternates: { canonical: "/eliminacion-de-datos" },
 };
 
 export default function LegalDataDeletion() {

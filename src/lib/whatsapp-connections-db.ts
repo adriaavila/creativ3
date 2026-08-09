@@ -59,6 +59,8 @@ export async function upsertWhatsAppConnection(input: {
   status: string;
   connectedAt: string;
   connectionMode: "META_CLOUD_API" | "META_COEXISTENCE";
+  /** Identifies one signed Embedded Signup session for one-shot Coexistence sync calls. */
+  onboardingNonce?: string | null;
   /** Plaintext; encrypted here. Only set for META_CLOUD_API, which needs it to re-register. */
   registrationPin?: string | null;
   registeredAt?: string | null;
@@ -105,12 +107,26 @@ export async function upsertWhatsAppConnection(input: {
       verified_name = EXCLUDED.verified_name,
       quality_rating = EXCLUDED.quality_rating,
       name_status = EXCLUDED.name_status,
-      status = EXCLUDED.status,
+      status = CASE
+        WHEN ${input.connectionMode} = 'META_COEXISTENCE'
+          AND ${input.onboardingNonce ?? null}::text IS NOT NULL
+          AND whatsapp_connections.token_metadata #>> '{coexistence,onboarding_nonce}' = ${input.onboardingNonce ?? null}::text
+        THEN whatsapp_connections.status
+        ELSE EXCLUDED.status
+      END,
       client = EXCLUDED.client,
       owner_user_id = EXCLUDED.owner_user_id,
       team_id = EXCLUDED.team_id,
       account_id = EXCLUDED.account_id,
-      token_metadata = EXCLUDED.token_metadata,
+      token_metadata = CASE
+        WHEN ${input.connectionMode} = 'META_COEXISTENCE'
+          AND ${input.onboardingNonce ?? null}::text IS NOT NULL
+          AND whatsapp_connections.token_metadata #>> '{coexistence,onboarding_nonce}' = ${input.onboardingNonce ?? null}::text
+        THEN EXCLUDED.token_metadata || jsonb_build_object(
+          'coexistence', whatsapp_connections.token_metadata -> 'coexistence'
+        )
+        ELSE EXCLUDED.token_metadata
+      END,
       connection_mode = EXCLUDED.connection_mode,
       -- Keep the stored pin when this run did not produce one: Meta requires the
       -- original pin on every later re-register, so overwriting it with null
@@ -285,6 +301,80 @@ export async function markWhatsAppConnectionStatusByWaba(wabaId: string, status:
     UPDATE whatsapp_connections
     SET status = ${status}, updated_at = now()
     WHERE waba_id = ${wabaId}
+  `;
+}
+
+/**
+ * Atomically claims Meta's one-shot contact/history requests for one signup
+ * nonce. A repeated exchange with the same signed state reads the stored result
+ * instead of issuing either Graph request again.
+ */
+export async function claimWhatsAppCoexistenceSync(input: {
+  wabaId: string;
+  phoneNumberId: string;
+  onboardingNonce: string;
+  requestedAt: string;
+}): Promise<{ claimed: boolean; status: string; metadata: Record<string, unknown> | null }> {
+  const sql = getSql();
+  const marker = {
+    onboarding_nonce: input.onboardingNonce,
+    request_started_at: input.requestedAt,
+    state: "requesting",
+  };
+  const rows = await sql`
+    WITH claimed AS (
+      UPDATE whatsapp_connections
+      SET token_metadata = jsonb_set(
+            COALESCE(token_metadata, '{}'::jsonb),
+            '{coexistence}',
+            ${JSON.stringify(marker)}::jsonb,
+            true
+          ),
+          updated_at = now()
+      WHERE waba_id = ${input.wabaId}
+        AND phone_number_id = ${input.phoneNumberId}
+        AND NOT (COALESCE(token_metadata, '{}'::jsonb) ? 'coexistence')
+      RETURNING status, token_metadata -> 'coexistence' AS metadata
+    )
+    SELECT true AS claimed, status, metadata FROM claimed
+    UNION ALL
+    SELECT false AS claimed, status, token_metadata -> 'coexistence' AS metadata
+    FROM whatsapp_connections
+    WHERE waba_id = ${input.wabaId} AND phone_number_id = ${input.phoneNumberId}
+      AND NOT EXISTS (SELECT 1 FROM claimed)
+    LIMIT 1
+  `;
+  if (!rows[0]) throw new Error("coexistence_sync_connection_not_found");
+  const metadata = rows[0].metadata;
+  return {
+    claimed: rows[0].claimed === true,
+    status: String(rows[0].status),
+    metadata:
+      metadata && typeof metadata === "object" && !Array.isArray(metadata)
+        ? metadata as Record<string, unknown>
+        : null,
+  };
+}
+
+export async function recordWhatsAppCoexistenceSync(input: {
+  wabaId: string;
+  phoneNumberId: string;
+  status: string;
+  metadata: Record<string, unknown>;
+}) {
+  const sql = getSql();
+  await sql`
+    UPDATE whatsapp_connections
+    SET status = ${input.status},
+        token_metadata = jsonb_set(
+          COALESCE(token_metadata, '{}'::jsonb),
+          '{coexistence}',
+          ${JSON.stringify(input.metadata)}::jsonb,
+          true
+        ),
+        last_synced_at = now(),
+        updated_at = now()
+    WHERE waba_id = ${input.wabaId} AND phone_number_id = ${input.phoneNumberId}
   `;
 }
 

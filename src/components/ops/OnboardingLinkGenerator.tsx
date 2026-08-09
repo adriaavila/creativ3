@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { Check, Copy, Link2 } from "lucide-react";
+import { toWorkspaceSlug } from "@/lib/meta/onboarding-link";
 
 /**
  * Builds the per-client Embedded Signup link an operator sends to a business
@@ -12,24 +13,6 @@ import { Check, Copy, Link2 } from "lucide-react";
 
 const SLUG_MAX = 80;
 
-/** Must satisfy the server-side check in /embedded-whatsapp and resolveOpsWorkspace. */
-export function toWorkspaceSlug(input: string) {
-  return input
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "")
-    .slice(0, SLUG_MAX);
-}
-
-export function buildOnboardingUrl(origin: string, slug: string, cloudApi: boolean) {
-  const url = new URL("/embedded-whatsapp", origin);
-  url.searchParams.set("workspace", slug);
-  if (cloudApi) url.searchParams.set("mode", "cloud_api");
-  return url.toString();
-}
-
 export default function OnboardingLinkGenerator({
   cloudApiAvailable,
 }: {
@@ -38,15 +21,30 @@ export default function OnboardingLinkGenerator({
   const [name, setName] = useState("");
   const [cloudApi, setCloudApi] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [url, setUrl] = useState("");
+  const [generating, setGenerating] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const slug = useMemo(() => toWorkspaceSlug(name), [name]);
-  const url = useMemo(() => {
-    if (!slug) return "";
-    // window is unavailable during SSR; this component only renders its link
-    // after the user types, which is client-side by then.
-    const origin = typeof window === "undefined" ? "" : window.location.origin;
-    return origin ? buildOnboardingUrl(origin, slug, cloudApi) : "";
-  }, [slug, cloudApi]);
+
+  const generate = async () => {
+    if (!slug) return;
+    setGenerating(true);
+    setError(null);
+    setUrl("");
+    const response = await fetch("/api/ops/meta/onboarding-link", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ workspace: slug, mode: cloudApi ? "cloud_api" : "coexistence" }),
+    });
+    const result = await response.json().catch(() => ({}));
+    setGenerating(false);
+    if (!response.ok || typeof result.url !== "string") {
+      setError(typeof result.error === "string" ? result.error : "No se pudo generar el enlace.");
+      return;
+    }
+    setUrl(result.url);
+  };
 
   const copy = async () => {
     if (!url) return;
@@ -67,6 +65,7 @@ export default function OnboardingLinkGenerator({
       <p className="mt-4 text-sm leading-6 text-white/50">
         Genera el enlace que le mandas al dueño del negocio. El identificador queda
         guardado como dueño del número y es la clave con la que se configura su bot.
+        El cliente puede abrirlo sin iniciar sesión en Ops.
       </p>
 
       <div className="mt-5 grid gap-4 sm:grid-cols-2">
@@ -77,7 +76,10 @@ export default function OnboardingLinkGenerator({
           <input
             type="text"
             value={name}
-            onChange={(event) => setName(event.target.value)}
+            onChange={(event) => {
+              setName(event.target.value);
+              setUrl("");
+            }}
             placeholder="Panadería Rosa"
             maxLength={SLUG_MAX}
             className="mt-2 min-h-11 w-full rounded-none border border-white/10 bg-black/30 px-3 text-sm text-white outline-none placeholder:text-white/25 focus:border-[#c5f04a]"
@@ -99,7 +101,10 @@ export default function OnboardingLinkGenerator({
                 type="radio"
                 name="connection-mode"
                 checked={!cloudApi}
-                onChange={() => setCloudApi(false)}
+                onChange={() => {
+                  setCloudApi(false);
+                  setUrl("");
+                }}
                 className="mt-1 accent-[#c5f04a]"
               />
               <span>
@@ -114,7 +119,10 @@ export default function OnboardingLinkGenerator({
                 type="radio"
                 name="connection-mode"
                 checked={cloudApi}
-                onChange={() => setCloudApi(true)}
+                onChange={() => {
+                  setCloudApi(true);
+                  setUrl("");
+                }}
                 disabled={!cloudApiAvailable}
                 className="mt-1 accent-[#c5f04a] disabled:opacity-40"
               />
@@ -130,6 +138,16 @@ export default function OnboardingLinkGenerator({
           </div>
         </fieldset>
       </div>
+
+      <button
+        type="button"
+        onClick={generate}
+        disabled={!slug || generating}
+        className="mt-5 inline-flex min-h-10 items-center gap-2 rounded-full bg-[#c5f04a] px-4 text-sm font-semibold text-[#0a0a0a] transition hover:bg-white disabled:cursor-not-allowed disabled:opacity-40"
+      >
+        {generating ? "Generando…" : "Generar enlace seguro"}
+      </button>
+      {error && <p className="mt-3 text-sm text-red-300">{error}</p>}
 
       {url ? (
         <div className="mt-5 flex flex-wrap items-center gap-3 border border-white/10 bg-black/30 p-4">
@@ -150,8 +168,8 @@ export default function OnboardingLinkGenerator({
       )}
 
       <p className="mt-4 text-xs leading-5 text-white/35">
-        El enlace exige sesión de Ops: quien lo abra inicia sesión primero. Acompaña
-        al cliente en la llamada en lugar de mandarlo suelto.
+        El enlace vence en 7 días y está firmado para este workspace y modo. Compártelo
+        solo con el cliente correspondiente.
       </p>
     </section>
   );

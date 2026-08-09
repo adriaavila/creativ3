@@ -1,5 +1,9 @@
 import assert from "node:assert/strict";
 import { MetaCloudWhatsAppProvider } from "../src/lib/meta/cloud-whatsapp-provider";
+import {
+  getWhatsAppPhoneCoexistenceStatus,
+  requestBusinessAppDataSync,
+} from "../src/lib/meta/server";
 
 const provider = new MetaCloudWhatsAppProvider(async () => {
   throw new Error("The normalization check must not resolve a connection");
@@ -114,16 +118,8 @@ assert(echo && echo.type === "message.received");
 assert.equal(echo.message.source, "business_app");
 assert.equal(echo.message.text, "Sent from the business app");
 
-for (const field of ["history", "smb_app_state_sync"]) {
-  assert(
-    events.some(
-      (event) =>
-        event.type === "error.received" &&
-        event.reason === "unsupported_webhook_shape" &&
-        event.unsupportedField === field,
-    ),
-  );
-}
+assert(events.some((event) => event.type === "error.received" && event.reason === "invalid_history_shape"));
+assert(events.some((event) => event.type === "error.received" && event.reason === "invalid_smb_app_state_sync_shape"));
 
 const invalidPayloadEvents = provider.normalizeWebhook("not a webhook object");
 assert.deepEqual(invalidPayloadEvents, [
@@ -154,6 +150,8 @@ async function checkGraphOperations() {
         verified_name: "Example Business",
         quality_rating: "GREEN",
         name_status: "APPROVED",
+        is_on_biz_app: true,
+        platform_type: "CLOUD_API",
       });
     }
 
@@ -175,6 +173,25 @@ async function checkGraphOperations() {
     const status = await cloudProvider.getConnectionStatus(connection.id);
     assert.equal(status.state, "connected");
     assert.equal(status.displayPhoneNumber, "+15550001111");
+
+    const coexistenceStatus = await getWhatsAppPhoneCoexistenceStatus({
+      phoneNumberId: connection.phoneNumberId,
+      businessToken: connection.businessToken,
+      graphVersion: "v25.0",
+    });
+    assert.equal(coexistenceStatus.is_on_biz_app, true);
+    await requestBusinessAppDataSync({
+      phoneNumberId: connection.phoneNumberId,
+      businessToken: connection.businessToken,
+      syncType: "smb_app_state_sync",
+      graphVersion: "v25.0",
+    });
+    await requestBusinessAppDataSync({
+      phoneNumberId: connection.phoneNumberId,
+      businessToken: connection.businessToken,
+      syncType: "history",
+      graphVersion: "v25.0",
+    });
 
     assert.deepEqual(
       await cloudProvider.sendText({
@@ -205,6 +222,14 @@ async function checkGraphOperations() {
         (request) =>
           request.body?.status === "read" && request.body.message_id === "wamid.inbound",
       ),
+    );
+    assert(
+      requests.some(
+        (request) => request.body?.sync_type === "smb_app_state_sync" && request.body.messaging_product === "whatsapp"),
+    );
+    assert(
+      requests.some(
+        (request) => request.body?.sync_type === "history" && request.body.messaging_product === "whatsapp"),
     );
     assert(
       requests.some(

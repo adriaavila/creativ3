@@ -3,9 +3,9 @@ import VerticalLandingPage from "@/components/landing/VerticalLandingPage";
 import { VERTICALS } from "@/lib/verticals";
 import { serviceJsonLd } from "@/lib/seo";
 
-const TITLE = "Páginas web y captación de leads para inmobiliarias";
+const TITLE = "Sistema comercial para inmobiliarias";
 const DESCRIPTION =
-  "Captación, calificación y seguimiento de leads con agentes IA y WhatsApp para inmobiliarias, brokers y property managers en Venezuela y LatAm.";
+  "Allok organiza captación, calificación y seguimiento de leads por WhatsApp para inmobiliarias, brokers y property managers en Venezuela y LatAm.";
 
 export const metadata: Metadata = {
   title: TITLE,

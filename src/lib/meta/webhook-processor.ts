@@ -1,5 +1,6 @@
 import {
   insertMessage,
+  syncMetaContact,
   updateMessageStatusByWaId,
   upsertConversation,
 } from "@/lib/whatsapp-inbox-db";
@@ -50,7 +51,23 @@ export async function processMetaWebhookQueue(limit = 10) {
 }
 
 async function persistNormalizedEvent(event: WhatsAppNormalizedEvent): Promise<number> {
-  if (event.type === "error.received") throw new Error(event.reason);
+  if (event.type === "error.received") {
+    // The customer may decline history sharing during Embedded Signup. Meta
+    // reports that valid choice as 2593109; it must not poison the durable queue.
+    if (event.code === 2593109 || event.reason === "history_sync_not_shared") return 0;
+    throw new Error(event.reason);
+  }
+
+  if (event.type === "contact.updated") {
+    if (!event.phoneNumberId) throw new Error("contact_missing_phone_number_id");
+    await syncMetaContact({
+      phoneNumberId: event.phoneNumberId,
+      contactPhone: normalizeWhatsAppPhone(event.contactPhone) ?? event.contactPhone,
+      contactName: event.contactName,
+      action: event.action,
+    });
+    return 1;
+  }
 
   if (event.type === "message.status.updated") {
     return (await updateMessageStatusByWaId(event.messageId, event.status)) ? 1 : 0;
@@ -66,7 +83,8 @@ async function persistNormalizedEvent(event: WhatsAppNormalizedEvent): Promise<n
 
   if (!event.phoneNumberId) throw new Error("message_missing_phone_number_id");
   const direction = event.message.direction === "inbound" ? "in" : "out";
-  const contactWaId = direction === "in" ? event.message.from : event.message.to;
+  const contactWaId =
+    (direction === "in" ? event.message.from : event.message.to) ?? event.message.contactPhone;
   if (!contactWaId) throw new Error("message_missing_contact_id");
   const conversation = await upsertConversation({
     channelKind: "cloud_api",
@@ -85,6 +103,7 @@ async function persistNormalizedEvent(event: WhatsAppNormalizedEvent): Promise<n
     msgType: event.message.type,
     body: event.message.text ?? null,
     payload: event,
+    status: event.message.status ?? null,
     occurredAt: event.occurredAt,
   });
   if (inserted && direction === "in") await enqueueAutoReplyJob(conversation.id, inserted.id);

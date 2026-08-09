@@ -1,7 +1,7 @@
 import { CONTACT_EMAIL, WHATSAPP_NUMBER } from "@/lib/contact";
 
 export const SITE_URL = "https://allok.fun";
-export const SITE_NAME = "allok";
+export const SITE_NAME = "Allok";
 
 // Organization + WebSite — emitted once in the root layout.
 export function siteJsonLd(locale: "es" | "en" = "es") {
@@ -15,8 +15,8 @@ export function siteJsonLd(locale: "es" | "en" = "es") {
       email: CONTACT_EMAIL,
       description:
         locale === "es"
-          ? "Sistemas digitales para vender más y operar mejor."
-          : "Digital systems to sell more and operate better.",
+          ? "Sistema comercial conectado a WhatsApp: consultas, seguimiento y oportunidades en un solo lugar."
+          : "A commercial system connected to WhatsApp: inquiries, follow-up, and opportunities in one place.",
       areaServed: ["VE", "Latin America"],
       contactPoint: {
         "@type": "ContactPoint",

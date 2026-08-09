@@ -1,4 +1,4 @@
-# creativv GTM — arranque lunes 25 mayo 2026
+# allok GTM — arranque lunes 25 mayo 2026
 
 ## Meta 7 dias
 
@@ -74,7 +74,7 @@ Template:
 
 > Hola [Nombre], vi [detalle especifico].
 > Creo que estan perdiendo conversaciones por [dolor observado].
-> Estoy lanzando creativv, estudio de diseno + codigo + IA. Esta semana estoy haciendo diagnosticos express de 48h: web/oferta/proceso + 10 quick wins + ruta de implementacion.
+> Estoy lanzando allok, estudio de diseno + codigo + IA. Esta semana estoy haciendo diagnosticos express de 48h: web/oferta/proceso + 10 quick wins + ruta de implementacion.
 > Si te sirve, te grabo 2-3 hallazgos gratis y ves si compramos el diagnostico.
 
 ### 15:00-16:30 — demo assets
@@ -130,7 +130,7 @@ No vender "studio". Vender siguiente resultado:
 
 ## Oferta de piloto despues del diagnostico
 
-**Piloto IA 14 dias — desde USD 900**
+**Piloto IA 14 dias — desde USD 899**
 
 Ejemplos:
 - WhatsApp lead intake + calificacion + agenda
@@ -149,4 +149,4 @@ Dia 4:
 > Cierro espacios de diagnostico esta semana. Si quieres, reviso [web/proceso] y te digo si veo ROI o si no vale moverlo ahora.
 
 Dia 7:
-> Cierro hilo. Vi oportunidad en [dolor]. Si en junio quieren mejorar leads/operacion, creativv puede ayudar.
+> Cierro hilo. Vi oportunidad en [dolor]. Si mas adelante quieren mejorar leads/operacion, allok puede ayudar.

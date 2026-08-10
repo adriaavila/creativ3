@@ -16,6 +16,7 @@ const MESSAGES = { es, en };
 // Routes with their own chrome (app shell, auth screens, embedded flows) —
 // the marketing nav and qualification dialog stay out of their way.
 const CHROME_FREE_PREFIXES = [
+  "/",
   "/ops",
   "/ops-login",
   "/demo",

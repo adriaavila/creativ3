@@ -3,7 +3,6 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   async redirects() {
     return [
-      { source: "/whatsapp", destination: "/es/desk", permanent: true },
       { source: "/privacidad", destination: "/es/privacidad", permanent: true },
       { source: "/terminos", destination: "/es/terminos", permanent: true },
       { source: "/pago/exito", destination: "/es/pago/exito", permanent: true },

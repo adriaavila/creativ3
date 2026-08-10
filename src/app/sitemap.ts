@@ -4,13 +4,14 @@ import { CITIES, cityVerticalPath } from "@/lib/cities";
 import { VERTICAL_LIST } from "@/lib/verticals";
 
 const LOCALIZED_ROUTES = [
-  ["/es", "/en", "weekly" as const, 1],
+  ["/whatsapp", "/en/whatsapp", "weekly" as const, 0.9],
   ["/es/desk", "/en/desk", "weekly" as const, 0.9],
   ["/es/privacidad", "/en/privacy", "yearly" as const, 0.3],
   ["/es/terminos", "/en/terms", "yearly" as const, 0.3],
 ] as const;
 
 const SPANISH_ONLY_ROUTES: [path: string, changeFrequency: MetadataRoute.Sitemap[number]["changeFrequency"], priority: number][] = [
+  ["/", "weekly", 1],
   ["/cotizar", "monthly", 0.8],
   ["/docs", "monthly", 0.8],
   ["/projects", "weekly", 0.7],

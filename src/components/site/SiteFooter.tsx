@@ -7,13 +7,14 @@ import type { Locale, Messages } from "@/lib/i18n";
 export default function SiteFooter({ locale, messages }: { locale: Locale; messages: Messages }) {
   const { common, home } = messages;
   const legalBase = `/${locale}`;
+  const productBase = locale === "es" ? "/whatsapp" : "/en/whatsapp";
 
   const links = [
-    { label: home.nav[0], href: `${legalBase}#producto` },
-    { label: home.nav[1], href: `${legalBase}#como-funciona` },
+    { label: home.nav[0], href: `${productBase}#producto` },
+    { label: home.nav[1], href: `${productBase}#como-funciona` },
     { label: home.nav[2], href: "/docs" },
-    { label: home.nav[3], href: `${legalBase}#precios` },
-    { label: home.nav[4], href: "/projects" },
+    { label: home.nav[3], href: `${productBase}#precios` },
+    { label: home.nav[4], href: "/" },
     { label: common.terms, href: `${legalBase}/terminos` },
     { label: common.privacy, href: `${legalBase}/privacidad` },
   ];

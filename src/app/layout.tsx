@@ -25,17 +25,20 @@ const geist = Geist({
 export const metadata: Metadata = {
   metadataBase: new URL("https://allok.fun"),
   title: {
-    default: "Allok — Sistema comercial conectado a WhatsApp",
+    default: "Allok — Agencia de producto, web y automatización",
     template: "%s | Allok",
   },
   description:
-    "Organiza consultas, seguimientos y oportunidades en un sistema comercial instalado para tu negocio.",
+    "Diseñamos webs, productos digitales y automatizaciones con IA para negocios que necesitan vender y operar mejor.",
   verification: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION
     ? { google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION }
     : undefined,
   keywords: [
     "allok",
-    "sistema comercial",
+    "agencia digital",
+    "desarrollo de producto",
+    "diseño web",
+    "automatización con IA",
     "CRM WhatsApp",
     "seguimiento de clientes",
     "pipeline de ventas",
@@ -44,9 +47,9 @@ export const metadata: Metadata = {
     "gestion de leads",
   ],
   openGraph: {
-    title: "Allok — Sistema comercial conectado a WhatsApp",
+    title: "Allok — Agencia de producto, web y automatización",
     description:
-      "Allok organiza tus consultas, seguimientos y oportunidades en un solo sistema comercial conectado a WhatsApp, Instagram y tu sitio web.",
+      "Diseñamos webs, productos digitales y automatizaciones con IA para negocios que necesitan vender y operar mejor.",
     url: "https://allok.fun",
     siteName: "Allok",
     locale: "es_VE",
@@ -55,9 +58,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Allok — Sistema comercial conectado a WhatsApp",
+    title: "Allok — Agencia de producto, web y automatización",
     description:
-      "Convierte conversaciones en ventas: consultas, seguimientos y oportunidades en un solo sistema.",
+      "Webs, productos digitales y automatizaciones construidos para vender y operar mejor.",
     images: ["/opengraph-image"],
   },
 };

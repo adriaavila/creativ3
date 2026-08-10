@@ -15,8 +15,8 @@ export function siteJsonLd(locale: "es" | "en" = "es") {
       email: CONTACT_EMAIL,
       description:
         locale === "es"
-          ? "Sistema comercial conectado a WhatsApp: consultas, seguimiento y oportunidades en un solo lugar."
-          : "A commercial system connected to WhatsApp: inquiries, follow-up, and opportunities in one place.",
+          ? "Agencia de producto digital: diseño web, software y automatización con IA."
+          : "Digital product agency: web design, software, and AI automation.",
       areaServed: ["VE", "Latin America"],
       contactPoint: {
         "@type": "ContactPoint",

@@ -12,7 +12,7 @@ import { useQualificationDialog } from "./QualificationDialogProvider";
 
 // `src/lib/i18n` is `server-only`; this client component builds locale
 // paths inline instead of importing `localePath` at runtime.
-const localePath = (locale: Locale) => `/${locale}`;
+const productPath = (locale: Locale) => locale === "es" ? "/whatsapp" : "/en/whatsapp";
 
 export default function SiteNav({ locale, messages }: { locale: Locale; messages: Messages }) {
   const pathname = usePathname();
@@ -20,7 +20,7 @@ export default function SiteNav({ locale, messages }: { locale: Locale; messages
   const [lastPathname, setLastPathname] = useState(pathname);
   const { open: openQualification } = useQualificationDialog();
   const nav = messages.home.nav;
-  const home = localePath(locale);
+  const home = productPath(locale);
   const otherLocale: Locale = locale === "es" ? "en" : "es";
 
   // Close the mobile menu on navigation without an effect: adjusting state
@@ -47,7 +47,7 @@ export default function SiteNav({ locale, messages }: { locale: Locale; messages
     { label: nav[1], href: navHref("como-funciona") },
     { label: nav[2], href: "/docs" },
     { label: nav[3], href: navHref("precios") },
-    { label: nav[4], href: "/projects" },
+    { label: nav[4], href: "/" },
   ];
 
   return (
@@ -84,7 +84,7 @@ export default function SiteNav({ locale, messages }: { locale: Locale; messages
 
         <div className="flex items-center gap-1.5">
           <Link
-            href={localePath(otherLocale)}
+            href={productPath(otherLocale)}
             className="hidden rounded-full px-2.5 py-1.5 font-mono text-xs font-medium uppercase text-[var(--text-tertiary)] transition-colors hover:text-[var(--text-primary)] sm:inline-flex"
           >
             {otherLocale}

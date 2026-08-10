@@ -60,16 +60,26 @@ export default function SiteNav({ locale, messages }: { locale: Locale; messages
           <AllokLogo variant="lockup-bare" theme="dark" className="h-7 w-auto sm:h-8" />
         </Link>
 
-        <div className="hidden items-center gap-0.5 lg:flex">
-          {navItems.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="rounded-full px-3.5 py-2 text-sm font-medium text-[var(--text-secondary)] transition-colors hover:bg-[var(--surface-3)] hover:text-[var(--text-primary)]"
-            >
-              {item.label}
-            </Link>
-          ))}
+        <div className="hidden items-center gap-1 lg:flex" aria-label="Navegación de WhatsApp y Agencia">
+          <div className="flex items-center gap-0.5" aria-label="WhatsApp">
+            <span className="px-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--text-tertiary)]">WhatsApp</span>
+            {navItems.slice(0, 4).map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="rounded-full px-3.5 py-2 text-sm font-medium text-[var(--text-secondary)] transition-colors hover:bg-[var(--surface-3)] hover:text-[var(--text-primary)]"
+              >
+                {item.label}
+              </Link>
+            ))}
+          </div>
+          <span className="mx-1 h-5 w-px bg-[var(--line)]" aria-hidden="true" />
+          <Link
+            href={navItems[4].href}
+            className="rounded-full border border-[var(--line)] px-3.5 py-2 text-sm font-semibold text-[var(--text-primary)] transition-colors hover:bg-[var(--surface-3)]"
+          >
+            Agencia
+          </Link>
         </div>
 
         <div className="flex items-center gap-1.5">
@@ -113,7 +123,8 @@ export default function SiteNav({ locale, messages }: { locale: Locale; messages
           className="allok-enter mx-auto mt-2 max-w-6xl overflow-hidden rounded-[var(--r-xl)] border border-[var(--line)] bg-[var(--surface-1)] p-2 shadow-[var(--shadow-3)] lg:hidden"
         >
           <div className="flex flex-col gap-0.5 p-2">
-            {navItems.map((item) => (
+            <p className="px-4 pb-1 pt-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--text-tertiary)]">WhatsApp</p>
+            {navItems.slice(0, 4).map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
@@ -123,6 +134,15 @@ export default function SiteNav({ locale, messages }: { locale: Locale; messages
                 {item.label}
               </Link>
             ))}
+            <div className="my-2 border-t border-[var(--line)]" />
+            <p className="px-4 pb-1 pt-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--text-tertiary)]">Agencia</p>
+            <Link
+              href={navItems[4].href}
+              onClick={() => setOpen(false)}
+              className="rounded-[var(--r-md)] px-4 py-3 text-base font-medium text-[var(--text-primary)] transition-colors hover:bg-[var(--surface-3)]"
+            >
+              Agencia
+            </Link>
             <Link
               href="/ops-login"
               onClick={() => setOpen(false)}

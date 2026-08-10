@@ -23,16 +23,19 @@ import AllokLogo from "@/components/brand/AllokLogo";
 
 type NavItem = { href: string; label: string; icon: LucideIcon };
 
-const primaryItems: NavItem[] = [
+const agencyItems: NavItem[] = [
   { href: "/ops", label: "Hoy", icon: LayoutDashboard },
-  { href: "/ops/inbox", label: "Bandeja", icon: Inbox },
   { href: "/ops/crm", label: "Pipeline", icon: KanbanSquare },
   { href: "/ops/growth", label: "Growth", icon: TrendingUp },
 ] as const;
 
-const systemItems: NavItem[] = [
+const whatsappItems: NavItem[] = [
+  { href: "/ops/inbox", label: "Bandeja", icon: Inbox },
   { href: "/ops/clientes", label: "Clientes", icon: Building2 },
   { href: "/ops/contacts", label: "Contactos", icon: ContactRound },
+] as const;
+
+const toolItems: NavItem[] = [
   { href: "/ops/agents", label: "Agentes", icon: Bot },
   { href: "/ops/lab", label: "Laboratorio", icon: FlaskConical },
   { href: "/ops/portfolio", label: "Portafolio", icon: BriefcaseBusiness },
@@ -101,13 +104,18 @@ export default function OpsNav({ global = false }: OpsNavProps) {
 
   const renderNavigation = () => (
     <>
-      <div className="space-y-1">{primaryItems.map(renderItem)}</div>
+      <p className="px-3 pb-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-[#9aa5b2]">Agencia</p>
+      <div className="space-y-1">{agencyItems.map(renderItem)}</div>
       <div className="my-5 border-t border-[#edf0f3]" />
-      <p className="px-3 pb-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-[#9aa5b2]">Sistema</p>
+      <p className="px-3 pb-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-[#9aa5b2]">WhatsApp</p>
       <div className="space-y-1">
-        {renderItem(systemItems[0])}
+        {whatsappItems.map(renderItem)}
         {renderConnections()}
-        {systemItems.slice(1).map(renderItem)}
+      </div>
+      <div className="my-5 border-t border-[#edf0f3]" />
+      <p className="px-3 pb-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-[#9aa5b2]">Herramientas</p>
+      <div className="space-y-1">
+        {toolItems.map(renderItem)}
       </div>
     </>
   );
@@ -136,7 +144,7 @@ export default function OpsNav({ global = false }: OpsNavProps) {
         <span className="block font-display text-[19px] font-semibold tracking-[-0.04em] text-[#142b4b]">
           allok<span className="text-[#97c51e]">.</span>
         </span>
-        <span className="block whitespace-nowrap text-[11px] leading-4 text-[#7a8797]">Ops · Crecimiento</span>
+        <span className="block whitespace-nowrap text-[11px] leading-4 text-[#7a8797]">Agencia · WhatsApp</span>
       </span>
     </Link>
   );

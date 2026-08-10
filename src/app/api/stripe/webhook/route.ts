@@ -14,6 +14,11 @@ const id = (value: string | Stripe.Customer | Stripe.DeletedCustomer | null) =>
 
 const PROJECT_LABELS: Record<string, string> = {
   nodria: "Nodria",
+  "allok-launch": "Launch",
+  "allok-automate": "Automate",
+  desk: "Desk",
+  "desk-cohort": "Desk Cohort",
+  "desk-scale": "Desk Scale",
 };
 
 async function sendProjectPaymentEmail(session: Stripe.Checkout.Session) {
@@ -78,10 +83,7 @@ export async function POST(request: NextRequest) {
         paymentStatus: session.payment_status,
       });
 
-      if (
-        ["project-deposit", "nodria"].includes(session.metadata?.item ?? "") &&
-        session.payment_status === "paid"
-      ) {
+      if (session.payment_status === "paid") {
         await sendProjectPaymentEmail(session);
       }
     }

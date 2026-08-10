@@ -41,7 +41,9 @@ export default function OpsDashboardClient({ snapshot }: { snapshot: OpsCommandC
       ? "Reconectando"
       : realtime.status === "connecting"
         ? "Conectando"
-        : "Realtime offline";
+        : realtime.status === "polling"
+          ? "Actualización cada 15 s"
+          : "Realtime offline";
 
   return (
     <main className="min-h-dvh bg-[#f7f8fa] px-4 py-7 text-[#142b4b] sm:px-6 lg:px-8 lg:py-9">

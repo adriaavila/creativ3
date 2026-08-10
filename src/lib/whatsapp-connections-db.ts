@@ -25,11 +25,15 @@ export type WhatsAppConnectionView = {
   status: string;
   connectionMode: "META_CLOUD_API" | "META_COEXISTENCE";
   client: string | null;
+  businessTokenStored: boolean;
   connectedAt: string;
   lastSyncedAt: string | null;
   registeredAt: string | null;
   webhookOverrideUri: string | null;
   webhookOverrideScope: string | null;
+  crmOrganizationId: string | null;
+  crmOrganizationName: string | null;
+  crmConnectedAt: string | null;
   botConfigured: boolean;
   automationEnabled: boolean;
   operatingMode: AutomationMode | null;
@@ -159,7 +163,11 @@ export async function listWhatsAppConnections(): Promise<WhatsAppConnectionView[
   const rows = await sql`
     SELECT waba_id, phone_number_id, business_id, display_phone_number,
       verified_name, quality_rating, name_status, status, connection_mode, client,
+      business_token IS NOT NULL AND business_token <> '' AS business_token_stored,
       connected_at, last_synced_at, registered_at, webhook_override_uri, webhook_override_scope,
+      token_metadata #>> '{crm_handover,organization_id}' AS crm_organization_id,
+      token_metadata #>> '{crm_handover,organization_name}' AS crm_organization_name,
+      token_metadata #>> '{crm_handover,connected_at}' AS crm_connected_at,
       bot.phone_number_id IS NOT NULL AS bot_configured,
       COALESCE(bot.enabled, false) AS automation_enabled,
       bot.operating_mode, bot.model_tier
@@ -178,7 +186,11 @@ export async function getLatestWhatsAppConnectionForClient(
   const rows = await sql`
     SELECT waba_id, phone_number_id, business_id, display_phone_number,
       verified_name, quality_rating, name_status, status, connection_mode, client,
-      connected_at, last_synced_at
+      business_token IS NOT NULL AND business_token <> '' AS business_token_stored,
+      connected_at, last_synced_at,
+      token_metadata #>> '{crm_handover,organization_id}' AS crm_organization_id,
+      token_metadata #>> '{crm_handover,organization_name}' AS crm_organization_name,
+      token_metadata #>> '{crm_handover,connected_at}' AS crm_connected_at
     FROM whatsapp_connections
     WHERE client = ${client} AND status != 'deauthorized'
     ORDER BY connected_at DESC
@@ -195,8 +207,12 @@ export async function getWhatsAppConnectionByPhoneNumberId(
     SELECT connection.waba_id, connection.phone_number_id, connection.business_id,
       connection.display_phone_number, connection.verified_name, connection.quality_rating,
       connection.name_status, connection.status, connection.connection_mode, connection.client,
+      connection.business_token IS NOT NULL AND connection.business_token <> '' AS business_token_stored,
       connection.connected_at, connection.last_synced_at, connection.registered_at,
       connection.webhook_override_uri, connection.webhook_override_scope,
+      connection.token_metadata #>> '{crm_handover,organization_id}' AS crm_organization_id,
+      connection.token_metadata #>> '{crm_handover,organization_name}' AS crm_organization_name,
+      connection.token_metadata #>> '{crm_handover,connected_at}' AS crm_connected_at,
       bot.phone_number_id IS NOT NULL AS bot_configured,
       COALESCE(bot.enabled, false) AS automation_enabled,
       bot.operating_mode, bot.model_tier
@@ -211,6 +227,7 @@ export async function getWhatsAppConnectionByPhoneNumberId(
 
 export async function getWhatsAppConnectionActivity(
   phoneNumberId: string,
+  channelKind: "cloud_api" | "waha" = "cloud_api",
 ): Promise<WhatsAppConnectionActivity> {
   const sql = getSql();
   const rows = await sql`
@@ -218,13 +235,15 @@ export async function getWhatsAppConnectionActivity(
       count(DISTINCT conversation.id)::int AS conversations,
       count(DISTINCT conversation.id) FILTER (
         WHERE conversation.status = 'open'
+          AND conversation.assigned_mode = 'human'
           AND conversation.last_inbound_at = conversation.last_message_at
+          AND conversation.last_inbound_at >= now() - interval '7 days'
       )::int AS waiting_replies,
       count(message.id)::int AS messages,
       max(message.created_at) AS last_message_at
     FROM wa_conversations AS conversation
     LEFT JOIN wa_messages AS message ON message.conversation_id = conversation.id
-    WHERE conversation.channel_kind = 'cloud_api'
+    WHERE conversation.channel_kind = ${channelKind}
       AND conversation.channel_key = ${phoneNumberId}
   `;
   const row = rows[0] ?? {};
@@ -269,6 +288,37 @@ export async function getWhatsAppProviderConnectionForStoredChannel(phoneNumberI
     LIMIT 1
   `;
   return mapProviderConnection(rows[0]);
+}
+
+export async function recordWhatsAppCrmHandover(input: {
+  wabaId: string;
+  phoneNumberId: string;
+  organizationId: string;
+  organizationName: string | null;
+  webhookUri: string;
+  connectedAt: string;
+}) {
+  const sql = getSql();
+  const rows = await sql`
+    UPDATE whatsapp_connections
+    SET webhook_override_uri = ${input.webhookUri},
+        webhook_override_scope = 'waba',
+        token_metadata = jsonb_set(
+          COALESCE(token_metadata, '{}'::jsonb),
+          '{crm_handover}',
+          ${JSON.stringify({
+            provider: "rei_crm",
+            organization_id: input.organizationId,
+            organization_name: input.organizationName,
+            connected_at: input.connectedAt,
+          })}::jsonb,
+          true
+        ),
+        updated_at = now()
+    WHERE waba_id = ${input.wabaId} AND phone_number_id = ${input.phoneNumberId}
+    RETURNING phone_number_id
+  `;
+  if (!rows[0]) throw new Error("crm_handover_connection_not_found");
 }
 
 function mapProviderConnection(row: Record<string, unknown> | undefined) {
@@ -391,6 +441,7 @@ function mapWhatsAppConnection(row: Record<string, unknown>): WhatsAppConnection
     connectionMode:
       row.connection_mode === "META_CLOUD_API" ? "META_CLOUD_API" : "META_COEXISTENCE",
     client: row.client ? String(row.client) : null,
+    businessTokenStored: row.business_token_stored === true,
     connectedAt: new Date(String(row.connected_at)).toISOString(),
     lastSyncedAt: row.last_synced_at
       ? new Date(String(row.last_synced_at)).toISOString()
@@ -398,6 +449,9 @@ function mapWhatsAppConnection(row: Record<string, unknown>): WhatsAppConnection
     registeredAt: row.registered_at ? new Date(String(row.registered_at)).toISOString() : null,
     webhookOverrideUri: row.webhook_override_uri ? String(row.webhook_override_uri) : null,
     webhookOverrideScope: row.webhook_override_scope ? String(row.webhook_override_scope) : null,
+    crmOrganizationId: row.crm_organization_id ? String(row.crm_organization_id) : null,
+    crmOrganizationName: row.crm_organization_name ? String(row.crm_organization_name) : null,
+    crmConnectedAt: row.crm_connected_at ? new Date(String(row.crm_connected_at)).toISOString() : null,
     botConfigured: row.bot_configured === true,
     automationEnabled: row.automation_enabled === true,
     operatingMode: row.operating_mode === "off" || row.operating_mode === "approval" || row.operating_mode === "automatic"

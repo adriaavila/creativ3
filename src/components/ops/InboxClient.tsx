@@ -4,6 +4,7 @@ import { useCallback, useMemo, useState } from "react";
 import { Bot, CheckCircle2, Search } from "lucide-react";
 import type { WaConversation } from "@/lib/whatsapp-inbox-db";
 import { formatWhatsAppPhone } from "@/lib/phone";
+import { groupConversations, isWaitingForReply } from "@/lib/inbox-rules";
 import ConversationThread from "@/components/ops/ConversationThread";
 import { eventConversation, useOpsRealtime, type OpsRealtimeEvent } from "@/hooks/useOpsRealtime";
 
@@ -14,23 +15,25 @@ type InboxClientProps = {
   initialSelectedId: number | null;
 };
 
+const OPS_TIME_ZONE = "America/Caracas";
+
+function dayKey(date: Date) {
+  return date.toLocaleDateString("en-CA", { timeZone: OPS_TIME_ZONE });
+}
+
 function initials(name: string | null, fallback = "WA") {
   const parts = (name ?? "").trim().split(/\s+/).filter(Boolean);
-  return parts.length ? parts.slice(0, 2).map((part) => part[0]).join("").toUpperCase() : fallback;
+  return parts.length ? parts.slice(0, 2).map((part) => Array.from(part)[0]).join("").toUpperCase() : fallback;
 }
 
 function formatListTime(iso: string | null) {
   if (!iso) return "";
   const date = new Date(iso);
   const today = new Date();
-  if (date.toDateString() === today.toDateString()) {
-    return date.toLocaleTimeString("es-VE", { hour: "2-digit", minute: "2-digit" });
+  if (dayKey(date) === dayKey(today)) {
+    return date.toLocaleTimeString("es-VE", { hour: "2-digit", minute: "2-digit", timeZone: OPS_TIME_ZONE });
   }
-  return date.toLocaleDateString("es-VE", { day: "numeric", month: "short" });
-}
-
-function waitingForReply(conversation: WaConversation) {
-  return Boolean(conversation.lastInboundAt && conversation.lastMessageAt === conversation.lastInboundAt);
+  return date.toLocaleDateString("es-VE", { day: "numeric", month: "short", timeZone: OPS_TIME_ZONE });
 }
 
 function conversationTitle(conversation: WaConversation) {
@@ -45,27 +48,39 @@ function outcomeLabel(outcome: WaConversation["outcome"]) {
   return outcome === "cita" ? "Cita" : outcome === "cotizacion" ? "Cotización" : outcome === "descarte" ? "Descarte" : "Sin resultado";
 }
 
-function DetailRail({ conversation, onConversationChange }: { conversation: WaConversation; onConversationChange: (conversation: WaConversation) => void }) {
+function DetailRail({
+  conversation,
+  relatedConversations,
+  onConversationChange,
+  onSelectConversation,
+}: {
+  conversation: WaConversation;
+  relatedConversations: WaConversation[];
+  onConversationChange: (conversation: WaConversation) => void;
+  onSelectConversation: (id: number) => void;
+}) {
   const [savingMode, setSavingMode] = useState(false);
   const [modeError, setModeError] = useState<string | null>(null);
-  const official = conversation.channelKind === "cloud_api";
   const phone = formatWhatsAppPhone(conversation.contactPhone || conversation.contactWaId);
+
+  async function patchConversation(input: Record<string, string>) {
+    const response = await fetch(`/api/ops/inbox/${conversation.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(input),
+    });
+    if (!response.ok) throw new Error("No se pudo actualizar la conversación.");
+    const refreshed = await fetch(`/api/ops/inbox/${conversation.id}`, { cache: "no-store" });
+    if (!refreshed.ok) throw new Error("No se pudo cargar la conversación actualizada.");
+    const data = (await refreshed.json()) as { conversation: WaConversation };
+    onConversationChange(data.conversation);
+  }
 
   async function toggleAssignedMode() {
     setSavingMode(true);
     setModeError(null);
-    const assignedMode = conversation.assignedMode === "ai" ? "human" : "ai";
     try {
-      const response = await fetch(`/api/ops/inbox/${conversation.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ assignedMode }),
-      });
-      if (!response.ok) throw new Error("No se pudo actualizar el modo.");
-      const refreshed = await fetch(`/api/ops/inbox/${conversation.id}`, { cache: "no-store" });
-      if (!refreshed.ok) throw new Error("No se pudo cargar el modo actualizado.");
-      const data = (await refreshed.json()) as { conversation: WaConversation };
-      onConversationChange(data.conversation);
+      await patchConversation({ assignedMode: conversation.assignedMode === "ai" ? "human" : "ai" });
     } catch (error) {
       setModeError(error instanceof Error ? error.message : "No se pudo actualizar el modo.");
     } finally {
@@ -110,9 +125,8 @@ function DetailRail({ conversation, onConversationChange }: { conversation: WaCo
         <dl className="mt-6 space-y-5">
           <div>
             <dt className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#94a0ad]">Canal</dt>
-            <dd className="mt-2 flex items-center gap-2 text-[12px] text-[#506176]">
-              <span className={`size-2 rounded-full ${official ? "bg-[#a8d63d]" : "bg-[#aeb8c2]"}`} aria-hidden="true" />
-              {official ? "WhatsApp oficial" : "WAHA · no oficial"}
+            <dd className="mt-2 space-y-2 text-[12px] text-[#506176]">
+              {relatedConversations.map((item) => <button key={item.id} type="button" onClick={() => onSelectConversation(item.id)} aria-pressed={item.id === conversation.id} className={`flex min-h-8 w-full items-center gap-2 rounded-lg border px-2.5 text-left ${item.id === conversation.id ? "border-[#a9bac9] bg-[#f1f5f8] text-[#263b54]" : "border-[#e5e7eb] hover:bg-[#fafbfc]"}`}><span className={`size-2 rounded-full ${item.channelKind === "cloud_api" ? "bg-[#a8d63d]" : "bg-[#aeb8c2]"}`} aria-hidden="true" />{item.channelKind === "cloud_api" ? "WhatsApp oficial" : "WAHA · no oficial"}</button>)}
             </dd>
           </div>
           <div>
@@ -167,30 +181,32 @@ export default function InboxClient({ initialConversations, initialSelectedId }:
 
   useOpsRealtime({ onEvent: handleRealtimeEvent, onReconnect: refreshConversations });
 
+  const grouped = useMemo(() => groupConversations(conversations, selectedId), [conversations, selectedId]);
   const counts = useMemo(() => ({
-    all: conversations.length,
-    official: conversations.filter((conversation) => conversation.channelKind === "cloud_api").length,
-    waiting: conversations.filter(waitingForReply).length,
-    open: conversations.filter((conversation) => conversation.status === "open").length,
-  }), [conversations]);
+    all: grouped.length,
+    official: grouped.filter((group) => group.conversations.some((conversation) => conversation.channelKind === "cloud_api")).length,
+    waiting: grouped.filter((group) => group.conversations.some((conversation) => isWaitingForReply(conversation))).length,
+    open: grouped.filter((group) => group.conversations.some((conversation) => conversation.status === "open")).length,
+  }), [grouped]);
 
   const filtered = useMemo(() => {
     const normalized = query.trim().toLowerCase();
-    return conversations.filter((conversation) => {
-      const matchesQuery = !normalized || [conversation.contactName, conversation.contactPhone, conversation.contactWaId, conversation.channelKind]
+    return grouped.filter((group) => {
+      const matchesQuery = !normalized || group.conversations.flatMap((conversation) => [conversation.contactName, conversation.contactPhone, conversation.contactWaId, conversation.channelKind])
         .filter(Boolean)
         .join(" ")
         .toLowerCase()
         .includes(normalized);
       const matchesFilter = filter === "all"
-        || (filter === "official" && conversation.channelKind === "cloud_api")
-        || (filter === "waiting" && waitingForReply(conversation))
-        || (filter === "open" && conversation.status === "open");
+        || (filter === "official" && group.conversations.some((conversation) => conversation.channelKind === "cloud_api"))
+        || (filter === "waiting" && group.conversations.some((conversation) => isWaitingForReply(conversation)))
+        || (filter === "open" && group.conversations.some((conversation) => conversation.status === "open"));
       return matchesQuery && matchesFilter;
     });
-  }, [conversations, filter, query]);
+  }, [filter, grouped, query]);
 
   const selected = conversations.find((conversation) => conversation.id === selectedId) ?? null;
+  const selectedGroup = grouped.find((group) => group.conversations.some(({ id }) => id === selectedId)) ?? null;
 
   function updateConversation(next: WaConversation) {
     setConversations((items) => items.map((item) => (item.id === next.id ? next : item)));
@@ -222,7 +238,7 @@ export default function InboxClient({ initialConversations, initialSelectedId }:
               {([
                 ["all", "Todas"],
                 ["official", "Oficiales"],
-                ["waiting", "Esperan respuesta"],
+                ["waiting", "Pendientes 7d"],
                 ["open", "Abiertas"],
               ] as const).map(([id, label]) => (
                 <button
@@ -239,13 +255,14 @@ export default function InboxClient({ initialConversations, initialSelectedId }:
 
             <div className="min-h-0 flex-1 overflow-y-auto" role="list" aria-label="Conversaciones de WhatsApp">
               {filtered.length === 0 && <p className="px-6 py-12 text-center text-sm leading-6 text-[#7c8998]">No hay conversaciones que coincidan con la búsqueda.</p>}
-              {filtered.map((conversation) => {
-                const active = conversation.id === selectedId;
-                const waiting = waitingForReply(conversation);
+              {filtered.map((group) => {
+                const conversation = group.primary;
+                const active = group.conversations.some(({ id }) => id === selectedId);
+                const waiting = group.conversations.some((item) => isWaitingForReply(item));
                 const official = conversation.channelKind === "cloud_api";
                 return (
                   <button
-                    key={conversation.id}
+                    key={group.key}
                     type="button"
                     role="listitem"
                     onClick={() => setSelectedId(conversation.id)}
@@ -263,7 +280,7 @@ export default function InboxClient({ initialConversations, initialSelectedId }:
                       </span>
                       <span className="mt-1 block truncate text-[11px] text-[#758396]">{phoneLabel(conversation)}</span>
                       <span className="mt-2 flex items-center gap-2 text-[10px]">
-                        <span className={official ? "text-[#47704d]" : "text-[#7c8793]"}>{official ? "WhatsApp oficial" : "WAHA · no oficial"}</span>
+                        <span className={official ? "text-[#47704d]" : "text-[#7c8793]"}>{group.conversations.some((item) => item.channelKind === "cloud_api") ? "WhatsApp oficial" : "WAHA · no oficial"}{group.conversations.length > 1 ? ` + ${group.conversations.length - 1} canal` : ""}</span>
                         {waiting && <span className="rounded-full bg-[#fff5df] px-2 py-0.5 text-[#8d6a26]">Nuevo</span>}
                       </span>
                     </span>
@@ -292,7 +309,7 @@ export default function InboxClient({ initialConversations, initialSelectedId }:
             )}
           </section>
 
-          {selected && <DetailRail conversation={selected} onConversationChange={updateConversation} />}
+          {selected && <DetailRail conversation={selected} relatedConversations={selectedGroup?.conversations ?? [selected]} onConversationChange={updateConversation} onSelectConversation={setSelectedId} />}
         </div>
       </div>
     </main>

@@ -25,9 +25,9 @@ const CTA_LINKS = [
 
 const FOOTER_LINKS = [
   { label: "Producto", href: "/es#producto" },
-  { label: "Resultados", href: "/es#resultados" },
+  { label: "Docs", href: "/docs" },
   { label: "Precios", href: "/es#precios" },
-  { label: "Portfolio", href: "/projects" },
+  { label: "Agencia", href: "/projects" },
   { label: "Cotizar", href: "/cotizar" },
   { label: "Términos", href: "/es/terminos" },
   { label: "Privacidad", href: "/es/privacidad" },

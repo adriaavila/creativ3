@@ -1,437 +1,340 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Building2, Check, Copy, Link2, Plus, Search, Send } from "lucide-react";
 import {
-  CLIENT_DESTINATION_LABELS,
-  CLIENT_DESTINATIONS,
-  CLIENT_STATUS_LABELS,
-  CLIENT_STATUSES,
-  HANDOVER_BLOCKER_LABELS,
-  handoverBlocker,
-  type ClientDestination,
-  type ClientRow,
-  type ClientStatus,
-} from "@/lib/clients";
-import { toWorkspaceSlug } from "@/lib/meta/onboarding-link";
+  Check,
+  CheckCircle2,
+  CircleAlert,
+  Copy,
+  Database,
+  KeyRound,
+  RefreshCw,
+  Search,
+  ShieldCheck,
+  Smartphone,
+} from "lucide-react";
+import type { WhatsAppConnectionView } from "@/lib/whatsapp-connections-db";
 
-/**
- * "Qué clientes tengo, dónde trabaja cada uno y en qué punto del alta está."
- *
- * Una fila por cliente y tres acciones en el mismo lugar: crear, mandarle el
- * enlace de Embedded Signup, y entregarlo a la app donde va a operar.
- */
-
-type Draft = {
-  slug: string;
-  name: string;
-  destination: ClientDestination;
-  destinationRef: string;
-  status: ClientStatus;
-  contact: string;
-  notes: string;
-};
-
-const EMPTY: Draft = {
-  slug: "",
-  name: "",
-  destination: "allok",
-  destinationRef: "",
-  status: "invited",
-  contact: "",
-  notes: "",
-};
-
-const STATUS_TONE: Record<ClientStatus, string> = {
-  invited: "bg-[#fdf3e0] text-[#8a5b12]",
-  connected: "bg-[#e7f0fb] text-[#1d4f8a]",
-  live: "bg-[#e8f5e2] text-[#2f6b25]",
-  paused: "bg-[#f1f3f6] text-[#5b6879]",
-  churned: "bg-[#fbeaea] text-[#8a2b2b]",
-};
-
-const inputClass =
-  "mt-1 min-h-10 w-full rounded-lg border border-[#dce3ea] bg-white px-3 text-sm text-[#172238] outline-none focus-visible:border-[#142b4b]";
-const labelClass = "block text-[11px] font-semibold uppercase tracking-[0.12em] text-[#7a8797]";
+const ACTIVE_STATUSES = new Set(["connected", "subscribed", "coexistence_sync_requested"]);
 
 export default function ClientsClient({
-  initialClients,
+  initialConnections,
   loadError,
 }: {
-  initialClients: ClientRow[];
+  initialConnections: WhatsAppConnectionView[];
   loadError: string | null;
 }) {
   const router = useRouter();
   const [query, setQuery] = useState("");
-  const [draft, setDraft] = useState<Draft | null>(null);
-  const [busy, setBusy] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [notice, setNotice] = useState<string | null>(null);
   const [copied, setCopied] = useState<string | null>(null);
+  const [copyError, setCopyError] = useState<string | null>(null);
 
-  const clients = useMemo(() => {
+  const summary = useMemo(() => {
+    const clients = new Set(initialConnections.map((connection) => connection.client).filter(Boolean));
+    return {
+      onboardings: initialConnections.length,
+      clients: clients.size,
+      operational: initialConnections.filter((connection) => ACTIVE_STATUSES.has(connection.status)).length,
+      tokens: initialConnections.filter((connection) => connection.businessTokenStored).length,
+    };
+  }, [initialConnections]);
+
+  const connections = useMemo(() => {
     const normalized = query.trim().toLowerCase();
-    if (!normalized) return initialClients;
-    return initialClients.filter((client) =>
-      [client.name, client.slug, client.displayPhoneNumber, client.contact, client.destinationRef]
+    if (!normalized) return initialConnections;
+    return initialConnections.filter((connection) =>
+      [
+        connection.client,
+        connection.verifiedName,
+        connection.displayPhoneNumber,
+        connection.wabaId,
+        connection.phoneNumberId,
+      ]
         .filter(Boolean)
         .join(" ")
         .toLowerCase()
         .includes(normalized),
     );
-  }, [initialClients, query]);
+  }, [initialConnections, query]);
 
-  const save = async () => {
-    if (!draft) return;
-    setBusy("save");
-    setError(null);
-    setNotice(null);
-    const response = await fetch("/api/ops/clients", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        slug: draft.slug || toWorkspaceSlug(draft.name),
-        name: draft.name,
-        destination: draft.destination,
-        destination_ref: draft.destination === "rei_crm" ? draft.destinationRef : null,
-        status: draft.status,
-        contact: draft.contact,
-        notes: draft.notes,
-      }),
-    });
-    const result = (await response.json().catch(() => ({}))) as { error?: string };
-    setBusy(null);
-    if (!response.ok) {
-      setError(result.error ?? "No se pudo guardar el cliente.");
-      return;
+  async function copyValue(key: string, value: string) {
+    try {
+      await navigator.clipboard.writeText(value);
+      setCopyError(null);
+      setCopied(key);
+      window.setTimeout(() => setCopied(null), 1800);
+    } catch {
+      setCopyError("No se pudo copiar. Selecciona el identificador manualmente.");
     }
-    setDraft(null);
-    router.refresh();
-  };
-
-  const copyOnboardingLink = async (client: ClientRow) => {
-    setBusy(`link:${client.slug}`);
-    setError(null);
-    setNotice(null);
-    const response = await fetch("/api/ops/meta/onboarding-link", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ workspace: client.slug, mode: "coexistence" }),
-    });
-    const result = (await response.json().catch(() => ({}))) as { url?: string; error?: string };
-    setBusy(null);
-    if (!response.ok || !result.url) {
-      setError(result.error ?? "No se pudo generar el enlace.");
-      return;
-    }
-    await navigator.clipboard.writeText(result.url);
-    setCopied(client.slug);
-    setTimeout(() => setCopied(null), 2500);
-  };
-
-  const handover = async (client: ClientRow) => {
-    setBusy(`handover:${client.slug}`);
-    setError(null);
-    setNotice(null);
-    const response = await fetch(`/api/ops/clients/${client.slug}/handover`, { method: "POST" });
-    const result = (await response.json().catch(() => ({}))) as {
-      error?: string;
-      organization_name?: string;
-    };
-    setBusy(null);
-    if (!response.ok) {
-      setError(result.error ?? "No se pudo entregar el cliente.");
-      return;
-    }
-    setNotice(
-      `${client.name} quedó operando en ${CLIENT_DESTINATION_LABELS[client.destination]}${
-        result.organization_name ? ` (${result.organization_name})` : ""
-      }. Sus mensajes ya no entran a esta bandeja.`,
-    );
-    router.refresh();
-  };
+  }
 
   return (
-    <main className="min-h-dvh bg-[#f7f8fa] pb-8 text-[#142b4b]">
-      <div className="mx-auto max-w-[1300px] px-4 py-6 sm:px-7 sm:py-8 lg:px-10">
-        <header className="flex flex-wrap items-end justify-between gap-5">
+    <main className="min-h-dvh bg-[#f3f6f8] pb-12 text-[#142b4b]">
+      <header className="border-b border-[#28415d] bg-[#10243d] text-white">
+        <div className="mx-auto flex max-w-[1380px] flex-wrap items-end justify-between gap-6 px-4 pb-14 pt-9 sm:px-7 lg:px-10 lg:pb-16 lg:pt-12">
           <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#7a8797]">Registro</p>
-            <h1 className="mt-2 text-3xl font-semibold tracking-[-0.04em]">Clientes</h1>
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-[#68778a]">
-              Todo número oficial entra por el Embedded Signup de allok. Acá se ve quién es
-              cliente, en qué app trabaja y qué falta para que esté operando.
+            <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-[#c5f04a]">
+              Operaciones · Meta inventory
+            </p>
+            <h1 className="mt-4 max-w-3xl text-4xl font-semibold tracking-[-0.05em] sm:text-5xl">
+              Clientes onboardeados
+            </h1>
+            <p className="mt-4 max-w-2xl text-sm leading-6 text-white/60 sm:text-[15px]">
+              Una vista técnica de cada alta completada. El CRM opera aparte; aquí quedan
+              los identificadores que Ops necesita para conectar Meta y enviar mensajes.
             </p>
           </div>
           <button
             type="button"
-            onClick={() => setDraft(draft ? null : EMPTY)}
-            className="inline-flex min-h-10 items-center gap-2 rounded-lg bg-[#142b4b] px-3 text-xs font-semibold text-white transition hover:bg-[#203c60] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#142b4b]"
+            onClick={() => router.refresh()}
+            className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-white/15 bg-white/[0.06] px-4 text-xs font-semibold text-white transition hover:border-white/30 hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#c5f04a]"
           >
-            <Plus className="size-4" aria-hidden="true" /> Nuevo cliente
+            <RefreshCw className="size-4" aria-hidden="true" /> Actualizar datos
           </button>
-        </header>
+        </div>
+      </header>
 
-        {loadError && (
-          <p role="status" className="mt-5 rounded-lg border border-[#f0d9d9] bg-[#fdf4f4] px-4 py-3 text-sm text-[#8a2b2b]">
-            {loadError} Corre la migración 019_clients.sql y recarga.
-          </p>
-        )}
-        {error && (
-          <p role="alert" className="mt-5 rounded-lg border border-[#f0d9d9] bg-[#fdf4f4] px-4 py-3 text-sm text-[#8a2b2b]">
-            {error}
-          </p>
-        )}
-        {notice && (
-          <p role="status" className="mt-5 rounded-lg border border-[#d8ead1] bg-[#f3faf0] px-4 py-3 text-sm text-[#2f6b25]">
-            {notice}
-          </p>
-        )}
+      <div className="mx-auto max-w-[1380px] px-4 sm:px-7 lg:px-10">
+        <section
+          className="relative -mt-7 grid overflow-hidden rounded-xl border border-[#dce4ea] bg-white shadow-[0_16px_42px_rgba(16,36,61,0.08)] sm:grid-cols-2 xl:grid-cols-4"
+          aria-label="Resumen de clientes onboardeados"
+        >
+          <SummaryMetric icon={Database} label="Onboardings" value={summary.onboardings} detail="filas guardadas" />
+          <SummaryMetric icon={Smartphone} label="Clientes" value={summary.clients} detail="workspaces únicos" />
+          <SummaryMetric icon={CheckCircle2} label="Operativos" value={summary.operational} detail="conexiones activas" />
+          <SummaryMetric icon={KeyRound} label="Tokens listos" value={summary.tokens} detail="cifrados en servidor" />
+        </section>
 
-        {draft && (
-          <section className="mt-6 rounded-xl border border-[#e2e7ed] bg-white p-5" aria-label="Nuevo cliente">
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              <label>
-                <span className={labelClass}>Nombre</span>
-                <input
-                  className={inputClass}
-                  value={draft.name}
-                  onChange={(event) =>
-                    setDraft({
-                      ...draft,
-                      name: event.target.value,
-                      slug: draft.slug || toWorkspaceSlug(event.target.value),
-                    })
-                  }
-                  placeholder="Condominio Santorini"
-                />
-              </label>
-              <label>
-                <span className={labelClass}>Identificador</span>
-                <input
-                  className={`${inputClass} font-mono text-xs`}
-                  value={draft.slug}
-                  onChange={(event) => setDraft({ ...draft, slug: toWorkspaceSlug(event.target.value) })}
-                  placeholder="condominio-santorini"
-                />
-              </label>
-              <label>
-                <span className={labelClass}>Dónde trabaja</span>
-                <select
-                  className={inputClass}
-                  value={draft.destination}
-                  onChange={(event) =>
-                    setDraft({ ...draft, destination: event.target.value as ClientDestination })
-                  }
-                >
-                  {CLIENT_DESTINATIONS.map((destination) => (
-                    <option key={destination} value={destination}>
-                      {CLIENT_DESTINATION_LABELS[destination]}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              {draft.destination === "rei_crm" && (
-                <label>
-                  <span className={labelClass}>organization_id en REI</span>
-                  <input
-                    className={`${inputClass} font-mono text-xs`}
-                    value={draft.destinationRef}
-                    onChange={(event) => setDraft({ ...draft, destinationRef: event.target.value.trim() })}
-                    placeholder="6f2c0a3e-9d61-4a2b-8f0e-1c2d3e4f5a6b"
-                  />
-                </label>
-              )}
-              <label>
-                <span className={labelClass}>Estado</span>
-                <select
-                  className={inputClass}
-                  value={draft.status}
-                  onChange={(event) => setDraft({ ...draft, status: event.target.value as ClientStatus })}
-                >
-                  {CLIENT_STATUSES.map((status) => (
-                    <option key={status} value={status}>
-                      {CLIENT_STATUS_LABELS[status]}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <label>
-                <span className={labelClass}>Contacto</span>
-                <input
-                  className={inputClass}
-                  value={draft.contact}
-                  onChange={(event) => setDraft({ ...draft, contact: event.target.value })}
-                  placeholder="Nombre y teléfono de quien decide"
-                />
-              </label>
+        <section className="mt-8" aria-labelledby="inventory-title">
+          <div className="flex flex-wrap items-end justify-between gap-4">
+            <div>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#7c8b9b]">
+                Fuente: whatsapp_connections
+              </p>
+              <h2 id="inventory-title" className="mt-2 text-2xl font-semibold tracking-[-0.04em] text-[#172238]">
+                Inventario de credenciales
+              </h2>
             </div>
-            <div className="mt-4 flex flex-wrap items-center gap-3">
-              <button
-                type="button"
-                onClick={save}
-                disabled={busy === "save" || !draft.name.trim()}
-                className="inline-flex min-h-10 items-center gap-2 rounded-lg bg-[#142b4b] px-4 text-xs font-semibold text-white transition hover:bg-[#203c60] disabled:opacity-50"
-              >
-                {busy === "save" ? "Guardando…" : "Guardar cliente"}
-              </button>
-              <button
-                type="button"
-                onClick={() => setDraft(null)}
-                className="min-h-10 rounded-lg px-3 text-xs font-semibold text-[#68778a] hover:text-[#142b4b]"
-              >
-                Cancelar
-              </button>
-            </div>
-          </section>
-        )}
-
-        <section className="mt-6 overflow-hidden rounded-xl border border-[#e2e7ed] bg-white" aria-labelledby="clients-heading">
-          <div className="flex flex-wrap items-center justify-between gap-4 border-b border-[#e7ebf0] px-4 py-4 sm:px-5">
-            <h2 id="clients-heading" className="text-sm font-semibold text-[#172238]">
-              Cartera <span className="ml-1 font-normal text-[#8a96a5]">{initialClients.length}</span>
-            </h2>
-            <label className="flex min-h-10 w-full max-w-[300px] items-center gap-2 rounded-lg border border-[#dce3ea] bg-[#fafbfc] px-3 text-sm">
-              <Search className="size-4 text-[#8a96a5]" aria-hidden="true" />
-              <span className="sr-only">Buscar cliente</span>
+            <label className="flex min-h-11 w-full max-w-[360px] items-center gap-2 rounded-lg border border-[#d7e0e7] bg-white px-3 text-sm shadow-sm">
+              <Search className="size-4 shrink-0 text-[#8391a0]" aria-hidden="true" />
+              <span className="sr-only">Buscar cliente o identificador</span>
               <input
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
-                placeholder="Buscar cliente…"
+                placeholder="Buscar cliente, WABA o número…"
                 className="w-full bg-transparent text-[#172238] outline-none placeholder:text-[#9aa5b2]"
               />
             </label>
           </div>
 
-          {clients.length === 0 ? (
-            <p className="px-6 py-16 text-center text-sm leading-6 text-[#7a8797]">
-              {initialClients.length
-                ? "Ningún cliente coincide con la búsqueda."
-                : "Todavía no hay clientes registrados. Empieza por «Nuevo cliente» y mándale el enlace."}
+          {loadError && (
+            <p className="mt-5 rounded-xl border border-[#efcccc] bg-[#fff6f5] px-4 py-3 text-sm text-[#963c37]" role="alert">
+              No se pudo cargar el inventario: {loadError}
             </p>
+          )}
+          {copyError && (
+            <p className="mt-5 rounded-xl border border-[#eadcb7] bg-[#fffaf0] px-4 py-3 text-sm text-[#795d1f]" role="status">
+              {copyError}
+            </p>
+          )}
+
+          {connections.length === 0 ? (
+            <div className="mt-5 rounded-xl border border-dashed border-[#ccd6df] bg-white px-6 py-16 text-center">
+              <Smartphone className="mx-auto size-7 text-[#8d9aa7]" aria-hidden="true" />
+              <p className="mt-4 text-sm font-semibold text-[#526174]">
+                {initialConnections.length ? "Ningún onboarding coincide con la búsqueda." : "Todavía no hay clientes onboardeados."}
+              </p>
+              <p className="mt-1 text-xs text-[#8a96a5]">
+                Una conexión exitosa aparecerá aquí automáticamente.
+              </p>
+            </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full min-w-[900px] text-left text-sm">
-                <thead className="border-b border-[#e7ebf0] text-[11px] uppercase tracking-[0.1em] text-[#8a96a5]">
-                  <tr>
-                    <th scope="col" className="px-5 py-3 font-semibold">Cliente</th>
-                    <th scope="col" className="px-5 py-3 font-semibold">Dónde trabaja</th>
-                    <th scope="col" className="px-5 py-3 font-semibold">Número</th>
-                    <th scope="col" className="px-5 py-3 font-semibold">Estado</th>
-                    <th scope="col" className="px-5 py-3 font-semibold">Acciones</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {clients.map((client) => {
-                    const blocker = handoverBlocker(client);
-                    const delivered = Boolean(client.handedOverAt);
-                    return (
-                      <tr key={client.slug} className="border-b border-[#f1f4f7] last:border-b-0 align-top">
-                        <td className="px-5 py-4">
-                          <div className="flex items-start gap-3">
-                            <span className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-lg bg-[#eef3f7] text-[#385875]">
-                              <Building2 className="size-4" aria-hidden="true" />
-                            </span>
-                            <span className="min-w-0">
-                              <span className="block font-semibold text-[#172238]">{client.name}</span>
-                              <span className="block font-mono text-[11px] text-[#8a96a5]">{client.slug}</span>
-                              {client.contact && (
-                                <span className="block text-xs text-[#7a8797]">{client.contact}</span>
-                              )}
-                            </span>
-                          </div>
-                        </td>
-                        <td className="px-5 py-4">
-                          <span className="block text-[#172238]">
-                            {CLIENT_DESTINATION_LABELS[client.destination]}
-                          </span>
-                          {client.destinationRef && (
-                            <span className="block font-mono text-[11px] text-[#8a96a5]">
-                              {client.destinationRef}
-                            </span>
-                          )}
-                          {client.destination === "rei_crm" && (
-                            <span className="mt-1 block text-xs text-[#7a8797]">
-                              {delivered ? "Entregado · webhook redirigido" : "Sin entregar"}
-                            </span>
-                          )}
-                        </td>
-                        <td className="px-5 py-4">
-                          {client.displayPhoneNumber ? (
-                            <>
-                              <span className="block text-[#172238]">{client.displayPhoneNumber}</span>
-                              <span className="block text-xs text-[#7a8797]">
-                                {client.connectionStatus}
-                                {client.numbers > 1 ? ` · ${client.numbers} números` : ""}
-                              </span>
-                            </>
-                          ) : (
-                            <span className="text-[#9aa5b2]">Sin conectar</span>
-                          )}
-                        </td>
-                        <td className="px-5 py-4">
-                          <span
-                            className={`inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-semibold ${STATUS_TONE[client.status]}`}
-                          >
-                            {CLIENT_STATUS_LABELS[client.status]}
-                          </span>
-                        </td>
-                        <td className="px-5 py-4">
-                          <div className="flex flex-wrap items-center gap-2">
-                            <button
-                              type="button"
-                              onClick={() => copyOnboardingLink(client)}
-                              disabled={busy === `link:${client.slug}`}
-                              className="inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-[#dce3ea] px-2.5 text-xs font-semibold text-[#385875] transition hover:bg-[#f1f4f7] disabled:opacity-50"
-                            >
-                              {copied === client.slug ? (
-                                <Check className="size-3.5" aria-hidden="true" />
-                              ) : (
-                                <Copy className="size-3.5" aria-hidden="true" />
-                              )}
-                              {copied === client.slug ? "Copiado" : "Enlace"}
-                            </button>
-                            {client.destination === "rei_crm" && (
-                              <button
-                                type="button"
-                                onClick={() => handover(client)}
-                                disabled={Boolean(blocker) || busy === `handover:${client.slug}`}
-                                title={blocker ? HANDOVER_BLOCKER_LABELS[blocker] : undefined}
-                                className="inline-flex min-h-9 items-center gap-1.5 rounded-lg bg-[#142b4b] px-2.5 text-xs font-semibold text-white transition hover:bg-[#203c60] disabled:cursor-not-allowed disabled:opacity-40"
-                              >
-                                <Send className="size-3.5" aria-hidden="true" />
-                                {busy === `handover:${client.slug}`
-                                  ? "Entregando…"
-                                  : delivered
-                                    ? "Reentregar"
-                                    : "Entregar a REI"}
-                              </button>
-                            )}
-                            {client.phoneNumberId && (
-                              <a
-                                href={`/ops/connections/${client.phoneNumberId}`}
-                                className="inline-flex min-h-9 items-center gap-1.5 rounded-lg px-2.5 text-xs font-semibold text-[#68778a] transition hover:text-[#142b4b]"
-                              >
-                                <Link2 className="size-3.5" aria-hidden="true" /> Conexión
-                              </a>
-                            )}
-                          </div>
-                          {blocker && client.destination === "rei_crm" && (
-                            <p className="mt-1.5 text-[11px] text-[#8a96a5]">
-                              {HANDOVER_BLOCKER_LABELS[blocker]}
-                            </p>
-                          )}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+            <div className="mt-5 space-y-4">
+              {connections.map((connection, index) => (
+                <ConnectionCard
+                  key={`${connection.wabaId}:${connection.phoneNumberId}`}
+                  connection={connection}
+                  index={index}
+                  copied={copied}
+                  onCopy={copyValue}
+                />
+              ))}
             </div>
           )}
         </section>
       </div>
     </main>
   );
+}
+
+function SummaryMetric({
+  icon: Icon,
+  label,
+  value,
+  detail,
+}: {
+  icon: typeof Database;
+  label: string;
+  value: number;
+  detail: string;
+}) {
+  return (
+    <article className="border-b border-[#e5ebf0] p-5 last:border-b-0 sm:border-r sm:[&:nth-child(even)]:border-r-0 xl:border-b-0 xl:[&:nth-child(even)]:border-r xl:last:border-r-0">
+      <div className="flex items-center justify-between gap-3">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#7a8797]">{label}</p>
+        <Icon className="size-4 text-[#4d6985]" aria-hidden="true" />
+      </div>
+      <p className="mt-3 text-3xl font-semibold tabular-nums tracking-[-0.04em] text-[#172238]">{value}</p>
+      <p className="mt-1 text-[11px] text-[#8a96a5]">{detail}</p>
+    </article>
+  );
+}
+
+function ConnectionCard({
+  connection,
+  index,
+  copied,
+  onCopy,
+}: {
+  connection: WhatsAppConnectionView;
+  index: number;
+  copied: string | null;
+  onCopy: (key: string, value: string) => Promise<void>;
+}) {
+  const active = ACTIVE_STATUSES.has(connection.status);
+  const copyKey = (field: string) => `${connection.phoneNumberId}:${field}`;
+
+  return (
+    <article className="overflow-hidden rounded-xl border border-[#dbe3e9] bg-white shadow-[0_7px_24px_rgba(20,43,75,0.045)]">
+      <div className="flex flex-wrap items-start justify-between gap-5 border-b border-[#e8edf1] px-5 py-5 sm:px-6">
+        <div className="flex min-w-0 items-start gap-4">
+          <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-[#10243d] font-mono text-[11px] font-semibold text-[#c5f04a]">
+            {String(index + 1).padStart(2, "0")}
+          </span>
+          <div className="min-w-0">
+            <h3 className="truncate text-lg font-semibold text-[#172238]">
+              {connection.verifiedName ?? connection.client ?? "Cliente sin nombre"}
+            </h3>
+            <p className="mt-1 font-mono text-xs text-[#758495]">
+              {connection.displayPhoneNumber ?? "Número visible no disponible"}
+            </p>
+          </div>
+        </div>
+        <span className={`inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-[11px] font-semibold ${active ? "bg-[#edf7df] text-[#4e7123]" : "bg-[#fff3df] text-[#8a5d19]"}`}>
+          <span className={`size-1.5 rounded-full ${active ? "bg-[#89b72d]" : "bg-[#d49b42]"}`} aria-hidden="true" />
+          {connectionStatusLabel(connection.status)}
+        </span>
+      </div>
+
+      <dl className="grid sm:grid-cols-2 xl:grid-cols-4">
+        <CredentialField
+          label="client"
+          value={connection.client ?? "Sin asignar"}
+          description="Dueño de la conexión"
+          copyKey={copyKey("client")}
+          copied={copied}
+          onCopy={connection.client ? onCopy : undefined}
+        />
+        <CredentialField
+          label="waba_id"
+          value={connection.wabaId}
+          description="Suscripción de webhooks"
+          copyKey={copyKey("waba")}
+          copied={copied}
+          onCopy={onCopy}
+        />
+        <CredentialField
+          label="phone_number_id"
+          value={connection.phoneNumberId}
+          description="Envío de mensajes"
+          copyKey={copyKey("phone")}
+          copied={copied}
+          onCopy={onCopy}
+        />
+        <div className="border-b border-[#e8edf1] bg-[#f8fafb] p-5 last:border-b-0 sm:border-r sm:[&:nth-child(even)]:border-r-0 xl:border-b-0 xl:[&:nth-child(even)]:border-r xl:last:border-r-0">
+          <dt className="font-mono text-[10px] font-semibold uppercase tracking-[0.13em] text-[#6f7f90]">
+            business_token
+          </dt>
+          <dd className={`mt-3 flex items-center gap-2 text-sm font-semibold ${connection.businessTokenStored ? "text-[#3f682a]" : "text-[#9a493f]"}`}>
+            {connection.businessTokenStored ? <ShieldCheck className="size-4" aria-hidden="true" /> : <CircleAlert className="size-4" aria-hidden="true" />}
+            {connection.businessTokenStored ? "Cifrado y disponible" : "No disponible"}
+          </dd>
+          <p className="mt-2 text-[11px] leading-4 text-[#8a96a5]">
+            {connection.businessTokenStored ? "Solo se descifra en el servidor" : "Requiere reconectar el número"}
+          </p>
+        </div>
+      </dl>
+
+      <footer className="flex flex-wrap items-center justify-between gap-4 bg-[#fbfcfd] px-5 py-4 sm:px-6">
+        <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-[11px] text-[#7a8797]">
+          <span className="font-semibold text-[#526174]">
+            {connection.connectionMode === "META_COEXISTENCE" ? "Coexistencia" : "Cloud API"}
+          </span>
+          <span>Onboarding {formatDate(connection.connectedAt)}</span>
+          <span>Última sync {formatDate(connection.lastSyncedAt)}</span>
+        </div>
+        <Link
+          href={`/ops/connections/${encodeURIComponent(connection.phoneNumberId)}`}
+          className="inline-flex min-h-9 items-center rounded-lg border border-[#d6e0e7] bg-white px-3 text-xs font-semibold text-[#385875] transition hover:border-[#9aabba] hover:text-[#142b4b]"
+        >
+          Ver conexión
+        </Link>
+      </footer>
+    </article>
+  );
+}
+
+function CredentialField({
+  label,
+  value,
+  description,
+  copyKey,
+  copied,
+  onCopy,
+}: {
+  label: string;
+  value: string;
+  description: string;
+  copyKey: string;
+  copied: string | null;
+  onCopy?: (key: string, value: string) => Promise<void>;
+}) {
+  const wasCopied = copied === copyKey;
+  return (
+    <div className="group relative border-b border-[#e8edf1] p-5 sm:border-r sm:[&:nth-child(even)]:border-r-0 xl:border-b-0 xl:[&:nth-child(even)]:border-r xl:last:border-r-0">
+      <dt className="font-mono text-[10px] font-semibold uppercase tracking-[0.13em] text-[#6f7f90]">{label}</dt>
+      <dd className="mt-3 break-all pr-8 font-mono text-[13px] font-semibold leading-5 text-[#20364f]">{value}</dd>
+      <p className="mt-2 text-[11px] text-[#8a96a5]">{description}</p>
+      {onCopy && (
+        <button
+          type="button"
+          onClick={() => void onCopy(copyKey, value)}
+          aria-label={`Copiar ${label}`}
+          className="absolute right-3 top-3 flex size-8 items-center justify-center rounded-md text-[#7f8d9b] transition hover:bg-[#eef3f7] hover:text-[#20364f] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-[#385875]"
+        >
+          {wasCopied ? <Check className="size-3.5 text-[#61852a]" aria-hidden="true" /> : <Copy className="size-3.5" aria-hidden="true" />}
+        </button>
+      )}
+    </div>
+  );
+}
+
+function connectionStatusLabel(status: string) {
+  if (ACTIVE_STATUSES.has(status)) return "Operativo";
+  if (status === "deauthorized") return "Desautorizado";
+  if (status.startsWith("pending_")) return "Configurando";
+  if (status.includes("action_required") || status.includes("unverified")) return "Requiere atención";
+  return status.replaceAll("_", " ");
+}
+
+function formatDate(value: string | null) {
+  if (!value) return "no disponible";
+  return new Intl.DateTimeFormat("es-VE", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    timeZone: "America/Caracas",
+  }).format(new Date(value));
 }

@@ -52,12 +52,15 @@ export async function POST(_request: NextRequest, context: { params: Promise<{ s
 
   const provisioned = await provisionReiConnection({
     organizationId: client.destinationRef!,
+    client: client.slug,
+    businessId: null,
     wabaId: connection.wabaId,
     phoneNumberId: connection.phoneNumberId,
     token: connection.businessToken,
     displayPhoneNumber: client.displayPhoneNumber,
     verifiedName: client.name,
-    isCoexistence: connection.mode === "META_COEXISTENCE",
+    connectionMode: connection.mode,
+    status: client.connectionStatus ?? "connected",
   });
   if (!provisioned.ok) {
     return NextResponse.json(

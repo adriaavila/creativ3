@@ -127,7 +127,7 @@ export default function OpsNav({ global = false }: OpsNavProps) {
   const renderBrand = (mobile = false) => (
     <Link
       href="/ops"
-      aria-label="allok CRM, ir a Hoy"
+      aria-label="allok Ops, ir a Hoy"
       onClick={() => setMobileMenuOpen(false)}
       className={`flex items-center gap-3 rounded-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#142b4b] ${mobile ? "min-h-11" : ""}`}
     >
@@ -136,7 +136,7 @@ export default function OpsNav({ global = false }: OpsNavProps) {
         <span className="block font-display text-[19px] font-semibold tracking-[-0.04em] text-[#142b4b]">
           allok<span className="text-[#97c51e]">.</span>
         </span>
-        <span className="block whitespace-nowrap text-[11px] leading-4 text-[#7a8797]">CRM · WhatsApp oficial</span>
+        <span className="block whitespace-nowrap text-[11px] leading-4 text-[#7a8797]">Ops · Crecimiento</span>
       </span>
     </Link>
   );

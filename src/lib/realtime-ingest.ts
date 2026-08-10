@@ -7,6 +7,7 @@ const MAX_RETRIES = 2;
 
 export type RealtimeConversationChange =
   | "assignedMode"
+  | "status"
   | "outcome"
   | "leadId"
   | "lastMessageAt"

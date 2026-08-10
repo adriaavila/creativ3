@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { automationRuntimePolicy, parseTenantAutomationInput } from "./tenant-automation";
+import { automationRuntimePolicy, parseTenantAutomationInput, previewTenantAutomation } from "./tenant-automation";
 
 test("operator can publish a normalized automation config for one Meta number", () => {
   assert.deepEqual(
@@ -71,4 +71,19 @@ test("stored optional fields can round-trip through the save API as null", () =>
   assert.equal(parsed.systemPrompt, null);
   assert.equal(parsed.businessFacts, null);
   assert.equal(parsed.handoffNote, null);
+});
+
+test("automation preview routes rules, open questions and handoff without sending", () => {
+  const config = parseTenantAutomationInput({
+    enabled: true,
+    operatingMode: "automatic",
+    modelTier: "balanced",
+    systemPrompt: null,
+    businessFacts: null,
+    handoffNote: "Te paso con una persona.",
+    autoReplies: { saludo: "¡Hola!", servicios: "", precio: "Cuesta 10.", cita: "Agenda abierta." },
+  });
+  assert.deepEqual(previewTenantAutomation("Hola", config), { kind: "rule", label: "Responde con la regla saludo.", reply: "¡Hola!" });
+  assert.equal(previewTenantAutomation("¿Tienen estacionamiento?", config).kind, "ai");
+  assert.equal(previewTenantAutomation("Quiero hablar con un humano", config).kind, "human");
 });

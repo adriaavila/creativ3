@@ -8,7 +8,7 @@ import {
 } from "@/lib/projects";
 
 export const metadata: Metadata = {
-  title: "Trabajos · Allok",
+  title: "Agencia · Trabajos de Allok",
   description:
     "Trabajos recientes de Allok: sistemas comerciales, web apps y automatizaciones en producción, sincronizados desde GitHub.",
   alternates: { canonical: "/projects" },
@@ -27,7 +27,7 @@ export default function ProjectsIndex() {
           <section className="mb-14 grid grid-cols-1 gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-end">
             <div>
               <span className="font-mono text-xs uppercase tracking-[0.24em] text-[var(--text-tertiary)]">
-                Trabajos · Sync con GitHub
+                Agencia · Trabajos seleccionados
               </span>
               <h1
                 className="mt-5 font-medium leading-[0.94] tracking-tight text-[var(--text-primary)]"

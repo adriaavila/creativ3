@@ -2,6 +2,10 @@
 
 `allok-realtime` es un servicio separado del Next.js de Vercel. Neon conserva conversaciones y mensajes; Redis solo contiene pub/sub, presencia, typing e idempotencia temporal.
 
+Si `NEXT_PUBLIC_REALTIME_URL` no está configurada, Ops sigue operativo y refresca
+Neon cada 15 segundos. La interfaz lo muestra como `Actualización cada 15 s`; la
+presencia y el indicador de escritura solo aparecen cuando este servicio existe.
+
 ## Crear Redis privado
 
 1. En el proyecto de Coolify crea un recurso Redis con volumen persistente.

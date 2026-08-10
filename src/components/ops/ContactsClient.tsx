@@ -34,7 +34,7 @@ const STATUS_LABELS: Record<GrowthLead["status"], string> = {
 
 function initials(name: string) {
   const parts = name.trim().split(/\s+/).filter(Boolean);
-  return parts.length ? parts.slice(0, 2).map((part) => part[0]).join("").toUpperCase() : "WA";
+  return parts.length ? parts.slice(0, 2).map((part) => Array.from(part)[0]).join("").toUpperCase() : "WA";
 }
 
 function statusLabel(status: GrowthLead["status"] | null) {

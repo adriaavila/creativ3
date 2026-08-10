@@ -22,6 +22,9 @@ export function crmChannelStatusLabel(channel: Pick<CrmChannel, "status" | "offi
 
 export function crmQualityLabel(value: string | null) {
   if (!value) return "No disponible";
+  if (value.toUpperCase() === "GREEN") return "Saludable";
+  if (value.toUpperCase() === "YELLOW") return "En observación";
+  if (value.toUpperCase() === "RED") return "Limitada";
   return value
     .replaceAll("_", " ")
     .toLowerCase()
@@ -50,10 +53,20 @@ export function buildCrmChannels(
       phone: connection.displayPhoneNumber,
       status: connection.status,
       detail: connection.connectionMode === "META_COEXISTENCE" ? "Coexistencia oficial" : "Meta Cloud API",
+      connectionMode: connection.connectionMode,
+      wabaId: connection.wabaId,
+      businessId: connection.businessId,
+      verifiedName: connection.verifiedName,
+      connectedAt: connection.connectedAt,
       qualityRating: connection.qualityRating,
       nameStatus: connection.nameStatus,
       lastSyncedAt: connection.lastSyncedAt,
       workspace: connection.client,
+      businessTokenStored: connection.businessTokenStored,
+      webhookOverrideUri: connection.webhookOverrideUri,
+      crmOrganizationId: connection.crmOrganizationId,
+      crmOrganizationName: connection.crmOrganizationName,
+      crmConnectedAt: connection.crmConnectedAt,
       botConfigured: connection.botConfigured,
       automationEnabled: connection.automationEnabled,
       operatingMode: connection.operatingMode,

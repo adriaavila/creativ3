@@ -221,12 +221,33 @@ type Sql = NeonQueryFunction<false, false>;
 
 async function getWaitingReplies(sql: Sql): Promise<OpsActionSource> {
   const [row] = await sql`
-    WITH waiting AS (
-      SELECT id, contact_name, contact_phone, contact_wa_id, last_inbound_at
-      FROM wa_conversations
-      WHERE status = 'open'
-        AND last_inbound_at IS NOT NULL
-        AND last_message_at = last_inbound_at
+    WITH scoped AS (
+      SELECT conversation.*,
+        regexp_replace(COALESCE(
+          CASE WHEN conversation.channel_kind = 'cloud_api' THEN (
+            SELECT connection.client FROM whatsapp_connections AS connection
+            WHERE connection.phone_number_id = conversation.channel_key
+            ORDER BY connection.updated_at DESC LIMIT 1
+          ) ELSE (
+            SELECT COALESCE(connection.workspace_id, connection.client)
+            FROM waha_connections AS connection
+            WHERE connection.id = conversation.channel_key OR connection.waha_session_id = conversation.channel_key
+            ORDER BY connection.updated_at DESC LIMIT 1
+          ) END,
+          conversation.channel_kind || ':' || conversation.channel_key
+        ), '-ops-owner$', '') AS workspace_key,
+        regexp_replace(COALESCE(conversation.contact_phone, conversation.contact_wa_id), '\\D', '', 'g') AS contact_key
+      FROM wa_conversations AS conversation
+      WHERE conversation.status = 'open'
+        AND conversation.assigned_mode = 'human'
+        AND conversation.last_inbound_at IS NOT NULL
+        AND conversation.last_message_at = conversation.last_inbound_at
+        AND conversation.last_inbound_at >= now() - interval '7 days'
+    ), waiting AS (
+      SELECT DISTINCT ON (workspace_key, contact_key)
+        id, contact_name, contact_phone, contact_wa_id, last_inbound_at
+      FROM scoped
+      ORDER BY workspace_key, contact_key, (channel_kind = 'cloud_api') DESC, last_inbound_at DESC
     ), top AS (
       SELECT * FROM waiting ORDER BY last_inbound_at ASC LIMIT 30
     )

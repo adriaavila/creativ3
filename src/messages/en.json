@@ -15,7 +15,7 @@
     "demoCta": "See a personalized demo"
   },
   "home": {
-    "nav": ["Product", "How it works", "Results", "Pricing", "Resources"],
+    "nav": ["Product", "How it works", "Docs", "Pricing", "Agency"],
     "hero": {
       "eyebrow": "A commercial system for businesses that sell over WhatsApp",
       "title": "Turn conversations into sales.",
@@ -78,11 +78,6 @@
         "Lose opportunities to slow replies or disorganization"
       ],
       "verticals": ["Real estate", "Legal services", "Aesthetic clinics", "Architecture", "Travel", "Education", "Specialized installation", "Professional services"]
-    },
-    "proof": {
-      "label": "Results",
-      "title": "Systems in production, not promises.",
-      "lead": "Real work with real businesses. No invented clients, no numbers we can't stand behind."
     },
     "pricing": {
       "label": "Pricing",

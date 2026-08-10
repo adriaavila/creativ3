@@ -6,16 +6,23 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   ArrowRight,
   Bot,
+  Building2,
   CheckCircle2,
   ChevronDown,
+  CircleAlert,
+  Clock3,
+  KeyRound,
   Loader2,
   MessageCircle,
   Network,
   Plus,
   Search,
+  Settings2,
   ShieldAlert,
+  Smartphone,
   Sparkles,
   Users,
+  Webhook,
 } from "lucide-react";
 import type { GrowthLead } from "@/lib/growth-types";
 import type { WaConversation } from "@/lib/whatsapp-inbox-db";
@@ -72,6 +79,10 @@ function formatDate(iso: string | null) {
   return new Date(iso).toLocaleDateString("es-VE", { day: "numeric", month: "short" });
 }
 
+function formatConnectionDate(iso: string) {
+  return new Date(iso).toLocaleDateString("es-VE", { day: "numeric", month: "short", year: "numeric" });
+}
+
 function formatCurrency(value: number | null) {
   if (value === null) return null;
   return new Intl.NumberFormat("es-VE", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(value);
@@ -79,7 +90,7 @@ function formatCurrency(value: number | null) {
 
 function initials(name: string | null, fallback = "WA") {
   const parts = (name ?? "").trim().split(/\s+/).filter(Boolean);
-  return parts.length ? parts.slice(0, 2).map((part) => part[0]).join("").toUpperCase() : fallback;
+  return parts.length ? parts.slice(0, 2).map((part) => Array.from(part)[0]).join("").toUpperCase() : fallback;
 }
 
 function statusLabel(status: GrowthLead["status"]) {
@@ -147,7 +158,7 @@ export default function CrmWorkspaceClient({
   const officialChannel = channels.find((channel) => channel.official && isCrmChannelActive(channel))
     ?? channels.find((channel) => channel.official)
     ?? null;
-  const realtimeLabel = realtime.status === "connected" ? "Realtime conectado" : realtime.status === "reconnecting" ? "Reconectando" : realtime.status === "connecting" ? "Conectando" : "Realtime offline";
+  const realtimeLabel = realtime.status === "connected" ? "Realtime conectado" : realtime.status === "reconnecting" ? "Reconectando" : realtime.status === "connecting" ? "Conectando" : realtime.status === "polling" ? "Actualización cada 15 s" : "Realtime offline";
   const filteredLeads = useMemo(() => {
     const normalized = query.trim().toLowerCase();
     if (!normalized) return leads;
@@ -173,18 +184,13 @@ export default function CrmWorkspaceClient({
       <div className="mx-auto max-w-[1660px] px-4 py-6 sm:px-7 sm:py-8 lg:px-10">
         <header className="flex flex-wrap items-end justify-between gap-5">
           <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#7a8797]">Pipeline</p>
-            <h1 className="mt-2 text-3xl font-semibold tracking-[-0.04em] sm:text-4xl">Oportunidades</h1>
-            <p className="mt-2 max-w-xl text-sm leading-6 text-[#68778a]">Organiza leads reales y conversaciones de WhatsApp en cada etapa.</p>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#7a8797]">{view === "connections" ? "WhatsApp" : "Pipeline"}</p>
+            <h1 className="mt-2 text-3xl font-semibold tracking-[-0.04em] sm:text-4xl">{view === "connections" ? "Números onboardeados" : "Oportunidades"}</h1>
+            <p className="mt-2 max-w-xl text-sm leading-6 text-[#68778a]">{view === "connections" ? "Revisa tus números con Coexistencia y entra a la automatización de cada negocio." : "Organiza leads reales y conversaciones de WhatsApp en cada etapa."}</p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <span className="mr-1 inline-flex min-h-10 items-center gap-2 px-2 text-[11px] text-[#7a8797]" role="status" aria-live="polite"><span className={`size-2 rounded-full ${realtime.status === "connected" ? "bg-[#c5f04a]" : "bg-[#aeb8c2]"}`} aria-hidden="true" />{realtimeLabel}</span>
-            <Link href="/ops/contacts" className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-[#dce3ea] bg-white px-3 text-xs font-medium text-[#526174] transition hover:border-[#b9c5d2] hover:text-[#142b4b] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3f5f7b]">
-              <Users className="size-4" aria-hidden="true" /> Contactos
-            </Link>
-            <Link href="/embedded-whatsapp" className="inline-flex min-h-10 items-center gap-2 rounded-lg bg-[#c5f04a] px-3 text-xs font-semibold text-[#142b4b] transition hover:bg-[#b7e63b] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#142b4b]">
-              <CheckCircle2 className="size-4" aria-hidden="true" /> {officialChannel && isCrmChannelActive(officialChannel) ? "Gestionar WhatsApp oficial" : "Conectar WhatsApp oficial"}
-            </Link>
+            {view === "workspace" && <><Link href="/ops/contacts" className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-[#dce3ea] bg-white px-3 text-xs font-medium text-[#526174] transition hover:border-[#b9c5d2] hover:text-[#142b4b] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3f5f7b]"><Users className="size-4" aria-hidden="true" /> Contactos</Link><Link href="/embedded-whatsapp" className="inline-flex min-h-10 items-center gap-2 rounded-lg bg-[#c5f04a] px-3 text-xs font-semibold text-[#142b4b] transition hover:bg-[#b7e63b] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#142b4b]"><CheckCircle2 className="size-4" aria-hidden="true" /> {officialChannel && isCrmChannelActive(officialChannel) ? "Gestionar WhatsApp oficial" : "Conectar WhatsApp oficial"}</Link></>}
             <button type="button" onClick={() => setView(view === "connections" ? "workspace" : "connections")} className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-[#dce3ea] bg-white px-3 text-xs font-medium text-[#526174] transition hover:border-[#b9c5d2] hover:text-[#142b4b] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3f5f7b]">
               <Network className="size-4" aria-hidden="true" /> {view === "connections" ? "Volver al pipeline" : "Conexiones"}
             </button>
@@ -303,7 +309,8 @@ function LeadOutreachForm({ lead, channels, onLeadUpdate, onRefreshConversations
   const [phone, setPhone] = useState(lead.businessPhone ?? "");
   const [sourceUrl, setSourceUrl] = useState(lead.contactSourceUrl ?? "");
   const [message, setMessage] = useState("");
-  const [confirmed, setConfirmed] = useState(false);
+  const [reviewed, setReviewed] = useState(false);
+  const [consentConfirmed, setConsentConfirmed] = useState(false);
   const [sending, setSending] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
   const [deliveryUnconfirmed, setDeliveryUnconfirmed] = useState(false);
@@ -346,14 +353,14 @@ function LeadOutreachForm({ lead, channels, onLeadUpdate, onRefreshConversations
   }, [channel]);
 
   async function send() {
-    if (!channel || !confirmed || (channel.official && (templatesLoadedFor !== channel.id || !templateName || !templateLanguage))) return;
+    if (!channel || !reviewed || !consentConfirmed || (channel.official && (templatesLoadedFor !== channel.id || !templateName || !templateLanguage))) return;
     setSending(true);
     setNotice(null);
     const actionId = actionIdRef.current ?? crypto.randomUUID();
     actionIdRef.current = actionId;
     let responseReceived = false;
     try {
-      const response = await fetch("/api/ops/growth/outreach", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ actionId, leadId: lead.id, connectionId: channel.id, channel: channel.channel, ...(channel.workspace ? { workspace: channel.workspace } : {}), phone, message, ...(channel.official ? { templateName, templateLanguage } : {}), contactSourceUrl: sourceUrl || null, confirmed: true }) });
+      const response = await fetch("/api/ops/growth/outreach", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ actionId, leadId: lead.id, connectionId: channel.id, channel: channel.channel, ...(channel.workspace ? { workspace: channel.workspace } : {}), phone, message, ...(channel.official ? { templateName, templateLanguage } : {}), contactSourceUrl: sourceUrl || null, confirmed: true, consentConfirmed: true }) });
       responseReceived = true;
       const data = (await response.json().catch(() => ({}))) as { error?: string; status?: string };
       if (response.status === 202 || data.status === "pending" || data.status === "unknown") {
@@ -366,7 +373,8 @@ function LeadOutreachForm({ lead, channels, onLeadUpdate, onRefreshConversations
       onLeadUpdate({ ...lead, status: "contacted", businessPhone: phone, contactSourceUrl: sourceUrl || null, lastContactedAt: new Date().toISOString() });
       await onRefreshConversations();
       setMessage("");
-      setConfirmed(false);
+      setReviewed(false);
+      setConsentConfirmed(false);
       setNotice("Mensaje enviado y registrado en el CRM.");
     } catch (error) {
       if (!responseReceived) setDeliveryUnconfirmed(true);
@@ -388,9 +396,10 @@ function LeadOutreachForm({ lead, channels, onLeadUpdate, onRefreshConversations
       {channel?.official && <label className="mt-4 text-xs text-[#526174]">Plantilla aprobada por Meta<select value={`${templateName}|${templateLanguage}`} onChange={(event) => { resetAction(); const [name, language] = event.target.value.split("|"); setTemplateName(name ?? ""); setTemplateLanguage(language ?? ""); }} disabled={templatesLoadedFor !== channel.id || !templates.length} className="mt-2 min-h-11 w-full rounded-lg border border-[#dce3ea] bg-[#fafbfc] px-3 text-sm text-[#172238] outline-none focus:border-[#3f5f7b] disabled:opacity-50"><option value="">{templatesLoadedFor !== channel.id ? "Cargando catálogo…" : templates.length ? "Selecciona una plantilla" : "No hay plantillas aprobadas"}</option>{templates.map((template) => <option key={`${template.name}|${template.language}`} value={`${template.name}|${template.language}`}>{template.name} · {template.language}</option>)}</select></label>}
       <label className="mt-4 text-xs text-[#526174]">Mensaje revisado<textarea value={message} onChange={(event) => { resetAction(); setMessage(event.target.value); }} rows={5} placeholder="Escribe una observación concreta sobre su negocio…" className="mt-2 w-full resize-y rounded-lg border border-[#dce3ea] bg-[#fafbfc] p-3 text-sm leading-6 text-[#172238] outline-none focus:border-[#3f5f7b]" /></label>
       <p className="mt-2 text-[11px] leading-5 text-[#7a8797]">Meta valida el nombre e idioma contra el catálogo aprobado. WAHA envía texto libre y es un canal no oficial.</p>
-      <label className="mt-4 flex items-start gap-3 rounded-lg border border-[#e3e8ed] bg-[#fafbfc] p-3 text-xs leading-5 text-[#68778a]"><input type="checkbox" checked={confirmed} onChange={(event) => setConfirmed(event.target.checked)} className="mt-0.5 size-4 accent-[#3f5f7b]" /> Confirmo que revisé el mensaje y que el número pertenece públicamente a este negocio.</label>
+      <label className="mt-4 flex items-start gap-3 rounded-lg border border-[#e3e8ed] bg-[#fafbfc] p-3 text-xs leading-5 text-[#68778a]"><input type="checkbox" checked={reviewed} onChange={(event) => setReviewed(event.target.checked)} className="mt-0.5 size-4 accent-[#3f5f7b]" /> Confirmo que revisé el número, la fuente y el mensaje.</label>
+      <label className="mt-2 flex items-start gap-3 rounded-lg border border-[#e3e8ed] bg-[#fafbfc] p-3 text-xs leading-5 text-[#68778a]"><input type="checkbox" checked={consentConfirmed} onChange={(event) => setConsentConfirmed(event.target.checked)} className="mt-0.5 size-4 accent-[#3f5f7b]" /> Confirmo que existe consentimiento o una base legítima documentada para este contacto. Allok bloqueará un segundo outreach durante 24 horas.</label>
       {notice && <p className="mt-4 rounded-lg border border-[#dce3ea] bg-[#f1f5f9] px-3 py-2.5 text-sm text-[#526174]" role="status">{notice}</p>}
-      <div className="mt-auto pt-6"><TapButton type="button" onClick={() => void send()} disabled={sending || deliveryUnconfirmed || !channel || !confirmed || !phone || message.trim().length < 10 || (channel.official && (templatesLoadedFor !== channel.id || !templateName || !templateLanguage))} className="inline-flex min-h-11 items-center gap-2 rounded-lg bg-[#c5f04a] px-4 text-sm font-semibold text-[#142b4b] transition hover:bg-[#b7e63b] disabled:opacity-40">{sending ? <Loader2 className="size-4 animate-spin" /> : <MessageCircle className="size-4" />} Enviar mensaje</TapButton></div>
+      <div className="mt-auto pt-6"><TapButton type="button" onClick={() => void send()} disabled={sending || deliveryUnconfirmed || !channel || !reviewed || !consentConfirmed || !phone || message.trim().length < 10 || (channel.official && (templatesLoadedFor !== channel.id || !templateName || !templateLanguage))} className="inline-flex min-h-11 items-center gap-2 rounded-lg bg-[#c5f04a] px-4 text-sm font-semibold text-[#142b4b] transition hover:bg-[#b7e63b] disabled:opacity-40">{sending ? <Loader2 className="size-4 animate-spin" /> : <MessageCircle className="size-4" />} Enviar mensaje</TapButton></div>
     </div>
   );
 }
@@ -442,27 +451,101 @@ function ConnectionsPanel({ initialChannels, onChannelsChange }: { initialChanne
     }
   }
 
+  function updateChannel(next: CrmChannel) {
+    setChannels((current) => {
+      const updated = current.map((channel) => channel.id === next.id ? next : channel);
+      onChannelsChange(updated);
+      return updated;
+    });
+  }
+
   const orderedChannels = [...channels].sort((left, right) => Number(right.official) - Number(left.official));
+  const officialChannels = orderedChannels.filter((channel) => channel.official);
+  const coexistenceChannels = orderedChannels.filter((channel) => channel.connectionMode === "META_COEXISTENCE");
+  const otherChannels = orderedChannels.filter((channel) => channel.connectionMode !== "META_COEXISTENCE");
+  const operationalCount = officialChannels.filter(isCrmChannelActive).length;
+  const crmCount = officialChannels.filter((channel) => channel.crmConnectedAt).length;
+  const attentionCount = officialChannels.length - operationalCount;
 
   return (
     <div className="overflow-hidden rounded-xl border border-[#e2e7ed] bg-white">
       <div className="flex flex-wrap items-start justify-between gap-4 border-b border-[#e7ebf0] p-5 sm:p-7">
-        <div><p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#7a8797]">Conexiones</p><h2 id="connections-heading" className="mt-2 text-2xl font-semibold tracking-[-0.03em] text-[#172238]">WhatsApp oficial primero</h2><p className="mt-2 max-w-2xl text-sm leading-6 text-[#68778a]">Conecta el número del negocio mediante Meta. WAHA permanece disponible únicamente como canal secundario.</p></div>
-        <Link href="/embedded-whatsapp" className="inline-flex min-h-10 items-center gap-2 rounded-lg bg-[#c5f04a] px-4 text-xs font-semibold text-[#142b4b] transition hover:bg-[#b7e63b]"><CheckCircle2 className="size-4" aria-hidden="true" /> Conectar oficial</Link>
+        <div><p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#7a8797]">Meta · Inventario operativo</p><h2 id="connections-heading" className="mt-2 text-2xl font-semibold tracking-[-0.03em] text-[#172238]">Números listos para entregar</h2><p className="mt-2 max-w-2xl text-sm leading-6 text-[#68778a]">Onboardea en Allok y entrega cada conexión al CRM externo sin copiar tokens ni mover secretos por el navegador.</p></div>
+        <Link href="/embedded-whatsapp" className="inline-flex min-h-10 items-center gap-2 rounded-lg bg-[#c5f04a] px-4 text-xs font-semibold text-[#142b4b] transition hover:bg-[#b7e63b]"><Plus className="size-4" aria-hidden="true" /> Onboardear número</Link>
       </div>
-      <div className="grid gap-7 p-5 sm:p-7 lg:grid-cols-[1fr_320px]">
-        <div>
-          {orderedChannels.length === 0 && <div className="rounded-lg border border-dashed border-[#dfe5eb] p-6 text-sm text-[#7a8797]">Todavía no hay un canal conectado.</div>}
-          {orderedChannels.map((channel) => <ChannelConnectionRow key={channel.id} channel={channel} />)}
-          {error && <p className="mt-4 rounded-lg border border-[#f2caca] bg-[#fff5f5] px-3 py-2.5 text-sm text-[#9f4141]" role="alert">{error}</p>}
+      <div className="grid border-b border-[#e7ebf0] bg-[#fafbfc] sm:grid-cols-2 xl:grid-cols-4" aria-label="Resumen de números con Coexistencia">
+        <ConnectionMetric icon={Smartphone} label="Onboardeados" value={officialChannels.length} detail="números oficiales" />
+        <ConnectionMetric icon={CheckCircle2} label="Operativos" value={operationalCount} detail="listos para usar" />
+        <ConnectionMetric icon={Webhook} label="En CRM" value={crmCount} detail="callback verificado" />
+        <ConnectionMetric icon={CircleAlert} label="Atención" value={attentionCount} detail="por revisar" />
+      </div>
+
+      <div className="p-5 sm:p-7">
+        <div className="mb-4 flex items-end justify-between gap-4">
+          <div><h3 className="text-base font-semibold text-[#172238]">Coexistencia</h3><p className="mt-1 text-xs text-[#7a8797]">Datos reales del onboarding y la automatización por número.</p></div>
+          <span className="rounded-full bg-[#edf7df] px-2.5 py-1 text-[11px] font-semibold text-[#527526]">{coexistenceChannels.length} {coexistenceChannels.length === 1 ? "número" : "números"}</span>
         </div>
-        <div className="rounded-lg border border-[#e5dfc8] bg-[#fffdf5] p-4"><div className="flex items-start gap-3"><ShieldAlert className="mt-0.5 size-4 shrink-0 text-[#8b6b28]" aria-hidden="true" /><div><h3 className="text-sm font-semibold text-[#57451e]">WAHA · canal secundario</h3><p className="mt-1 text-xs leading-5 text-[#806b3b]">No oficial. Puede implicar riesgo de bloqueo del número.</p></div></div><label className="mt-5 block text-xs text-[#68778a]">Nombre de sesión<input value={session} onChange={(event) => setSession(event.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "-"))} className="mt-2 min-h-11 w-full rounded-lg border border-[#ddd6bc] bg-white px-3 text-sm text-[#172238] outline-none focus:border-[#3f5f7b]" /></label><TapButton type="button" onClick={() => void createWahaSession()} disabled={creating || session.length < 2} className="mt-3 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg border border-[#b9c5d2] bg-white text-sm font-medium text-[#526174] transition hover:border-[#3f5f7b] hover:text-[#142b4b] disabled:opacity-50">{creating ? <Loader2 className="size-4 animate-spin" /> : <Plus className="size-4" />} {pairingSession ? "Reiniciar sesión" : "Crear sesión WAHA"}</TapButton>{pairingSession && <p className="mt-3 text-xs text-[#68778a]">Sesión <span className="font-medium text-[#172238]">{pairingSession}</span> · espera el QR.</p>}{qr && <div className="mt-4 rounded-lg border border-[#e5e9ee] bg-white p-3"><Image src={`data:${qr.mimetype};base64,${qr.data}`} alt="Código QR para conectar WhatsApp a WAHA" width={260} height={260} unoptimized className="mx-auto h-auto w-full max-w-[220px]" /></div>}</div>
+
+        {coexistenceChannels.length === 0 ? (
+          <div className="rounded-xl border border-dashed border-[#ccd5df] bg-[#fafbfc] px-5 py-10 text-center"><Smartphone className="mx-auto size-6 text-[#8a96a5]" /><p className="mt-3 text-sm font-semibold text-[#526174]">Aún no hay números onboardeados con Coexistencia.</p><p className="mt-1 text-xs text-[#8a96a5]">Cuando conectes uno aparecerá aquí con su negocio, sincronización y automatización.</p></div>
+        ) : (
+          <div className="space-y-3">{coexistenceChannels.map((channel) => <CoexistenceNumberCard key={channel.id} channel={channel} onChange={updateChannel} />)}</div>
+        )}
+
+        {otherChannels.length > 0 && <div className="mt-8 border-t border-[#e7ebf0] pt-6"><div className="mb-2"><h3 className="text-sm font-semibold text-[#172238]">Otros canales</h3><p className="mt-1 text-xs text-[#7a8797]">Cloud API puro y sesiones secundarias, separados de Coexistencia.</p></div>{otherChannels.map((channel) => <ChannelConnectionRow key={channel.id} channel={channel} onChange={updateChannel} />)}</div>}
+
+        <details className="mt-7 rounded-xl border border-[#e5dfc8] bg-[#fffdf5]">
+          <summary className="flex min-h-12 cursor-pointer list-none items-center gap-3 px-4 text-sm font-semibold text-[#57451e]"><ShieldAlert className="size-4 text-[#8b6b28]" aria-hidden="true" /> Conectar WAHA como canal secundario</summary>
+          <div className="border-t border-[#eee7d2] p-4"><p className="text-xs leading-5 text-[#806b3b]">No oficial. Puede implicar riesgo de bloqueo del número.</p><label className="mt-4 block text-xs text-[#68778a]">Nombre de sesión<input value={session} onChange={(event) => setSession(event.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "-"))} className="mt-2 min-h-11 w-full rounded-lg border border-[#ddd6bc] bg-white px-3 text-sm text-[#172238] outline-none focus:border-[#3f5f7b]" /></label><TapButton type="button" onClick={() => void createWahaSession()} disabled={creating || session.length < 2} className="mt-3 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg border border-[#b9c5d2] bg-white text-sm font-medium text-[#526174] transition hover:border-[#3f5f7b] hover:text-[#142b4b] disabled:opacity-50">{creating ? <Loader2 className="size-4 animate-spin" /> : <Plus className="size-4" />} {pairingSession ? "Reiniciar sesión" : "Crear sesión WAHA"}</TapButton>{pairingSession && <p className="mt-3 text-xs text-[#68778a]">Sesión <span className="font-medium text-[#172238]">{pairingSession}</span> · espera el QR.</p>}{qr && <div className="mt-4 rounded-lg border border-[#e5e9ee] bg-white p-3"><Image src={`data:${qr.mimetype};base64,${qr.data}`} alt="Código QR para conectar WhatsApp a WAHA" width={260} height={260} unoptimized className="mx-auto h-auto w-full max-w-[220px]" /></div>}{error && <p className="mt-4 rounded-lg border border-[#f2caca] bg-[#fff5f5] px-3 py-2.5 text-sm text-[#9f4141]" role="alert">{error}</p>}</div>
+        </details>
       </div>
     </div>
   );
 }
 
-function ChannelConnectionRow({ channel }: { channel: CrmChannel }) {
+function ConnectionMetric({ icon: Icon, label, value, detail }: { icon: typeof Smartphone; label: string; value: number; detail: string }) {
+  return <div className="border-b border-[#e7ebf0] p-4 last:border-b-0 sm:border-r sm:[&:nth-child(even)]:border-r-0 xl:border-b-0 xl:[&:nth-child(even)]:border-r xl:last:border-r-0"><div className="flex items-center justify-between gap-3"><span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#7a8797]">{label}</span><Icon className="size-4 text-[#526d87]" aria-hidden="true" /></div><p className="mt-2 text-2xl font-semibold tabular-nums text-[#172238]">{value}</p><p className="mt-0.5 text-[11px] text-[#8a96a5]">{detail}</p></div>;
+}
+
+function CoexistenceNumberCard({ channel, onChange }: { channel: CrmChannel; onChange: (channel: CrmChannel) => void }) {
+  const active = isCrmChannelActive(channel);
+  const automationActive = channel.automationEnabled && channel.operatingMode !== "off";
+  const automationLabel = channel.operatingMode === "automatic" ? "Automática" : channel.operatingMode === "approval" ? "Aprobación humana" : "Desactivada";
+
+  return (
+    <article className="overflow-hidden rounded-xl border border-[#dfe5eb] bg-white shadow-[0_5px_18px_rgba(20,43,75,0.04)]">
+      <div className="grid gap-5 p-4 sm:p-5 lg:grid-cols-[minmax(220px,1.3fr)_minmax(150px,.8fr)_minmax(180px,1fr)_auto] lg:items-center">
+        <div className="flex min-w-0 items-center gap-3">
+          <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-[#172238] text-white"><Smartphone className="size-5" /></span>
+          <div className="min-w-0"><p className="truncate font-mono text-base font-semibold tabular-nums text-[#172238]">{channel.phone ?? "Número no disponible"}</p><p className="mt-1 truncate text-xs text-[#7a8797]">{channel.verifiedName ?? "Nombre comercial no disponible"}</p></div>
+        </div>
+
+        <DataPoint label="Negocio" value={channel.workspace ?? "Sin asignar"} />
+
+        <div>
+          <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#8a96a5]">Conexión</p>
+          <p className="mt-1.5 flex items-center gap-2 text-sm font-semibold text-[#263b54]"><span className={`size-2 rounded-full ${active ? "bg-[#9bc53d]" : "bg-[#d09a54]"}`} />{crmChannelStatusLabel(channel)}</p>
+          <p className="mt-1 flex items-center gap-1.5 text-[11px] text-[#8a96a5]"><Clock3 className="size-3" /> Sync {channel.lastSyncedAt ? formatConnectionDate(channel.lastSyncedAt) : "no disponible"}</p>
+        </div>
+
+        <Link href={`/ops/connections/${encodeURIComponent(channel.id)}`} className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-[#172238] px-4 text-xs font-semibold text-white transition hover:bg-[#263b54] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3f5f7b]"><Settings2 className="size-4" /> Gestionar</Link>
+      </div>
+
+      <div className="grid gap-3 border-t border-[#edf0f3] bg-[#fafbfc] px-4 py-3 text-xs sm:grid-cols-3 sm:px-5">
+        <p className="text-[#68778a]"><span className="font-semibold text-[#526174]">Onboarding:</span> {channel.connectedAt ? formatConnectionDate(channel.connectedAt) : "No disponible"}</p>
+        <p className="text-[#68778a]"><span className="font-semibold text-[#526174]">Calidad:</span> {crmQualityLabel(channel.qualityRating ?? null)}</p>
+        <p className="flex items-center gap-2 text-[#68778a]"><span className={`size-1.5 rounded-full ${automationActive ? "bg-[#9bc53d]" : "bg-[#aeb8c2]"}`} /><span><span className="font-semibold text-[#526174]">Automatización:</span> {automationLabel}{channel.modelTier ? ` · ${channel.modelTier === "fast" ? "Rápida" : "Equilibrada"}` : ""}</span></p>
+      </div>
+      <CrmHandoverForm channel={channel} onChange={onChange} />
+    </article>
+  );
+}
+
+function DataPoint({ label, value }: { label: string; value: string }) {
+  return <div className="min-w-0"><p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#8a96a5]">{label}</p><p className="mt-1.5 truncate text-sm font-semibold text-[#263b54]">{value}</p></div>;
+}
+
+function ChannelConnectionRow({ channel, onChange }: { channel: CrmChannel; onChange: (channel: CrmChannel) => void }) {
   const content = (
     <>
       <div className="flex min-w-0 items-start gap-3">
@@ -482,8 +565,126 @@ function ChannelConnectionRow({ channel }: { channel: CrmChannel }) {
     </>
   );
 
-  const className = "flex flex-wrap items-start justify-between gap-3 border-b border-[#edf0f3] py-4 first:pt-0 last:border-b-0 last:pb-0";
-  return channel.official
-    ? <Link href={`/ops/connections/${encodeURIComponent(channel.id)}`} className={`${className} rounded-lg px-2 transition hover:bg-[#f7f9fb] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#3f5f7b]`}>{content}</Link>
-    : <div className={className}>{content}</div>;
+  return (
+    <div className="border-b border-[#edf0f3] py-4 first:pt-0 last:border-b-0 last:pb-0">
+      <Link href={`/ops/connections/${encodeURIComponent(channel.id)}`} className="flex flex-wrap items-start justify-between gap-3 rounded-lg px-2 transition hover:bg-[#f7f9fb] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#3f5f7b]">{content}</Link>
+      {channel.official && <CrmHandoverForm channel={channel} onChange={onChange} compact />}
+    </div>
+  );
+}
+
+type CrmHandoverResponse = {
+  ok?: boolean;
+  error?: string;
+  crm?: {
+    organization_id: string;
+    organization_name: string | null;
+    webhook_url: string;
+    connected_at: string;
+  };
+};
+
+function CrmHandoverForm({
+  channel,
+  onChange,
+  compact = false,
+}: {
+  channel: CrmChannel;
+  onChange: (channel: CrmChannel) => void;
+  compact?: boolean;
+}) {
+  const [organizationId, setOrganizationId] = useState(channel.crmOrganizationId ?? "");
+  const [saving, setSaving] = useState(false);
+  const [notice, setNotice] = useState<{ kind: "success" | "error"; text: string } | null>(null);
+  const connected = Boolean(channel.crmConnectedAt && channel.webhookOverrideUri);
+  const available = channel.businessTokenStored && channel.status !== "deauthorized";
+
+  async function connect(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setSaving(true);
+    setNotice(null);
+    try {
+      const response = await fetch(`/api/ops/whatsapp-connections/${encodeURIComponent(channel.id)}/crm`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ organization_id: organizationId }),
+      });
+      const data = await response.json() as CrmHandoverResponse;
+      if (!response.ok || !data.crm) throw new Error(data.error ?? "No se pudo conectar el número al CRM.");
+
+      onChange({
+        ...channel,
+        crmOrganizationId: data.crm.organization_id,
+        crmOrganizationName: data.crm.organization_name,
+        crmConnectedAt: data.crm.connected_at,
+        webhookOverrideUri: data.crm.webhook_url,
+      });
+      setNotice({ kind: "success", text: `CRM conectado${data.crm.organization_name ? ` · ${data.crm.organization_name}` : ""}. Meta confirmó el callback.` });
+    } catch (error) {
+      setNotice({ kind: "error", text: error instanceof Error ? error.message : "No se pudo conectar el número al CRM." });
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <details className={`${compact ? "mt-3" : "border-t border-[#e6ebef]"} group bg-[#f7faf5]`}>
+      <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between gap-4 px-4 text-sm font-semibold text-[#334b2b] sm:px-5">
+        <span className="flex items-center gap-2">
+          <Webhook className="size-4 text-[#6f9632]" aria-hidden="true" />
+          {connected ? `CRM conectado${channel.crmOrganizationName ? ` · ${channel.crmOrganizationName}` : ""}` : "Conectar este número al CRM"}
+        </span>
+        <span className="text-[11px] font-medium text-[#708069]">{connected ? "Revisar o reentregar" : "Configurar"}</span>
+      </summary>
+
+      <form onSubmit={(event) => void connect(event)} className="border-t border-[#dde7d7] px-4 py-5 sm:px-5">
+        <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(280px,.72fr)]">
+          <div>
+            <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.12em] text-[#66775d]"><Building2 className="size-3.5" /> Destino</div>
+            <label className="mt-3 block text-xs font-medium text-[#526174]" htmlFor={`crm-org-${channel.id}`}>
+              Organization ID del CRM
+            </label>
+            <input
+              id={`crm-org-${channel.id}`}
+              value={organizationId}
+              onChange={(event) => setOrganizationId(event.target.value.trim())}
+              required
+              autoComplete="off"
+              spellCheck={false}
+              pattern="[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}"
+              placeholder="00000000-0000-4000-8000-000000000000"
+              className="mt-2 min-h-11 w-full rounded-lg border border-[#ccd8c6] bg-white px-3 font-mono text-sm text-[#172238] outline-none transition focus:border-[#789e45] focus:ring-2 focus:ring-[#c5f04a]/25"
+            />
+            <p className="mt-2 text-[11px] leading-5 text-[#74806e]">Allok primero entrega las credenciales; sólo después mueve y verifica el webhook en Meta.</p>
+          </div>
+
+          <div className="rounded-lg border border-[#dbe5d5] bg-white p-4">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.13em] text-[#7b8975]">Paquete servidor → CRM</p>
+            <dl className="mt-3 space-y-2.5 text-xs">
+              <CrmPayloadFact label="client" value={channel.workspace ?? "Sin asignar"} />
+              <CrmPayloadFact label="business_id" value={channel.businessId ?? "No disponible"} mono />
+              <CrmPayloadFact label="waba_id" value={channel.wabaId ?? "No disponible"} mono />
+              <CrmPayloadFact label="phone_number_id" value={channel.id} mono />
+              <CrmPayloadFact label="business_token" value={channel.businessTokenStored ? "Cifrado · sólo servidor" : "No disponible"} icon={KeyRound} />
+            </dl>
+          </div>
+        </div>
+
+        {!available && <p className="mt-4 rounded-lg border border-[#ebc8c8] bg-[#fff6f5] px-3 py-2.5 text-xs text-[#98453f]" role="alert">No se puede entregar: falta un token válido almacenado. Repite el onboarding.</p>}
+        {notice && <p className={`mt-4 rounded-lg border px-3 py-2.5 text-sm ${notice.kind === "success" ? "border-[#cee2bc] bg-white text-[#4d6f2b]" : "border-[#ebc8c8] bg-[#fff6f5] text-[#98453f]"}`} role={notice.kind === "error" ? "alert" : "status"}>{notice.text}</p>}
+
+        <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-[#dfe8da] pt-4">
+          <p className="max-w-2xl text-[11px] leading-5 text-[#74806e]">El token nunca se renderiza aquí. El CRM lo recibe por HTTPS y debe guardarlo cifrado.</p>
+          <button type="submit" disabled={saving || !available || organizationId.length < 36} className="inline-flex min-h-11 items-center gap-2 rounded-lg bg-[#172238] px-4 text-xs font-semibold text-white transition hover:bg-[#263b54] disabled:cursor-not-allowed disabled:opacity-40">
+            {saving ? <Loader2 className="size-4 animate-spin" /> : <Webhook className="size-4" />}
+            {saving ? "Conectando…" : connected ? "Reentregar al CRM" : "Conectar al CRM"}
+          </button>
+        </div>
+      </form>
+    </details>
+  );
+}
+
+function CrmPayloadFact({ label, value, mono = false, icon: Icon }: { label: string; value: string; mono?: boolean; icon?: typeof KeyRound }) {
+  return <div className="flex items-start justify-between gap-3"><dt className="font-mono text-[10px] text-[#7c8976]">{label}</dt><dd className={`flex max-w-[210px] items-center gap-1.5 break-all text-right font-medium text-[#384a33] ${mono ? "font-mono text-[11px]" : ""}`}>{Icon && <Icon className="size-3.5 shrink-0 text-[#6f9632]" />}{value}</dd></div>;
 }

@@ -15,7 +15,7 @@
     "demoCta": "Ver demo personalizada"
   },
   "home": {
-    "nav": ["Producto", "Cómo funciona", "Resultados", "Precios", "Recursos"],
+    "nav": ["Producto", "Cómo funciona", "Docs", "Precios", "Agencia"],
     "hero": {
       "eyebrow": "Sistema comercial para negocios que venden por WhatsApp",
       "title": "Convierte conversaciones en ventas.",
@@ -78,11 +78,6 @@
         "Pierden oportunidades por lentitud o desorganización"
       ],
       "verticals": ["Inmobiliarias", "Servicios legales", "Clínicas estéticas", "Arquitectura", "Viajes", "Educación", "Instalación especializada", "Servicios profesionales"]
-    },
-    "proof": {
-      "label": "Resultados",
-      "title": "Sistemas en producción, no promesas.",
-      "lead": "Trabajo real con negocios reales. Sin clientes inventados ni cifras que no podamos sostener."
     },
     "pricing": {
       "label": "Precios",

@@ -42,7 +42,7 @@ function ConversationItem({
       <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-[var(--surface-3)] text-xs font-medium text-[var(--text-secondary)]">
         {name
           .split(" ")
-          .map((part) => part[0])
+          .map((part) => Array.from(part)[0])
           .slice(0, 2)
           .join("")}
       </div>

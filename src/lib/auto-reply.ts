@@ -1,6 +1,9 @@
 import { neon, type NeonQueryFunction } from "@neondatabase/serverless";
 import { getConversationById, setConversationAssignedMode, type AssignedMode, type ConversationStatus, type MessageDirection, type WaConversation } from "@/lib/whatsapp-inbox-db";
+import { PilotRecipientDeniedError } from "@/lib/outbound-safety";
+import { isAutomaticAutomation, matchAutomationRule } from "@/lib/tenant-automation";
 import { isWithinFreeTextWindow, OutsideFreeTextWindowError, sendToConversation } from "@/lib/whatsapp-send";
+import { suggestReply } from "@/lib/whatsapp-ai";
 import { getTenantBotConfig, resolveAutoReplyText } from "@/lib/tenant-bot-config";
 
 type AutoReplyJob = {
@@ -19,32 +22,8 @@ type AutoReplyJob = {
   lastInboundAt: string | null;
 };
 
-/**
- * What the keyword matcher decided. Intentionally carries no copy: the sentence
- * belongs to the tenant (tenant_bot_config.auto_replies), not to this file — see
- * db/migrations/016. `handoff` needs no sentence, it only moves the conversation
- * back to a person.
- */
-export type AutoReplyDecision =
-  | { key: string; handoff?: false; handoffAfterReply?: boolean }
-  | { key: "handoff"; handoff: true }
-  | null;
-
-const RULES: Array<Exclude<AutoReplyDecision, null>> = [
-  { key: "handoff", handoff: true },
-  { key: "cita", handoffAfterReply: true },
-  { key: "precio" },
-  { key: "servicios" },
-  { key: "saludo" },
-];
-
-const MATCHES: Record<string, string[]> = {
-  handoff: ["humano", "persona", "asesor", "agente"],
-  saludo: ["hola", "buenas", "buenos dias", "informacion"],
-  servicios: ["servicios", "que hacen", "pagina web", "web", "automatizacion", "crm"],
-  precio: ["precio", "precios", "cotizacion", "cuanto", "costo", "presupuesto"],
-  cita: ["cita", "agenda", "agendar", "reunion", "reservar"],
-};
+export type { AutoReplyDecision } from "@/lib/tenant-automation";
+export { matchAutomationRule as matchAutoReply } from "@/lib/tenant-automation";
 
 let sqlClient: NeonQueryFunction<false, false> | null = null;
 
@@ -52,18 +31,6 @@ function getSql() {
   if (!process.env.DATABASE_URL) throw new Error("DATABASE_URL is required for auto replies.");
   if (!sqlClient) sqlClient = neon(process.env.DATABASE_URL);
   return sqlClient;
-}
-
-export function matchAutoReply(body: string): AutoReplyDecision {
-  const normalized = body
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase()
-    .trim();
-  if (!normalized) return null;
-
-  const rule = RULES.find((candidate) => MATCHES[candidate.key]?.some((match) => normalized.includes(match)));
-  return rule ?? null;
 }
 
 export async function enqueueAutoReplyJob(conversationId: number, messageId: number): Promise<void> {
@@ -206,31 +173,13 @@ export async function processAutoReplyQueue(limit = 10) {
         continue;
       }
 
-      const decision = matchAutoReply(job.body);
-      if (!decision) {
-        await markSkipped(job.id, "no_match", "No hay una regla segura para este mensaje.");
-        skipped += 1;
-        continue;
-      }
-      if (decision.handoff) {
+      const [decision, tenantConfig] = await Promise.all([
+        Promise.resolve(matchAutomationRule(job.body)),
+        getTenantBotConfig(job.channelKey).catch(() => null),
+      ]);
+      if (decision?.handoff) {
         await setConversationAssignedMode(job.conversationId, "human");
         await markSkipped(job.id, decision.key, "El cliente pidió atención humana.");
-        skipped += 1;
-        continue;
-      }
-
-      // The sentence belongs to whoever owns this number. No copy for this rule
-      // means stay silent — never answer a client's customer with another
-      // business's words. A person picks it up from the inbox instead.
-      const tenantConfig = await getTenantBotConfig(job.channelKey).catch(() => null);
-      const reply = resolveAutoReplyText(tenantConfig, decision.key);
-      if (!reply) {
-        await setConversationAssignedMode(job.conversationId, "human");
-        await markSkipped(
-          job.id,
-          decision.key,
-          "Este número no tiene una respuesta configurada para esa regla.",
-        );
         skipped += 1;
         continue;
       }
@@ -238,6 +187,28 @@ export async function processAutoReplyQueue(limit = 10) {
       const current = await getConversationById(job.conversationId);
       if (!current || current.assignedMode !== "ai") {
         await markSkipped(job.id, "human_mode", "La conversación pasó a una persona antes del envío.");
+        skipped += 1;
+        continue;
+      }
+
+      let ruleKey = decision?.key ?? "ai";
+      let reply = decision ? resolveAutoReplyText(tenantConfig, decision.key) : null;
+      let aiMetadata: Record<string, unknown> = {};
+      if (!decision && isAutomaticAutomation(tenantConfig ?? { enabled: false, operatingMode: "off" })) {
+        const suggestion = await suggestReply(current);
+        reply = suggestion.text;
+        ruleKey = `ai_${suggestion.classification}`;
+        aiMetadata = { model: suggestion.model, classification: suggestion.classification };
+      }
+      if (!reply) {
+        await setConversationAssignedMode(job.conversationId, "human");
+        await markSkipped(
+          job.id,
+          decision?.key ?? "no_match",
+          decision
+            ? "Este número no tiene una respuesta configurada para esa regla."
+            : "La automatización generativa no está activa para este canal.",
+        );
         skipped += 1;
         continue;
       }
@@ -267,16 +238,24 @@ export async function processAutoReplyQueue(limit = 10) {
         text: reply,
         template,
         source: "ai",
-        metadata: { autoReplyJobId: job.id, ruleKey: decision.key },
+        metadata: { autoReplyJobId: job.id, ruleKey, ...aiMetadata },
       });
-      if (decision.handoffAfterReply) {
+      if (decision?.handoffAfterReply) {
         await setConversationAssignedMode(job.conversationId, "human");
       }
-      await markSent(job.id, decision.key, reply);
+      await markSent(job.id, ruleKey, reply);
       sent += 1;
     } catch (error) {
       if (error instanceof OutsideFreeTextWindowError) {
         await markSkipped(job.id, "outside_window", error.message);
+        skipped += 1;
+      } else if (error instanceof PilotRecipientDeniedError || job.attempts >= 3) {
+        await setConversationAssignedMode(job.conversationId, "human");
+        await markSkipped(
+          job.id,
+          error instanceof PilotRecipientDeniedError ? "pilot_allowlist" : "agent_error",
+          error instanceof Error ? error.message : "La automatización falló y pasó a una persona.",
+        );
         skipped += 1;
       } else {
         await markFailed(job.id, job.attempts, error);

@@ -45,6 +45,8 @@ export default async function OpsLoginPage({
 
         <form action="/api/ops/login" method="post" className="mt-6">
           <input type="hidden" name="next" value={nextPath} />
+          <label className="sr-only" htmlFor="ops-username">Usuario</label>
+          <input id="ops-username" name="username" type="text" value="ops" autoComplete="username" readOnly tabIndex={-1} className="sr-only" />
           <label className="text-xs font-medium text-white/55" htmlFor="ops-password">
             Contraseña de acceso
           </label>

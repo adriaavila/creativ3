@@ -10,8 +10,6 @@ import { whatsappUrl } from "@/lib/contact";
 import type { Locale, Messages } from "@/lib/i18n";
 import { useQualificationDialog } from "./QualificationDialogProvider";
 
-const ANCHORS = ["producto", "como-funciona", "resultados", "precios"];
-
 // `src/lib/i18n` is `server-only`; this client component builds locale
 // paths inline instead of importing `localePath` at runtime.
 const localePath = (locale: Locale) => `/${locale}`;
@@ -42,8 +40,15 @@ export default function SiteNav({ locale, messages }: { locale: Locale; messages
     }
   }, [open]);
 
-  const navHref = (index: number) =>
-    pathname === home || pathname === "/" ? `#${ANCHORS[index]}` : `${home}#${ANCHORS[index]}`;
+  const navHref = (anchor: string) =>
+    pathname === home || pathname === "/" ? `#${anchor}` : `${home}#${anchor}`;
+  const navItems = [
+    { label: nav[0], href: navHref("producto") },
+    { label: nav[1], href: navHref("como-funciona") },
+    { label: nav[2], href: "/docs" },
+    { label: nav[3], href: navHref("precios") },
+    { label: nav[4], href: "/projects" },
+  ];
 
   return (
     <header className="fixed inset-x-0 top-0 z-50 px-3 pt-3 sm:px-4">
@@ -56,21 +61,15 @@ export default function SiteNav({ locale, messages }: { locale: Locale; messages
         </Link>
 
         <div className="hidden items-center gap-0.5 lg:flex">
-          {ANCHORS.map((_, index) => (
+          {navItems.map((item) => (
             <Link
-              key={nav[index]}
-              href={navHref(index)}
+              key={item.href}
+              href={item.href}
               className="rounded-full px-3.5 py-2 text-sm font-medium text-[var(--text-secondary)] transition-colors hover:bg-[var(--surface-3)] hover:text-[var(--text-primary)]"
             >
-              {nav[index]}
+              {item.label}
             </Link>
           ))}
-          <Link
-            href="/projects"
-            className="rounded-full px-3.5 py-2 text-sm font-medium text-[var(--text-secondary)] transition-colors hover:bg-[var(--surface-3)] hover:text-[var(--text-primary)]"
-          >
-            {nav[4]}
-          </Link>
         </div>
 
         <div className="flex items-center gap-1.5">
@@ -114,23 +113,16 @@ export default function SiteNav({ locale, messages }: { locale: Locale; messages
           className="allok-enter mx-auto mt-2 max-w-6xl overflow-hidden rounded-[var(--r-xl)] border border-[var(--line)] bg-[var(--surface-1)] p-2 shadow-[var(--shadow-3)] lg:hidden"
         >
           <div className="flex flex-col gap-0.5 p-2">
-            {ANCHORS.map((_, index) => (
+            {navItems.map((item) => (
               <Link
-                key={nav[index]}
-                href={navHref(index)}
+                key={item.href}
+                href={item.href}
                 onClick={() => setOpen(false)}
                 className="rounded-[var(--r-md)] px-4 py-3 text-base font-medium text-[var(--text-primary)] transition-colors hover:bg-[var(--surface-3)]"
               >
-                {nav[index]}
+                {item.label}
               </Link>
             ))}
-            <Link
-              href="/projects"
-              onClick={() => setOpen(false)}
-              className="rounded-[var(--r-md)] px-4 py-3 text-base font-medium text-[var(--text-primary)] transition-colors hover:bg-[var(--surface-3)]"
-            >
-              {nav[4]}
-            </Link>
             <Link
               href="/ops-login"
               onClick={() => setOpen(false)}

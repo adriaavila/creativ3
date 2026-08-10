@@ -48,19 +48,15 @@ async function classify(history: ReturnType<typeof toModelMessages>, model: stri
 }
 
 /**
- * Suggests a reply for a conversation — never sends it. The operator reviews
- * and presses send (see src/app/api/ops/inbox/[id]/reply/route.ts).
- *
- * The persona comes from tenant_bot_config keyed by the conversation's
- * channel_key (= phone_number_id), so each connected client answers with its own
- * voice and its own facts. No row = the shared defaults below.
+ * Builds a reply for manual approval or the automatic queue; callers own the
+ * send decision. The persona comes from tenant_bot_config keyed by the conversation's
+ * channel_key (= Meta phone_number_id or WAHA session), so each connected client
+ * answers with its own voice and its own facts. No row = the shared defaults.
  */
 export async function suggestReply(conversation: WaConversation): Promise<SuggestedReply> {
   const [recent, config] = await Promise.all([
     getRecentMessagesForAi(conversation.id, 20),
-    conversation.channelKind === "cloud_api"
-      ? getTenantBotConfig(conversation.channelKey).catch(() => null)
-      : Promise.resolve(null),
+    getTenantBotConfig(conversation.channelKey).catch(() => null),
   ]);
   const history = toModelMessages(recent);
   if (history.length === 0) {

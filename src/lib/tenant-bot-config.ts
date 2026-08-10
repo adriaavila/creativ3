@@ -1,9 +1,8 @@
 import { neon, type NeonQueryFunction } from "@neondatabase/serverless";
 import { isAutomaticAutomation, type AutomationMode, type ModelTier } from "@/lib/tenant-automation";
 
-// Per-tenant bot behavior (migration 015). Keyed by phone_number_id — the same
-// key the webhook routes on and wa_conversations stores as channel_key — so a
-// client is onboarded with one row, not one workflow.
+// Per-tenant bot behavior (migration 015). Keyed by the channel key: Meta
+// phone_number_id or WAHA session. A client gets one row, not one workflow.
 
 let sqlClient: NeonQueryFunction<false, false> | null = null;
 

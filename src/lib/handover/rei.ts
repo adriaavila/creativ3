@@ -21,6 +21,24 @@ export type ReiHandoverResult = {
   error: string | null;
 };
 
+const REI_ORGANIZATION_ID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+export function parseReiOrganizationId(value: unknown): string | null {
+  if (typeof value !== "string") return null;
+  const organizationId = value.trim();
+  return REI_ORGANIZATION_ID.test(organizationId) ? organizationId : null;
+}
+
+export function normalizeCrmWebhookUrl(value: unknown): string | null {
+  if (typeof value !== "string" || !value.trim()) return null;
+  try {
+    const url = new URL(value);
+    return url.protocol === "https:" ? url.toString() : null;
+  } catch {
+    return null;
+  }
+}
+
 export function getReiHandoverEnv() {
   const baseUrl = process.env.REI_PROVISION_URL?.trim();
   const secret = process.env.REI_PROVISION_SECRET?.trim();
@@ -35,12 +53,15 @@ export function getReiHandoverEnv() {
 
 export async function provisionReiConnection(input: {
   organizationId: string;
+  client: string;
+  businessId: string | null;
   wabaId: string;
   phoneNumberId: string;
   token: string;
   displayPhoneNumber: string | null;
   verifiedName: string | null;
-  isCoexistence: boolean;
+  connectionMode: "META_CLOUD_API" | "META_COEXISTENCE";
+  status: string;
 }): Promise<ReiHandoverResult> {
   const env = getReiHandoverEnv();
   if (!env.baseUrl || !env.secret) {
@@ -63,12 +84,16 @@ export async function provisionReiConnection(input: {
       },
       body: JSON.stringify({
         organization_id: input.organizationId,
+        client: input.client,
+        business_id: input.businessId,
         waba_id: input.wabaId,
         phone_number_id: input.phoneNumberId,
         token: input.token,
         display_phone_number: input.displayPhoneNumber,
         verified_name: input.verifiedName,
-        is_coexistence: input.isCoexistence,
+        connection_mode: input.connectionMode,
+        status: input.status,
+        is_coexistence: input.connectionMode === "META_COEXISTENCE",
       }),
       signal: AbortSignal.timeout(15_000),
     });
@@ -95,11 +120,24 @@ export async function provisionReiConnection(input: {
     };
   }
 
+  const webhookUrl = body.webhook_url === undefined
+    ? null
+    : normalizeCrmWebhookUrl(body.webhook_url);
+  if (body.webhook_url !== undefined && !webhookUrl) {
+    return {
+      ok: false,
+      status: 502,
+      organizationName: null,
+      webhookUrl: null,
+      error: "El CRM devolvió una URL de webhook inválida; debe usar HTTPS.",
+    };
+  }
+
   return {
     ok: true,
     status: response.status,
     organizationName: typeof body.organization_name === "string" ? body.organization_name : null,
-    webhookUrl: typeof body.webhook_url === "string" ? body.webhook_url : null,
+    webhookUrl,
     error: null,
   };
 }

@@ -12,6 +12,7 @@ const LOCALIZED_ROUTES = [
 
 const SPANISH_ONLY_ROUTES: [path: string, changeFrequency: MetadataRoute.Sitemap[number]["changeFrequency"], priority: number][] = [
   ["/cotizar", "monthly", 0.8],
+  ["/docs", "monthly", 0.8],
   ["/projects", "weekly", 0.7],
   ["/projects/mistica", "yearly", 0.4],
   ["/automatizar", "monthly", 0.6],

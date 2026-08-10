@@ -21,6 +21,7 @@ export type ConversationOutcome = "cita" | "cotizacion" | "descarte";
 
 export type WaConversation = {
   id: number;
+  workspaceKey: string | null;
   connectionId: string | null;
   leadId: string | null;
   channelKind: ChannelKind;
@@ -95,6 +96,7 @@ function getSql() {
 function mapConversation(row: any): WaConversation {
   return {
     id: Number(row.id),
+    workspaceKey: row.workspace_key ? String(row.workspace_key) : null,
     connectionId: row.connection_id ? String(row.connection_id) : null,
     leadId: row.lead_id ? String(row.lead_id) : null,
     channelKind: row.channel_kind,
@@ -181,7 +183,7 @@ export async function upsertConversation(input: {
        ORDER BY updated_at DESC
        LIMIT 1),
       CASE
-        WHEN ${input.channelKind} = 'cloud_api' AND EXISTS (
+        WHEN EXISTS (
           SELECT 1 FROM tenant_bot_config
           WHERE phone_number_id = ${input.channelKey}
             AND enabled = true AND operating_mode = 'automatic'
@@ -195,6 +197,15 @@ export async function upsertConversation(input: {
       contact_name = COALESCE(EXCLUDED.contact_name, wa_conversations.contact_name),
       connection_id = COALESCE(EXCLUDED.connection_id, wa_conversations.connection_id),
       lead_id = COALESCE(wa_conversations.lead_id, EXCLUDED.lead_id),
+      status = CASE WHEN ${input.direction} = 'in' THEN 'open' ELSE wa_conversations.status END,
+      assigned_mode = CASE
+        WHEN ${input.direction} = 'in' AND wa_conversations.status = 'closed' AND EXISTS (
+          SELECT 1 FROM tenant_bot_config
+          WHERE phone_number_id = ${input.channelKey}
+            AND enabled = true AND operating_mode = 'automatic'
+        ) THEN 'ai'
+        ELSE wa_conversations.assigned_mode
+      END,
       updated_at = now()
     RETURNING *
   `;
@@ -249,15 +260,46 @@ export async function syncMetaContact(input: {
 
 export async function getConversationById(id: number): Promise<WaConversation | null> {
   const sql = getSql();
-  const rows = await sql`SELECT * FROM wa_conversations WHERE id = ${id}`;
+  const rows = await sql`
+    SELECT conversation.*,
+      COALESCE(
+        CASE WHEN conversation.channel_kind = 'cloud_api' THEN (
+          SELECT connection.client FROM whatsapp_connections AS connection
+          WHERE connection.phone_number_id = conversation.channel_key
+          ORDER BY connection.updated_at DESC LIMIT 1
+        ) ELSE (
+          SELECT COALESCE(connection.workspace_id, connection.client)
+          FROM waha_connections AS connection
+          WHERE connection.id = conversation.channel_key OR connection.waha_session_id = conversation.channel_key
+          ORDER BY connection.updated_at DESC LIMIT 1
+        ) END,
+        conversation.channel_kind || ':' || conversation.channel_key
+      ) AS workspace_key
+    FROM wa_conversations AS conversation
+    WHERE conversation.id = ${id}
+  `;
   return rows[0] ? mapConversation(rows[0]) : null;
 }
 
 export async function listConversations(limit = 100): Promise<WaConversation[]> {
   const sql = getSql();
   const rows = await sql`
-    SELECT * FROM wa_conversations
-    ORDER BY last_message_at DESC NULLS LAST
+    SELECT conversation.*,
+      COALESCE(
+        CASE WHEN conversation.channel_kind = 'cloud_api' THEN (
+          SELECT connection.client FROM whatsapp_connections AS connection
+          WHERE connection.phone_number_id = conversation.channel_key
+          ORDER BY connection.updated_at DESC LIMIT 1
+        ) ELSE (
+          SELECT COALESCE(connection.workspace_id, connection.client)
+          FROM waha_connections AS connection
+          WHERE connection.id = conversation.channel_key OR connection.waha_session_id = conversation.channel_key
+          ORDER BY connection.updated_at DESC LIMIT 1
+        ) END,
+        conversation.channel_kind || ':' || conversation.channel_key
+      ) AS workspace_key
+    FROM wa_conversations AS conversation
+    ORDER BY conversation.last_message_at DESC NULLS LAST
     LIMIT ${limit}
   `;
   return rows.map(mapConversation);
@@ -272,6 +314,17 @@ export async function setConversationAssignedMode(id: number, mode: AssignedMode
     RETURNING *
   `;
   return emitConversationUpdate(rows[0], ["assignedMode"]);
+}
+
+export async function setConversationStatus(id: number, status: ConversationStatus): Promise<WaConversation | null> {
+  const sql = getSql();
+  const rows = await sql`
+    UPDATE wa_conversations
+    SET status = ${status}, updated_at = now()
+    WHERE id = ${id} AND status IS DISTINCT FROM ${status}
+    RETURNING *
+  `;
+  return emitConversationUpdate(rows[0], ["status"]);
 }
 
 export async function setConversationLeadId(id: number, leadId: string | null): Promise<WaConversation | null> {

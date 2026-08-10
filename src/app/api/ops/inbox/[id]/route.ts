@@ -6,6 +6,7 @@ import {
   setConversationAssignedMode,
   setConversationLeadId,
   setConversationOutcome,
+  setConversationStatus,
 } from "@/lib/whatsapp-inbox-db";
 
 export const runtime = "nodejs";
@@ -30,6 +31,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
 // un-marks a conversation — distinct from omitting the key, which leaves it be.
 const patchSchema = z.object({
   assignedMode: z.enum(["human", "ai"]).optional(),
+  status: z.enum(["open", "snoozed", "closed"]).optional(),
   outcome: z.enum(["cita", "cotizacion", "descarte"]).nullable().optional(),
   leadId: z.string().uuid().nullable().optional(),
 });
@@ -45,6 +47,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
 
   const input = patchSchema.parse(await request.json());
   if (input.assignedMode) await setConversationAssignedMode(conversationId, input.assignedMode);
+  if (input.status) await setConversationStatus(conversationId, input.status);
   if (input.outcome !== undefined) await setConversationOutcome(conversationId, input.outcome);
   if (input.leadId !== undefined) await setConversationLeadId(conversationId, input.leadId);
   return Response.json({ ok: true });

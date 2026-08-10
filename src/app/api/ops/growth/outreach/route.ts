@@ -5,6 +5,7 @@ import {
   completeGrowthOutreachAttempt,
   createGrowthOutreachAttempt,
   getGrowthLeadById,
+  hasRecentSentGrowthOutreach,
   updateLeadFields,
   updateLeadStatus,
 } from "@/lib/growth-db";
@@ -34,6 +35,7 @@ export const growthOutreachSchema = z.object({
   workspace: z.string().trim().max(80).optional(),
   contactSourceUrl: z.url().max(500).nullable().optional(),
   confirmed: z.literal(true),
+  consentConfirmed: z.literal(true),
 });
 
 export function growthTemplateComponents(message: string) {
@@ -54,6 +56,12 @@ export async function POST(request: Request) {
   if (!lead) return Response.json({ error: "Lead no encontrado." }, { status: 404 });
 
   const phone = normalizeWhatsAppId(input.phone);
+  if (await hasRecentSentGrowthOutreach(phone)) {
+    return Response.json(
+      { error: "Este número ya recibió un outreach en las últimas 24 horas." },
+      { status: 429, headers: { "Retry-After": "86400" } },
+    );
+  }
   const connection = await resolveConnection(
     input.channel,
     input.connectionId,

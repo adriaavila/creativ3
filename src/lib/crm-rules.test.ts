@@ -7,9 +7,14 @@ import { FREE_TEXT_WINDOW_MS, freeTextWindow } from "@/lib/whatsapp-window";
 import { matchAutoReply } from "@/lib/auto-reply";
 import { statusOutranks } from "@/lib/whatsapp-inbox-db";
 import { composeSystemPrompt, resolveAutoReplyText } from "@/lib/tenant-bot-config";
+import {
+  assertOutboundRecipientAllowed,
+  PilotRecipientDeniedError,
+  pilotAllowedRecipients,
+} from "@/lib/outbound-safety";
 import { buildOnboardingUrl, toWorkspaceSlug } from "@/lib/meta/onboarding-link";
 import { normalizeMetaWebhook } from "@/lib/meta/cloud-whatsapp-provider";
-import { crmChannelStatusLabel, isCrmChannelActive } from "@/lib/crm-channels";
+import { crmChannelStatusLabel, crmQualityLabel, isCrmChannelActive } from "@/lib/crm-channels";
 import {
   createMetaOnboardingInvite,
   createMetaSignupState,
@@ -35,6 +40,7 @@ test("treats a confirmed Coexistence sync request as an operational CRM channel"
     crmChannelStatusLabel({ status: "coexistence_sync_action_required", official: true }),
     "Requiere atención",
   );
+  assert.equal(crmQualityLabel("GREEN"), "Saludable");
 });
 
 test("binds public Embedded Signup state to its workspace and mode", () => {
@@ -319,6 +325,7 @@ test("outreach requires explicit approval and builds a reviewed template body", 
     phone: "+584125550198",
     message: "Hola, vimos una oportunidad concreta para tu negocio.",
     confirmed: true,
+    consentConfirmed: true,
   });
   const rejected = growthOutreachSchema.safeParse({
     actionId: "00000000-0000-4000-8000-000000000001",
@@ -328,10 +335,12 @@ test("outreach requires explicit approval and builds a reviewed template body", 
     phone: "+584125550198",
     message: "Hola, vimos una oportunidad concreta para tu negocio.",
     confirmed: false,
+    consentConfirmed: true,
   });
 
   assert.equal(valid.success, true);
   assert.equal(rejected.success, false);
+  assert.equal(valid.success ? growthOutreachSchema.safeParse({ ...valid.data, consentConfirmed: false }).success : true, false);
   assert.deepEqual(growthTemplateComponents("Mensaje revisado"), [
     { type: "body", parameters: [{ type: "text", text: "Mensaje revisado" }] },
   ]);
@@ -345,6 +354,7 @@ test("human outreach requires one durable action UUID", () => {
     phone: "+584125550198",
     message: "Hola, vimos una oportunidad concreta para tu negocio.",
     confirmed: true,
+    consentConfirmed: true,
   };
 
   assert.equal(growthOutreachSchema.safeParse(base).success, false);
@@ -429,6 +439,16 @@ test("auto reply copy belongs to the tenant, never to allok", () => {
   assert.equal(resolveAutoReplyText({ ...rosa, enabled: false }, "saludo"), null);
   // Blank string is not copy.
   assert.equal(resolveAutoReplyText({ ...rosa, autoReplies: { saludo: "   " } }, "saludo"), null);
+});
+
+test("pilot mode only sends to explicitly allowed WhatsApp ids", () => {
+  const allowed = pilotAllowedRecipients("+58 412 000 0001,59170000002");
+  assert.doesNotThrow(() => assertOutboundRecipientAllowed("584120000001", "pilot", allowed));
+  assert.throws(
+    () => assertOutboundRecipientAllowed("584120000099", "pilot", allowed),
+    PilotRecipientDeniedError,
+  );
+  assert.doesNotThrow(() => assertOutboundRecipientAllowed("584120000099", "production", allowed));
 });
 
 test("onboarding links carry a safe workspace slug and the right mode", () => {

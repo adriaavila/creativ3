@@ -5,7 +5,6 @@ import Benefits from "./Benefits";
 import SystemLayers from "./SystemLayers";
 import Positioning from "./Positioning";
 import IdealCustomer from "./IdealCustomer";
-import Proof from "./Proof";
 import Pricing from "./Pricing";
 import SevenDayPlan from "./SevenDayPlan";
 import Faq from "./Faq";
@@ -21,7 +20,6 @@ export default function Home({ locale, messages }: { locale: Locale; messages: M
       <SystemLayers messages={messages} />
       <Positioning messages={messages} />
       <IdealCustomer messages={messages} />
-      <Proof messages={messages} />
       <Pricing messages={messages} />
       <SevenDayPlan messages={messages} />
       <Faq messages={messages} />

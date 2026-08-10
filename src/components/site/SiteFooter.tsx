@@ -9,10 +9,11 @@ export default function SiteFooter({ locale, messages }: { locale: Locale; messa
   const legalBase = `/${locale}`;
 
   const links = [
-    { label: home.nav[0], href: "#producto" },
-    { label: home.nav[2], href: "#resultados" },
-    { label: home.nav[3], href: "#precios" },
-    { label: "Portfolio", href: "/projects" },
+    { label: home.nav[0], href: `${legalBase}#producto` },
+    { label: home.nav[1], href: `${legalBase}#como-funciona` },
+    { label: home.nav[2], href: "/docs" },
+    { label: home.nav[3], href: `${legalBase}#precios` },
+    { label: home.nav[4], href: "/projects" },
     { label: common.terms, href: `${legalBase}/terminos` },
     { label: common.privacy, href: `${legalBase}/privacidad` },
   ];

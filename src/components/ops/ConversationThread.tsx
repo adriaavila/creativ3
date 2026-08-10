@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { AlertTriangle, Bot, Check, CheckCheck, ChevronLeft, Link2, Loader2, Phone, Send, Smartphone, Sparkles, User } from "lucide-react";
+import { AlertTriangle, Archive, Bot, Check, CheckCheck, ChevronLeft, Link2, Loader2, Phone, RotateCcw, Send, Smartphone, Sparkles, User } from "lucide-react";
 import { motion, useReducedMotion } from "motion/react";
 import type { ConversationOutcome, WaConversation, WaMessage } from "@/lib/whatsapp-inbox-db";
 import { formatWhatsAppPhone } from "@/lib/phone";
@@ -15,6 +15,12 @@ const OUTCOMES: { id: ConversationOutcome; label: string }[] = [
   { id: "descarte", label: "Descarte" },
 ];
 
+const OPS_TIME_ZONE = "America/Caracas";
+
+function dayKey(date: Date) {
+  return date.toLocaleDateString("en-CA", { timeZone: OPS_TIME_ZONE });
+}
+
 type ConversationThreadProps = {
   conversation: WaConversation;
   leadId?: string | null;
@@ -24,21 +30,20 @@ type ConversationThreadProps = {
 
 function formatTime(iso: string | null) {
   if (!iso) return "";
-  return new Date(iso).toLocaleTimeString("es-VE", { hour: "2-digit", minute: "2-digit" });
+  return new Date(iso).toLocaleTimeString("es-VE", { hour: "2-digit", minute: "2-digit", timeZone: OPS_TIME_ZONE });
 }
 
 function formatDay(iso: string) {
   const date = new Date(iso);
   const today = new Date();
-  const yesterday = new Date();
-  yesterday.setDate(today.getDate() - 1);
-  if (date.toDateString() === today.toDateString()) return "Hoy";
-  if (date.toDateString() === yesterday.toDateString()) return "Ayer";
-  return date.toLocaleDateString("es-VE", { day: "numeric", month: "long", year: "numeric" });
+  const yesterday = new Date(today.getTime() - 86_400_000);
+  if (dayKey(date) === dayKey(today)) return "Hoy";
+  if (dayKey(date) === dayKey(yesterday)) return "Ayer";
+  return date.toLocaleDateString("es-VE", { day: "numeric", month: "long", year: "numeric", timeZone: OPS_TIME_ZONE });
 }
 
 function sameDay(left: string, right: string) {
-  return new Date(left).toDateString() === new Date(right).toDateString();
+  return dayKey(new Date(left)) === dayKey(new Date(right));
 }
 
 function channelLabel(conversation: WaConversation) {
@@ -47,7 +52,7 @@ function channelLabel(conversation: WaConversation) {
 
 function conversationInitials(name: string | null) {
   const parts = (name ?? "").trim().split(/\s+/).filter(Boolean);
-  return parts.length ? parts.slice(0, 2).map((part) => part[0]).join("").toUpperCase() : "WA";
+  return parts.length ? parts.slice(0, 2).map((part) => Array.from(part)[0]).join("").toUpperCase() : "WA";
 }
 
 function formatWindowCountdown(msRemaining: number) {
@@ -83,7 +88,7 @@ function DeliveryStatus({ message }: { message: WaMessage }) {
 }
 
 function realtimeLabel(status: string) {
-  return status === "connected" ? "Conectado" : status === "reconnecting" ? "Reconectando" : status === "connecting" ? "Conectando" : "Offline";
+  return status === "connected" ? "Conectado" : status === "reconnecting" ? "Reconectando" : status === "connecting" ? "Conectando" : status === "polling" ? "Actualización 15 s" : "Offline";
 }
 
 export default function ConversationThread({ conversation, leadId, onConversationChange, onBack }: ConversationThreadProps) {
@@ -95,6 +100,7 @@ export default function ConversationThread({ conversation, leadId, onConversatio
   const [suggesting, setSuggesting] = useState(false);
   const [sending, setSending] = useState(false);
   const [togglingMode, setTogglingMode] = useState(false);
+  const [changingStatus, setChangingStatus] = useState(false);
   const [markingOutcome, setMarkingOutcome] = useState(false);
   const [linking, setLinking] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -276,6 +282,12 @@ export default function ConversationThread({ conversation, leadId, onConversatio
     try { await patchConversation({ assignedMode: next }); } catch (reason) { setError(reason instanceof Error ? reason.message : "No se pudo cambiar el modo."); } finally { setTogglingMode(false); }
   }
 
+  async function toggleStatus() {
+    setChangingStatus(true);
+    setError(null);
+    try { await patchConversation({ status: current.status === "closed" ? "open" : "closed" }); } catch (reason) { setError(reason instanceof Error ? reason.message : "No se pudo cambiar el estado."); } finally { setChangingStatus(false); }
+  }
+
   async function markOutcome(outcome: ConversationOutcome) {
     const next = current.outcome === outcome ? null : outcome;
     setMarkingOutcome(true);
@@ -313,7 +325,7 @@ export default function ConversationThread({ conversation, leadId, onConversatio
           </div>
           <div className="flex items-center gap-2 text-[10px] text-[#7e8a98]" role="status" aria-live="polite">
             <span className={`size-1.5 rounded-full ${realtime.status === "connected" ? "bg-[#a8d63d]" : "bg-[#aeb8c2]"}`} aria-hidden="true" />
-            {realtimeLabel(realtime.status)} · {realtime.onlineOperators.length} online
+            {realtimeLabel(realtime.status)}{realtime.status !== "polling" && ` · ${realtime.onlineOperators.length} online`}
           </div>
         </div>
         <div className="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-[#edf0f3] pt-3">
@@ -324,6 +336,7 @@ export default function ConversationThread({ conversation, leadId, onConversatio
             })}
           </div>
           <div className="flex items-center gap-1.5">
+            <button type="button" onClick={() => void toggleStatus()} disabled={changingStatus} className="flex min-h-7 items-center gap-1.5 rounded-full border border-[#e1e6ec] px-2.5 text-[10px] text-[#536275] hover:border-[#b9c5d2] hover:text-[#172238] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#3f5f7b] disabled:opacity-50">{current.status === "closed" ? <RotateCcw className="size-3" /> : <Archive className="size-3" />}{current.status === "closed" ? "Reabrir" : "Cerrar"}</button>
             <button type="button" onClick={() => void toggleAssignedMode()} disabled={togglingMode} className="flex min-h-7 items-center gap-1.5 rounded-full border border-[#e1e6ec] px-2.5 text-[10px] text-[#536275] hover:border-[#b9c5d2] hover:text-[#172238] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#3f5f7b] disabled:opacity-50">{current.assignedMode === "human" ? <User className="size-3" /> : <Bot className="size-3" />}{current.assignedMode === "human" ? "Humano" : "IA"}</button>
             {leadId && current.leadId !== leadId && <button type="button" onClick={() => void linkLead()} disabled={linking} className="flex min-h-7 items-center gap-1.5 rounded-full border border-[#3f5f7b] px-2.5 text-[10px] text-[#3f5f7b] hover:bg-[#eef3f7] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#3f5f7b] disabled:opacity-50">{linking ? <Loader2 className="size-3 animate-spin" /> : <Link2 className="size-3" />} Vincular lead</button>}
           </div>

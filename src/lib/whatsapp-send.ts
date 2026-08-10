@@ -2,6 +2,7 @@ import { sendTemplateMessage } from "@/lib/meta/server";
 import { MetaCloudWhatsAppProvider } from "@/lib/meta/cloud-whatsapp-provider";
 import { getWhatsAppProviderConnectionForStoredChannel } from "@/lib/whatsapp-connections-db";
 import { sendWahaText } from "@/lib/waha-send";
+import { assertOutboundRecipientAllowed } from "@/lib/outbound-safety";
 import {
   beginOutboundMessage,
   finalizeOutboundMessage,
@@ -55,6 +56,7 @@ export class OutsideFreeTextWindowError extends Error {
 export async function sendToConversation(input: SendToConversationInput): Promise<SendToConversationResult> {
   const conversation = await getConversationById(input.conversationId);
   if (!conversation) throw new Error(`Conversación ${input.conversationId} no encontrada.`);
+  assertOutboundRecipientAllowed(conversation.contactWaId);
   const actionId = input.actionId ?? crypto.randomUUID();
 
   return conversation.channelKind === "cloud_api"

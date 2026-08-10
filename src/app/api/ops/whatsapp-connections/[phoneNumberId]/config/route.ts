@@ -3,6 +3,7 @@ import { authorizeOps } from "@/lib/ops-auth";
 import { parseTenantAutomationInput } from "@/lib/tenant-automation";
 import { upsertTenantBotConfig } from "@/lib/tenant-bot-config";
 import { getWhatsAppConnectionByPhoneNumberId } from "@/lib/whatsapp-connections-db";
+import { getWahaConnection } from "@/lib/whatsapp-inbox-db";
 
 export const dynamic = "force-dynamic";
 
@@ -14,13 +15,16 @@ export async function PUT(
   if (!authorization.authorized) return authorization.response;
 
   const { phoneNumberId } = await params;
-  if (!/^\d{5,32}$/.test(phoneNumberId)) {
-    return Response.json({ error: "Número de Meta inválido." }, { status: 400 });
+  if (!/^[a-zA-Z0-9._-]{2,64}$/.test(phoneNumberId)) {
+    return Response.json({ error: "Canal de WhatsApp inválido." }, { status: 400 });
   }
 
   try {
-    const connection = await getWhatsAppConnectionByPhoneNumberId(phoneNumberId);
-    if (!connection) return Response.json({ error: "Conexión no encontrada." }, { status: 404 });
+    const [meta, waha] = await Promise.all([
+      getWhatsAppConnectionByPhoneNumberId(phoneNumberId),
+      getWahaConnection(phoneNumberId),
+    ]);
+    if (!meta && !waha) return Response.json({ error: "Conexión no encontrada." }, { status: 404 });
 
     const input = parseTenantAutomationInput(await request.json());
     const config = await upsertTenantBotConfig({ phoneNumberId, ...input });

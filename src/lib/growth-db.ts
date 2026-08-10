@@ -327,6 +327,20 @@ export async function createGrowthOutreachAttempt(input: {
   return { id: String(existing.id), status: String(existing.status), created: false };
 }
 
+export async function hasRecentSentGrowthOutreach(recipient: string): Promise<boolean> {
+  const sql = getSql();
+  if (!sql) throw new Error("DATABASE_URL is not configured");
+  const [row] = await sql`
+    SELECT EXISTS (
+      SELECT 1 FROM growth_outreach_messages
+      WHERE status = 'sent'
+        AND regexp_replace(recipient, '\\D', '', 'g') = regexp_replace(${recipient}, '\\D', '', 'g')
+        AND sent_at >= now() - interval '24 hours'
+    ) AS blocked
+  `;
+  return row?.blocked === true;
+}
+
 export async function completeGrowthOutreachAttempt(
   id: string,
   input: {

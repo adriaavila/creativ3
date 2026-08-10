@@ -4,6 +4,44 @@ allok es el Tech Provider: es dueño de la app de Meta, así que **todo número 
 WhatsApp oficial entra por su Embedded Signup**, aunque después el cliente no
 trabaje en esta bandeja. Este documento es el orden de ese trabajo.
 
+## Piloto interno con WAHA
+
+WAHA sirve para validar el CRM con números propios antes de activar Meta. No es
+el canal de producción ni una herramienta de envíos masivos.
+
+1. En el entorno de allok, activa el cerrojo de salida y autoriza únicamente el
+   WhatsApp que hará la prueba:
+
+   ```env
+   WHATSAPP_OUTBOUND_MODE=pilot
+   WHATSAPP_PILOT_ALLOWED_WA_IDS=58412XXXXXXX
+   ```
+
+2. En `/ops/crm?view=connections`, abre la sesión WAHA conectada y configura su
+   persona, datos verificados, reglas y modo de operación.
+3. Vincula una segunda sesión WAHA como teléfono probador y ejecuta una sola
+   prueba de ida y vuelta:
+
+   ```bash
+   WAHA_CRM_TESTER_SESSION=allok-tester \
+   WAHA_CRM_TEST_TARGET=58422XXXXXXX \
+   WAHA_CRM_TEST_CONFIRM=send-live-test \
+   pnpm check:waha-crm-flow
+   ```
+
+El comando falla si falta la confirmación, si la sesión probadora no está
+conectada o si el CRM no responde en 90 segundos. Al terminar el piloto, elimina
+la sesión probadora y no cambies a `production` hasta tener consentimiento y
+opt-out operativos.
+
+La bandeja agrupa Meta y WAHA por cliente + teléfono, conserva el selector de
+canal y considera pendiente solo un inbound humano de los últimos 7 días. Cierra
+las conversaciones resueltas; un nuevo inbound las reabre automáticamente.
+
+El primer contacto desde Growth requiere dos confirmaciones: revisión del
+mensaje y consentimiento/base legítima documentada. El backend impide repetir
+outreach al mismo número durante 24 horas.
+
 ## Las dos cosas que no hay que confundir
 
 | | Dónde vive | Qué guarda |
@@ -15,42 +53,38 @@ Un cliente que opera en REI **no** aparece en la bandeja de allok: sus webhooks
 se redirigen a REI durante la entrega. Que la bandeja esté vacía es el
 resultado esperado, no una falla.
 
-## El registro: `/ops/clientes`
+## Inventario y entrega: `/ops/crm?view=connections`
 
-Una fila por cliente, con lo único que hace falta saber de cada uno:
+Una fila por número onboardeado, leída directamente de `whatsapp_connections`:
 
-- **Identificador** (`slug`): la misma clave que viaja en el enlace de
-  onboarding y que queda en `whatsapp_connections.client`. Se elige una vez.
-- **Dónde trabaja**: `Bandeja allok` o `REI CRM`. Si es REI, además su
-  `organization_id` — sin ese uuid no hay a dónde entregar.
-- **Estado**: `Enlace enviado` → `Número conectado` → `Operando`
-  (`En pausa` / `Dado de baja` para los que salen).
+- **Cliente**: la clave que viajó en el enlace de onboarding.
+- **Credenciales**: `business_id`, `waba_id`, `phone_number_id` y presencia del
+  token cifrado; el token nunca se muestra.
+- **CRM externo**: `organization_id`, callback confirmado y fecha de entrega.
 
-Regla: **el cliente se crea acá antes de mandarle nada**. Un enlace generado a
-mano deja un número conectado a un slug que no existe en el registro, y ese es
-justo el estado que este registro vino a eliminar.
+El `organization_id` se pide al entregar porque no viene de Meta. La relación
+queda guardada en la misma conexión; no depende de la tabla opcional `clients`.
 
 ## Flujo, de punta a punta
 
-1. **Registrar** al cliente en `/ops/clientes` → «Nuevo cliente». Elegí dónde
-   va a trabajar ahí mismo; si es REI, pegá su `organization_id`.
-2. **Enlace** → botón «Enlace» de esa fila. Copia el enlace de Embedded Signup
-   firmado (vale 7 días) con el slug ya adentro. Se lo mandás al dueño del
-   negocio; no necesita cuenta en Ops.
-3. **El cliente conecta** su número desde ese enlace (Coexistence: el número
+1. **Enlace** → genera el Embedded Signup firmado con el `client` correcto. Se
+   lo mandás al dueño del negocio; no necesita cuenta en Ops.
+2. **El cliente conecta** su número desde ese enlace (Coexistence: el número
    sigue vivo en su WhatsApp Business App). allok guarda el token cifrado y
-   suscribe el WABA. El estado pasa a `Número conectado`.
-4. **Entregar**, sólo si trabaja en REI → botón «Entregar a REI». Hace dos
-   cosas en este orden:
+   suscribe el WABA. La fila aparece automáticamente en Conexiones.
+3. **Entregar**, si trabaja en REI → abre «Conectar este número al CRM», pega
+   el `organization_id` y confirma. El servidor valida primero que el token
+   siga funcionando y después hace tres cosas en este orden:
    1. manda las credenciales a `POST /api/whatsapp/provision` de REI, que las
       guarda cifradas en `meta_credentials` de esa organización;
-   2. recién después redirige el webhook de ese WABA a REI
-      (`override_callback_uri` en Meta).
+   2. redirige el webhook de ese WABA a REI (`override_callback_uri` en Meta);
+   3. hace `GET /{waba_id}/subscribed_apps` y sólo marca la entrega cuando Meta
+      devuelve el callback esperado.
 
    El orden importa: al revés, los mensajes llegarían a una app que todavía no
    conoce el número. Si el paso 2 falla, la respuesta lo dice y se puede
    reintentar — el botón es idempotente.
-5. **Verificar** con un mensaje real al número: tiene que aparecer en la
+4. **Verificar** con un mensaje real al número: tiene que aparecer en la
    bandeja de REI, no en la de allok.
 
 Un cliente que trabaja en la bandeja de allok se salta el paso 4: ya está
@@ -80,9 +114,8 @@ ENCRYPTION_KEY=…                   # propio de REI; cifra el token de nuevo de
 `WHATSAPP_APP_SECRET` en REI es el de **allok**: la firma de los webhooks la
 pone la app de Meta que hizo el alta, y REI valida con esa misma clave.
 
-Migración: `db/migrations/019_clients.sql` en la base de allok. Registra
-automáticamente como clientes los números que ya estaban conectados, así que la
-página no arranca vacía.
+La entrega no requiere una migración adicional: reutiliza `webhook_override_*`
+y conserva la referencia del CRM dentro de `token_metadata.crm_handover`.
 
 ## Qué mirar cuando algo no anda
 

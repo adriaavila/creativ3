@@ -88,6 +88,13 @@ type SubscribeResponse = {
   success?: boolean;
 };
 
+export type MetaSubscribedApp = {
+  id?: string;
+  name?: string;
+  override_callback_uri?: string | null;
+  subscribed_fields?: string[];
+};
+
 export type MetaWhatsAppPhoneProfile = {
   id?: string;
   display_phone_number?: string;
@@ -433,6 +440,22 @@ export async function subscribeWabaToApp(
       ? { override_callback_uri: override.callbackUri, verify_token: override.verifyToken }
       : undefined,
   });
+}
+
+/** Reads back the effective app subscription after a WABA callback change. */
+export async function listWabaSubscribedApps(input: {
+  wabaId: string;
+  businessToken: string;
+  graphVersion?: string;
+}) {
+  const response = await graphRequest<{ data?: MetaSubscribedApp[] }>({
+    requestName: "list_waba_subscribed_apps",
+    graphVersion: input.graphVersion ?? getGraphVersion(),
+    path: `${encodeURIComponent(input.wabaId)}/subscribed_apps`,
+    accessToken: input.businessToken,
+  });
+
+  return Array.isArray(response.data) ? response.data : [];
 }
 
 /**

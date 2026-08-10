@@ -4,7 +4,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef, use
 import type { WaConversation, WaMessage } from "@/lib/whatsapp-inbox-db";
 import { REALTIME_PROTOCOL, type RealtimeServerEvent } from "@/lib/realtime-protocol";
 
-export type OpsRealtimeStatus = "connecting" | "connected" | "reconnecting" | "offline";
+export type OpsRealtimeStatus = "connecting" | "connected" | "reconnecting" | "polling" | "offline";
 export type OpsRealtimeEvent = RealtimeServerEvent;
 
 export type OnlineOperator = { operatorId: string; connections: number };
@@ -25,6 +25,7 @@ export const OpsRealtimeContext = createContext<OpsRealtimeValue | null>(null);
 const PROTOCOL = REALTIME_PROTOCOL;
 const INITIAL_RECONNECT_MS = 500;
 const MAX_RECONNECT_MS = 15_000;
+const POLL_INTERVAL_MS = 15_000;
 const TYPING_TTL_MS = 4_000;
 
 function realtimeEndpoint() {
@@ -81,7 +82,7 @@ function removeTypingOperator(
 }
 
 export function useOpsRealtimeController(): OpsRealtimeValue {
-  const [status, setStatus] = useState<OpsRealtimeStatus>("offline");
+  const [status, setStatus] = useState<OpsRealtimeStatus>(() => realtimeEndpoint() ? "offline" : "polling");
   const [onlineOperators, setOnlineOperators] = useState<OnlineOperator[]>([]);
   const [typingByConversation, setTypingByConversation] = useState<Record<number, string[]>>({});
   const socketRef = useRef<WebSocket | null>(null);
@@ -163,7 +164,13 @@ export function useOpsRealtimeController(): OpsRealtimeValue {
 
   useEffect(() => {
     const endpoint = realtimeEndpoint();
-    if (!endpoint) return;
+    if (!endpoint) {
+      const timer = setInterval(
+        () => reconnectListenersRef.current.forEach((listener) => listener()),
+        POLL_INTERVAL_MS,
+      );
+      return () => clearInterval(timer);
+    }
 
     let disposed = false;
     let reconnectTimer: ReturnType<typeof setTimeout> | null = null;

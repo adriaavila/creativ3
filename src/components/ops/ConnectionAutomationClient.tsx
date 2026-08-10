@@ -11,6 +11,7 @@ import {
   ExternalLink,
   Loader2,
   MessageCircle,
+  MessageSquareText,
   MessagesSquare,
   ShieldCheck,
   Sparkles,
@@ -26,10 +27,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-import type { AutomationMode, ModelTier, TenantAutomationInput } from "@/lib/tenant-automation";
+import { previewTenantAutomation, type AutomationMode, type ModelTier, type TenantAutomationInput } from "@/lib/tenant-automation";
 import type { TenantBotConfig } from "@/lib/tenant-bot-config";
 import { crmChannelStatusLabel, crmNameStatusLabel, crmQualityLabel } from "@/lib/crm-channels";
-import type { WhatsAppConnectionActivity, WhatsAppConnectionView } from "@/lib/whatsapp-connections-db";
+import type { WhatsAppConnectionActivity } from "@/lib/whatsapp-connections-db";
 
 const RULES = [
   { key: "saludo", label: "Saludo", placeholder: "¡Hola! Gracias por escribir…" },
@@ -38,10 +39,33 @@ const RULES = [
   { key: "cita", label: "Cita", placeholder: "Dime qué día y horario…" },
 ] as const;
 
+export type AutomationConnectionView = {
+  provider: "meta" | "waha";
+  key: string;
+  label: string;
+  phone: string | null;
+  status: string;
+  client: string | null;
+  connectedAt: string | null;
+  lastSyncedAt: string | null;
+  connectionMode?: "META_CLOUD_API" | "META_COEXISTENCE";
+  qualityRating?: string | null;
+  nameStatus?: string | null;
+  wabaId?: string;
+  businessId?: string | null;
+  businessTokenStored?: boolean;
+  registeredAt?: string | null;
+  webhookOverrideUri?: string | null;
+  crmOrganizationId?: string | null;
+  crmOrganizationName?: string | null;
+  crmConnectedAt?: string | null;
+};
+
 type Props = {
-  connection: WhatsAppConnectionView;
+  connection: AutomationConnectionView;
   activity: WhatsAppConnectionActivity;
   initialConfig: TenantBotConfig;
+  pilotMode: boolean;
 };
 
 function formatDate(value: string | null) {
@@ -59,7 +83,7 @@ function modeLabel(mode: AutomationMode) {
   return "Desactivado";
 }
 
-export default function ConnectionAutomationClient({ connection, activity, initialConfig }: Props) {
+export default function ConnectionAutomationClient({ connection, activity, initialConfig, pilotMode }: Props) {
   const [config, setConfig] = useState<TenantAutomationInput>({
     enabled: initialConfig.enabled,
     operatingMode: initialConfig.operatingMode,
@@ -71,10 +95,11 @@ export default function ConnectionAutomationClient({ connection, activity, initi
   });
   const [saved, setSaved] = useState(config);
   const [saving, setSaving] = useState(false);
+  const [testMessage, setTestMessage] = useState("");
   const [notice, setNotice] = useState<{ kind: "success" | "error"; text: string } | null>(null);
   const dirty = useMemo(() => JSON.stringify(config) !== JSON.stringify(saved), [config, saved]);
-  const displayName = connection.verifiedName || connection.client || "WhatsApp oficial";
-  const channelStatus = crmChannelStatusLabel({ status: connection.status, official: true });
+  const preview = useMemo(() => testMessage.trim() ? previewTenantAutomation(testMessage, config) : null, [config, testMessage]);
+  const channelStatus = crmChannelStatusLabel({ status: connection.status, official: connection.provider === "meta" });
 
   function setField<K extends keyof TenantAutomationInput>(key: K, value: TenantAutomationInput[K]) {
     setConfig((current) => ({ ...current, [key]: value }));
@@ -90,7 +115,7 @@ export default function ConnectionAutomationClient({ connection, activity, initi
     setSaving(true);
     setNotice(null);
     try {
-      const response = await fetch(`/api/ops/whatsapp-connections/${encodeURIComponent(connection.phoneNumberId)}/config`, {
+      const response = await fetch(`/api/ops/whatsapp-connections/${encodeURIComponent(connection.key)}/config`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(config),
@@ -128,11 +153,11 @@ export default function ConnectionAutomationClient({ connection, activity, initi
             <span className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-[#172238] text-white shadow-sm"><MessageCircle className="size-5" /></span>
             <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-2">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#7a8797]">Número oficial · Meta</p>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#7a8797]">{connection.provider === "meta" ? "Número oficial · Meta" : "Sesión de prueba · WAHA no oficial"}</p>
                 <Badge className="bg-[#e9f5d7] text-[#4b6d24]">{channelStatus}</Badge>
               </div>
-              <h1 className="mt-2 truncate text-3xl font-semibold tracking-[-0.04em] sm:text-4xl">{displayName}</h1>
-              <p className="mt-2 font-mono text-sm text-[#64748b]">{connection.displayPhoneNumber ?? connection.phoneNumberId}</p>
+              <h1 className="mt-2 truncate text-3xl font-semibold tracking-[-0.04em] sm:text-4xl">{connection.label}</h1>
+              <p className="mt-2 font-mono text-sm text-[#64748b]">{connection.phone ?? connection.key}</p>
             </div>
           </div>
           <div className="flex items-center gap-3 rounded-xl border border-[#dfe5eb] bg-white px-4 py-3 shadow-[0_8px_24px_rgba(20,43,75,0.04)]">
@@ -151,24 +176,24 @@ export default function ConnectionAutomationClient({ connection, activity, initi
           <Card className="border-[#dfe5eb] bg-white shadow-[0_12px_36px_rgba(20,43,75,0.05)]">
             <CardHeader className="border-b border-[#edf0f3]">
               <div className="flex flex-wrap items-start justify-between gap-4">
-                <div><CardTitle className="flex items-center gap-2 text-xl"><Bot className="size-5 text-[#526d87]" /> Automatización</CardTitle><CardDescription className="mt-2">Receta segura de FAQ y transferencia, configurada únicamente para este número.</CardDescription></div>
-                <Badge variant="outline" className="font-mono">FAQ + handoff · v1</Badge>
+                <div><CardTitle className="flex items-center gap-2 text-xl"><Bot className="size-5 text-[#526d87]" /> Automatización</CardTitle><CardDescription className="mt-2">Persona, conocimiento y transferencias aislados para este canal.</CardDescription></div>
+                <Badge variant="outline" className="font-mono">FAQ + IA + handoff</Badge>
               </div>
             </CardHeader>
             <CardContent className="space-y-7 p-5 sm:p-7">
               <div className="flex items-center justify-between gap-5 rounded-xl border border-[#dfe5eb] bg-[#fafbfc] p-4">
-                <div><Label htmlFor="automation-enabled" className="text-sm font-semibold">Habilitar configuración</Label><p className="mt-1 text-xs leading-5 text-[#6f7d8e]">El modo Automático seguirá limitado a las cuatro reglas explícitas.</p></div>
+                <div><Label htmlFor="automation-enabled" className="text-sm font-semibold">Habilitar configuración</Label><p className="mt-1 text-xs leading-5 text-[#6f7d8e]">Automático usa primero reglas explícitas y la IA solo para casos abiertos.</p></div>
                 <Switch id="automation-enabled" checked={config.enabled} onCheckedChange={(checked) => setField("enabled", checked)} />
               </div>
 
               <div className="grid gap-5 sm:grid-cols-2">
-                <Field label="Modo de operación" hint={config.operatingMode === "automatic" ? "Las conversaciones nuevas entran en IA y solo responden reglas configuradas." : "Las conversaciones nuevas permanecen con una persona."}>
+                <Field label="Modo de operación" hint={config.operatingMode === "automatic" ? "Las conversaciones nuevas entran en IA; errores o dudas pasan a una persona." : "Las conversaciones nuevas permanecen con una persona."}>
                   <Select value={config.operatingMode} onValueChange={(value) => setField("operatingMode", value as AutomationMode)}>
                     <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
                     <SelectContent><SelectItem value="off">Desactivado</SelectItem><SelectItem value="approval">Aprobación humana</SelectItem><SelectItem value="automatic">Automático seguro</SelectItem></SelectContent>
                   </Select>
                 </Field>
-                <Field label="Nivel del modelo" hint="Afecta las sugerencias revisadas por una persona; nunca acepta IDs libres.">
+                <Field label="Nivel del modelo" hint="Afecta sugerencias y respuestas automáticas; los modelos disponibles siguen una lista cerrada.">
                   <Select value={config.modelTier} onValueChange={(value) => setField("modelTier", value as ModelTier)}>
                     <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
                     <SelectContent><SelectItem value="fast">Rápido · menor costo</SelectItem><SelectItem value="balanced">Equilibrado · mayor criterio</SelectItem></SelectContent>
@@ -191,7 +216,7 @@ export default function ConnectionAutomationClient({ connection, activity, initi
 
               <div>
                 <div className="flex items-center gap-2"><Sparkles className="size-4 text-[#526d87]" /><h2 className="text-sm font-semibold">Respuestas automáticas</h2></div>
-                <p className="mt-1 text-xs leading-5 text-[#6f7d8e]">Una regla sin texto escala a humano. El sistema nunca toma copy de otro cliente.</p>
+                <p className="mt-1 text-xs leading-5 text-[#6f7d8e]">Estas respuestas ganan sobre la IA. Una regla sin texto escala a humano; nunca se toma copy de otro cliente.</p>
                 <div className="mt-5 grid gap-5 sm:grid-cols-2">
                   {RULES.map((rule) => <Field key={rule.key} label={rule.label}><Input value={config.autoReplies[rule.key] ?? ""} onChange={(event) => setReply(rule.key, event.target.value)} placeholder={rule.placeholder} /></Field>)}
                 </div>
@@ -200,6 +225,13 @@ export default function ConnectionAutomationClient({ connection, activity, initi
               <Field label="Frase de transferencia" hint="La IA usa esta frase al preparar una respuesta para revisión humana.">
                 <Input value={config.handoffNote ?? ""} onChange={(event) => setField("handoffNote", event.target.value)} placeholder="Te paso con una persona del equipo." />
               </Field>
+
+              <div className="rounded-xl border border-dashed border-[#cfd8e1] bg-[#fafbfc] p-4">
+                <div className="flex items-center gap-2"><MessageSquareText className="size-4 text-[#526d87]" /><h2 className="text-sm font-semibold">Probar sin enviar</h2></div>
+                <p className="mt-1 text-xs leading-5 text-[#6f7d8e]">Comprueba si el mensaje usaría una regla, IA o transferencia. No llama al modelo ni toca WhatsApp.</p>
+                <Input className="mt-4" value={testMessage} onChange={(event) => setTestMessage(event.target.value)} placeholder="Ej.: Hola, ¿cuánto cuesta y puedo agendar?" />
+                {preview && <div className="mt-3 rounded-lg border border-[#e0e6ec] bg-white px-3 py-2.5 text-xs leading-5 text-[#526174]" role="status"><span className="font-semibold uppercase tracking-[0.08em] text-[#385a78]">{preview.kind}</span><span className="mx-2 text-[#a4afba]">·</span>{preview.label}{"reply" in preview && <p className="mt-2 border-t border-[#edf0f3] pt-2 text-[#263b54]">{preview.reply}</p>}</div>}
+              </div>
 
               {notice && <p className={`rounded-lg border px-3 py-2.5 text-sm ${notice.kind === "success" ? "border-[#dcebc8] bg-[#f5faed] text-[#4b6d24]" : "border-[#f0caca] bg-[#fff5f5] text-[#9f4141]"}`} role={notice.kind === "error" ? "alert" : "status"}>{notice.text}</p>}
 
@@ -217,29 +249,36 @@ export default function ConnectionAutomationClient({ connection, activity, initi
               <CardHeader><CardTitle className="flex items-center gap-2 text-base"><Database className="size-4 text-[#526d87]" /> Datos de la conexión</CardTitle></CardHeader>
               <CardContent className="space-y-0 text-sm">
                 <Fact label="Cliente" value={connection.client ?? "Sin cliente asignado"} />
-                <Fact label="Modo Meta" value={connection.connectionMode === "META_COEXISTENCE" ? "Coexistencia" : "Cloud API"} />
-                <Fact label="Calidad" value={crmQualityLabel(connection.qualityRating)} />
-                <Fact label="Nombre" value={crmNameStatusLabel(connection.nameStatus)} />
-                <Fact label="WABA" value={connection.wabaId} mono />
-                <Fact label="Phone number ID" value={connection.phoneNumberId} mono />
+                <Fact label="Proveedor" value={connection.provider === "meta" ? (connection.connectionMode === "META_COEXISTENCE" ? "Meta · Coexistencia" : "Meta · Cloud API") : "WAHA · no oficial"} />
+                {connection.provider === "meta" && <Fact label="Calidad" value={crmQualityLabel(connection.qualityRating ?? null)} />}
+                {connection.provider === "meta" && <Fact label="Nombre" value={crmNameStatusLabel(connection.nameStatus ?? null)} />}
+                {connection.wabaId && <Fact label="WABA" value={connection.wabaId} mono />}
+                <Fact label={connection.provider === "meta" ? "Phone number ID" : "Sesión"} value={connection.key} mono />
                 <Fact label="Conectado" value={formatDate(connection.connectedAt)} />
                 <Fact label="Sincronizado" value={formatDate(connection.lastSyncedAt)} />
-                <Fact label="Registro" value={connection.registeredAt ? formatDate(connection.registeredAt) : "No requerido en coexistencia"} />
+                {connection.provider === "meta" && <Fact label="Registro" value={connection.registeredAt ? formatDate(connection.registeredAt) : "No requerido en coexistencia"} />}
               </CardContent>
             </Card>
 
             <Card className="border-[#dce7d3] bg-[#f8fbf5]">
               <CardHeader><CardTitle className="flex items-center gap-2 text-base"><ShieldCheck className="size-4 text-[#6f9632]" /> Límites de producción</CardTitle><CardDescription>El motor conserva cola, deduplicación, reintentos e idempotencia.</CardDescription></CardHeader>
               <CardContent className="space-y-3 text-xs leading-5 text-[#61705b]">
-                <p>Automático solo envía las reglas visibles en esta pantalla.</p>
-                <p>La IA generativa prepara sugerencias; una persona sigue confirmando el envío.</p>
+                <p>{pilotMode ? "Piloto activo: ningún envío sale de la allowlist configurada." : "Producción: el canal puede responder a cualquier conversación entrante."}</p>
+                <p>Las reglas visibles responden primero; la IA atiende únicamente los casos restantes.</p>
                 <p>Un timeout del modelo cae al nivel rápido antes de fallar.</p>
               </CardContent>
             </Card>
 
             <Card className="border-[#e6e0ce] bg-[#fffdf6]">
-              <CardHeader><CardTitle className="flex items-center gap-2 text-base"><Webhook className="size-4 text-[#8b6b28]" /> Integraciones</CardTitle><CardDescription>n8n se conecta aquí solo cuando este workflow necesita calendario, CRM, Sheets o ERP.</CardDescription></CardHeader>
-              <CardContent><p className="text-xs leading-5 text-[#806b3b]">Esta receta no tiene acciones externas configuradas. El loop de WhatsApp permanece en la app.</p></CardContent>
+              <CardHeader><CardTitle className="flex items-center gap-2 text-base"><Webhook className="size-4 text-[#8b6b28]" /> CRM externo</CardTitle><CardDescription>{connection.crmConnectedAt ? "Meta entrega los eventos de esta WABA directamente al CRM." : "La conexión todavía usa el callback principal de Allok."}</CardDescription></CardHeader>
+              <CardContent className="space-y-0">
+                <Fact label="Estado" value={connection.crmConnectedAt ? "Conectado y verificado" : "Sin entregar"} />
+                {connection.crmOrganizationName && <Fact label="Organización" value={connection.crmOrganizationName} />}
+                {connection.crmOrganizationId && <Fact label="Organization ID" value={connection.crmOrganizationId} mono />}
+                {connection.webhookOverrideUri && <Fact label="Callback" value={connection.webhookOverrideUri} mono />}
+                {connection.crmConnectedAt && <Fact label="Entregado" value={formatDate(connection.crmConnectedAt)} />}
+                <Button variant="outline" asChild className="mt-4 w-full"><Link href="/ops/crm?view=connections">{connection.crmConnectedAt ? "Revisar entrega" : "Conectar al CRM"}</Link></Button>
+              </CardContent>
             </Card>
 
             <Button variant="outline" asChild className="w-full"><Link href="/ops/inbox">Abrir Bandeja <ExternalLink /></Link></Button>

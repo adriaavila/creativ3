@@ -12,16 +12,22 @@ export const runtime = "nodejs";
 const id = (value: string | Stripe.Customer | Stripe.DeletedCustomer | null) =>
   typeof value === "string" ? value : value?.id ?? null;
 
+const PROJECT_LABELS: Record<string, string> = {
+  nodria: "Nodria",
+};
+
 async function sendProjectPaymentEmail(session: Stripe.Checkout.Session) {
   const apiKey = process.env.RESEND_API_KEY;
   const from = process.env.RESEND_FROM_EMAIL;
   const to = session.customer_details?.email;
   if (!apiKey || !from || !to) return;
 
+  const item = session.metadata?.item ?? session.metadata?.plan ?? "";
   const email = projectPaymentEmail({
     name: session.customer_details?.name ?? null,
     amount: session.amount_total,
     currency: session.currency,
+    project: PROJECT_LABELS[item] ?? null,
   });
   const { error } = await new Resend(apiKey).emails.send(
     { from, to, subject: email.subject, html: email.html, text: email.text },
@@ -73,7 +79,7 @@ export async function POST(request: NextRequest) {
       });
 
       if (
-        session.metadata?.item === "project-deposit" &&
+        ["project-deposit", "nodria"].includes(session.metadata?.item ?? "") &&
         session.payment_status === "paid"
       ) {
         await sendProjectPaymentEmail(session);

@@ -7,7 +7,13 @@ import {
 } from "@/lib/billing/catalog";
 import { isLocale, type Locale } from "@/lib/i18n";
 
-const PROJECT_DEPOSIT = "project-deposit";
+// ponytail: ad-hoc prices inline; move to Stripe dashboard prices if they need editing without a deploy
+const AD_HOC = {
+  "project-deposit": { currency: "usd", unit_amount: 20_000, name: "Depósito de proyecto allok" },
+  nodria: { currency: "eur", unit_amount: 20_000, name: "Nodria" },
+} as const;
+
+const isAdHoc = (key: string): key is keyof typeof AD_HOC => key in AD_HOC;
 
 export async function POST(request: NextRequest) {
   try {
@@ -19,12 +25,13 @@ export async function POST(request: NextRequest) {
       locale?: string;
     };
     const key = body.item ?? body.plan;
-    if (!key || (key !== PROJECT_DEPOSIT && !isBillingKey(key))) {
+    if (!key || (!isAdHoc(key) && !isBillingKey(key))) {
       return NextResponse.json({ error: "Invalid billing item." }, { status: 400 });
     }
 
     const locale: Locale = body.locale && isLocale(body.locale) ? body.locale : "es";
-    const catalogItem = key === PROJECT_DEPOSIT ? null : getBillingItem(key);
+    const adHoc = isAdHoc(key) ? AD_HOC[key] : null;
+    const catalogItem = adHoc ? null : getBillingItem(key as Exclude<typeof key, keyof typeof AD_HOC>);
     const channel: BillingChannel =
       body.channel === "cloud_api" || body.channel === "waha"
         ? body.channel
@@ -53,9 +60,9 @@ export async function POST(request: NextRequest) {
         ? catalogItem.prices.map((price) => ({ price, quantity: 1 }))
         : [{
             price_data: {
-              currency: "usd",
-              product_data: { name: "Depósito de proyecto allok" },
-              unit_amount: 20_000,
+              currency: adHoc!.currency,
+              product_data: { name: adHoc!.name },
+              unit_amount: adHoc!.unit_amount,
             },
             quantity: 1,
           }],

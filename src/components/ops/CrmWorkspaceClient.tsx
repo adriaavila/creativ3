@@ -576,14 +576,29 @@ function ChannelConnectionRow({ channel, onChange }: { channel: CrmChannel; onCh
 type CrmHandoverResponse = {
   ok?: boolean;
   error?: string;
+  /** true cuando el destino es la bandeja de allok: el número vuelve, no se entrega. */
+  restored?: boolean;
   crm?: {
-    organization_id: string;
+    provider: string;
+    organization_id: string | null;
     organization_name: string | null;
     webhook_url: string;
-    connected_at: string;
+    connected_at: string | null;
+    credentials_delivered: boolean;
   };
 };
 
+type DestinationView = {
+  slug: string;
+  label: string;
+  webhookUrl: string;
+  provisionUrl: string | null;
+};
+
+/**
+ * Entrega un número a la app donde el cliente trabaja. El destino se elige de
+ * la lista; darlo de alta es el formulario de abajo, no un deploy.
+ */
 function CrmHandoverForm({
   channel,
   onChange,
@@ -593,37 +608,62 @@ function CrmHandoverForm({
   onChange: (channel: CrmChannel) => void;
   compact?: boolean;
 }) {
-  const [organizationId, setOrganizationId] = useState(channel.crmOrganizationId ?? "");
+  const [destinations, setDestinations] = useState<DestinationView[] | null>(null);
+  const [slug, setSlug] = useState("");
+  const [externalRef, setExternalRef] = useState(channel.crmOrganizationId ?? "");
   const [saving, setSaving] = useState(false);
   const [notice, setNotice] = useState<{ kind: "success" | "error"; text: string } | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [loadingToken, setLoadingToken] = useState(false);
+  const [credentialsConfirmed, setCredentialsConfirmed] = useState(false);
   const connected = Boolean(channel.crmConnectedAt && channel.webhookOverrideUri);
   const available = channel.businessTokenStored && channel.status !== "deauthorized";
+  const selected = destinations?.find((destination) => destination.slug === slug) ?? null;
+  const ready = Boolean(selected) && (selected?.provisionUrl
+    ? externalRef.trim().length > 0
+    : selected?.slug === "allok" || credentialsConfirmed);
+
+  const loadDestinations = useCallback(async () => {
+    const response = await fetch("/api/ops/destinations", { cache: "no-store" });
+    const data = await response.json() as { destinations?: DestinationView[]; error?: string };
+    const list = data.destinations ?? [];
+    setDestinations(list);
+    // Nunca preseleccionar "allok": abrir el panel y apretar el botón no puede
+    // ser lo mismo que devolver un número que estaba entregado.
+    setSlug((current) => current || list.find((item) => item.slug !== "allok")?.slug || "");
+    return list;
+  }, []);
 
   async function connect(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setSaving(true);
     setNotice(null);
     try {
-      const response = await fetch(`/api/ops/whatsapp-connections/${encodeURIComponent(channel.id)}/crm`, {
+      const response = await fetch(`/api/ops/whatsapp-connections/${encodeURIComponent(channel.id)}/destination`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ organization_id: organizationId }),
+        body: JSON.stringify({ destination: slug, external_ref: externalRef.trim() || null }),
       });
       const data = await response.json() as CrmHandoverResponse;
-      if (!response.ok || !data.crm) throw new Error(data.error ?? "No se pudo conectar el número al CRM.");
+      if (!response.ok || !data.crm) throw new Error(data.error ?? "No se pudo entregar el número.");
 
       onChange({
         ...channel,
         crmOrganizationId: data.crm.organization_id,
         crmOrganizationName: data.crm.organization_name,
         crmConnectedAt: data.crm.connected_at,
-        webhookOverrideUri: data.crm.webhook_url,
+        webhookOverrideUri: data.restored ? null : data.crm.webhook_url,
       });
-      setNotice({ kind: "success", text: `CRM conectado${data.crm.organization_name ? ` · ${data.crm.organization_name}` : ""}. Meta confirmó el callback.` });
+      setNotice({
+        kind: "success",
+        text: data.restored
+          ? "El número volvió a la bandeja de allok. Meta confirmó el callback."
+          : data.crm.credentials_delivered
+            ? `Entregado a ${data.crm.organization_name ?? slug}. Meta confirmó el callback y la app ya tiene el token.`
+            : `Webhook movido a ${data.crm.organization_name ?? slug}. Meta confirmó el handshake; falta cargarle el token.`,
+      });
     } catch (error) {
-      setNotice({ kind: "error", text: error instanceof Error ? error.message : "No se pudo conectar el número al CRM." });
+      setNotice({ kind: "error", text: error instanceof Error ? error.message : "No se pudo entregar el número." });
     } finally {
       setSaving(false);
     }
@@ -647,11 +687,14 @@ function CrmHandoverForm({
   }
 
   return (
-    <details className={`${compact ? "mt-3" : "border-t border-[#e6ebef]"} group bg-[#f7faf5]`}>
+    <details
+      className={`${compact ? "mt-3" : "border-t border-[#e6ebef]"} group bg-[#f7faf5]`}
+      onToggle={(event) => { if (event.currentTarget.open && destinations === null) void loadDestinations(); }}
+    >
       <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between gap-4 px-4 text-sm font-semibold text-[#334b2b] sm:px-5">
         <span className="flex items-center gap-2">
           <Webhook className="size-4 text-[#6f9632]" aria-hidden="true" />
-          {connected ? `CRM conectado${channel.crmOrganizationName ? ` · ${channel.crmOrganizationName}` : ""}` : "Conectar este número al CRM"}
+          {connected ? `Entregado${channel.crmOrganizationName ? ` · ${channel.crmOrganizationName}` : ""}` : "Entregar este número a una app"}
         </span>
         <span className="text-[11px] font-medium text-[#708069]">{connected ? "Revisar o reentregar" : "Configurar"}</span>
       </summary>
@@ -660,25 +703,65 @@ function CrmHandoverForm({
         <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(280px,.72fr)]">
           <div>
             <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.12em] text-[#66775d]"><Building2 className="size-3.5" /> Destino</div>
-            <label className="mt-3 block text-xs font-medium text-[#526174]" htmlFor={`crm-org-${channel.id}`}>
-              Organization ID del CRM
-            </label>
-            <input
-              id={`crm-org-${channel.id}`}
-              value={organizationId}
-              onChange={(event) => setOrganizationId(event.target.value.trim())}
-              required
-              autoComplete="off"
-              spellCheck={false}
-              pattern="[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}"
-              placeholder="00000000-0000-4000-8000-000000000000"
-              className="mt-2 min-h-11 w-full rounded-lg border border-[#ccd8c6] bg-white px-3 font-mono text-sm text-[#172238] outline-none transition focus:border-[#789e45] focus:ring-2 focus:ring-[#c5f04a]/25"
-            />
-            <p className="mt-2 text-[11px] leading-5 text-[#74806e]">Allok primero entrega las credenciales; sólo después mueve y verifica el webhook en Meta.</p>
+
+            <label className="mt-3 block text-xs font-medium text-[#526174]" htmlFor={`dest-${channel.id}`}>App que recibe los mensajes</label>
+            <select
+              id={`dest-${channel.id}`}
+              value={slug}
+              onChange={(event) => { setSlug(event.target.value); setCredentialsConfirmed(false); setNotice(null); }}
+              className="mt-2 min-h-11 w-full rounded-lg border border-[#ccd8c6] bg-white px-3 text-sm text-[#172238] outline-none transition focus:border-[#789e45] focus:ring-2 focus:ring-[#c5f04a]/25"
+            >
+              {destinations === null && <option value="">Cargando…</option>}
+              {destinations?.length === 0 && <option value="">Todavía no hay destinos</option>}
+              {destinations?.map((destination) => (
+                <option key={destination.slug} value={destination.slug}>{destination.label}</option>
+              ))}
+            </select>
+
+            {selected && (
+              <p className="mt-2 break-all font-mono text-[11px] text-[#74806e]">{selected.webhookUrl}</p>
+            )}
+
+            {selected?.provisionUrl && (
+              <>
+                <label className="mt-4 block text-xs font-medium text-[#526174]" htmlFor={`ref-${channel.id}`}>
+                  Referencia del cliente en {selected.label}
+                </label>
+                <input
+                  id={`ref-${channel.id}`}
+                  value={externalRef}
+                  onChange={(event) => setExternalRef(event.target.value.trim())}
+                  required
+                  autoComplete="off"
+                  spellCheck={false}
+                  placeholder="organization_id"
+                  className="mt-2 min-h-11 w-full rounded-lg border border-[#ccd8c6] bg-white px-3 font-mono text-sm text-[#172238] outline-none transition focus:border-[#789e45] focus:ring-2 focus:ring-[#c5f04a]/25"
+                />
+                <p className="mt-2 text-[11px] leading-5 text-[#74806e]">Esta app recibe el token por HTTPS antes de que se mueva el webhook.</p>
+              </>
+            )}
+
+            {selected && !selected.provisionUrl && (
+              selected.slug === "allok" ? (
+                <p className="mt-3 text-[11px] leading-5 text-[#74806e]">Devuelve la recepción de mensajes y la automatización a la bandeja de allok.</p>
+              ) : (
+                <label className="mt-4 flex cursor-pointer items-start gap-3 rounded-lg bg-[#eef5e8] px-3 py-3 text-xs text-[#3f5238]">
+                  <input
+                    type="checkbox"
+                    checked={credentialsConfirmed}
+                    onChange={(event) => setCredentialsConfirmed(event.target.checked)}
+                    className="mt-0.5 size-4 accent-[#6f9632]"
+                  />
+                  <span><strong className="block font-semibold">Ya guardé WABA ID, Phone Number ID y token en {selected.label}</strong><span className="mt-1 block text-[11px] leading-5 text-[#687761]">Allok moverá el webhook sólo después de esta confirmación.</span></span>
+                </label>
+              )
+            )}
+
+            <DestinationEditor onSaved={() => { void loadDestinations(); }} />
           </div>
 
           <div className="rounded-lg border border-[#dbe5d5] bg-white p-4">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.13em] text-[#7b8975]">Paquete servidor → CRM</p>
+            <p className="text-[10px] font-semibold uppercase tracking-[0.13em] text-[#7b8975]">Datos de este número</p>
             <dl className="mt-3 space-y-2.5 text-xs">
               <CrmPayloadFact label="client" value={channel.workspace ?? "Sin asignar"} />
               <CrmPayloadFact label="business_id" value={channel.businessId ?? "No disponible"} mono />
@@ -686,6 +769,7 @@ function CrmHandoverForm({
               <CrmPayloadFact label="phone_number_id" value={channel.id} mono />
               <CrmPayloadFact label="business_token" value={channel.businessTokenStored ? "Cifrado · sólo servidor" : "No disponible"} icon={KeyRound} />
             </dl>
+
             <div className="mt-4 border-t border-[#e6ede2] pt-3">
               {token ? (
                 <>
@@ -713,14 +797,89 @@ function CrmHandoverForm({
         {notice && <p className={`mt-4 rounded-lg border px-3 py-2.5 text-sm ${notice.kind === "success" ? "border-[#cee2bc] bg-white text-[#4d6f2b]" : "border-[#ebc8c8] bg-[#fff6f5] text-[#98453f]"}`} role={notice.kind === "error" ? "alert" : "status"}>{notice.text}</p>}
 
         <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-[#dfe8da] pt-4">
-          <p className="max-w-2xl text-[11px] leading-5 text-[#74806e]">El token nunca se renderiza aquí. El CRM lo recibe por HTTPS y debe guardarlo cifrado.</p>
-          <button type="submit" disabled={saving || !available || organizationId.length < 36} className="inline-flex min-h-11 items-center gap-2 rounded-lg bg-[#172238] px-4 text-xs font-semibold text-white transition hover:bg-[#263b54] disabled:cursor-not-allowed disabled:opacity-40">
+          <p className="max-w-2xl text-[11px] leading-5 text-[#74806e]">El cambio es reversible: puedes devolver el número a allok desde este mismo selector.</p>
+          <button type="submit" disabled={saving || !available || !ready} className="inline-flex min-h-11 items-center gap-2 rounded-lg bg-[#172238] px-4 text-xs font-semibold text-white transition hover:bg-[#263b54] disabled:cursor-not-allowed disabled:opacity-40">
             {saving ? <Loader2 className="size-4 animate-spin" /> : <Webhook className="size-4" />}
-            {saving ? "Conectando…" : connected ? "Reentregar al CRM" : "Conectar al CRM"}
+            {saving ? "Moviendo…" : slug === "allok" ? "Devolver a allok" : connected ? "Reentregar" : "Entregar número"}
           </button>
         </div>
       </form>
     </details>
+  );
+}
+
+/** Alta y edición de destinos. Guardar el mismo slug rota su verify token. */
+function DestinationEditor({ onSaved }: { onSaved: () => void }) {
+  const [open, setOpen] = useState(false);
+  const [form, setForm] = useState({ slug: "", label: "", webhook_url: "", verify_token: "", provision_url: "", provision_secret: "" });
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function save() {
+    setSaving(true);
+    setError(null);
+    try {
+      const response = await fetch("/api/ops/destinations", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+      const data = await response.json() as { error?: string };
+      if (!response.ok) throw new Error(data.error ?? "No se pudo guardar el destino.");
+      setForm({ slug: "", label: "", webhook_url: "", verify_token: "", provision_url: "", provision_secret: "" });
+      setOpen(false);
+      onSaved();
+    } catch (saveError) {
+      setError(saveError instanceof Error ? saveError.message : "No se pudo guardar el destino.");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  if (!open) {
+    return (
+      <TapButton type="button" onClick={() => setOpen(true)} className="mt-4 inline-flex min-h-9 items-center gap-1.5 text-xs font-semibold text-[#3e5a1f] underline underline-offset-4">
+        <Plus className="size-3.5" /> Nuevo destino o rotar su verify token
+      </TapButton>
+    );
+  }
+
+  return (
+    <div className="mt-4 rounded-lg border border-[#dbe5d5] bg-white p-3">
+      <div className="grid gap-2 sm:grid-cols-2">
+        <DestinationField label="Identificador" value={form.slug} onChange={(value) => setForm({ ...form, slug: value.toLowerCase() })} placeholder="vocero" mono />
+        <DestinationField label="Nombre" value={form.label} onChange={(value) => setForm({ ...form, label: value })} placeholder="Vocero CRM" />
+      </div>
+      <DestinationField label="URL del webhook" value={form.webhook_url} onChange={(value) => setForm({ ...form, webhook_url: value })} placeholder="https://vocero.app/api/whatsapp/webhook" mono />
+      <DestinationField label="Verify token de esa app" value={form.verify_token} onChange={(value) => setForm({ ...form, verify_token: value })} placeholder="su WEBHOOK_VERIFY_TOKEN" mono />
+      <DestinationField label="URL de provisión (opcional)" value={form.provision_url} onChange={(value) => setForm({ ...form, provision_url: value })} placeholder="https://vocero.app/api/whatsapp/provision" mono />
+      {form.provision_url && (
+        <DestinationField label="Secreto de provisión" value={form.provision_secret} onChange={(value) => setForm({ ...form, provision_secret: value })} placeholder="Bearer que espera esa app" mono />
+      )}
+      {error && <p className="mt-2 text-[11px] text-[#98453f]" role="alert">{error}</p>}
+      <div className="mt-3 flex items-center gap-2">
+        <TapButton type="button" onClick={() => void save()} disabled={saving} className="inline-flex min-h-9 items-center gap-1.5 rounded-lg bg-[#172238] px-3 text-xs font-semibold text-white disabled:opacity-40">
+          {saving ? <Loader2 className="size-3.5 animate-spin" /> : null} Guardar destino
+        </TapButton>
+        <TapButton type="button" onClick={() => setOpen(false)} className="min-h-9 px-2 text-xs font-semibold text-[#74806e]">Cancelar</TapButton>
+      </div>
+    </div>
+  );
+}
+
+function DestinationField({ label, value, onChange, placeholder, mono = false }: { label: string; value: string; onChange: (value: string) => void; placeholder: string; mono?: boolean }) {
+  return (
+    <label className="mt-2 block text-xs font-medium text-[#526174]">
+      {label}
+      <input
+        value={value}
+        onChange={(event) => onChange(event.target.value.trim())}
+        autoComplete="off"
+        spellCheck={false}
+        placeholder={placeholder}
+        className={`mt-1 min-h-10 w-full rounded-lg border border-[#ccd8c6] bg-white px-3 text-sm text-[#172238] outline-none transition focus:border-[#789e45] focus:ring-2 focus:ring-[#c5f04a]/25 ${mono ? "font-mono text-xs" : ""}`}
+      />
+    </label>
   );
 }
 

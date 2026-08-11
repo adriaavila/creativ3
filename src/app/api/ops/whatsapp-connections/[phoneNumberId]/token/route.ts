@@ -6,7 +6,13 @@ export const dynamic = "force-dynamic";
 
 const META_ID = /^\d{5,25}$/;
 
-/** Revelado manual y auditado para entregar una conexión a otra app. */
+/**
+ * Entrega el business token al operador para que lo cargue en la app del
+ * cliente. Es la única salida del token que no es servidor-a-servidor, así que
+ * es POST (no se prefetchea ni queda en el historial), pide sesión de Ops y
+ * deja rastro en el log. Antes de mostrarlo lo prueba contra Meta: un token
+ * muerto pegado en otra app es una noche perdida buscando el error ahí.
+ */
 export async function POST(
   _request: Request,
   { params }: { params: Promise<{ phoneNumberId: string }> },
@@ -54,5 +60,9 @@ export async function POST(
     at: new Date().toISOString(),
   }));
 
-  return Response.json({ access_token: connection.businessToken });
+  return Response.json({
+    waba_id: connection.wabaId,
+    phone_number_id: connection.phoneNumberId,
+    access_token: connection.businessToken,
+  });
 }

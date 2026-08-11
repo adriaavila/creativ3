@@ -293,7 +293,9 @@ export async function getWhatsAppProviderConnectionForStoredChannel(phoneNumberI
 export async function recordWhatsAppCrmHandover(input: {
   wabaId: string;
   phoneNumberId: string;
-  organizationId: string;
+  /** `rei_crm` o `custom`: la app propia del cliente, a la que allok no le habla. */
+  provider: string;
+  organizationId: string | null;
   organizationName: string | null;
   webhookUri: string;
   connectedAt: string;
@@ -307,13 +309,32 @@ export async function recordWhatsAppCrmHandover(input: {
           COALESCE(token_metadata, '{}'::jsonb),
           '{crm_handover}',
           ${JSON.stringify({
-            provider: "rei_crm",
+            provider: input.provider,
             organization_id: input.organizationId,
             organization_name: input.organizationName,
             connected_at: input.connectedAt,
           })}::jsonb,
           true
         ),
+        updated_at = now()
+    WHERE waba_id = ${input.wabaId} AND phone_number_id = ${input.phoneNumberId}
+    RETURNING phone_number_id
+  `;
+  if (!rows[0]) throw new Error("crm_handover_connection_not_found");
+}
+
+/**
+ * Devuelve la conexión a la bandeja de allok: sin destino externo y sin
+ * override registrado. En Meta el callback sigue apuntando acá, que es lo
+ * mismo que no tener override.
+ */
+export async function clearWhatsAppCrmHandover(input: { wabaId: string; phoneNumberId: string }) {
+  const sql = getSql();
+  const rows = await sql`
+    UPDATE whatsapp_connections
+    SET webhook_override_uri = null,
+        webhook_override_scope = null,
+        token_metadata = COALESCE(token_metadata, '{}'::jsonb) - 'crm_handover',
         updated_at = now()
     WHERE waba_id = ${input.wabaId} AND phone_number_id = ${input.phoneNumberId}
     RETURNING phone_number_id

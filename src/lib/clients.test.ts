@@ -19,20 +19,9 @@ test("un cliente de la bandeja de allok no necesita referencia externa", () => {
   });
 });
 
-test("un cliente de REI necesita un organization_id válido", () => {
-  // Es la regla que evita el caso caro: marcar el cliente como REI, mandarle el
-  // enlace, y descubrir recién al entregarlo que no hay a dónde entregarlo.
-  const sinOrg = parseClientInput({ slug: "santorini", name: "Santorini", destination: "rei_crm" });
-  assert.ok("error" in sinOrg);
-
-  const orgMalo = parseClientInput({
-    slug: "santorini",
-    name: "Santorini",
-    destination: "rei_crm",
-    destination_ref: "santorini",
-  });
-  assert.ok("error" in orgMalo);
-
+test("un cliente que trabaja en otra app guarda su referencia en ella", () => {
+  // Qué referencia exige cada app la sabe la tabla de destinos, no este parser:
+  // acá sólo se rechaza lo que no puede viajar en un JSON de provisión.
   const ok = parseClientInput({
     slug: "santorini",
     name: "Santorini",
@@ -41,6 +30,14 @@ test("un cliente de REI necesita un organization_id válido", () => {
     status: "connected",
   });
   assert.equal("error" in ok ? null : ok.input.destinationRef, ORG);
+
+  const refRota = parseClientInput({
+    slug: "santorini",
+    name: "Santorini",
+    destination: "vocero",
+    destination_ref: "con espacios",
+  });
+  assert.ok("error" in refRota);
 });
 
 test("un cliente de allok no puede llevar referencia externa colgada", () => {
@@ -62,8 +59,12 @@ test("un slug o un nombre inválidos no crean cliente", () => {
   }
 });
 
-test("un destino o estado desconocido cae al valor por defecto, no al error", () => {
-  const parsed = parseClientInput({ slug: "x", name: "X", destination: "salesforce", status: "vip" });
+test("un destino nuevo se acepta; uno con forma inválida cae a la bandeja de allok", () => {
+  // Dar de alta una app es guardar su destino, no editar una lista cerrada.
+  const nuevo = parseClientInput({ slug: "x", name: "X", destination: "vocero", destination_ref: "org-9" });
+  assert.equal("error" in nuevo ? null : nuevo.input.destination, "vocero");
+
+  const parsed = parseClientInput({ slug: "x", name: "X", destination: "NO VALIDO", status: "vip" });
   assert.equal("error" in parsed ? null : parsed.input.destination, "allok");
   assert.equal("error" in parsed ? null : parsed.input.status, "invited");
 });
@@ -77,13 +78,15 @@ const entregable = {
   connectionStatus: "subscribed",
 };
 
-test("con destino, organización y número conectado se puede entregar", () => {
+test("con destino y número conectado se puede entregar", () => {
   assert.equal(handoverBlocker(entregable), null);
+  // La referencia externa sólo la exigen los destinos con provisión, y eso lo
+  // decide la entrega leyendo la tabla de destinos.
+  assert.equal(handoverBlocker({ ...entregable, destinationRef: null }), null);
 });
 
 test("cada cosa que falta tiene su motivo", () => {
-  assert.equal(handoverBlocker({ ...entregable, destination: "allok" }), "not_rei");
-  assert.equal(handoverBlocker({ ...entregable, destinationRef: null }), "missing_org");
+  assert.equal(handoverBlocker({ ...entregable, destination: "allok" }), "in_allok");
   assert.equal(handoverBlocker({ ...entregable, phoneNumberId: null }), "no_connection");
   // Entregar un número desautorizado copia un token que Meta ya no acepta.
   assert.equal(handoverBlocker({ ...entregable, connectionStatus: "deauthorized" }), "connection_inactive");

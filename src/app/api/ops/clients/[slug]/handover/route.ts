@@ -3,7 +3,8 @@ import { authorizeOps } from "@/lib/ops-auth";
 import { HANDOVER_BLOCKER_LABELS, handoverBlocker } from "@/lib/clients";
 import { listClients, recordHandover } from "@/lib/clients-db";
 import { getWhatsAppProviderConnectionForStoredChannel } from "@/lib/whatsapp-connections-db";
-import { getReiHandoverEnv, provisionReiConnection } from "@/lib/handover/rei";
+import { getDestinationSecrets } from "@/lib/handover/destinations";
+import { pushCredentials } from "@/lib/handover/provision";
 import { getGraphVersion, safeMetaError, subscribeWabaToApp } from "@/lib/meta/server";
 
 export const dynamic = "force-dynamic";
@@ -13,12 +14,13 @@ export const dynamic = "force-dynamic";
  *
  * Es una acción explícita del operador y no un paso automático del Embedded
  * Signup: la ruta de alta ya es el momento frágil del onboarding (el cliente
- * está mirando la pantalla), y la entrega necesita un dato que vive fuera de
- * Meta — el organization_id en REI. Al ser explícita también es reintentable,
- * y sirve para los clientes que ya estaban conectados desde antes.
+ * está mirando la pantalla), y la entrega necesita datos que viven fuera de
+ * Meta. Al ser explícita también es reintentable, y sirve para los clientes
+ * que ya estaban conectados desde antes.
  *
- * Idempotente: REI hace upsert por organización y Meta acepta el mismo
- * override_callback_uri las veces que haga falta.
+ * El destino sale del registro del cliente; el resto lo hace igual que la
+ * entrega por número. Idempotente: Meta acepta el mismo override_callback_uri
+ * las veces que haga falta.
  */
 export async function POST(_request: NextRequest, context: { params: Promise<{ slug: string }> }) {
   const authorization = await authorizeOps();
@@ -33,11 +35,17 @@ export async function POST(_request: NextRequest, context: { params: Promise<{ s
     return NextResponse.json({ error: HANDOVER_BLOCKER_LABELS[blocker] }, { status: 409 });
   }
 
-  const env = getReiHandoverEnv();
-  if (env.missing.length > 0) {
+  const destination = await getDestinationSecrets(client.destination);
+  if (!destination) {
     return NextResponse.json(
-      { error: `Falta configurar ${env.missing.join(", ")}.` },
+      { error: `El destino ${client.destination} no está configurado.` },
       { status: 503 },
+    );
+  }
+  if (destination.provisionUrl && !client.destinationRef) {
+    return NextResponse.json(
+      { error: `${destination.label} necesita la referencia del cliente en su sistema.` },
+      { status: 409 },
     );
   }
 
@@ -50,32 +58,40 @@ export async function POST(_request: NextRequest, context: { params: Promise<{ s
     );
   }
 
-  const provisioned = await provisionReiConnection({
-    organizationId: client.destinationRef!,
-    client: client.slug,
-    businessId: null,
-    wabaId: connection.wabaId,
-    phoneNumberId: connection.phoneNumberId,
-    token: connection.businessToken,
-    displayPhoneNumber: client.displayPhoneNumber,
-    verifiedName: client.name,
-    connectionMode: connection.mode,
-    status: client.connectionStatus ?? "connected",
-  });
-  if (!provisioned.ok) {
-    return NextResponse.json(
-      { error: provisioned.error, step: "credenciales" },
-      { status: provisioned.status >= 400 && provisioned.status < 600 ? provisioned.status : 502 },
-    );
+  let organizationName = destination.label;
+  let webhookUri = destination.webhookUrl;
+
+  if (destination.provisionUrl && destination.provisionSecret) {
+    const provisioned = await pushCredentials({
+      url: destination.provisionUrl,
+      secret: destination.provisionSecret,
+      externalRef: client.destinationRef,
+      client: client.slug,
+      businessId: null,
+      wabaId: connection.wabaId,
+      phoneNumberId: connection.phoneNumberId,
+      token: connection.businessToken,
+      displayPhoneNumber: client.displayPhoneNumber,
+      verifiedName: client.name,
+      connectionMode: connection.mode,
+      status: client.connectionStatus ?? "connected",
+    });
+    if (!provisioned.ok) {
+      return NextResponse.json(
+        { error: provisioned.error, step: "credenciales" },
+        { status: provisioned.status >= 400 && provisioned.status < 600 ? provisioned.status : 502 },
+      );
+    }
+    organizationName = provisioned.organizationName ?? destination.label;
+    webhookUri = provisioned.webhookUrl ?? destination.webhookUrl;
   }
 
-  // Recién ahora se mueve el webhook: si esto falla, REI ya tiene el token y el
-  // operador puede reintentar sin dejar mensajes cayendo en el vacío.
-  const webhookUri = provisioned.webhookUrl ?? new URL("/api/whatsapp/webhook", env.baseUrl!).toString();
+  // Recién ahora se mueve el webhook: si esto falla, la app destino ya tiene el
+  // token y el operador puede reintentar sin dejar mensajes cayendo en el vacío.
   try {
     await subscribeWabaToApp(connection.wabaId, connection.businessToken, getGraphVersion(), {
       callbackUri: webhookUri,
-      verifyToken: env.verifyToken!,
+      verifyToken: destination.verifyToken,
     });
   } catch (error) {
     const metaError = safeMetaError(error);
@@ -86,7 +102,7 @@ export async function POST(_request: NextRequest, context: { params: Promise<{ s
             ? (metaError.body.message ?? "Meta rechazó la redirección del webhook.")
             : "Meta rechazó la redirección del webhook.",
         step: "webhook",
-        credentials_delivered: true,
+        credentials_delivered: Boolean(destination.provisionUrl),
       },
       { status: 502 },
     );
@@ -101,7 +117,9 @@ export async function POST(_request: NextRequest, context: { params: Promise<{ s
 
   return NextResponse.json({
     ok: true,
-    organization_name: provisioned.organizationName,
+    destination: destination.slug,
+    organization_name: organizationName,
     webhook_url: webhookUri,
+    credentials_delivered: Boolean(destination.provisionUrl),
   });
 }

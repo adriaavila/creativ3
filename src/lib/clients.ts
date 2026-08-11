@@ -4,22 +4,27 @@
  *
  * allok es el Tech Provider — es dueño de la app de Meta, así que todo número
  * de WhatsApp oficial entra por su Embedded Signup. Pero no todo cliente
- * trabaja acá: algunos operan en REI CRM (residente), y su bandeja no es ésta.
- * Ese dato vive en `destination` y decide qué pasa después de conectar.
+ * trabaja acá: cada uno puede operar en su propia app. Ese dato vive en
+ * `destination` y decide qué pasa después de conectar.
  *
  * Sólo funciones puras: la tabla está en clients-db.ts.
  */
 
-export const CLIENT_DESTINATIONS = ["allok", "rei_crm"] as const;
-export type ClientDestination = (typeof CLIENT_DESTINATIONS)[number];
+/** El cliente se atiende desde la bandeja de Ops y su webhook no se mueve. */
+export const CLIENT_DESTINATION_ALLOK = "allok";
+
+/**
+ * O la bandeja de allok, o el slug de una fila de `handover_destinations`. No
+ * hay lista cerrada: dar de alta una app es guardar su destino, no editar esto.
+ */
+export type ClientDestination = string;
 
 export const CLIENT_STATUSES = ["invited", "connected", "live", "paused", "churned"] as const;
 export type ClientStatus = (typeof CLIENT_STATUSES)[number];
 
-export const CLIENT_DESTINATION_LABELS: Record<ClientDestination, string> = {
-  allok: "Bandeja allok",
-  rei_crm: "REI CRM",
-};
+export function clientDestinationLabel(destination: ClientDestination) {
+  return destination === CLIENT_DESTINATION_ALLOK ? "Bandeja allok" : destination;
+}
 
 export const CLIENT_STATUS_LABELS: Record<ClientStatus, string> = {
   invited: "Enlace enviado",
@@ -55,10 +60,13 @@ export type ClientRow = Client & {
 };
 
 const SLUG = /^[a-z0-9][a-z0-9._-]{0,79}$/;
-const REI_ORG_ID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const DESTINATION_SLUG = /^[a-z0-9][a-z0-9._-]{1,39}$/;
+/** La referencia del cliente dentro de la app destino, opaca para allok. */
+const EXTERNAL_REF = /^[\w.:-]{1,80}$/;
 
 export function isClientDestination(value: unknown): value is ClientDestination {
-  return typeof value === "string" && (CLIENT_DESTINATIONS as readonly string[]).includes(value);
+  return typeof value === "string"
+    && (value === CLIENT_DESTINATION_ALLOK || DESTINATION_SLUG.test(value));
 }
 
 export function isClientStatus(value: unknown): value is ClientStatus {
@@ -82,10 +90,9 @@ function optionalText(value: unknown, max = 500): string | null {
 }
 
 /**
- * Valida lo que manda el formulario de Ops. El destino y su referencia van
- * juntos a propósito: un cliente marcado como REI sin organization_id no se
- * puede entregar, y descubrirlo recién al apretar "Entregar" desperdicia el
- * momento en que el cliente está mirando.
+ * Valida lo que manda el formulario de Ops. La referencia externa se guarda
+ * acá aunque sólo la use la app destino: si esa app la exige, pedirla recién
+ * al apretar "Entregar" desperdicia el momento en que el cliente está mirando.
  */
 export function parseClientInput(body: unknown): { input: ClientInput } | { error: string } {
   if (!body || typeof body !== "object" || Array.isArray(body)) {
@@ -99,15 +106,12 @@ export function parseClientInput(body: unknown): { input: ClientInput } | { erro
   const name = optionalText(raw.name, 120);
   if (!name) return { error: "El nombre del cliente es obligatorio." };
 
-  const destination = isClientDestination(raw.destination) ? raw.destination : "allok";
+  const destination = isClientDestination(raw.destination) ? raw.destination : CLIENT_DESTINATION_ALLOK;
   const destinationRef = optionalText(raw.destination_ref, 80);
-  if (destination === "rei_crm" && !destinationRef) {
-    return { error: "Un cliente de REI CRM necesita su organization_id." };
+  if (destinationRef && !EXTERNAL_REF.test(destinationRef)) {
+    return { error: "La referencia del cliente en su app no es válida." };
   }
-  if (destination === "rei_crm" && !REI_ORG_ID.test(destinationRef!)) {
-    return { error: "El organization_id de REI no es un uuid válido." };
-  }
-  if (destination === "allok" && destinationRef) {
+  if (destination === CLIENT_DESTINATION_ALLOK && destinationRef) {
     return { error: "Un cliente que trabaja en la bandeja de allok no lleva referencia externa." };
   }
 
@@ -127,8 +131,7 @@ export function parseClientInput(body: unknown): { input: ClientInput } | { erro
 }
 
 export type HandoverBlocker =
-  | "not_rei"
-  | "missing_org"
+  | "in_allok"
   | "no_connection"
   | "connection_inactive";
 
@@ -142,16 +145,16 @@ export function handoverBlocker(row: {
   phoneNumberId: string | null;
   connectionStatus: string | null;
 }): HandoverBlocker | null {
-  if (row.destination !== "rei_crm") return "not_rei";
-  if (!row.destinationRef) return "missing_org";
+  // Que falte la referencia externa no bloquea: sólo la exigen los destinos con
+  // endpoint de provisión, y quién los tiene lo sabe la tabla de destinos.
+  if (row.destination === CLIENT_DESTINATION_ALLOK) return "in_allok";
   if (!row.phoneNumberId) return "no_connection";
   if (row.connectionStatus === "deauthorized") return "connection_inactive";
   return null;
 }
 
 export const HANDOVER_BLOCKER_LABELS: Record<HandoverBlocker, string> = {
-  not_rei: "Este cliente trabaja en la bandeja de allok.",
-  missing_org: "Falta el organization_id de REI.",
+  in_allok: "Este cliente trabaja en la bandeja de allok.",
   no_connection: "Todavía no conectó ningún número.",
   connection_inactive: "El número está desautorizado; hay que reconectarlo.",
 };

@@ -6,8 +6,8 @@ import { authorizeOps, isOpsAuthConfigured } from "@/lib/ops-auth";
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Laboratorio | allok Ops",
-  description: "Catálogo de evaluaciones del agente Eve de allok.",
+  title: "Observabilidad Eve | allok Ops",
+  description: "Catálogo verificable de evaluaciones y controles del agente Eve de allok.",
 };
 
 export default async function OpsLabPage() {

@@ -5,12 +5,7 @@ import { usePathname, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import {
   Bot,
-  BriefcaseBusiness,
-  Building2,
-  ContactRound,
   FlaskConical,
-  LayoutDashboard,
-  Inbox,
   KanbanSquare,
   Link2,
   LogOut,
@@ -24,32 +19,18 @@ import AllokLogo from "@/components/brand/AllokLogo";
 type NavItem = { href: string; label: string; icon: LucideIcon };
 
 const agencyItems: NavItem[] = [
-  { href: "/ops", label: "Hoy", icon: LayoutDashboard },
-  { href: "/ops/crm", label: "Pipeline", icon: KanbanSquare },
   { href: "/ops/growth", label: "Growth", icon: TrendingUp },
+  { href: "/ops/crm", label: "Pipeline", icon: KanbanSquare },
 ] as const;
 
-const whatsappItems: NavItem[] = [
-  { href: "/ops/inbox", label: "Bandeja", icon: Inbox },
-  { href: "/ops/clientes", label: "Clientes", icon: Building2 },
-  { href: "/ops/contacts", label: "Contactos", icon: ContactRound },
+const eveItems: NavItem[] = [
+  { href: "/ops/agents", label: "Eve Agents", icon: Bot },
+  { href: "/ops/lab", label: "Observabilidad", icon: FlaskConical },
 ] as const;
-
-const toolItems: NavItem[] = [
-  { href: "/ops/agents", label: "Agentes", icon: Bot },
-  { href: "/ops/lab", label: "Laboratorio", icon: FlaskConical },
-  { href: "/ops/portfolio", label: "Portafolio", icon: BriefcaseBusiness },
-] as const;
-
-function isConnectionsActive(pathname: string, view: string | null) {
-  return pathname === "/ops/crm/connections" || (pathname.startsWith("/ops/crm") && view === "connections");
-}
 
 function isItemActive(pathname: string, href: string, connectionsActive: boolean) {
-  if (href === "/ops") return pathname === href;
-  return href === "/ops/crm"
-    ? pathname.startsWith(href) && !connectionsActive
-    : pathname === href || pathname.startsWith(`${href}/`);
+  if (href === "/ops/crm") return pathname.startsWith(href) && !connectionsActive;
+  return pathname === href || pathname.startsWith(`${href}/`);
 }
 
 type OpsNavProps = {
@@ -60,7 +41,7 @@ export default function OpsNav({ global = false }: OpsNavProps) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const connectionsActive = isConnectionsActive(pathname, searchParams.get("view"));
+  const connectionsActive = pathname === "/ops/crm/connections" || (pathname.startsWith("/ops/crm") && searchParams.get("view") === "connections");
 
   if (!global) return null;
 
@@ -86,36 +67,17 @@ export default function OpsNav({ global = false }: OpsNavProps) {
     );
   };
 
-  const renderConnections = () => (
-    <Link
-      href="/ops/crm?view=connections"
-      aria-current={connectionsActive ? "page" : undefined}
-      onClick={() => setMobileMenuOpen(false)}
-      className={`flex min-h-11 items-center gap-3 rounded-[10px] px-3 text-[14px] font-medium transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#142b4b] ${
-        connectionsActive
-          ? "bg-[#eef3f7] text-[#142b4b]"
-          : "text-[#526174] hover:bg-[#f1f4f7] hover:text-[#142b4b]"
-      }`}
-    >
-      <Link2 className={`size-[18px] shrink-0 ${connectionsActive ? "text-[#385875]" : "text-[#738196]"}`} strokeWidth={1.8} aria-hidden="true" />
-      Conexiones
-    </Link>
-  );
-
   const renderNavigation = () => (
     <>
       <p className="px-3 pb-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-[#9aa5b2]">Agencia</p>
       <div className="space-y-1">{agencyItems.map(renderItem)}</div>
       <div className="my-5 border-t border-[#edf0f3]" />
+      <p className="px-3 pb-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-[#9aa5b2]">Eve</p>
+      <div className="space-y-1">{eveItems.map(renderItem)}</div>
+      <div className="my-5 border-t border-[#edf0f3]" />
       <p className="px-3 pb-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-[#9aa5b2]">WhatsApp</p>
       <div className="space-y-1">
-        {whatsappItems.map(renderItem)}
-        {renderConnections()}
-      </div>
-      <div className="my-5 border-t border-[#edf0f3]" />
-      <p className="px-3 pb-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-[#9aa5b2]">Herramientas</p>
-      <div className="space-y-1">
-        {toolItems.map(renderItem)}
+        <Link href="/ops/crm?view=connections" aria-current={connectionsActive ? "page" : undefined} onClick={() => setMobileMenuOpen(false)} className={`flex min-h-11 items-center gap-3 rounded-[10px] px-3 text-[14px] font-medium transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#142b4b] ${connectionsActive ? "bg-[#eef3f7] text-[#142b4b]" : "text-[#526174] hover:bg-[#f1f4f7] hover:text-[#142b4b]"}`}><Link2 className={`size-[18px] shrink-0 ${connectionsActive ? "text-[#385875]" : "text-[#738196]"}`} strokeWidth={1.8} /> Conexiones</Link>
       </div>
     </>
   );
@@ -134,8 +96,8 @@ export default function OpsNav({ global = false }: OpsNavProps) {
 
   const renderBrand = (mobile = false) => (
     <Link
-      href="/ops"
-      aria-label="allok Ops, ir a Hoy"
+      href="/ops/growth"
+      aria-label="allok Ops, ir a Growth"
       onClick={() => setMobileMenuOpen(false)}
       className={`flex items-center gap-3 rounded-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#142b4b] ${mobile ? "min-h-11" : ""}`}
     >
@@ -144,7 +106,7 @@ export default function OpsNav({ global = false }: OpsNavProps) {
         <span className="block font-display text-[19px] font-semibold tracking-[-0.04em] text-[#142b4b]">
           allok<span className="text-[#97c51e]">.</span>
         </span>
-        <span className="block whitespace-nowrap text-[11px] leading-4 text-[#7a8797]">Agencia · WhatsApp</span>
+        <span className="block whitespace-nowrap text-[11px] leading-4 text-[#7a8797]">Agencia · Growth</span>
       </span>
     </Link>
   );

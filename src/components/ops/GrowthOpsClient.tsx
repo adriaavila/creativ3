@@ -1,8 +1,11 @@
 "use client";
 
 import { useEffect, useMemo, useState, type ReactNode } from "react";
+import Link from "next/link";
 import {
+  Activity,
   BarChart3,
+  Bot,
   Check,
   Copy,
   ExternalLink,
@@ -16,7 +19,6 @@ import {
 } from "lucide-react";
 import type { DraftKind, GrowthLead, GrowthRun, OutreachDraft } from "@/lib/growth-types";
 import type { MarketingSnapshot, PostizMetric, PostizPost } from "@/lib/postiz";
-import type { WahaSnapshot } from "@/lib/waha";
 import { DISPLAY_TIGHT, TapButton } from "@/components/ops/apple";
 
 type Tab = "hoy" | "marketing" | "runs" | "leads" | "drafts";
@@ -47,7 +49,6 @@ export default function GrowthOpsClient({
   initialTab,
   initialDraftId,
   marketing,
-  waha,
 }: {
   initialRuns: GrowthRun[];
   initialLeads: GrowthLead[];
@@ -55,7 +56,6 @@ export default function GrowthOpsClient({
   initialTab: Tab;
   initialDraftId: string | null;
   marketing: MarketingSnapshot;
-  waha: WahaSnapshot;
 }) {
   const [tab, setTab] = useState<Tab>(initialTab);
   const [drafts, setDrafts] = useState(initialDrafts);
@@ -174,19 +174,19 @@ export default function GrowthOpsClient({
     setLeads((items) => items.map((item) => (item.id === id ? { ...item, ...patch } : item)));
 
   return (
-    <main className="min-h-dvh bg-[#08090a] pb-24 text-white md:pb-8">
-      <div className="mx-auto w-full max-w-[1500px] px-4 pb-10 pt-8 sm:px-6 lg:px-10 lg:pt-12">
+    <main className="min-h-dvh bg-[#f7f8fa] pb-24 text-[#142b4b] md:pb-8">
+      <div className="mx-auto w-full max-w-[1500px] px-4 pb-10 pt-7 sm:px-6 lg:px-10 lg:pt-9">
         <header className="flex flex-wrap items-end justify-between gap-4">
           <div>
-            <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-[#c5f04a]">Operación privada</div>
-            <h1 className={`mt-2 font-display text-4xl ${DISPLAY_TIGHT}`}>Growth OS</h1>
-            <p className="mt-2 text-sm text-white/45">Investigación, borradores y acciones comerciales revisadas.</p>
+            <div className="font-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-[#7a8797]">Agencia · Growth</div>
+            <h1 className={`mt-2 font-display text-4xl font-semibold text-[#142b4b] ${DISPLAY_TIGHT}`}>Growth</h1>
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-[#68778a]">Investiga oportunidades, decide el próximo paso y revisa cada acción comercial antes de ejecutarla.</p>
           </div>
           <div className="flex items-center gap-2">
             <TapButton
               type="button"
               onClick={() => window.location.reload()}
-              className="flex size-11 items-center justify-center rounded-xl border border-white/10 bg-white/[0.04] hover:bg-white/10"
+              className="flex size-11 items-center justify-center rounded-lg border border-[#d8e0e7] bg-white text-[#526174] transition hover:bg-[#f0f4f7] hover:text-[#172238]"
               aria-label="Actualizar datos"
             >
               <RefreshCw className="size-4" />
@@ -195,7 +195,7 @@ export default function GrowthOpsClient({
               type="button"
               disabled={running}
               onClick={() => void startRun()}
-              className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-[#c5f04a] px-4 text-sm font-semibold text-[#0a0a0a] hover:bg-white disabled:opacity-50"
+              className="inline-flex min-h-11 items-center gap-2 rounded-lg bg-[#c5f04a] px-4 text-sm font-semibold text-[#263710] transition hover:-translate-y-0.5 hover:bg-[#b7e63b] active:translate-y-0 disabled:opacity-50"
             >
               {running ? <LoaderCircle className="size-4 animate-spin" /> : <Play className="size-4" />}
               Ejecutar ahora
@@ -203,33 +203,43 @@ export default function GrowthOpsClient({
           </div>
         </header>
 
-        <section className="mt-7 grid gap-3 sm:grid-cols-4">
+        <section className="relative mt-7 overflow-hidden rounded-2xl bg-[#111b2d] text-white shadow-[0_20px_50px_rgba(20,43,75,0.14)]">
+          <div className="pointer-events-none absolute -right-16 -top-24 size-64 rounded-full bg-[#c5f04a]/10 blur-3xl" />
+          <div className="relative grid sm:grid-cols-2 xl:grid-cols-4">
           {[
-            ["Hoy", buckets.contactarHoy.length + buckets.followUp.length + buckets.enviarPropuesta.length],
-            ["Runs", initialRuns.length],
-            ["Leads", leads.length],
-            ["Pendientes", drafts.filter((draft) => draft.status === "pending").length],
+            ["Acciones de hoy", buckets.contactarHoy.length + buckets.followUp.length + buckets.enviarPropuesta.length],
+            ["Investigaciones", initialRuns.length],
+            ["Oportunidades", leads.length],
+            ["Por revisar", drafts.filter((draft) => draft.status === "pending").length],
           ].map(([label, value]) => (
-            <div key={label} className="rounded-none border border-white/10 bg-white/[0.02] p-5">
-              <div className="font-mono text-[9px] uppercase tracking-[0.18em] text-white/38">{label}</div>
-              <div className="mt-3 font-display text-4xl text-[#c5f04a]">{value}</div>
+            <div key={label} className="border-b border-white/10 p-5 sm:border-r sm:[&:nth-child(even)]:border-r-0 xl:border-b-0 xl:[&:nth-child(even)]:border-r xl:last:border-r-0 sm:p-6">
+              <div className="font-mono text-[9px] font-semibold uppercase tracking-[0.16em] text-white/50">{label}</div>
+              <div className="mt-3 font-display text-4xl font-semibold tracking-[-0.05em] tabular-nums text-[#c5f04a]">{value}</div>
             </div>
           ))}
+          </div>
+        </section>
+
+        <section className="mt-5 grid gap-3 lg:grid-cols-2" aria-label="Eve y observabilidad">
+          <Link href="/ops/agents" className="group flex items-center gap-4 rounded-xl border border-[#dfe5eb] bg-white p-4 shadow-[0_5px_18px_rgba(20,43,75,0.035)] transition hover:-translate-y-0.5 hover:border-[#c4cfd9] hover:shadow-[0_10px_28px_rgba(20,43,75,0.07)]"><span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-[#172238] text-[#c5f04a]"><Bot className="size-4.5" /></span><span className="min-w-0 flex-1"><strong className="block text-sm font-semibold text-[#263b54]">Eve Agents</strong><span className="mt-1 block text-xs text-[#7a8797]">Identidad, herramientas, modos y guardrails.</span></span><ExternalLink className="size-4 text-[#8a96a5] transition group-hover:text-[#526174]" /></Link>
+          <Link href="/ops/lab" className="group flex items-center gap-4 rounded-xl border border-[#dfe5eb] bg-white p-4 shadow-[0_5px_18px_rgba(20,43,75,0.035)] transition hover:-translate-y-0.5 hover:border-[#c4cfd9] hover:shadow-[0_10px_28px_rgba(20,43,75,0.07)]"><span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-[#eef3f7] text-[#48637d]"><Activity className="size-4.5" /></span><span className="min-w-0 flex-1"><strong className="block text-sm font-semibold text-[#263b54]">Observabilidad</strong><span className="mt-1 block text-xs text-[#7a8797]">Evaluaciones, controles y artefactos verificables.</span></span><ExternalLink className="size-4 text-[#8a96a5] transition group-hover:text-[#526174]" /></Link>
         </section>
 
         {notice && (
-          <div className="mt-5 rounded-xl border border-[#c5f04a]/20 bg-[#c5f04a]/8 px-4 py-3 text-sm text-[#c5f04a]">
+          <div className="mt-5 rounded-xl border border-[#d5e5c5] bg-[#f5faef] px-4 py-3 text-sm text-[#4d6f2b]" role="status">
             {notice}
           </div>
         )}
 
-        <div className="mt-7 flex gap-1 rounded-none border border-white/10 bg-white/[0.015] p-1.5">
+        <div className="mt-7 flex gap-1 overflow-x-auto rounded-xl border border-[#dfe5eb] bg-white p-1.5 shadow-[0_4px_14px_rgba(20,43,75,0.03)]" role="tablist" aria-label="Áreas de Growth">
           {(["hoy", "marketing", "runs", "leads", "drafts"] as Tab[]).map((item) => (
             <button
               key={item}
               type="button"
               onClick={() => setTab(item)}
-              className={`rounded-lg px-4 py-2 text-sm font-semibold capitalize ${tab === item ? "bg-white text-[#0a0a0a]" : "text-white/50 hover:text-white"}`}
+              role="tab"
+              aria-selected={tab === item}
+              className={`shrink-0 rounded-lg px-4 py-2 text-sm font-semibold capitalize transition ${tab === item ? "bg-[#172238] text-white shadow-sm" : "text-[#68778a] hover:bg-[#f1f4f7] hover:text-[#172238]"}`}
             >
               {item === "hoy" ? "Hoy" : item === "marketing" ? "Marketing" : item === "runs" ? "Runs" : item === "leads" ? "Leads" : "Borradores"}
             </button>
@@ -244,7 +254,7 @@ export default function GrowthOpsClient({
                 hint="Aprobados, aún sin contactar"
                 leads={buckets.contactarHoy}
                 action={(lead) => (
-                  <TapButton type="button" onClick={() => void markContacted(lead)} className="rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-[#0a0a0a]">Marcar contactado</TapButton>
+                  <TapButton type="button" onClick={() => void markContacted(lead)} className="rounded-lg bg-[#172238] px-3 py-2 text-xs font-semibold text-white">Marcar contactado</TapButton>
                 )}
               />
               <DayBucket
@@ -252,7 +262,7 @@ export default function GrowthOpsClient({
                 hint="Contactados hace +3 días sin respuesta"
                 leads={buckets.followUp}
                 action={() => (
-                  <TapButton type="button" onClick={() => setTab("drafts")} className="rounded-full border border-white/15 px-3 py-1.5 text-xs font-semibold text-white/70">Ver follow-ups</TapButton>
+                  <TapButton type="button" onClick={() => setTab("drafts")} className="rounded-lg border border-[#d5dde5] bg-white px-3 py-2 text-xs font-semibold text-[#526174]">Ver follow-ups</TapButton>
                 )}
               />
               <DayBucket
@@ -260,7 +270,7 @@ export default function GrowthOpsClient({
                 hint="Respondieron interesados"
                 leads={buckets.enviarPropuesta}
                 action={(lead) => (
-                  <button type="button" disabled={busyLead === lead.id} onClick={() => void generateProposal(lead)} className="inline-flex items-center gap-1.5 rounded-full bg-[#c5f04a] px-3 py-1.5 text-xs font-semibold text-[#0a0a0a] disabled:opacity-50">
+                  <button type="button" disabled={busyLead === lead.id} onClick={() => void generateProposal(lead)} className="inline-flex items-center gap-1.5 rounded-lg bg-[#c5f04a] px-3 py-2 text-xs font-semibold text-[#263710] disabled:opacity-50">
                     {busyLead === lead.id ? <LoaderCircle className="size-3.5 animate-spin" /> : <FileText className="size-3.5" />} Generar propuesta
                   </button>
                 )}
@@ -268,21 +278,21 @@ export default function GrowthOpsClient({
             </div>
           )}
 
-          {tab === "marketing" && <MarketingPanel snapshot={marketing} waha={waha} />}
+          {tab === "marketing" && <MarketingPanel snapshot={marketing} />}
 
           {tab === "runs" && (
             <div className="grid gap-3">
               {initialRuns.length === 0 ? <Empty text="Todavía no hay runs. Ejecuta el agente cuando Neon y Eve estén conectados." /> : initialRuns.map((run) => (
-                <article key={run.id} className="grid gap-4 rounded-none border border-white/10 bg-white/[0.02] p-5 md:grid-cols-[150px_1fr_auto] md:items-center">
+                <article key={run.id} className="grid gap-4 rounded-xl border border-[#dfe5eb] bg-white p-5 shadow-[0_5px_18px_rgba(20,43,75,0.04)] md:grid-cols-[150px_1fr_auto] md:items-center">
                   <div>
-                    <span className="rounded-full bg-white/8 px-3 py-1.5 text-xs text-[#c5f04a]">{RUN_LABELS[run.status]}</span>
-                    <div className="mt-3 font-mono text-[9px] text-white/35">{run.id.slice(0, 8)}</div>
+                    <span className="rounded-md bg-[#edf7df] px-3 py-1.5 text-xs font-semibold text-[#527526]">{RUN_LABELS[run.status]}</span>
+                    <div className="mt-3 font-mono text-[9px] text-[#8a96a5]">{run.id.slice(0, 8)}</div>
                   </div>
                   <div>
-                    <div className="text-sm font-semibold">{run.market} · {run.leadsRequested} leads máximo</div>
-                    <p className="mt-2 text-sm leading-5 text-white/45">{run.summary ?? run.error ?? "Esperando actividad del agente."}</p>
+                    <div className="text-sm font-semibold text-[#263b54]">{run.market} · {run.leadsRequested} leads máximo</div>
+                    <p className="mt-2 text-sm leading-5 text-[#68778a]">{run.summary ?? run.error ?? "Esperando actividad del agente."}</p>
                   </div>
-                  <time className="font-mono text-[10px] text-white/35">{new Date(run.createdAt).toLocaleString("es-VE")}</time>
+                  <time className="font-mono text-[10px] text-[#8a96a5]">{new Date(run.createdAt).toLocaleString("es-VE")}</time>
                 </article>
               ))}
             </div>
@@ -291,69 +301,69 @@ export default function GrowthOpsClient({
           {tab === "leads" && (
             <div className="grid gap-4 lg:grid-cols-2">
               {leads.length === 0 ? <Empty text="Los leads investigados aparecerán aquí con evidencia y fuentes." /> : leads.map((lead) => (
-                <article key={lead.id} className="rounded-none border border-white/10 bg-white/[0.02] p-5">
+                <article key={lead.id} className="rounded-xl border border-[#dfe5eb] bg-white p-5 shadow-[0_8px_24px_rgba(20,43,75,0.05)]">
                   <div className="flex items-start justify-between gap-4">
                     <div>
-                      <div className="font-mono text-[9px] uppercase tracking-[0.15em] text-[#c5f04a]">{lead.vertical} · {lead.location}</div>
-                      <h2 className="mt-2 font-display text-3xl">{lead.businessName}</h2>
+                      <div className="font-mono text-[9px] font-semibold uppercase tracking-[0.15em] text-[#71842f]">{lead.vertical} · {lead.location}</div>
+                      <h2 className="mt-2 font-display text-3xl font-semibold tracking-[-0.04em] text-[#172238]">{lead.businessName}</h2>
                     </div>
-                    <span className="flex size-11 items-center justify-center rounded-full border border-[#c5f04a]/25 font-display text-xl text-[#c5f04a]">{lead.leadScore}</span>
+                    <span className="flex size-11 items-center justify-center rounded-xl bg-[#edf7df] font-display text-xl font-semibold text-[#527526]">{lead.leadScore}</span>
                   </div>
-                  <p className="mt-5 text-sm leading-6 text-white/58">{lead.problemDetected}</p>
-                  <div className="mt-4 rounded-xl bg-[#c5f04a] p-4 text-sm leading-5 text-[#0a0a0a]">{lead.offerAngle}</div>
-                  <p className="mt-4 text-xs leading-5 text-white/38">Evidencia: {lead.evidence}</p>
+                  <p className="mt-5 text-sm leading-6 text-[#526174]">{lead.problemDetected}</p>
+                  <div className="mt-4 rounded-lg bg-[#eef7e4] p-4 text-sm leading-6 text-[#3f5525]">{lead.offerAngle}</div>
+                  <p className="mt-4 text-xs leading-5 text-[#7a8797]">Evidencia: {lead.evidence}</p>
 
                   <div className="mt-5 grid grid-cols-2 gap-2 lg:grid-cols-4">
-                    <label className="flex flex-col gap-1 text-[10px] uppercase tracking-wide text-white/35">
+                    <label className="flex flex-col gap-1.5 text-[10px] font-semibold uppercase tracking-wide text-[#7a8797]">
                       Prob. cierre %
                       <input
                         type="number" min={0} max={100}
                         value={lead.closeProbability ?? ""}
                         onChange={(e) => patchLead(lead.id, { closeProbability: e.target.value === "" ? null : Number(e.target.value) })}
-                        className="rounded-lg border border-white/10 bg-black/20 px-2 py-1.5 text-sm text-white/80 outline-none focus:border-[#c5f04a]/45"
+                        className="min-h-10 rounded-lg border border-[#d5dde5] bg-[#fafbfc] px-2.5 text-sm text-[#263b54] outline-none focus:border-[#6f8733] focus:ring-2 focus:ring-[#c5f04a]/20"
                       />
                     </label>
-                    <label className="flex flex-col gap-1 text-[10px] uppercase tracking-wide text-white/35">
+                    <label className="flex flex-col gap-1.5 text-[10px] font-semibold uppercase tracking-wide text-[#7a8797]">
                       Valor $
                       <input
                         type="number" min={0}
                         value={lead.potentialValue ?? ""}
                         onChange={(e) => patchLead(lead.id, { potentialValue: e.target.value === "" ? null : Number(e.target.value) })}
-                        className="rounded-lg border border-white/10 bg-black/20 px-2 py-1.5 text-sm text-white/80 outline-none focus:border-[#c5f04a]/45"
+                        className="min-h-10 rounded-lg border border-[#d5dde5] bg-[#fafbfc] px-2.5 text-sm text-[#263b54] outline-none focus:border-[#6f8733] focus:ring-2 focus:ring-[#c5f04a]/20"
                       />
                     </label>
-                    <label className="flex flex-col gap-1 text-[10px] uppercase tracking-wide text-white/35">
+                    <label className="flex flex-col gap-1.5 text-[10px] font-semibold uppercase tracking-wide text-[#7a8797]">
                       Próxima acción
                       <input
                         type="text"
                         value={lead.nextAction ?? ""}
                         onChange={(e) => patchLead(lead.id, { nextAction: e.target.value === "" ? null : e.target.value })}
-                        className="rounded-lg border border-white/10 bg-black/20 px-2 py-1.5 text-sm text-white/80 outline-none focus:border-[#c5f04a]/45"
+                        className="min-h-10 rounded-lg border border-[#d5dde5] bg-[#fafbfc] px-2.5 text-sm text-[#263b54] outline-none focus:border-[#6f8733] focus:ring-2 focus:ring-[#c5f04a]/20"
                       />
                     </label>
-                    <label className="flex flex-col gap-1 text-[10px] uppercase tracking-wide text-white/35">
+                    <label className="flex flex-col gap-1.5 text-[10px] font-semibold uppercase tracking-wide text-[#7a8797]">
                       Fecha
                       <input
                         type="date"
                         value={lead.nextActionAt?.slice(0, 10) ?? ""}
                         onChange={(e) => patchLead(lead.id, { nextActionAt: e.target.value ? `${e.target.value}T00:00:00.000Z` : null })}
-                        className="rounded-lg border border-white/10 bg-black/20 px-2 py-1.5 text-sm text-white/80 outline-none focus:border-[#c5f04a]/45"
+                        className="min-h-10 rounded-lg border border-[#d5dde5] bg-[#fafbfc] px-2.5 text-sm text-[#263b54] outline-none focus:border-[#6f8733] focus:ring-2 focus:ring-[#c5f04a]/20"
                       />
                     </label>
                   </div>
 
                   <div className="mt-5 flex flex-wrap gap-2">
                     {lead.sourceUrls.map((url) => (
-                      <a key={url} href={url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 rounded-full border border-white/10 px-3 py-1.5 text-xs text-white/55 hover:text-white">
+                      <a key={url} href={url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 rounded-lg border border-[#d5dde5] px-3 py-2 text-xs text-[#526174] hover:bg-[#f7f9fb] hover:text-[#172238]">
                         Fuente <ExternalLink className="size-3" />
                       </a>
                     ))}
-                    <TapButton type="button" onClick={() => void saveLeadFields(lead)} className="rounded-full border border-white/15 px-3 py-1.5 text-xs font-semibold text-white/70">Guardar pipeline</TapButton>
-                    <button type="button" disabled={busyLead === lead.id} onClick={() => void generateProposal(lead)} className="inline-flex items-center gap-1.5 rounded-full border border-[#c5f04a]/30 px-3 py-1.5 text-xs font-semibold text-[#c5f04a] disabled:opacity-50">
+                    <TapButton type="button" onClick={() => void saveLeadFields(lead)} className="rounded-lg border border-[#d5dde5] px-3 py-2 text-xs font-semibold text-[#526174]">Guardar pipeline</TapButton>
+                    <button type="button" disabled={busyLead === lead.id} onClick={() => void generateProposal(lead)} className="inline-flex items-center gap-1.5 rounded-lg border border-[#bdd78e] bg-[#f5faef] px-3 py-2 text-xs font-semibold text-[#527526] disabled:opacity-50">
                       {busyLead === lead.id ? <LoaderCircle className="size-3.5 animate-spin" /> : <FileText className="size-3.5" />} Propuesta
                     </button>
                     {lead.status !== "contacted" && (
-                      <TapButton type="button" onClick={() => void markContacted(lead)} className="rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-[#0a0a0a]">Marcar contacto manual</TapButton>
+                      <TapButton type="button" onClick={() => void markContacted(lead)} className="rounded-lg bg-[#172238] px-3 py-2 text-xs font-semibold text-white">Marcar contacto manual</TapButton>
                     )}
                   </div>
                 </article>
@@ -366,31 +376,31 @@ export default function GrowthOpsClient({
               {drafts.length === 0 ? <Empty text="Los mensajes personalizados aparecerán aquí. Ninguno se enviará automáticamente." /> : draftsByLead.map(([leadId, leadDrafts]) => {
                 const lead = leadById.get(leadId);
                 return (
-                  <div key={leadId} className="rounded-none border border-white/10 bg-white/[0.015] p-4">
+                  <div key={leadId} className="rounded-xl border border-[#dfe5eb] bg-white p-4 shadow-[0_8px_24px_rgba(20,43,75,0.04)]">
                     <div className="mb-3 flex items-center justify-between px-1">
-                      <h2 className="font-display text-2xl">{lead?.businessName ?? "Lead"}</h2>
-                      <span className="font-mono text-[9px] uppercase tracking-[0.15em] text-[#c5f04a]">{lead?.vertical}</span>
+                      <h2 className="font-display text-2xl font-semibold text-[#172238]">{lead?.businessName ?? "Lead"}</h2>
+                      <span className="font-mono text-[9px] font-semibold uppercase tracking-[0.15em] text-[#71842f]">{lead?.vertical}</span>
                     </div>
                     <div className="grid gap-4 lg:grid-cols-2">
                       {leadDrafts.map((draft) => (
-                        <article id={`draft-${draft.id}`} tabIndex={-1} key={draft.id} className="scroll-mt-6 rounded-none border border-white/10 bg-white/[0.02] p-5 outline-none focus:border-[#c5f04a]/60">
+                        <article id={`draft-${draft.id}`} tabIndex={-1} key={draft.id} className="scroll-mt-6 rounded-xl border border-[#e1e6ec] bg-[#fafbfc] p-5 outline-none focus:border-[#91ad4d] focus:ring-2 focus:ring-[#c5f04a]/20">
                           <div className="flex items-center justify-between gap-4">
                             <div className="flex items-center gap-2">
-                              <span className="rounded-full bg-[#c5f04a]/15 px-2.5 py-1 text-[10px] font-semibold text-[#c5f04a]">{KIND_LABELS[draft.kind]}</span>
-                              <span className="font-mono text-[9px] uppercase tracking-[0.15em] text-white/40">{draft.channel}</span>
+                              <span className="rounded-md bg-[#edf7df] px-2.5 py-1 text-[10px] font-semibold text-[#527526]">{KIND_LABELS[draft.kind]}</span>
+                              <span className="font-mono text-[9px] uppercase tracking-[0.15em] text-[#7a8797]">{draft.channel}</span>
                             </div>
-                            <span className="rounded-full bg-white/8 px-3 py-1.5 text-xs text-white/55">{draft.status}</span>
+                            <span className="rounded-md bg-[#eef2f5] px-3 py-1.5 text-xs text-[#61748a]">{draft.status}</span>
                           </div>
                           <textarea
                             value={draft.content}
                             onChange={(event) => setDrafts((items) => items.map((item) => item.id === draft.id ? { ...item, content: event.target.value } : item))}
                             rows={draft.kind === "proposal" ? 12 : 6}
-                            className="mt-4 w-full resize-y rounded-xl border border-white/10 bg-black/15 p-4 text-sm leading-6 text-white/75 outline-none focus:border-[#c5f04a]/45"
+                            className="mt-4 w-full resize-y rounded-lg border border-[#d5dde5] bg-white p-4 text-sm leading-6 text-[#263b54] outline-none focus:border-[#6f8733] focus:ring-2 focus:ring-[#c5f04a]/20"
                           />
                           <div className="mt-4 flex flex-wrap gap-2">
-                            <TapButton type="button" onClick={() => void saveDraft(draft, "approved")} className="inline-flex items-center gap-2 rounded-full bg-[#c5f04a] px-4 py-2 text-xs font-semibold text-[#0a0a0a]"><Check className="size-3.5" /> Aprobar</TapButton>
-                            <TapButton type="button" onClick={() => void saveDraft(draft, "rejected")} className="inline-flex items-center gap-2 rounded-full border border-white/12 px-4 py-2 text-xs font-semibold text-white/60"><X className="size-3.5" /> Rechazar</TapButton>
-                            <TapButton type="button" onClick={() => navigator.clipboard.writeText(draft.content)} className="inline-flex items-center gap-2 rounded-full border border-white/12 px-4 py-2 text-xs font-semibold text-white/60"><Copy className="size-3.5" /> Copiar</TapButton>
+                            <TapButton type="button" onClick={() => void saveDraft(draft, "approved")} className="inline-flex items-center gap-2 rounded-lg bg-[#c5f04a] px-4 py-2 text-xs font-semibold text-[#263710]"><Check className="size-3.5" /> Aprobar</TapButton>
+                            <TapButton type="button" onClick={() => void saveDraft(draft, "rejected")} className="inline-flex items-center gap-2 rounded-lg border border-[#d5dde5] bg-white px-4 py-2 text-xs font-semibold text-[#526174]"><X className="size-3.5" /> Rechazar</TapButton>
+                            <TapButton type="button" onClick={() => navigator.clipboard.writeText(draft.content)} className="inline-flex items-center gap-2 rounded-lg border border-[#d5dde5] bg-white px-4 py-2 text-xs font-semibold text-[#526174]"><Copy className="size-3.5" /> Copiar</TapButton>
                           </div>
                         </article>
                       ))}
@@ -398,7 +408,7 @@ export default function GrowthOpsClient({
                   </div>
                 );
               })}
-              <p className="text-[10px] text-white/30">Aprobar cambia el estado. No envía el mensaje.</p>
+              <p className="text-[10px] text-[#7a8797]">Aprobar cambia el estado. No envía el mensaje.</p>
             </div>
           )}
         </section>
@@ -419,20 +429,20 @@ function DayBucket({
   action: (lead: GrowthLead) => ReactNode;
 }) {
   return (
-    <div className="rounded-none border border-white/10 bg-white/[0.02] p-5">
-      <div className="flex items-baseline justify-between">
-        <h2 className="font-display text-2xl text-[#c5f04a]">{title}</h2>
-        <span className="font-mono text-[10px] uppercase tracking-[0.15em] text-white/35">{leads.length} · {hint}</span>
+    <div className="rounded-xl border border-[#dfe5eb] bg-white p-5 shadow-[0_6px_20px_rgba(20,43,75,0.04)] sm:p-6">
+      <div className="flex flex-wrap items-baseline justify-between gap-3">
+        <h2 className="font-display text-2xl font-semibold tracking-[-0.035em] text-[#172238]">{title}</h2>
+        <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-[#7a8797]">{leads.length} · {hint}</span>
       </div>
       {leads.length === 0 ? (
-        <p className="mt-4 text-sm text-white/35">Nada por ahora.</p>
+        <p className="mt-4 rounded-lg border border-dashed border-[#d7dfe6] bg-[#fafbfc] px-4 py-6 text-sm text-[#7a8797]">No hay acciones pendientes.</p>
       ) : (
         <ul className="mt-4 grid gap-2">
           {leads.map((lead) => (
-            <li key={lead.id} className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-white/8 bg-black/15 px-4 py-3">
+            <li key={lead.id} className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-[#e3e8ed] bg-[#fafbfc] px-4 py-3">
               <div className="min-w-0">
                 <div className="truncate text-sm font-semibold">{lead.businessName}</div>
-                <div className="truncate text-xs text-white/45">{lead.nextAction ?? lead.problemDetected}</div>
+                <div className="truncate text-xs text-[#7a8797]">{lead.nextAction ?? lead.problemDetected}</div>
               </div>
               {action(lead)}
             </li>
@@ -444,7 +454,7 @@ function DayBucket({
 }
 
 function Empty({ text }: { text: string }) {
-  return <div className="rounded-none border border-dashed border-white/12 p-10 text-center text-sm text-white/38 lg:col-span-2">{text}</div>;
+  return <div className="rounded-xl border border-dashed border-[#cfd8e1] bg-white p-10 text-center text-sm text-[#7a8797] lg:col-span-2">{text}</div>;
 }
 
 const compact = new Intl.NumberFormat("es-VE", { notation: "compact", maximumFractionDigits: 1 });
@@ -459,11 +469,11 @@ const POST_STATE_LABELS: Record<string, string> = {
 function MetricChip({ metric }: { metric: PostizMetric }) {
   const up = metric.percentageChange >= 0;
   return (
-    <div className="rounded-xl border border-white/8 bg-black/15 px-3 py-2">
-      <div className="font-mono text-[9px] uppercase tracking-[0.12em] text-white/38">{metric.label}</div>
+    <div className="rounded-lg border border-[#e3e8ed] bg-[#fafbfc] px-3 py-2">
+      <div className="font-mono text-[9px] uppercase tracking-[0.12em] text-[#7a8797]">{metric.label}</div>
       <div className="mt-1 flex items-baseline gap-2">
-        <span className="font-display text-xl text-[#c5f04a]">{compact.format(metric.value)}</span>
-        <span className={`inline-flex items-center gap-0.5 text-[10px] font-semibold ${up ? "text-[#c5f04a]" : "text-[#a1a1a3]"}`}>
+        <span className="font-display text-xl font-semibold text-[#263b54]">{compact.format(metric.value)}</span>
+        <span className={`inline-flex items-center gap-0.5 text-[10px] font-semibold ${up ? "text-[#6f9632]" : "text-[#9a6360]"}`}>
           {up ? <TrendingUp className="size-3" /> : <TrendingDown className="size-3" />}
           {Math.abs(metric.percentageChange).toFixed(0)}%
         </span>
@@ -488,51 +498,51 @@ function PostRow({ post }: { post: PostizPost }) {
   };
 
   return (
-    <li className="rounded-xl border border-white/8 bg-black/15 px-4 py-3">
+    <li className="rounded-lg border border-[#e3e8ed] bg-[#fafbfc] px-4 py-3">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
-            <span className="font-mono text-[9px] uppercase tracking-[0.15em] text-[#c5f04a]">{post.integration?.identifier ?? "canal"}</span>
-            <span className="rounded-full bg-white/8 px-2 py-0.5 text-[10px] text-white/55">{POST_STATE_LABELS[post.state] ?? post.state}</span>
-            <time className="font-mono text-[10px] text-white/35">{post.publishDate ? new Date(post.publishDate).toLocaleString("es-VE", { dateStyle: "short", timeStyle: "short" }) : ""}</time>
+            <span className="font-mono text-[9px] font-semibold uppercase tracking-[0.15em] text-[#71842f]">{post.integration?.identifier ?? "canal"}</span>
+            <span className="rounded-md bg-[#eef2f5] px-2 py-0.5 text-[10px] text-[#61748a]">{POST_STATE_LABELS[post.state] ?? post.state}</span>
+            <time className="font-mono text-[10px] text-[#8a96a5]">{post.publishDate ? new Date(post.publishDate).toLocaleString("es-VE", { dateStyle: "short", timeStyle: "short" }) : ""}</time>
           </div>
-          <p className="mt-1.5 line-clamp-2 text-sm leading-5 text-white/65">{post.content.replace(/<[^>]+>/g, "") || "(sin texto)"}</p>
+          <p className="mt-1.5 line-clamp-2 text-sm leading-5 text-[#526174]">{post.content.replace(/<[^>]+>/g, "") || "(sin texto)"}</p>
         </div>
         <div className="flex items-center gap-2">
           {post.releaseURL && (
-            <a href={post.releaseURL} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 rounded-full border border-white/10 px-3 py-1.5 text-xs text-white/55 hover:text-white">
+            <a href={post.releaseURL} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 rounded-lg border border-[#d5dde5] bg-white px-3 py-1.5 text-xs text-[#526174] hover:text-[#172238]">
               Ver <ExternalLink className="size-3" />
             </a>
           )}
           {post.state === "PUBLISHED" && metrics === null && (
-            <button type="button" onClick={() => void loadMetrics()} className="inline-flex items-center gap-1.5 rounded-full border border-[#c5f04a]/30 px-3 py-1.5 text-xs font-semibold text-[#c5f04a]">
+            <button type="button" onClick={() => void loadMetrics()} className="inline-flex items-center gap-1.5 rounded-lg border border-[#bdd78e] bg-[#f5faef] px-3 py-1.5 text-xs font-semibold text-[#527526]">
               <BarChart3 className="size-3.5" /> Métricas
             </button>
           )}
-          {metrics === "loading" && <LoaderCircle className="size-4 animate-spin text-white/45" />}
+          {metrics === "loading" && <LoaderCircle className="size-4 animate-spin text-[#7a8797]" />}
         </div>
       </div>
-      {metrics === "missing" && <p className="mt-3 text-xs text-white/40">La plataforma no devolvió el ID publicado. Conéctalo desde Postiz para ver métricas.</p>}
+      {metrics === "missing" && <p className="mt-3 text-xs text-[#7a8797]">La plataforma no devolvió el ID publicado. Conéctalo desde Postiz para ver métricas.</p>}
       {metrics === "error" && <p className="mt-3 text-xs text-[#a1a1a3]">No se pudieron cargar las métricas.</p>}
       {Array.isArray(metrics) && (
         metrics.length === 0
-          ? <p className="mt-3 text-xs text-white/40">Sin métricas todavía.</p>
+          ? <p className="mt-3 text-xs text-[#7a8797]">Sin métricas todavía.</p>
           : <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">{metrics.map((metric) => <MetricChip key={metric.label} metric={metric} />)}</div>
       )}
     </li>
   );
 }
 
-function MarketingPanel({ snapshot, waha }: { snapshot: MarketingSnapshot; waha: WahaSnapshot }) {
+function MarketingPanel({ snapshot }: { snapshot: MarketingSnapshot }) {
   if (!snapshot.configured) {
     return (
       <div className="grid gap-5">
-        <ChannelRuntimePanel postizConfigured={false} waha={waha} />
-        <div className="rounded-none border border-white/10 bg-white/[0.02] p-8">
-          <div className="font-mono text-[9px] uppercase tracking-[0.18em] text-[#c5f04a]">Setup requerido</div>
-          <h2 className="mt-3 font-display text-3xl">Conecta Postiz para medir marketing.</h2>
-          <p className="mt-4 max-w-xl text-sm leading-6 text-white/50">
-            Agrega <code className="rounded bg-black/30 px-1.5 py-0.5 text-[#c5f04a]">POSTIZ_API_KEY</code> en las variables de entorno
+        <ChannelRuntimePanel postizConfigured={false} />
+        <div className="rounded-xl border border-[#dfe5eb] bg-white p-8">
+          <div className="font-mono text-[9px] font-semibold uppercase tracking-[0.18em] text-[#71842f]">Setup requerido</div>
+          <h2 className="mt-3 font-display text-3xl font-semibold text-[#172238]">Conecta Postiz para medir marketing.</h2>
+          <p className="mt-4 max-w-xl text-sm leading-6 text-[#68778a]">
+            Agrega <code className="rounded bg-[#eef2f5] px-1.5 py-0.5 text-[#526174]">POSTIZ_API_KEY</code> en las variables de entorno
             (Settings → API en tu cuenta de Postiz) y recarga. Verás canales conectados (IG, LinkedIn…),
             calendario de publicaciones y métricas por canal y por post.
           </p>
@@ -544,7 +554,7 @@ function MarketingPanel({ snapshot, waha }: { snapshot: MarketingSnapshot; waha:
   if (snapshot.error) {
     return (
       <div className="grid gap-5">
-        <ChannelRuntimePanel postizConfigured waha={waha} />
+        <ChannelRuntimePanel postizConfigured />
         <div className="rounded-none border border-[#a1a1a3]/25 bg-[#a1a1a3]/8 p-6 text-sm text-[#a1a1a3]">
           Postiz no pudo cargar sus métricas. Revisa la conexión y credenciales del servidor.
         </div>
@@ -564,7 +574,7 @@ function MarketingPanel({ snapshot, waha }: { snapshot: MarketingSnapshot; waha:
 
   return (
     <div className="grid gap-5">
-      <ChannelRuntimePanel postizConfigured={snapshot.configured} waha={waha} />
+      <ChannelRuntimePanel postizConfigured={snapshot.configured} />
       <div className="grid gap-3 sm:grid-cols-4">
         {[
           ["Canales", snapshot.channels.length],
@@ -572,9 +582,9 @@ function MarketingPanel({ snapshot, waha }: { snapshot: MarketingSnapshot; waha:
           ["Programados", upcoming.length],
           ["Impresiones 30d", compact.format(impressions)],
         ].map(([label, value]) => (
-          <div key={label} className="rounded-none border border-white/10 bg-white/[0.02] p-5">
-            <div className="font-mono text-[9px] uppercase tracking-[0.18em] text-white/38">{label}</div>
-            <div className="mt-3 font-display text-4xl text-[#c5f04a]">{value}</div>
+          <div key={label} className="rounded-xl border border-[#dfe5eb] bg-white p-5">
+            <div className="font-mono text-[9px] uppercase tracking-[0.18em] text-[#7a8797]">{label}</div>
+            <div className="mt-3 font-display text-4xl font-semibold text-[#172238]">{value}</div>
           </div>
         ))}
       </div>
@@ -584,23 +594,23 @@ function MarketingPanel({ snapshot, waha }: { snapshot: MarketingSnapshot; waha:
           <Empty text="No hay canales conectados en Postiz. Conecta Instagram y LinkedIn desde la app de Postiz." />
         ) : (
           snapshot.channels.map((channel) => (
-            <article key={channel.id} className="rounded-none border border-white/10 bg-white/[0.02] p-5">
+            <article key={channel.id} className="rounded-xl border border-[#dfe5eb] bg-white p-5">
               <div className="flex items-center gap-3">
                 {channel.picture ? (
                   // eslint-disable-next-line @next/next/no-img-element -- avatar externo de Postiz
                   <img src={channel.picture} alt="" className="size-10 rounded-full object-cover" />
                 ) : (
-                  <span className="flex size-10 items-center justify-center rounded-full border border-[#c5f04a]/25 font-display text-lg text-[#c5f04a]">{channel.name.slice(0, 1)}</span>
+                  <span className="flex size-10 items-center justify-center rounded-xl bg-[#edf7df] font-display text-lg font-semibold text-[#527526]">{channel.name.slice(0, 1)}</span>
                 )}
                 <div>
-                  <h2 className="font-display text-2xl">{channel.name}</h2>
-                  <div className="font-mono text-[9px] uppercase tracking-[0.15em] text-[#c5f04a]">
+                  <h2 className="font-display text-2xl font-semibold text-[#172238]">{channel.name}</h2>
+                  <div className="font-mono text-[9px] uppercase tracking-[0.15em] text-[#71842f]">
                     {channel.identifier}{channel.disabled ? " · desactivado" : ""}
                   </div>
                 </div>
               </div>
               {channel.metrics.length === 0 ? (
-                <p className="mt-4 text-xs text-white/38">Sin métricas disponibles para este canal.</p>
+                <p className="mt-4 text-xs text-[#7a8797]">Sin métricas disponibles para este canal.</p>
               ) : (
                 <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3">
                   {channel.metrics.map((metric) => <MetricChip key={metric.label} metric={metric} />)}
@@ -611,25 +621,25 @@ function MarketingPanel({ snapshot, waha }: { snapshot: MarketingSnapshot; waha:
         )}
       </div>
 
-      <div className="rounded-none border border-white/10 bg-white/[0.02] p-5">
+      <div className="rounded-xl border border-[#dfe5eb] bg-white p-5">
         <div className="flex items-baseline justify-between">
-          <h2 className="font-display text-2xl text-[#c5f04a]">Próximas publicaciones</h2>
-          <span className="font-mono text-[10px] uppercase tracking-[0.15em] text-white/35">{upcoming.length} programadas</span>
+          <h2 className="font-display text-2xl font-semibold text-[#172238]">Próximas publicaciones</h2>
+          <span className="font-mono text-[10px] uppercase tracking-[0.15em] text-[#7a8797]">{upcoming.length} programadas</span>
         </div>
         {upcoming.length === 0 ? (
-          <p className="mt-4 text-sm text-white/35">Nada programado. Agenda desde Postiz o pide contenido al agente.</p>
+          <p className="mt-4 text-sm text-[#7a8797]">Nada programado. Agenda desde Postiz o pide contenido al agente.</p>
         ) : (
           <ul className="mt-4 grid gap-2">{upcoming.map((post) => <PostRow key={post.id} post={post} />)}</ul>
         )}
       </div>
 
-      <div className="rounded-none border border-white/10 bg-white/[0.02] p-5">
+      <div className="rounded-xl border border-[#dfe5eb] bg-white p-5">
         <div className="flex items-baseline justify-between">
-          <h2 className="font-display text-2xl text-[#c5f04a]">Publicado (últimos 30 días)</h2>
-          <span className="font-mono text-[10px] uppercase tracking-[0.15em] text-white/35">{published.length} posts</span>
+          <h2 className="font-display text-2xl font-semibold text-[#172238]">Publicado · últimos 30 días</h2>
+          <span className="font-mono text-[10px] uppercase tracking-[0.15em] text-[#7a8797]">{published.length} posts</span>
         </div>
         {published.length === 0 ? (
-          <p className="mt-4 text-sm text-white/35">Todavía no hay publicaciones en este período.</p>
+          <p className="mt-4 text-sm text-[#7a8797]">Todavía no hay publicaciones en este período.</p>
         ) : (
           <ul className="mt-4 grid gap-2">{published.map((post) => <PostRow key={post.id} post={post} />)}</ul>
         )}
@@ -638,41 +648,18 @@ function MarketingPanel({ snapshot, waha }: { snapshot: MarketingSnapshot; waha:
   );
 }
 
-function ChannelRuntimePanel({ postizConfigured, waha }: { postizConfigured: boolean; waha: WahaSnapshot }) {
+function ChannelRuntimePanel({ postizConfigured }: { postizConfigured: boolean }) {
   return (
-    <div className="grid gap-3 lg:grid-cols-2">
-      <article className="rounded-none border border-white/10 bg-white/[0.02] p-5">
-        <div className="font-mono text-[9px] uppercase tracking-[0.18em] text-[#c5f04a]">Redes sociales</div>
+    <div>
+      <article className="rounded-xl border border-[#dfe5eb] bg-white p-5">
+        <div className="font-mono text-[9px] font-semibold uppercase tracking-[0.18em] text-[#71842f]">Redes sociales</div>
         <div className="mt-3 flex items-center justify-between gap-4">
           <div>
-            <h2 className="font-display text-2xl">Postiz</h2>
-            <p className="mt-1 text-xs leading-5 text-white/40">LinkedIn, Instagram y otros canales con calendario y métricas.</p>
+            <h2 className="font-display text-2xl font-semibold text-[#172238]">Postiz</h2>
+            <p className="mt-1 text-xs leading-5 text-[#7a8797]">LinkedIn, Instagram y otros canales con calendario y métricas.</p>
           </div>
-          <span className={`rounded-full px-3 py-1.5 text-xs ${postizConfigured ? "bg-[#c5f04a]/15 text-[#c5f04a]" : "bg-white/8 text-white/45"}`}>
+          <span className={`rounded-md px-3 py-1.5 text-xs font-semibold ${postizConfigured ? "bg-[#edf7df] text-[#527526]" : "bg-[#eef2f5] text-[#7a8797]"}`}>
             {postizConfigured ? "Conectado" : "Sin configurar"}
-          </span>
-        </div>
-      </article>
-
-      <article className="rounded-none border border-white/10 bg-white/[0.02] p-5">
-        <div className="font-mono text-[9px] uppercase tracking-[0.18em] text-[#c5f04a]">WhatsApp publishing</div>
-        <div className="mt-3 flex items-start justify-between gap-4">
-          <div>
-            <h2 className="font-display text-2xl">WAHA</h2>
-            <p className="mt-1 text-xs leading-5 text-white/40">Status y Channels aprobados. Sin outreach masivo ni envío directo autónomo.</p>
-            {waha.error && <p className="mt-2 text-xs text-[#a1a1a3]">{waha.error}</p>}
-            {waha.sessions.length > 0 && (
-              <div className="mt-3 flex flex-wrap gap-2">
-                {waha.sessions.map((session) => (
-                  <span key={session.name} className="rounded-full border border-white/10 px-2.5 py-1 font-mono text-[9px] uppercase tracking-[0.12em] text-white/55">
-                    {session.name} · {session.status}{session.engine ? ` · ${session.engine}` : ""}
-                  </span>
-                ))}
-              </div>
-            )}
-          </div>
-          <span className={`shrink-0 rounded-full px-3 py-1.5 text-xs ${waha.configured && !waha.error ? "bg-[#c5f04a]/15 text-[#c5f04a]" : "bg-white/8 text-white/45"}`}>
-            {!waha.configured ? "Sin configurar" : waha.error ? "Con error" : "Conectado"}
           </span>
         </div>
       </article>

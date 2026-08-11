@@ -33,6 +33,7 @@ export default async function OpsConnectionPage({
     getWahaConnection(phoneNumberId),
     getTenantBotConfig(phoneNumberId),
   ]);
+  if (meta?.status === "deauthorized" || waha?.status === "deleted") notFound();
   if (!meta && !waha) notFound();
 
   const provider = meta ? "meta" : "waha";

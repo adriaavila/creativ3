@@ -786,6 +786,6 @@ export async function noteWahaConnectionActivity(
 
 export async function listWahaConnections(): Promise<WahaConnectionRecord[]> {
   const sql = getSql();
-  const rows = await sql`SELECT * FROM waha_connections ORDER BY updated_at DESC`;
+  const rows = await sql`SELECT * FROM waha_connections WHERE status != 'deleted' ORDER BY updated_at DESC`;
   return rows.map(mapWahaConnection);
 }

@@ -1,6 +1,6 @@
 import { authorizeOps } from "@/lib/ops-auth";
 import { getWahaSnapshot } from "@/lib/waha";
-import { getWahaQr } from "@/lib/waha-send";
+import { deleteWahaSession, getWahaQr } from "@/lib/waha-send";
 import { getWahaConnection, updateWahaConnectionStatus } from "@/lib/whatsapp-inbox-db";
 
 export const runtime = "nodejs";
@@ -35,4 +35,24 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
   const qr = status === "scan_qr" ? await getWahaQr(id).catch(() => null) : null;
 
   return Response.json({ connection: { ...connection, status }, qr });
+}
+
+export async function DELETE(_request: Request, { params }: { params: Promise<{ id: string }> }) {
+  const authorization = await authorizeOps();
+  if (!authorization.authorized) return authorization.response;
+
+  const { id } = await params;
+  const connection = await getWahaConnection(id);
+  if (!connection) return Response.json({ error: "Sesión WAHA no encontrada." }, { status: 404 });
+
+  try {
+    await deleteWahaSession(connection.wahaSessionId);
+    await updateWahaConnectionStatus(connection.id, "deleted");
+    return Response.json({ ok: true });
+  } catch (error) {
+    return Response.json(
+      { error: error instanceof Error ? error.message : "No se pudo eliminar la sesión WAHA." },
+      { status: 502 },
+    );
+  }
 }

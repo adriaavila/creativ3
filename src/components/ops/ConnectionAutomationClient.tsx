@@ -15,6 +15,8 @@ import {
   MessagesSquare,
   ShieldCheck,
   Sparkles,
+  Trash2,
+  TriangleAlert,
   Users,
   Webhook,
 } from "lucide-react";
@@ -28,6 +30,7 @@ import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { previewTenantAutomation, type AutomationMode, type ModelTier, type TenantAutomationInput } from "@/lib/tenant-automation";
+import { canRemoveConnection } from "@/lib/connection-removal";
 import type { TenantBotConfig } from "@/lib/tenant-bot-config";
 import { crmChannelStatusLabel, crmNameStatusLabel, crmQualityLabel } from "@/lib/crm-channels";
 import type { WhatsAppConnectionActivity } from "@/lib/whatsapp-connections-db";
@@ -97,9 +100,20 @@ export default function ConnectionAutomationClient({ connection, activity, initi
   const [saving, setSaving] = useState(false);
   const [testMessage, setTestMessage] = useState("");
   const [notice, setNotice] = useState<{ kind: "success" | "error"; text: string } | null>(null);
+  const [removalOpen, setRemovalOpen] = useState(false);
+  const [removing, setRemoving] = useState(false);
+  const [removalConfirmation, setRemovalConfirmation] = useState("");
+  const [externalCredentialsRemoved, setExternalCredentialsRemoved] = useState(false);
+  const [removalError, setRemovalError] = useState<string | null>(null);
   const dirty = useMemo(() => JSON.stringify(config) !== JSON.stringify(saved), [config, saved]);
   const preview = useMemo(() => testMessage.trim() ? previewTenantAutomation(testMessage, config) : null, [config, testMessage]);
   const channelStatus = crmChannelStatusLabel({ status: connection.status, official: connection.provider === "meta" });
+  const handedToExternalApp = Boolean(connection.webhookOverrideUri);
+  const removalReady = canRemoveConnection({
+    confirmation: removalConfirmation,
+    handedToExternalApp,
+    externalCredentialsRemoved,
+  });
 
   function setField<K extends keyof TenantAutomationInput>(key: K, value: TenantAutomationInput[K]) {
     setConfig((current) => ({ ...current, [key]: value }));
@@ -141,6 +155,27 @@ export default function ConnectionAutomationClient({ connection, activity, initi
     }
   }
 
+  async function removeConnection() {
+    if (!removalReady) return;
+    setRemoving(true);
+    setRemovalError(null);
+    try {
+      const response = connection.provider === "meta"
+        ? await fetch("/api/meta/embedded-signup/disconnect", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ phone_number_id: connection.key, workspace: connection.client }),
+          })
+        : await fetch(`/api/ops/waha/sessions/${encodeURIComponent(connection.key)}`, { method: "DELETE" });
+      const data = await response.json() as { error?: string };
+      if (!response.ok) throw new Error(data.error ?? "No se pudo eliminar la conexión.");
+      window.location.assign("/ops/crm?view=connections");
+    } catch (error) {
+      setRemovalError(error instanceof Error ? error.message : "No se pudo eliminar la conexión.");
+      setRemoving(false);
+    }
+  }
+
   return (
     <main className="min-h-dvh bg-[#f7f8fa] pb-10 text-[#172238]">
       <div className="mx-auto max-w-[1480px] px-4 py-6 sm:px-7 sm:py-8 lg:px-10">
@@ -176,13 +211,18 @@ export default function ConnectionAutomationClient({ connection, activity, initi
           <Card className="border-[#dfe5eb] bg-white shadow-[0_12px_36px_rgba(20,43,75,0.05)]">
             <CardHeader className="border-b border-[#edf0f3]">
               <div className="flex flex-wrap items-start justify-between gap-4">
-                <div><CardTitle className="flex items-center gap-2 text-xl"><Bot className="size-5 text-[#526d87]" /> Automatización</CardTitle><CardDescription className="mt-2">Persona, conocimiento y transferencias aislados para este canal.</CardDescription></div>
-                <Badge variant="outline" className="font-mono">FAQ + IA + handoff</Badge>
+                <div><CardTitle className="flex items-center gap-2 text-xl"><Bot className="size-5 text-[#526d87]" /> Automatización</CardTitle><CardDescription className="mt-2 max-w-2xl text-sm leading-6 text-[#5f6f82]">Define cómo responde este número: reglas frecuentes, contexto del negocio y cuándo debe intervenir una persona.</CardDescription></div>
+                <Badge variant="outline" className="border-[#cbd5df] bg-[#f7f9fb] font-mono text-[#40556d]">Reglas · IA · persona</Badge>
               </div>
             </CardHeader>
             <CardContent className="space-y-7 p-5 sm:p-7">
+              {connection.webhookOverrideUri && (
+                <p className="rounded-xl border border-[#e6d9b8] bg-[#fffdf6] px-4 py-3 text-xs leading-5 text-[#7a6425]" role="status">
+                  Los webhooks de este número van a {connection.crmOrganizationName ?? "otra app"}, así que allok no ve sus mensajes y esta configuración no responde. Sirve como respaldo si algún día se devuelve el webhook.
+                </p>
+              )}
               <div className="flex items-center justify-between gap-5 rounded-xl border border-[#dfe5eb] bg-[#fafbfc] p-4">
-                <div><Label htmlFor="automation-enabled" className="text-sm font-semibold">Habilitar configuración</Label><p className="mt-1 text-xs leading-5 text-[#6f7d8e]">Automático usa primero reglas explícitas y la IA solo para casos abiertos.</p></div>
+                <div className="max-w-2xl"><Label htmlFor="automation-enabled" className="text-sm font-semibold text-[#263b54]">Habilitar automatización</Label><p className="mt-1.5 text-sm leading-6 text-[#5f6f82]">Las reglas responden primero. La IA sólo atiende preguntas que no coincidan con una regla.</p></div>
                 <Switch id="automation-enabled" checked={config.enabled} onCheckedChange={(checked) => setField("enabled", checked)} />
               </div>
 
@@ -216,9 +256,9 @@ export default function ConnectionAutomationClient({ connection, activity, initi
 
               <div>
                 <div className="flex items-center gap-2"><Sparkles className="size-4 text-[#526d87]" /><h2 className="text-sm font-semibold">Respuestas automáticas</h2></div>
-                <p className="mt-1 text-xs leading-5 text-[#6f7d8e]">Estas respuestas ganan sobre la IA. Una regla sin texto escala a humano; nunca se toma copy de otro cliente.</p>
+                <p className="mt-1.5 max-w-3xl text-sm leading-6 text-[#5f6f82]">Estas respuestas tienen prioridad sobre la IA. Si dejas una vacía, ese caso pasa a una persona.</p>
                 <div className="mt-5 grid gap-5 sm:grid-cols-2">
-                  {RULES.map((rule) => <Field key={rule.key} label={rule.label}><Input value={config.autoReplies[rule.key] ?? ""} onChange={(event) => setReply(rule.key, event.target.value)} placeholder={rule.placeholder} /></Field>)}
+                  {RULES.map((rule) => <Field key={rule.key} label={rule.label}><Textarea rows={3} value={config.autoReplies[rule.key] ?? ""} onChange={(event) => setReply(rule.key, event.target.value)} placeholder={rule.placeholder} /></Field>)}
                 </div>
               </div>
 
@@ -281,6 +321,34 @@ export default function ConnectionAutomationClient({ connection, activity, initi
               </CardContent>
             </Card>
 
+            <section className="rounded-xl border border-[#edcccc] bg-[#fff8f7] p-5" aria-labelledby="remove-connection-title">
+              <div className="flex items-start gap-3">
+                <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-[#f7dedd] text-[#9b3f3a]"><TriangleAlert className="size-4" /></span>
+                <div><h2 id="remove-connection-title" className="text-sm font-semibold text-[#7f302d]">Eliminar conexión</h2><p className="mt-1.5 text-xs leading-5 text-[#7b5a58]">Desconecta el proveedor, borra el token guardado y retira el número de Ops. Las conversaciones históricas se conservan.</p></div>
+              </div>
+
+              {!removalOpen ? (
+                <Button variant="outline" onClick={() => setRemovalOpen(true)} className="mt-4 w-full border-[#dfb6b3] bg-white text-[#8f3834] hover:bg-[#fff0ef] hover:text-[#7f302d]"><Trash2 /> Eliminar conexión</Button>
+              ) : (
+                <div className="mt-4 space-y-4 border-t border-[#efd6d4] pt-4">
+                  {handedToExternalApp && (
+                    <label className="flex cursor-pointer items-start gap-3 rounded-lg bg-white px-3 py-3 text-xs leading-5 text-[#684c4a]">
+                      <input type="checkbox" checked={externalCredentialsRemoved} onChange={(event) => setExternalCredentialsRemoved(event.target.checked)} className="mt-0.5 size-4 accent-[#9b3f3a]" />
+                      <span>Ya eliminé el token y la conexión en <strong>{connection.crmOrganizationName ?? "la app externa"}</strong>.</span>
+                    </label>
+                  )}
+                  <Field label="Escribe ELIMINAR para confirmar" hint={connection.provider === "meta" && connection.connectionMode === "META_COEXISTENCE" ? "Tu número seguirá funcionando en la app WhatsApp Business; sólo se desconecta de Allok." : undefined}>
+                    <Input value={removalConfirmation} onChange={(event) => setRemovalConfirmation(event.target.value)} autoComplete="off" />
+                  </Field>
+                  {removalError && <p className="text-xs leading-5 text-[#9b3f3a]" role="alert">{removalError}</p>}
+                  <div className="flex gap-2">
+                    <Button variant="outline" onClick={() => { setRemovalOpen(false); setRemovalError(null); }} disabled={removing} className="flex-1 bg-white">Cancelar</Button>
+                    <Button onClick={() => void removeConnection()} disabled={!removalReady || removing} className="flex-1 bg-[#9b3f3a] text-white hover:bg-[#842f2b]">{removing ? <Loader2 className="animate-spin" /> : <Trash2 />} Confirmar</Button>
+                  </div>
+                </div>
+              )}
+            </section>
+
             <Button variant="outline" asChild className="w-full"><Link href="/ops/inbox">Abrir Bandeja <ExternalLink /></Link></Button>
           </aside>
         </div>
@@ -290,7 +358,7 @@ export default function ConnectionAutomationClient({ connection, activity, initi
 }
 
 function Field({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) {
-  return <div className="space-y-2"><Label>{label}</Label>{children}{hint && <p className="text-[11px] leading-5 text-[#7a8797]">{hint}</p>}</div>;
+  return <div className="space-y-2.5 [&_input]:min-h-11 [&_input]:bg-white [&_input]:text-sm [&_textarea]:bg-white [&_textarea]:text-sm [&_textarea]:leading-6"><Label className="text-sm font-semibold text-[#263b54]">{label}</Label>{children}{hint && <p className="max-w-2xl text-xs leading-5 text-[#627186]">{hint}</p>}</div>;
 }
 
 function Metric({ icon: Icon, label, value, detail }: { icon: typeof Users; label: string; value: number; detail: string }) {

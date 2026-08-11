@@ -175,6 +175,7 @@ export async function listWhatsAppConnections(): Promise<WhatsAppConnectionView[
       bot.operating_mode, bot.model_tier
     FROM whatsapp_connections AS connection
     LEFT JOIN tenant_bot_config AS bot USING (phone_number_id)
+    WHERE connection.status != 'deauthorized'
     ORDER BY connection.connected_at DESC
   `;
 
@@ -365,7 +366,11 @@ export async function markWhatsAppConnectionDisconnected(
   await sql`
     UPDATE whatsapp_connections
     SET status = 'deauthorized', business_token = null,
-      token_metadata = '{}'::jsonb, updated_at = now()
+      registration_pin = null,
+      webhook_override_uri = null,
+      webhook_override_scope = null,
+      token_metadata = '{}'::jsonb,
+      updated_at = now()
     WHERE waba_id = ${wabaId} AND phone_number_id = ${phoneNumberId}
   `;
 }

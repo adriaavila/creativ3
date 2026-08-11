@@ -349,7 +349,7 @@ export default function ConnectionAutomationClient({ connection, activity, initi
               )}
             </section>
 
-            <Button variant="outline" asChild className="w-full"><Link href="/ops/inbox">Abrir Bandeja <ExternalLink /></Link></Button>
+            <Button variant="outline" asChild className="w-full border-[#cfd8e1] bg-white text-[#263b54] hover:bg-[#f7f9fb] hover:text-[#172238]"><Link href="/ops/inbox">Abrir Bandeja <ExternalLink /></Link></Button>
           </aside>
         </div>
       </div>
@@ -358,7 +358,7 @@ export default function ConnectionAutomationClient({ connection, activity, initi
 }
 
 function Field({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) {
-  return <div className="space-y-2.5 [&_button[role=combobox]]:text-[#263b54] [&_input]:min-h-11 [&_input]:bg-white [&_input]:text-sm [&_input]:text-[#263b54] [&_textarea]:bg-white [&_textarea]:text-sm [&_textarea]:leading-6 [&_textarea]:text-[#263b54]"><Label className="text-sm font-semibold text-[#263b54]">{label}</Label>{children}{hint && <p className="max-w-2xl text-xs leading-5 text-[#627186]">{hint}</p>}</div>;
+  return <div className="space-y-2.5 [&_button[role=combobox]]:text-[#263b54] [&_input]:min-h-11 [&_input]:bg-white [&_input]:text-sm [&_input]:text-[#263b54] [&_input]:placeholder:text-[#7a8797] [&_textarea]:bg-white [&_textarea]:text-sm [&_textarea]:leading-6 [&_textarea]:text-[#263b54] [&_textarea]:placeholder:text-[#7a8797]"><Label className="text-sm font-semibold text-[#263b54]">{label}</Label>{children}{hint && <p className="max-w-2xl text-xs leading-5 text-[#627186]">{hint}</p>}</div>;
 }
 
 function callbackHost(value: string) {

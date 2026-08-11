@@ -211,7 +211,7 @@ export default function ConnectionAutomationClient({ connection, activity, initi
           <Card className="border-[#dfe5eb] bg-white shadow-[0_12px_36px_rgba(20,43,75,0.05)]">
             <CardHeader className="border-b border-[#edf0f3]">
               <div className="flex flex-wrap items-start justify-between gap-4">
-                <div><CardTitle className="flex items-center gap-2 text-xl"><Bot className="size-5 text-[#526d87]" /> Automatización</CardTitle><CardDescription className="mt-2 max-w-2xl text-sm leading-6 text-[#5f6f82]">Define cómo responde este número: reglas frecuentes, contexto del negocio y cuándo debe intervenir una persona.</CardDescription></div>
+                <div><CardTitle className="flex items-center gap-2 text-xl text-[#172238]"><Bot className="size-5 text-[#526d87]" /> Automatización</CardTitle><CardDescription className="mt-2 max-w-2xl text-sm leading-6 text-[#5f6f82]">Define cómo responde este número: reglas frecuentes, contexto del negocio y cuándo debe intervenir una persona.</CardDescription></div>
                 <Badge variant="outline" className="border-[#cbd5df] bg-[#f7f9fb] font-mono text-[#40556d]">Reglas · IA · persona</Badge>
               </div>
             </CardHeader>
@@ -255,7 +255,7 @@ export default function ConnectionAutomationClient({ connection, activity, initi
               <Separator />
 
               <div>
-                <div className="flex items-center gap-2"><Sparkles className="size-4 text-[#526d87]" /><h2 className="text-sm font-semibold">Respuestas automáticas</h2></div>
+                <div className="flex items-center gap-2"><Sparkles className="size-4 text-[#526d87]" /><h2 className="text-sm font-semibold text-[#263b54]">Respuestas automáticas</h2></div>
                 <p className="mt-1.5 max-w-3xl text-sm leading-6 text-[#5f6f82]">Estas respuestas tienen prioridad sobre la IA. Si dejas una vacía, ese caso pasa a una persona.</p>
                 <div className="mt-5 grid gap-5 sm:grid-cols-2">
                   {RULES.map((rule) => <Field key={rule.key} label={rule.label}><Textarea rows={3} value={config.autoReplies[rule.key] ?? ""} onChange={(event) => setReply(rule.key, event.target.value)} placeholder={rule.placeholder} /></Field>)}
@@ -267,7 +267,7 @@ export default function ConnectionAutomationClient({ connection, activity, initi
               </Field>
 
               <div className="rounded-xl border border-dashed border-[#cfd8e1] bg-[#fafbfc] p-4">
-                <div className="flex items-center gap-2"><MessageSquareText className="size-4 text-[#526d87]" /><h2 className="text-sm font-semibold">Probar sin enviar</h2></div>
+                <div className="flex items-center gap-2"><MessageSquareText className="size-4 text-[#526d87]" /><h2 className="text-sm font-semibold text-[#263b54]">Probar sin enviar</h2></div>
                 <p className="mt-1 text-xs leading-5 text-[#6f7d8e]">Comprueba si el mensaje usaría una regla, IA o transferencia. No llama al modelo ni toca WhatsApp.</p>
                 <Input className="mt-4" value={testMessage} onChange={(event) => setTestMessage(event.target.value)} placeholder="Ej.: Hola, ¿cuánto cuesta y puedo agendar?" />
                 {preview && <div className="mt-3 rounded-lg border border-[#e0e6ec] bg-white px-3 py-2.5 text-xs leading-5 text-[#526174]" role="status"><span className="font-semibold uppercase tracking-[0.08em] text-[#385a78]">{preview.kind}</span><span className="mx-2 text-[#a4afba]">·</span>{preview.label}{"reply" in preview && <p className="mt-2 border-t border-[#edf0f3] pt-2 text-[#263b54]">{preview.reply}</p>}</div>}
@@ -286,7 +286,7 @@ export default function ConnectionAutomationClient({ connection, activity, initi
 
           <aside className="space-y-6">
             <Card className="border-[#dfe5eb] bg-white">
-              <CardHeader><CardTitle className="flex items-center gap-2 text-base"><Database className="size-4 text-[#526d87]" /> Datos de la conexión</CardTitle></CardHeader>
+              <CardHeader><CardTitle className="flex items-center gap-2 text-base text-[#172238]"><Database className="size-4 text-[#526d87]" /> Datos de la conexión</CardTitle></CardHeader>
               <CardContent className="space-y-0 text-sm">
                 <Fact label="Cliente" value={connection.client ?? "Sin cliente asignado"} />
                 <Fact label="Proveedor" value={connection.provider === "meta" ? (connection.connectionMode === "META_COEXISTENCE" ? "Meta · Coexistencia" : "Meta · Cloud API") : "WAHA · no oficial"} />
@@ -301,7 +301,7 @@ export default function ConnectionAutomationClient({ connection, activity, initi
             </Card>
 
             <Card className="border-[#dce7d3] bg-[#f8fbf5]">
-              <CardHeader><CardTitle className="flex items-center gap-2 text-base"><ShieldCheck className="size-4 text-[#6f9632]" /> Límites de producción</CardTitle><CardDescription>El motor conserva cola, deduplicación, reintentos e idempotencia.</CardDescription></CardHeader>
+              <CardHeader><CardTitle className="flex items-center gap-2 text-base text-[#30472a]"><ShieldCheck className="size-4 text-[#6f9632]" /> Límites de producción</CardTitle><CardDescription className="text-[#61705b]">El motor conserva cola, deduplicación, reintentos e idempotencia.</CardDescription></CardHeader>
               <CardContent className="space-y-3 text-xs leading-5 text-[#61705b]">
                 <p>{pilotMode ? "Piloto activo: ningún envío sale de la allowlist configurada." : "Producción: el canal puede responder a cualquier conversación entrante."}</p>
                 <p>Las reglas visibles responden primero; la IA atiende únicamente los casos restantes.</p>
@@ -310,12 +310,12 @@ export default function ConnectionAutomationClient({ connection, activity, initi
             </Card>
 
             <Card className="border-[#e6e0ce] bg-[#fffdf6]">
-              <CardHeader><CardTitle className="flex items-center gap-2 text-base"><Webhook className="size-4 text-[#8b6b28]" /> CRM externo</CardTitle><CardDescription>{connection.crmConnectedAt ? "Meta entrega los eventos de esta WABA directamente al CRM." : "La conexión todavía usa el callback principal de Allok."}</CardDescription></CardHeader>
+              <CardHeader><CardTitle className="flex items-center gap-2 text-base text-[#5f481d]"><Webhook className="size-4 text-[#8b6b28]" /> CRM externo</CardTitle><CardDescription className="text-[#75683f]">{connection.crmConnectedAt ? "Meta entrega los eventos de esta WABA directamente al CRM." : "La conexión todavía usa el callback principal de Allok."}</CardDescription></CardHeader>
               <CardContent className="space-y-0">
                 <Fact label="Estado" value={connection.crmConnectedAt ? "Conectado y verificado" : "Sin entregar"} />
                 {connection.crmOrganizationName && <Fact label="Organización" value={connection.crmOrganizationName} />}
                 {connection.crmOrganizationId && <Fact label="Organization ID" value={connection.crmOrganizationId} mono />}
-                {connection.webhookOverrideUri && <Fact label="Callback" value={connection.webhookOverrideUri} mono />}
+                {connection.webhookOverrideUri && <Fact label="Callback" value={callbackHost(connection.webhookOverrideUri)} mono />}
                 {connection.crmConnectedAt && <Fact label="Entregado" value={formatDate(connection.crmConnectedAt)} />}
                 <Button variant="outline" asChild className="mt-4 w-full"><Link href="/ops/crm?view=connections">{connection.crmConnectedAt ? "Revisar entrega" : "Conectar al CRM"}</Link></Button>
               </CardContent>
@@ -358,7 +358,15 @@ export default function ConnectionAutomationClient({ connection, activity, initi
 }
 
 function Field({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) {
-  return <div className="space-y-2.5 [&_input]:min-h-11 [&_input]:bg-white [&_input]:text-sm [&_textarea]:bg-white [&_textarea]:text-sm [&_textarea]:leading-6"><Label className="text-sm font-semibold text-[#263b54]">{label}</Label>{children}{hint && <p className="max-w-2xl text-xs leading-5 text-[#627186]">{hint}</p>}</div>;
+  return <div className="space-y-2.5 [&_button[role=combobox]]:text-[#263b54] [&_input]:min-h-11 [&_input]:bg-white [&_input]:text-sm [&_input]:text-[#263b54] [&_textarea]:bg-white [&_textarea]:text-sm [&_textarea]:leading-6 [&_textarea]:text-[#263b54]"><Label className="text-sm font-semibold text-[#263b54]">{label}</Label>{children}{hint && <p className="max-w-2xl text-xs leading-5 text-[#627186]">{hint}</p>}</div>;
+}
+
+function callbackHost(value: string) {
+  try {
+    return new URL(value).host;
+  } catch {
+    return "Configurado";
+  }
 }
 
 function Metric({ icon: Icon, label, value, detail }: { icon: typeof Users; label: string; value: number; detail: string }) {

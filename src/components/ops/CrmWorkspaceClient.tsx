@@ -609,13 +609,14 @@ function CrmHandoverForm({
   compact?: boolean;
 }) {
   const [destinations, setDestinations] = useState<DestinationView[] | null>(null);
-  const [slug, setSlug] = useState("");
+  const [slug, setSlug] = useState(channel.crmProvider ?? "");
   const [externalRef, setExternalRef] = useState(channel.crmOrganizationId ?? "");
   const [saving, setSaving] = useState(false);
   const [notice, setNotice] = useState<{ kind: "success" | "error"; text: string } | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [loadingToken, setLoadingToken] = useState(false);
   const [credentialsConfirmed, setCredentialsConfirmed] = useState(false);
+  const [destinationError, setDestinationError] = useState<string | null>(null);
   const connected = Boolean(channel.crmConnectedAt && channel.webhookOverrideUri);
   const available = channel.businessTokenStored && channel.status !== "deauthorized";
   const selected = destinations?.find((destination) => destination.slug === slug) ?? null;
@@ -624,14 +625,22 @@ function CrmHandoverForm({
     : selected?.slug === "allok" || credentialsConfirmed);
 
   const loadDestinations = useCallback(async () => {
-    const response = await fetch("/api/ops/destinations", { cache: "no-store" });
-    const data = await response.json() as { destinations?: DestinationView[]; error?: string };
-    const list = data.destinations ?? [];
-    setDestinations(list);
-    // Nunca preseleccionar "allok": abrir el panel y apretar el botón no puede
-    // ser lo mismo que devolver un número que estaba entregado.
-    setSlug((current) => current || list.find((item) => item.slug !== "allok")?.slug || "");
-    return list;
+    setDestinationError(null);
+    try {
+      const response = await fetch("/api/ops/destinations", { cache: "no-store" });
+      const data = await response.json() as { destinations?: DestinationView[]; error?: string };
+      if (!response.ok) throw new Error(data.error ?? "No se pudieron leer los destinos.");
+      const list = data.destinations ?? [];
+      setDestinations(list);
+      // Nunca preseleccionar "allok": abrir el panel y apretar el botón no puede
+      // ser lo mismo que devolver un número que estaba entregado.
+      setSlug((current) => current || list.find((item) => item.slug !== "allok")?.slug || "");
+      return list;
+    } catch (error) {
+      setDestinations([]);
+      setDestinationError(error instanceof Error ? error.message : "No se pudieron leer los destinos.");
+      return [];
+    }
   }, []);
 
   async function connect(event: React.FormEvent<HTMLFormElement>) {
@@ -651,6 +660,7 @@ function CrmHandoverForm({
         ...channel,
         crmOrganizationId: data.crm.organization_id,
         crmOrganizationName: data.crm.organization_name,
+        crmProvider: data.restored ? null : data.crm.provider,
         crmConnectedAt: data.crm.connected_at,
         webhookOverrideUri: data.restored ? null : data.crm.webhook_url,
       });
@@ -717,6 +727,8 @@ function CrmHandoverForm({
                 <option key={destination.slug} value={destination.slug}>{destination.label}</option>
               ))}
             </select>
+
+            {destinationError && <p className="mt-2 text-xs text-[#98453f]" role="alert">{destinationError}</p>}
 
             {selected && (
               <p className="mt-2 break-all font-mono text-[11px] text-[#74806e]">{selected.webhookUrl}</p>

@@ -24,6 +24,7 @@ export type CrmChannel = {
   webhookOverrideUri?: string | null;
   crmOrganizationId?: string | null;
   crmOrganizationName?: string | null;
+  crmProvider?: string | null;
   crmConnectedAt?: string | null;
   botConfigured?: boolean;
   automationEnabled?: boolean;

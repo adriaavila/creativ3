@@ -66,6 +66,7 @@ export function buildCrmChannels(
       webhookOverrideUri: connection.webhookOverrideUri,
       crmOrganizationId: connection.crmOrganizationId,
       crmOrganizationName: connection.crmOrganizationName,
+      crmProvider: connection.crmProvider,
       crmConnectedAt: connection.crmConnectedAt,
       botConfigured: connection.botConfigured,
       automationEnabled: connection.automationEnabled,

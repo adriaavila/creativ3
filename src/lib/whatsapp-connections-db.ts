@@ -33,6 +33,7 @@ export type WhatsAppConnectionView = {
   webhookOverrideScope: string | null;
   crmOrganizationId: string | null;
   crmOrganizationName: string | null;
+  crmProvider: string | null;
   crmConnectedAt: string | null;
   botConfigured: boolean;
   automationEnabled: boolean;
@@ -167,6 +168,7 @@ export async function listWhatsAppConnections(): Promise<WhatsAppConnectionView[
       connected_at, last_synced_at, registered_at, webhook_override_uri, webhook_override_scope,
       token_metadata #>> '{crm_handover,organization_id}' AS crm_organization_id,
       token_metadata #>> '{crm_handover,organization_name}' AS crm_organization_name,
+      token_metadata #>> '{crm_handover,provider}' AS crm_provider,
       token_metadata #>> '{crm_handover,connected_at}' AS crm_connected_at,
       bot.phone_number_id IS NOT NULL AS bot_configured,
       COALESCE(bot.enabled, false) AS automation_enabled,
@@ -190,6 +192,7 @@ export async function getLatestWhatsAppConnectionForClient(
       connected_at, last_synced_at,
       token_metadata #>> '{crm_handover,organization_id}' AS crm_organization_id,
       token_metadata #>> '{crm_handover,organization_name}' AS crm_organization_name,
+      token_metadata #>> '{crm_handover,provider}' AS crm_provider,
       token_metadata #>> '{crm_handover,connected_at}' AS crm_connected_at
     FROM whatsapp_connections
     WHERE client = ${client} AND status != 'deauthorized'
@@ -212,6 +215,7 @@ export async function getWhatsAppConnectionByPhoneNumberId(
       connection.webhook_override_uri, connection.webhook_override_scope,
       connection.token_metadata #>> '{crm_handover,organization_id}' AS crm_organization_id,
       connection.token_metadata #>> '{crm_handover,organization_name}' AS crm_organization_name,
+      connection.token_metadata #>> '{crm_handover,provider}' AS crm_provider,
       connection.token_metadata #>> '{crm_handover,connected_at}' AS crm_connected_at,
       bot.phone_number_id IS NOT NULL AS bot_configured,
       COALESCE(bot.enabled, false) AS automation_enabled,
@@ -472,6 +476,7 @@ function mapWhatsAppConnection(row: Record<string, unknown>): WhatsAppConnection
     webhookOverrideScope: row.webhook_override_scope ? String(row.webhook_override_scope) : null,
     crmOrganizationId: row.crm_organization_id ? String(row.crm_organization_id) : null,
     crmOrganizationName: row.crm_organization_name ? String(row.crm_organization_name) : null,
+    crmProvider: row.crm_provider ? String(row.crm_provider) : null,
     crmConnectedAt: row.crm_connected_at ? new Date(String(row.crm_connected_at)).toISOString() : null,
     botConfigured: row.bot_configured === true,
     automationEnabled: row.automation_enabled === true,

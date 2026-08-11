@@ -596,6 +596,8 @@ function CrmHandoverForm({
   const [organizationId, setOrganizationId] = useState(channel.crmOrganizationId ?? "");
   const [saving, setSaving] = useState(false);
   const [notice, setNotice] = useState<{ kind: "success" | "error"; text: string } | null>(null);
+  const [token, setToken] = useState<string | null>(null);
+  const [loadingToken, setLoadingToken] = useState(false);
   const connected = Boolean(channel.crmConnectedAt && channel.webhookOverrideUri);
   const available = channel.businessTokenStored && channel.status !== "deauthorized";
 
@@ -624,6 +626,23 @@ function CrmHandoverForm({
       setNotice({ kind: "error", text: error instanceof Error ? error.message : "No se pudo conectar el número al CRM." });
     } finally {
       setSaving(false);
+    }
+  }
+
+  async function revealToken() {
+    setLoadingToken(true);
+    setNotice(null);
+    try {
+      const response = await fetch(`/api/ops/whatsapp-connections/${encodeURIComponent(channel.id)}/token`, {
+        method: "POST",
+      });
+      const data = await response.json() as { access_token?: string; error?: string };
+      if (!response.ok || !data.access_token) throw new Error(data.error ?? "No se pudo leer el token.");
+      setToken(data.access_token);
+    } catch (error) {
+      setNotice({ kind: "error", text: error instanceof Error ? error.message : "No se pudo leer el token." });
+    } finally {
+      setLoadingToken(false);
     }
   }
 
@@ -667,6 +686,26 @@ function CrmHandoverForm({
               <CrmPayloadFact label="phone_number_id" value={channel.id} mono />
               <CrmPayloadFact label="business_token" value={channel.businessTokenStored ? "Cifrado · sólo servidor" : "No disponible"} icon={KeyRound} />
             </dl>
+            <div className="mt-4 border-t border-[#e6ede2] pt-3">
+              {token ? (
+                <>
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.13em] text-[#7b8975]">Access token</p>
+                  <textarea
+                    readOnly
+                    value={token}
+                    rows={3}
+                    onFocus={(event) => event.currentTarget.select()}
+                    className="mt-2 w-full resize-none rounded-lg border border-[#ccd8c6] bg-[#fbfdf9] p-2 font-mono text-[11px] break-all text-[#172238]"
+                  />
+                  <p className="mt-2 text-[11px] leading-5 text-[#98453f]">Trátalo como contraseña: no queda en pantalla al recargar.</p>
+                </>
+              ) : (
+                <TapButton type="button" onClick={() => void revealToken()} disabled={loadingToken || !channel.businessTokenStored} className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-[#ccd8c6] px-3 text-xs font-semibold text-[#3e5a1f] disabled:opacity-40">
+                  {loadingToken ? <Loader2 className="size-3.5 animate-spin" /> : <KeyRound className="size-3.5" />}
+                  {loadingToken ? "Leyendo…" : "Mostrar token para entregarlo"}
+                </TapButton>
+              )}
+            </div>
           </div>
         </div>
 

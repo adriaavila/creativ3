@@ -56,21 +56,20 @@ export default function OnboardingLinkGenerator({
   return (
     <section
       id="onboarding-link"
-      className="scroll-mt-6 rounded-none border border-white/10 bg-white/[0.015] p-6"
+      className="scroll-mt-6 rounded-2xl border border-[#dfe5eb] bg-white p-5 shadow-[0_12px_32px_rgba(20,43,75,0.05)] sm:p-7"
     >
-      <div className="flex items-center gap-2 border-b border-white/10 pb-4">
-        <Link2 className="size-5 text-[#c5f04a]" />
-        <h2 className="font-display text-xl">Enlace de onboarding por cliente</h2>
+      <div className="flex items-center gap-3 border-b border-[#e7ebf0] pb-5">
+        <span className="flex size-10 items-center justify-center rounded-xl bg-[#172238] text-[#c5f04a]"><Link2 className="size-4.5" /></span>
+        <div><p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#8a96a5]">Invitación segura</p><h2 className="mt-1 text-xl font-semibold tracking-[-0.03em] text-[#172238]">Onboarding por cliente</h2></div>
       </div>
-      <p className="mt-4 text-sm leading-6 text-white/50">
-        Genera el enlace que le mandas al dueño del negocio. El identificador queda
-        guardado como dueño del número y es la clave con la que se configura su bot.
-        El cliente puede abrirlo sin iniciar sesión en Ops.
+      <p className="mt-5 max-w-3xl text-sm leading-6 text-[#68778a]">
+        Genera el enlace que enviarás al dueño del negocio. El nombre identifica su
+        conexión y separa la configuración de automatización de cada cliente.
       </p>
 
       <div className="mt-5 grid gap-4 sm:grid-cols-2">
         <label className="block">
-          <span className="font-mono text-[9px] uppercase tracking-[0.16em] text-white/35">
+          <span className="text-xs font-semibold text-[#526174]">
             Nombre del cliente
           </span>
           <input
@@ -82,21 +81,21 @@ export default function OnboardingLinkGenerator({
             }}
             placeholder="Panadería Rosa"
             maxLength={SLUG_MAX}
-            className="mt-2 min-h-11 w-full rounded-none border border-white/10 bg-black/30 px-3 text-sm text-white outline-none placeholder:text-white/25 focus:border-[#c5f04a]"
+            className="mt-2 min-h-11 w-full rounded-lg border border-[#d5dde5] bg-[#fafbfc] px-3 text-sm text-[#172238] outline-none transition placeholder:text-[#8a96a5] focus:border-[#6f8733] focus:ring-2 focus:ring-[#c5f04a]/25"
           />
           {slug && (
-            <span className="mt-2 block font-mono text-[11px] text-white/40">
+            <span className="mt-2 block font-mono text-[11px] text-[#7a8797]">
               identificador: {slug}
             </span>
           )}
         </label>
 
         <fieldset className="block">
-          <legend className="font-mono text-[9px] uppercase tracking-[0.16em] text-white/35">
+          <legend className="text-xs font-semibold text-[#526174]">
             Tipo de número
           </legend>
           <div className="mt-2 space-y-2">
-            <label className="flex items-start gap-3 text-sm text-white/70">
+            <label className="flex items-start gap-3 text-sm font-medium text-[#263b54]">
               <input
                 type="radio"
                 name="connection-mode"
@@ -109,12 +108,12 @@ export default function OnboardingLinkGenerator({
               />
               <span>
                 Coexistencia
-                <span className="mt-0.5 block text-xs text-white/40">
+                <span className="mt-1 block text-xs font-normal leading-5 text-[#7a8797]">
                   El cliente ya usa ese número en la app de WhatsApp Business y la sigue usando.
                 </span>
               </span>
             </label>
-            <label className="flex items-start gap-3 text-sm text-white/70">
+            <label className="flex items-start gap-3 text-sm font-medium text-[#263b54]">
               <input
                 type="radio"
                 name="connection-mode"
@@ -128,7 +127,7 @@ export default function OnboardingLinkGenerator({
               />
               <span className={cloudApiAvailable ? undefined : "opacity-40"}>
                 Cloud API puro
-                <span className="mt-0.5 block text-xs text-white/40">
+                <span className="mt-1 block text-xs font-normal leading-5 text-[#7a8797]">
                   {cloudApiAvailable
                     ? "Número nuevo o dedicado, sin app de WhatsApp Business. Se registra automáticamente."
                     : "Requiere META_CONFIG_ID_CLOUD_API configurado en Meta y en el entorno."}
@@ -143,31 +142,31 @@ export default function OnboardingLinkGenerator({
         type="button"
         onClick={generate}
         disabled={!slug || generating}
-        className="mt-5 inline-flex min-h-10 items-center gap-2 rounded-full bg-[#c5f04a] px-4 text-sm font-semibold text-[#0a0a0a] transition hover:bg-white disabled:cursor-not-allowed disabled:opacity-40"
+        className="mt-6 inline-flex min-h-11 items-center gap-2 rounded-lg bg-[#172238] px-4 text-sm font-semibold text-white transition duration-200 hover:-translate-y-0.5 hover:bg-[#263b54] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3f5f7b] active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-40"
       >
         {generating ? "Generando…" : "Generar enlace seguro"}
       </button>
-      {error && <p className="mt-3 text-sm text-red-300">{error}</p>}
+      {error && <p className="mt-3 rounded-lg border border-[#f0cecb] bg-[#fff5f4] px-3 py-2.5 text-sm text-[#98453f]" role="alert">{error}</p>}
 
       {url ? (
-        <div className="mt-5 flex flex-wrap items-center gap-3 border border-white/10 bg-black/30 p-4">
-          <code className="min-w-0 flex-1 break-all font-mono text-xs text-[#c5f04a]">{url}</code>
+        <div className="mt-5 flex flex-wrap items-center gap-3 rounded-lg border border-[#d9e4cf] bg-[#f7fbf2] p-4">
+          <code className="min-w-0 flex-1 break-all font-mono text-xs text-[#405525]">{url}</code>
           <button
             type="button"
             onClick={copy}
-            className="inline-flex min-h-10 shrink-0 items-center gap-2 rounded-full bg-[#c5f04a] px-4 text-sm font-semibold text-[#0a0a0a] transition hover:bg-white"
+            className="inline-flex min-h-10 shrink-0 items-center gap-2 rounded-lg bg-[#c5f04a] px-4 text-sm font-semibold text-[#263710] transition hover:bg-[#b7e63b]"
           >
             {copied ? <Check className="size-4" /> : <Copy className="size-4" />}
             {copied ? "Copiado" : "Copiar"}
           </button>
         </div>
       ) : (
-        <p className="mt-5 border border-dashed border-white/10 px-5 py-6 text-center text-sm text-white/40">
+        <p className="mt-5 rounded-lg border border-dashed border-[#cfd8e1] bg-[#fafbfc] px-5 py-6 text-center text-sm text-[#7a8797]">
           Escribe el nombre del cliente para generar el enlace.
         </p>
       )}
 
-      <p className="mt-4 text-xs leading-5 text-white/35">
+      <p className="mt-4 text-xs leading-5 text-[#7a8797]">
         El enlace vence en 7 días y está firmado para este workspace y modo. Compártelo
         solo con el cliente correspondiente.
       </p>

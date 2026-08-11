@@ -14,7 +14,7 @@ import {
 } from "@/lib/outbound-safety";
 import { buildOnboardingUrl, toWorkspaceSlug } from "@/lib/meta/onboarding-link";
 import { normalizeMetaWebhook } from "@/lib/meta/cloud-whatsapp-provider";
-import { crmChannelStatusLabel, crmQualityLabel, isCrmChannelActive } from "@/lib/crm-channels";
+import { crmChannelNextStep, crmChannelStatusLabel, crmQualityLabel, isCrmChannelActive } from "@/lib/crm-channels";
 import {
   createMetaOnboardingInvite,
   createMetaSignupState,
@@ -41,6 +41,13 @@ test("treats a confirmed Coexistence sync request as an operational CRM channel"
     "Requiere atención",
   );
   assert.equal(crmQualityLabel("GREEN"), "Saludable");
+});
+
+test("each WhatsApp connection exposes one clear next step", () => {
+  assert.equal(crmChannelNextStep({ status: "error" }).action, "Revisar conexión");
+  assert.equal(crmChannelNextStep({ status: "connected", businessTokenStored: false }).action, "Completar onboarding");
+  assert.equal(crmChannelNextStep({ status: "connected", businessTokenStored: true, crmConnectedAt: "2026-08-11", crmOrganizationName: "Vocero" }).label, "En Vocero");
+  assert.equal(crmChannelNextStep({ status: "connected", businessTokenStored: true, automationEnabled: true, operatingMode: "approval" }).action, "Probar automatización");
 });
 
 test("binds public Embedded Signup state to its workspace and mode", () => {

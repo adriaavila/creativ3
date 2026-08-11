@@ -9,8 +9,6 @@ import {
   Building2,
   CheckCircle2,
   ChevronDown,
-  CircleAlert,
-  Clock3,
   KeyRound,
   Loader2,
   MessageCircle,
@@ -29,6 +27,7 @@ import type { WaConversation } from "@/lib/whatsapp-inbox-db";
 import { normalizeWhatsAppId } from "@/lib/phone";
 import type { CrmChannel } from "@/lib/crm-types";
 import {
+  crmChannelNextStep,
   crmChannelStatusLabel,
   crmQualityLabel,
   isCrmChannelActive,
@@ -185,8 +184,8 @@ export default function CrmWorkspaceClient({
         <header className="flex flex-wrap items-end justify-between gap-5">
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#7a8797]">{view === "connections" ? "WhatsApp" : "Pipeline"}</p>
-            <h1 className="mt-2 text-3xl font-semibold tracking-[-0.04em] sm:text-4xl">{view === "connections" ? "Números onboardeados" : "Oportunidades"}</h1>
-            <p className="mt-2 max-w-xl text-sm leading-6 text-[#68778a]">{view === "connections" ? "Revisa tus números con Coexistencia y entra a la automatización de cada negocio." : "Organiza leads reales y conversaciones de WhatsApp en cada etapa."}</p>
+            <h1 className="mt-2 text-3xl font-semibold tracking-[-0.04em] sm:text-4xl">{view === "connections" ? "Conexiones de WhatsApp" : "Oportunidades"}</h1>
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-[#68778a]">{view === "connections" ? "Conecta, entrega y supervisa cada número desde un solo lugar." : "Organiza leads reales y conversaciones de WhatsApp en cada etapa."}</p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <span className="mr-1 inline-flex min-h-10 items-center gap-2 px-2 text-[11px] text-[#7a8797]" role="status" aria-live="polite"><span className={`size-2 rounded-full ${realtime.status === "connected" ? "bg-[#c5f04a]" : "bg-[#aeb8c2]"}`} aria-hidden="true" />{realtimeLabel}</span>
@@ -200,7 +199,7 @@ export default function CrmWorkspaceClient({
         {view === "connections" ? (
           <section className="mt-7" aria-labelledby="connections-heading">
             <ConnectionsPanel initialChannels={channels} onChannelsChange={setChannels} />
-            <div className="mt-5 rounded-xl bg-[#08090a] p-4 text-white sm:p-6">
+            <div className="mt-5">
               <OnboardingLinkGenerator cloudApiAvailable={cloudApiOnboardingAvailable} />
             </div>
           </section>
@@ -468,74 +467,111 @@ function ConnectionsPanel({ initialChannels, onChannelsChange }: { initialChanne
   const attentionCount = officialChannels.length - operationalCount;
 
   return (
-    <div className="overflow-hidden rounded-xl border border-[#e2e7ed] bg-white">
-      <div className="flex flex-wrap items-start justify-between gap-4 border-b border-[#e7ebf0] p-5 sm:p-7">
-        <div><p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#7a8797]">Meta · Inventario operativo</p><h2 id="connections-heading" className="mt-2 text-2xl font-semibold tracking-[-0.03em] text-[#172238]">Números listos para entregar</h2><p className="mt-2 max-w-2xl text-sm leading-6 text-[#68778a]">Onboardea en Allok y entrega cada conexión al CRM externo sin copiar tokens ni mover secretos por el navegador.</p></div>
-        <Link href="/embedded-whatsapp" className="inline-flex min-h-10 items-center gap-2 rounded-lg bg-[#c5f04a] px-4 text-xs font-semibold text-[#142b4b] transition hover:bg-[#b7e63b]"><Plus className="size-4" aria-hidden="true" /> Onboardear número</Link>
-      </div>
-      <div className="grid border-b border-[#e7ebf0] bg-[#fafbfc] sm:grid-cols-2 xl:grid-cols-4" aria-label="Resumen de números con Coexistencia">
-        <ConnectionMetric icon={Smartphone} label="Onboardeados" value={officialChannels.length} detail="números oficiales" />
-        <ConnectionMetric icon={CheckCircle2} label="Operativos" value={operationalCount} detail="listos para usar" />
-        <ConnectionMetric icon={Webhook} label="En CRM" value={crmCount} detail="callback verificado" />
-        <ConnectionMetric icon={CircleAlert} label="Atención" value={attentionCount} detail="por revisar" />
-      </div>
+    <div className="space-y-5">
+      <section className="relative overflow-hidden rounded-2xl bg-[#111b2d] text-white shadow-[0_24px_60px_rgba(20,43,75,0.16)]" aria-labelledby="connections-heading">
+        <div className="pointer-events-none absolute -right-20 -top-24 size-72 rounded-full bg-[#c5f04a]/10 blur-3xl" />
+        <div className="relative grid gap-8 p-6 sm:p-8 lg:grid-cols-[minmax(0,1.35fr)_minmax(310px,.65fr)] lg:p-9">
+          <div className="flex flex-col items-start">
+            <span className="inline-flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#c5f04a]"><span className="size-1.5 rounded-full bg-[#c5f04a]" /> Control operativo</span>
+            <h2 id="connections-heading" className="mt-5 max-w-xl text-3xl font-semibold leading-[1.05] tracking-[-0.045em] text-balance sm:text-4xl">Cada número, listo para su próximo paso.</h2>
+            <p className="mt-4 max-w-xl text-sm leading-6 text-[#aebbd0]">Conecta en Allok, decide dónde responderá y valida la entrega sin perder de vista credenciales ni estado.</p>
+            <Link href="/embedded-whatsapp" className="mt-7 inline-flex min-h-11 items-center gap-2 rounded-lg bg-[#c5f04a] px-4 text-sm font-semibold text-[#142b4b] transition duration-200 hover:-translate-y-0.5 hover:bg-[#d2f66e] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white active:translate-y-0"><Plus className="size-4" aria-hidden="true" /> Conectar otro número</Link>
+          </div>
 
-      <div className="p-5 sm:p-7">
-        <div className="mb-4 flex items-end justify-between gap-4">
-          <div><h3 className="text-base font-semibold text-[#172238]">Coexistencia</h3><p className="mt-1 text-xs text-[#7a8797]">Datos reales del onboarding y la automatización por número.</p></div>
-          <span className="rounded-full bg-[#edf7df] px-2.5 py-1 text-[11px] font-semibold text-[#527526]">{coexistenceChannels.length} {coexistenceChannels.length === 1 ? "número" : "números"}</span>
+          <div className="rounded-xl border border-white/10 bg-white/[0.055] p-5 shadow-inner shadow-white/[0.03]">
+            <div className="flex items-start justify-between gap-4">
+              <div><p className="text-xs font-medium text-[#aebbd0]">Salud del inventario</p><p className="mt-2 text-4xl font-semibold tracking-[-0.05em] tabular-nums">{operationalCount}<span className="ml-1 text-lg font-medium text-white/40">/{officialChannels.length}</span></p></div>
+              <span className={`inline-flex items-center gap-2 rounded-md px-2.5 py-1.5 text-[11px] font-semibold ${attentionCount ? "bg-[#fff0d8] text-[#7a511a]" : "bg-[#c5f04a] text-[#20300f]"}`}><span className={`size-1.5 rounded-full ${attentionCount ? "bg-[#c7842b]" : "bg-[#527526]"}`} />{attentionCount ? `${attentionCount} por revisar` : "Todo operativo"}</span>
+            </div>
+            <dl className="mt-6 grid grid-cols-3 border-t border-white/10 pt-5">
+              <div><dt className="text-[10px] uppercase tracking-[0.12em] text-white/45">Oficiales</dt><dd className="mt-1.5 text-lg font-semibold tabular-nums">{officialChannels.length}</dd></div>
+              <div className="border-l border-white/10 pl-4"><dt className="text-[10px] uppercase tracking-[0.12em] text-white/45">En CRM</dt><dd className="mt-1.5 text-lg font-semibold tabular-nums">{crmCount}</dd></div>
+              <div className="border-l border-white/10 pl-4"><dt className="text-[10px] uppercase tracking-[0.12em] text-white/45">Allok</dt><dd className="mt-1.5 text-lg font-semibold tabular-nums">{Math.max(officialChannels.length - crmCount, 0)}</dd></div>
+            </dl>
+          </div>
+        </div>
+      </section>
+
+      <section className="overflow-hidden rounded-2xl border border-[#dfe5eb] bg-white" aria-label="Proceso de onboarding">
+        <div className="border-b border-[#e8edf2] px-5 py-4 sm:px-7"><h3 className="text-sm font-semibold text-[#172238]">Proceso de onboarding</h3><p className="mt-1 text-xs text-[#708096]">El mismo recorrido para cada cliente, sin saltos ni secretos sueltos.</p></div>
+        <ol className="grid sm:grid-cols-2 xl:grid-cols-4">
+          {[
+            ["01", "Conectar", "Meta autoriza el número"],
+            ["02", "Asignar", "Confirma cliente y token"],
+            ["03", "Entregar", "Allok o CRM externo"],
+            ["04", "Probar", "Valida un mensaje real"],
+          ].map(([number, title, detail], index) => <li key={number} className="group relative border-b border-[#e8edf2] px-5 py-4 last:border-b-0 sm:px-7 sm:[&:nth-child(odd)]:border-r xl:border-b-0 xl:border-r xl:last:border-r-0"><div className="flex items-start gap-3"><span className="font-mono text-[10px] font-semibold text-[#8cae2b]">{number}</span><div><p className="text-sm font-semibold text-[#263b54]">{title}</p><p className="mt-1 text-xs text-[#7a8797]">{detail}</p></div></div>{index < 3 && <ArrowRight className="absolute right-3 top-1/2 hidden size-3.5 -translate-y-1/2 text-[#b6c0cb] xl:block" />}</li>)}
+        </ol>
+      </section>
+
+      <section className="rounded-2xl border border-[#dfe5eb] bg-white p-5 sm:p-7" aria-labelledby="inventory-heading">
+        <div className="mb-5 flex flex-wrap items-end justify-between gap-4">
+          <div><p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#8a96a5]">Inventario oficial</p><h3 id="inventory-heading" className="mt-2 text-xl font-semibold tracking-[-0.03em] text-[#172238]">Números y próximos pasos</h3><p className="mt-1.5 text-sm text-[#68778a]">Primero lo operativo; los IDs y credenciales quedan dentro de cada conexión.</p></div>
+          <span className="inline-flex items-center gap-2 rounded-md bg-[#f0f4f7] px-3 py-2 text-xs font-semibold text-[#526174]"><Smartphone className="size-3.5" /> {coexistenceChannels.length} {coexistenceChannels.length === 1 ? "número" : "números"}</span>
         </div>
 
         {coexistenceChannels.length === 0 ? (
-          <div className="rounded-xl border border-dashed border-[#ccd5df] bg-[#fafbfc] px-5 py-10 text-center"><Smartphone className="mx-auto size-6 text-[#8a96a5]" /><p className="mt-3 text-sm font-semibold text-[#526174]">Aún no hay números onboardeados con Coexistencia.</p><p className="mt-1 text-xs text-[#8a96a5]">Cuando conectes uno aparecerá aquí con su negocio, sincronización y automatización.</p></div>
+          <div className="rounded-xl border border-dashed border-[#ccd5df] bg-[#fafbfc] px-5 py-12 text-center"><span className="mx-auto flex size-11 items-center justify-center rounded-xl bg-[#eef2f5]"><Smartphone className="size-5 text-[#61748a]" /></span><p className="mt-4 text-sm font-semibold text-[#263b54]">Todavía no hay números conectados.</p><p className="mx-auto mt-1 max-w-sm text-xs leading-5 text-[#7a8797]">Conecta el primero y aquí verás su progreso, destino y siguiente acción.</p><Link href="/embedded-whatsapp" className="mt-5 inline-flex min-h-10 items-center gap-2 rounded-lg bg-[#172238] px-4 text-xs font-semibold text-white"><Plus className="size-4" /> Conectar número</Link></div>
         ) : (
-          <div className="space-y-3">{coexistenceChannels.map((channel) => <CoexistenceNumberCard key={channel.id} channel={channel} onChange={updateChannel} />)}</div>
+          <div className="space-y-4">{coexistenceChannels.map((channel) => <CoexistenceNumberCard key={channel.id} channel={channel} onChange={updateChannel} />)}</div>
         )}
 
-        {otherChannels.length > 0 && <div className="mt-8 border-t border-[#e7ebf0] pt-6"><div className="mb-2"><h3 className="text-sm font-semibold text-[#172238]">Otros canales</h3><p className="mt-1 text-xs text-[#7a8797]">Cloud API puro y sesiones secundarias, separados de Coexistencia.</p></div>{otherChannels.map((channel) => <ChannelConnectionRow key={channel.id} channel={channel} onChange={updateChannel} />)}</div>}
+        {otherChannels.length > 0 && <div className="mt-8 border-t border-[#e7ebf0] pt-6"><div className="mb-3"><h3 className="text-sm font-semibold text-[#172238]">Otros canales</h3><p className="mt-1 text-xs text-[#7a8797]">Cloud API puro y sesiones secundarias.</p></div>{otherChannels.map((channel) => <ChannelConnectionRow key={channel.id} channel={channel} onChange={updateChannel} />)}</div>}
+      </section>
 
-        <details className="mt-7 rounded-xl border border-[#e5dfc8] bg-[#fffdf5]">
-          <summary className="flex min-h-12 cursor-pointer list-none items-center gap-3 px-4 text-sm font-semibold text-[#57451e]"><ShieldAlert className="size-4 text-[#8b6b28]" aria-hidden="true" /> Conectar WAHA como canal secundario</summary>
-          <div className="border-t border-[#eee7d2] p-4"><p className="text-xs leading-5 text-[#806b3b]">No oficial. Puede implicar riesgo de bloqueo del número.</p><label className="mt-4 block text-xs text-[#68778a]">Nombre de sesión<input value={session} onChange={(event) => setSession(event.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "-"))} className="mt-2 min-h-11 w-full rounded-lg border border-[#ddd6bc] bg-white px-3 text-sm text-[#172238] outline-none focus:border-[#3f5f7b]" /></label><TapButton type="button" onClick={() => void createWahaSession()} disabled={creating || session.length < 2} className="mt-3 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg border border-[#b9c5d2] bg-white text-sm font-medium text-[#526174] transition hover:border-[#3f5f7b] hover:text-[#142b4b] disabled:opacity-50">{creating ? <Loader2 className="size-4 animate-spin" /> : <Plus className="size-4" />} {pairingSession ? "Reiniciar sesión" : "Crear sesión WAHA"}</TapButton>{pairingSession && <p className="mt-3 text-xs text-[#68778a]">Sesión <span className="font-medium text-[#172238]">{pairingSession}</span> · espera el QR.</p>}{qr && <div className="mt-4 rounded-lg border border-[#e5e9ee] bg-white p-3"><Image src={`data:${qr.mimetype};base64,${qr.data}`} alt="Código QR para conectar WhatsApp a WAHA" width={260} height={260} unoptimized className="mx-auto h-auto w-full max-w-[220px]" /></div>}{error && <p className="mt-4 rounded-lg border border-[#f2caca] bg-[#fff5f5] px-3 py-2.5 text-sm text-[#9f4141]" role="alert">{error}</p>}</div>
-        </details>
-      </div>
+      <details className="rounded-xl border border-[#e5dfc8] bg-[#fffdf5]">
+        <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between gap-3 px-4 text-sm font-semibold text-[#57451e]"><span className="flex items-center gap-3"><ShieldAlert className="size-4 text-[#8b6b28]" aria-hidden="true" /> Canal no oficial · WAHA</span><span className="text-[11px] font-medium text-[#8b7950]">Configuración avanzada</span></summary>
+        <div className="border-t border-[#eee7d2] p-4"><p className="text-xs leading-5 text-[#806b3b]">Úsalo sólo como canal secundario: puede implicar riesgo de bloqueo del número.</p><label className="mt-4 block text-xs text-[#68778a]">Nombre de sesión<input value={session} onChange={(event) => setSession(event.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "-"))} className="mt-2 min-h-11 w-full rounded-lg border border-[#ddd6bc] bg-white px-3 text-sm text-[#172238] outline-none focus:border-[#3f5f7b]" /></label><TapButton type="button" onClick={() => void createWahaSession()} disabled={creating || session.length < 2} className="mt-3 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg border border-[#b9c5d2] bg-white text-sm font-medium text-[#526174] transition hover:border-[#3f5f7b] hover:text-[#142b4b] disabled:opacity-50">{creating ? <Loader2 className="size-4 animate-spin" /> : <Plus className="size-4" />} {pairingSession ? "Reiniciar sesión" : "Crear sesión WAHA"}</TapButton>{pairingSession && <p className="mt-3 text-xs text-[#68778a]">Sesión <span className="font-medium text-[#172238]">{pairingSession}</span> · espera el QR.</p>}{qr && <div className="mt-4 rounded-lg border border-[#e5e9ee] bg-white p-3"><Image src={`data:${qr.mimetype};base64,${qr.data}`} alt="Código QR para conectar WhatsApp a WAHA" width={260} height={260} unoptimized className="mx-auto h-auto w-full max-w-[220px]" /></div>}{error && <p className="mt-4 rounded-lg border border-[#f2caca] bg-[#fff5f5] px-3 py-2.5 text-sm text-[#9f4141]" role="alert">{error}</p>}</div>
+      </details>
     </div>
   );
-}
-
-function ConnectionMetric({ icon: Icon, label, value, detail }: { icon: typeof Smartphone; label: string; value: number; detail: string }) {
-  return <div className="border-b border-[#e7ebf0] p-4 last:border-b-0 sm:border-r sm:[&:nth-child(even)]:border-r-0 xl:border-b-0 xl:[&:nth-child(even)]:border-r xl:last:border-r-0"><div className="flex items-center justify-between gap-3"><span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#7a8797]">{label}</span><Icon className="size-4 text-[#526d87]" aria-hidden="true" /></div><p className="mt-2 text-2xl font-semibold tabular-nums text-[#172238]">{value}</p><p className="mt-0.5 text-[11px] text-[#8a96a5]">{detail}</p></div>;
 }
 
 function CoexistenceNumberCard({ channel, onChange }: { channel: CrmChannel; onChange: (channel: CrmChannel) => void }) {
   const active = isCrmChannelActive(channel);
   const automationActive = channel.automationEnabled && channel.operatingMode !== "off";
   const automationLabel = channel.operatingMode === "automatic" ? "Automática" : channel.operatingMode === "approval" ? "Aprobación humana" : "Desactivada";
+  const nextStep = crmChannelNextStep(channel);
+  const hasDestination = Boolean(channel.crmConnectedAt) || automationActive;
+  const ready = active && Boolean(channel.businessTokenStored) && hasDestination;
+  const journey = [
+    ["Conexión", active],
+    ["Token", Boolean(channel.businessTokenStored)],
+    ["Destino", hasDestination],
+    ["Listo", ready],
+  ] as const;
 
   return (
-    <article className="overflow-hidden rounded-xl border border-[#dfe5eb] bg-white shadow-[0_5px_18px_rgba(20,43,75,0.04)]">
-      <div className="grid gap-5 p-4 sm:p-5 lg:grid-cols-[minmax(220px,1.3fr)_minmax(150px,.8fr)_minmax(180px,1fr)_auto] lg:items-center">
-        <div className="flex min-w-0 items-center gap-3">
-          <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-[#172238] text-white"><Smartphone className="size-5" /></span>
-          <div className="min-w-0"><p className="truncate font-mono text-base font-semibold tabular-nums text-[#172238]">{channel.phone ?? "Número no disponible"}</p><p className="mt-1 truncate text-xs text-[#7a8797]">{channel.verifiedName ?? "Nombre comercial no disponible"}</p></div>
+    <article className="overflow-hidden rounded-xl border border-[#d9e1e8] bg-white shadow-[0_12px_32px_rgba(20,43,75,0.06)] transition duration-200 hover:border-[#c4cfd9] hover:shadow-[0_16px_42px_rgba(20,43,75,0.09)]">
+      <div className="p-5 sm:p-6">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div className="flex min-w-0 items-center gap-3.5">
+            <span className="relative flex size-12 shrink-0 items-center justify-center rounded-xl bg-[#172238] text-white shadow-[0_8px_20px_rgba(23,34,56,0.18)]"><Smartphone className="size-5" /><span className={`absolute -bottom-1 -right-1 size-3.5 rounded-full border-2 border-white ${active ? "bg-[#a8d13f]" : "bg-[#d09a54]"}`} /></span>
+            <div className="min-w-0"><p className="truncate font-mono text-lg font-semibold tracking-[-0.02em] tabular-nums text-[#172238]">{channel.phone ?? "Número no disponible"}</p><p className="mt-1 truncate text-xs text-[#708096]">{channel.verifiedName ?? "Nombre comercial no disponible"} · {channel.workspace ?? "Sin cliente asignado"}</p></div>
+          </div>
+          <span className={`inline-flex items-center gap-2 rounded-md px-2.5 py-1.5 text-[11px] font-semibold ${ready ? "bg-[#edf7df] text-[#527526]" : active ? "bg-[#edf2f6] text-[#526174]" : "bg-[#fff1df] text-[#86591f]"}`}><span className={`size-1.5 rounded-full ${ready ? "bg-[#83aa29]" : active ? "bg-[#7f91a6]" : "bg-[#c7842b]"}`} />{crmChannelStatusLabel(channel)}</span>
         </div>
 
-        <DataPoint label="Negocio" value={channel.workspace ?? "Sin asignar"} />
-
-        <div>
-          <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#8a96a5]">Conexión</p>
-          <p className="mt-1.5 flex items-center gap-2 text-sm font-semibold text-[#263b54]"><span className={`size-2 rounded-full ${active ? "bg-[#9bc53d]" : "bg-[#d09a54]"}`} />{crmChannelStatusLabel(channel)}</p>
-          <p className="mt-1 flex items-center gap-1.5 text-[11px] text-[#8a96a5]"><Clock3 className="size-3" /> Sync {channel.lastSyncedAt ? formatConnectionDate(channel.lastSyncedAt) : "no disponible"}</p>
+        <div className="mt-6 grid gap-5 lg:grid-cols-[minmax(0,1.1fr)_minmax(200px,.7fr)_auto] lg:items-end">
+          <div><p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#8a96a5]">Estado actual</p><p className="mt-2 text-base font-semibold text-[#263b54]">{nextStep.label}</p><p className="mt-1 max-w-lg text-xs leading-5 text-[#708096]">{nextStep.detail}</p></div>
+          <div><p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#8a96a5]">Responde desde</p><p className="mt-2 text-sm font-semibold text-[#263b54]">{channel.crmConnectedAt ? channel.crmOrganizationName ?? "CRM externo" : automationActive ? "Allok" : "Por decidir"}</p><p className="mt-1 text-xs text-[#8a96a5]">{channel.crmConnectedAt ? "Webhook verificado" : automationActive ? automationLabel : "Sin automatización activa"}</p></div>
+          <Link href={`/ops/connections/${encodeURIComponent(channel.id)}`} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-[#172238] px-4 text-xs font-semibold text-white transition duration-200 hover:-translate-y-0.5 hover:bg-[#263b54] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3f5f7b] active:translate-y-0"><Settings2 className="size-4" /> {nextStep.action}</Link>
         </div>
 
-        <Link href={`/ops/connections/${encodeURIComponent(channel.id)}`} className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-[#172238] px-4 text-xs font-semibold text-white transition hover:bg-[#263b54] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3f5f7b]"><Settings2 className="size-4" /> Gestionar</Link>
+        <ol className="mt-6 grid grid-cols-4 overflow-hidden rounded-lg border border-[#e3e8ed] bg-[#f8fafb]" aria-label="Progreso de la conexión">
+          {journey.map(([label, complete], index) => <li key={label} className="relative flex min-w-0 items-center gap-2 border-r border-[#e3e8ed] px-2.5 py-3 last:border-r-0 sm:px-3.5"><span className={`flex size-5 shrink-0 items-center justify-center rounded-full text-[9px] font-bold ${complete ? "bg-[#c5f04a] text-[#263710]" : "border border-[#cbd4dd] bg-white text-[#8a96a5]"}`}>{complete ? <CheckCircle2 className="size-3.5" /> : index + 1}</span><span className={`truncate text-[10px] font-semibold sm:text-[11px] ${complete ? "text-[#41512d]" : "text-[#8a96a5]"}`}>{label}</span></li>)}
+        </ol>
       </div>
 
-      <div className="grid gap-3 border-t border-[#edf0f3] bg-[#fafbfc] px-4 py-3 text-xs sm:grid-cols-3 sm:px-5">
-        <p className="text-[#68778a]"><span className="font-semibold text-[#526174]">Onboarding:</span> {channel.connectedAt ? formatConnectionDate(channel.connectedAt) : "No disponible"}</p>
-        <p className="text-[#68778a]"><span className="font-semibold text-[#526174]">Calidad:</span> {crmQualityLabel(channel.qualityRating ?? null)}</p>
-        <p className="flex items-center gap-2 text-[#68778a]"><span className={`size-1.5 rounded-full ${automationActive ? "bg-[#9bc53d]" : "bg-[#aeb8c2]"}`} /><span><span className="font-semibold text-[#526174]">Automatización:</span> {automationLabel}{channel.modelTier ? ` · ${channel.modelTier === "fast" ? "Rápida" : "Equilibrada"}` : ""}</span></p>
-      </div>
+      <details className="group border-t border-[#edf0f3] bg-[#fafbfc]">
+        <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 px-5 text-xs font-semibold text-[#526174] sm:px-6"><span>Detalles técnicos</span><span className="flex items-center gap-1.5 text-[11px] font-medium text-[#8a96a5]">IDs, calidad y sincronización <ChevronDown className="size-3.5 transition group-open:rotate-180" /></span></summary>
+        <div className="grid gap-4 border-t border-[#edf0f3] px-5 py-4 text-xs sm:grid-cols-2 sm:px-6 lg:grid-cols-4">
+          <DataPoint label="Onboarding" value={channel.connectedAt ? formatConnectionDate(channel.connectedAt) : "No disponible"} />
+          <DataPoint label="Calidad" value={crmQualityLabel(channel.qualityRating ?? null)} />
+          <DataPoint label="Sincronización" value={channel.lastSyncedAt ? formatConnectionDate(channel.lastSyncedAt) : "No disponible"} />
+          <DataPoint label="Automatización" value={`${automationLabel}${channel.modelTier ? ` · ${channel.modelTier === "fast" ? "Rápida" : "Equilibrada"}` : ""}`} />
+        </div>
+      </details>
       <CrmHandoverForm channel={channel} onChange={onChange} />
     </article>
   );

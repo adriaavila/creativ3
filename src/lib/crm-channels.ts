@@ -40,6 +40,14 @@ export function crmNameStatusLabel(value: string | null) {
   return crmQualityLabel(value);
 }
 
+export function crmChannelNextStep(channel: Pick<CrmChannel, "status" | "businessTokenStored" | "crmConnectedAt" | "crmOrganizationName" | "automationEnabled" | "operatingMode">) {
+  if (!isCrmChannelActive(channel)) return { label: "Requiere atención", detail: "Revisa la conexión con Meta antes de continuar.", action: "Revisar conexión" };
+  if (!channel.businessTokenStored) return { label: "Falta el token", detail: "Repite el onboarding para recuperar una credencial válida.", action: "Completar onboarding" };
+  if (channel.crmConnectedAt) return { label: `En ${channel.crmOrganizationName ?? "CRM externo"}`, detail: "El webhook está entregado. Haz una prueba desde el CRM.", action: "Revisar entrega" };
+  if (channel.automationEnabled && channel.operatingMode !== "off") return { label: "Responde desde Allok", detail: "La automatización está activa y lista para probar.", action: "Probar automatización" };
+  return { label: "Listo para configurar", detail: "Elige si responderá desde Allok o desde otro CRM.", action: "Configurar número" };
+}
+
 export function buildCrmChannels(
   meta: WhatsAppConnectionView[],
   waha: WahaConnectionRecord[],

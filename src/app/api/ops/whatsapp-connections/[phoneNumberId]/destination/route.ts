@@ -8,7 +8,7 @@ import {
 import {
   DESTINATION_ALLOK,
   getDestinationSecrets,
-  normalizeWebhookUrl,
+  matchesDestinationSubscription,
   parseExternalRef,
 } from "@/lib/handover/destinations";
 import { pushCredentials } from "@/lib/handover/provision";
@@ -165,8 +165,7 @@ export async function POST(
 
   const appId = process.env.META_APP_ID?.trim();
   const verified = subscriptions.some((subscription) =>
-    (!appId || subscription.id === appId)
-      && sameUrl(subscription.override_callback_uri, webhookUri),
+    matchesDestinationSubscription(subscription, appId, webhookUri),
   );
   if (!verified) {
     return Response.json(
@@ -221,10 +220,6 @@ export async function POST(
       credentials_delivered: credentialsDelivered,
     },
   });
-}
-
-function sameUrl(left: unknown, right: string) {
-  return normalizeWebhookUrl(left) === normalizeWebhookUrl(right);
 }
 
 function metaErrorMessage(error: unknown, fallback: string) {

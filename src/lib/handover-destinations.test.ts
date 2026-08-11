@@ -1,10 +1,18 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
+  matchesDestinationSubscription,
   normalizeWebhookUrl,
   parseDestinationInput,
   parseExternalRef,
 } from "@/lib/handover/destinations";
+
+test("confirma el callback aunque Meta omita el app id", () => {
+  const webhook = "https://vocero.app/api/whatsapp/webhook";
+  assert.equal(matchesDestinationSubscription({ override_callback_uri: webhook }, "app-1", webhook), true);
+  assert.equal(matchesDestinationSubscription({ id: "otra", override_callback_uri: webhook }, "app-1", webhook), false);
+  assert.equal(matchesDestinationSubscription({ override_callback_uri: "https://otra.app/hook" }, "app-1", webhook), false);
+});
 
 test("un destino necesita slug, nombre, webhook HTTPS y verify token", () => {
   const parsed = parseDestinationInput({

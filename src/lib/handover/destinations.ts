@@ -62,6 +62,16 @@ export function normalizeWebhookUrl(value: unknown): string | null {
   }
 }
 
+/** Meta puede omitir el app id; la URL efectiva sigue siendo verificable. */
+export function matchesDestinationSubscription(
+  subscription: { id?: string; override_callback_uri?: string | null },
+  appId: string | undefined,
+  webhookUrl: string,
+) {
+  return (!subscription.id || !appId || subscription.id === appId)
+    && normalizeWebhookUrl(subscription.override_callback_uri) === normalizeWebhookUrl(webhookUrl);
+}
+
 /**
  * La referencia del número dentro de la app destino (en REI, su
  * `organization_id`). Opaca para allok: sólo viaja en el paquete de provisión.

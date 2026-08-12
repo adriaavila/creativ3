@@ -5,6 +5,7 @@ import type {
   WhatsAppMarkAsReadInput,
   WhatsAppNormalizedEvent,
   WhatsAppProvider,
+  WhatsAppReferral,
   WhatsAppSendMediaInput,
   WhatsAppSendResult,
   WhatsAppSendTextInput,
@@ -193,6 +194,7 @@ export function normalizeMetaWebhook(payload: unknown): WhatsAppNormalizedEvent[
             ? optionalString(contact.profile.name)
             : undefined;
           const contactPhone = optionalString(message.from ?? contact?.wa_id);
+          const referral = referralOf(message);
 
           events.push({
             ...base,
@@ -208,6 +210,7 @@ export function normalizeMetaWebhook(payload: unknown): WhatsAppNormalizedEvent[
               text: textBody(message),
               ...(contactName ? { contactName } : {}),
               ...(contactPhone ? { contactPhone } : {}),
+              ...(referral ? { referral } : {}),
             },
           });
         }
@@ -436,6 +439,25 @@ function webhookError(
 function textBody(message: Record<string, unknown>) {
   const text = isRecord(message.text) ? message.text : undefined;
   return optionalString(text?.body);
+}
+
+/**
+ * Meta manda `referral` solo en el primer mensaje de una conversación que
+ * arrancó en un anuncio o un post. Se conserva entero porque distingue "vino
+ * del anuncio X" de "escribió por su cuenta", y eso no se puede recuperar
+ * después.
+ */
+function referralOf(message: Record<string, unknown>): WhatsAppReferral | undefined {
+  const raw = isRecord(message.referral) ? message.referral : undefined;
+  if (!raw) return undefined;
+  const referral: WhatsAppReferral = {
+    sourceType: optionalString(raw.source_type),
+    sourceId: optionalString(raw.source_id),
+    sourceUrl: optionalString(raw.source_url),
+    headline: optionalString(raw.headline),
+    ctwaClid: optionalString(raw.ctwa_clid),
+  };
+  return Object.values(referral).some(Boolean) ? referral : undefined;
 }
 
 function records(value: unknown): Record<string, unknown>[] {

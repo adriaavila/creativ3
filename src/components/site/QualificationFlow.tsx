@@ -6,19 +6,13 @@ import { ArrowLeft, ArrowRight, MessageCircle, RotateCcw } from "lucide-react";
 import type { Locale, Messages } from "@/lib/i18n";
 import { whatsappUrl } from "@/lib/contact";
 import { PRICING_STAGES } from "@/lib/pricing";
+import { qualificationRecommendations } from "@/lib/qualification";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 type Qualify = Messages["qualify"];
 type QuestionId = Qualify["questions"][number]["id"];
 type Answers = Partial<Record<QuestionId, string>>;
-
-const RECOMMENDED_LAYERS: Record<string, { es: string[]; en: string[] }> = {
-  bottleneck_default: {
-    es: ["Inbox conectado a WhatsApp", "Pipeline con etapas claras", "Seguimiento programado"],
-    en: ["A WhatsApp-connected inbox", "A pipeline with clear stages", "Scheduled follow-up"],
-  },
-};
 
 export default function QualificationFlow({
   locale,
@@ -37,7 +31,7 @@ export default function QualificationFlow({
   const isSummary = stepIndex >= questions.length;
 
   useEffect(() => {
-    track("qualification_started");
+    track("qualification_started", { offer: "whatsapp_system" });
   }, []);
 
   const progressLabel = qualify.progress
@@ -46,15 +40,15 @@ export default function QualificationFlow({
 
   const selectOption = (question: (typeof questions)[number], value: string) => {
     setAnswers((prev) => ({ ...prev, [question.id]: value }));
-    track("qualification_step", { step: question.id, value });
+    track("qualification_step", { offer: "whatsapp_system", step: question.id, value });
     if (stepIndex < questions.length) {
       setStepIndex((i) => i + 1);
     }
     if (stepIndex === questions.length - 1) {
       track("qualification_completed", {
+        offer: "whatsapp_system",
         business_type: answers.businessType,
         volume: answers.volume,
-        channel: answers.channel,
         bottleneck: answers.bottleneck,
         [question.id]: value,
       });
@@ -68,20 +62,21 @@ export default function QualificationFlow({
     setStepIndex(0);
   };
 
+  const layers = qualificationRecommendations(locale, answers.bottleneck);
+
   const summaryMessage = useMemo(() => {
     const lines = [
       locale === "en" ? "Hi, I want a personalized demo of Allok." : "Hola, quiero una demo personalizada de Allok.",
-      answers.businessType ? `${questions[0].label} ${answers.businessType}` : null,
-      answers.volume ? `${questions[1].label} ${answers.volume}` : null,
-      answers.channel ? `${questions[2].label} ${answers.channel}` : null,
-      answers.followUp ? `${questions[3].label} ${answers.followUp}` : null,
-      answers.bottleneck ? `${questions[4].label} ${answers.bottleneck}` : null,
+      ...questions.map((question) =>
+        answers[question.id] ? `${question.label} ${answers[question.id]}` : null,
+      ),
+      locale === "en" ? "Initial plan:" : "Plan inicial:",
+      ...layers.map((layer) => `- ${layer}`),
     ].filter(Boolean);
     return lines.join("\n");
-  }, [answers, locale, questions]);
+  }, [answers, layers, locale, questions]);
 
   const handoffHref = whatsappUrl(summaryMessage);
-  const layers = RECOMMENDED_LAYERS.bottleneck_default[locale];
   const implementationStage = PRICING_STAGES[0];
 
   return (
@@ -145,6 +140,19 @@ export default function QualificationFlow({
               {qualify.back}
             </Button>
           )}
+          {stepIndex === 0 && (
+            <Button asChild type="button" variant="ghost" size="sm" className="mt-4 text-[var(--text-secondary)]">
+              <a
+                href={whatsappUrl()}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => track("whatsapp_opened", { location: "qualification_direct", offer: "whatsapp_system" })}
+              >
+                <MessageCircle className="size-3.5" aria-hidden />
+                {qualify.directCta}
+              </a>
+            </Button>
+          )}
         </fieldset>
       ) : (
         <div>
@@ -174,7 +182,7 @@ export default function QualificationFlow({
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={() => {
-                  track("whatsapp_cta", { location: "qualification_summary" });
+                  track("whatsapp_opened", { location: "qualification_summary", offer: "whatsapp_system" });
                   onDone?.();
                 }}
               >

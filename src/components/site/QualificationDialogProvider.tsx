@@ -3,7 +3,7 @@
 import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from "react";
 import type { Locale, Messages } from "@/lib/i18n";
 import QualificationFlow from "./QualificationFlow";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 
 type QualificationDialogContextValue = {
   open: () => void;
@@ -39,6 +39,7 @@ export default function QualificationDialogProvider({
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogContent className="max-w-xl p-0">
           <DialogTitle className="sr-only">{qualify.title}</DialogTitle>
+          <DialogDescription className="sr-only">{qualify.summaryLead}</DialogDescription>
           <QualificationFlow locale={locale} qualify={qualify} onDone={() => setIsOpen(false)} />
         </DialogContent>
       </Dialog>

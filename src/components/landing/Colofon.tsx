@@ -1,6 +1,7 @@
 import { ArrowUpRight, Mail, MessageCircle } from "lucide-react";
 import { CONTACT_EMAIL, whatsappUrl } from "@/lib/contact";
 import AllokLogo from "@/components/brand/AllokLogo";
+import TrackedWhatsappLink from "@/components/analytics/TrackedWhatsappLink";
 import Reveal from "./Reveal";
 
 const CTA_LINKS = [
@@ -56,11 +57,11 @@ export default function Colofon() {
 
           <div className="grid w-full gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {CTA_LINKS.map((link) => (
-              <a
+              <TrackedWhatsappLink
                 key={link.label}
                 href={link.href}
-                target="_blank"
-                rel="noopener noreferrer"
+                location={`colofon_${link.label.toLowerCase().replaceAll(" ", "_")}`}
+                offer="whatsapp_system"
                 className={`inline-flex min-h-12 items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-semibold transition-all duration-300 hover:-translate-y-0.5 ${
                   link.primary
                     ? "bg-[var(--lima)] text-[var(--lima-ink)]"
@@ -69,7 +70,7 @@ export default function Colofon() {
               >
                 {link.label}
                 <ArrowUpRight className="h-4 w-4" aria-hidden />
-              </a>
+              </TrackedWhatsappLink>
             ))}
           </div>
 
@@ -108,15 +109,15 @@ export default function Colofon() {
         </div>
 
         <div className="mt-12 flex flex-col items-start justify-between gap-2 border-t border-[var(--line)] pt-6 text-xs text-[var(--text-tertiary)] md:flex-row md:items-center">
-          <a
+          <TrackedWhatsappLink
             href={whatsappUrl()}
-            target="_blank"
-            rel="noopener noreferrer"
+            location="colofon_footer"
+            offer="whatsapp_system"
             className="inline-flex items-center gap-1.5 transition-colors hover:text-[var(--text-primary)]"
           >
             <MessageCircle className="h-3.5 w-3.5" aria-hidden />
             Escríbenos por WhatsApp
-          </a>
+          </TrackedWhatsappLink>
           <div className="flex items-center gap-4">
             <span>© {new Date().getFullYear()} Allok</span>
             <span className="h-1 w-1 rounded-full bg-[var(--lima)]" aria-hidden />

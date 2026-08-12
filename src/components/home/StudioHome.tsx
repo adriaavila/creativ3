@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ArrowRight, ArrowUpRight, Check, Mail, MessageCircle, Plus } from "lucide-react";
 import AllokLogo from "@/components/brand/AllokLogo";
 import Waveform from "@/components/brand/Waveform";
+import TrackedWhatsappLink from "@/components/analytics/TrackedWhatsappLink";
 import { CONTACT_EMAIL, whatsappUrl } from "@/lib/contact";
 
 const CONTACT_URL = whatsappUrl(
@@ -30,39 +31,45 @@ const SERVICES = [
     kicker: "Aumentar ingresos",
     title: "Web que vende",
     description:
-      "Landing pages, sitios y ecommerce diseñados alrededor de una sola acción: que el visitante escriba, compre o agende.",
+      "Landing pages, sitios y ecommerce diseñados para convertir la atención en una acción: escribir, comprar o agendar.",
     bullets: [
       "Landing de campaña lista en 3 días",
       "Ecommerce y catálogo con checkout",
       "Captura de leads directa a WhatsApp",
       "SEO técnico y velocidad real",
     ],
+    cta: "Quiero una web que venda",
+    message: "Hola, quiero una web que venda. Mi negocio necesita:",
   },
   {
     id: "operar",
     kicker: "Reducir costos",
     title: "Automatización con IA",
     description:
-      "Los procesos manuales que hoy consumen horas de tu equipo pasan a ejecutarse solos, con supervisión humana donde importa.",
+      "Si tu equipo copia datos, persigue leads o repite respuestas, convertimos ese trabajo manual en un flujo que se ejecuta y se puede supervisar.",
     bullets: [
       "Agentes de WhatsApp y voz",
       "Flujos n8n + integraciones API",
       "Leads clasificados y enrutados",
       "Reportes automáticos al equipo",
     ],
+    cta: "Automatizar un proceso",
+    message: "Hola, quiero automatizar un proceso. Hoy mi equipo hace esto manualmente:",
   },
   {
     id: "producto",
     kicker: "Construir",
     title: "Producto a medida",
     description:
-      "Cuando la hoja de cálculo ya no alcanza: sistemas operativos, dashboards y SaaS construidos sobre tu forma real de trabajar.",
+      "Cuando la hoja de cálculo ya no alcanza, construimos el sistema que ordena tu operación y abre la puerta a crecer.",
     bullets: [
       "MVP funcional, no maqueta",
       "Next.js + base de datos + auth",
       "Panel de administración",
       "Listo para producción",
     ],
+    cta: "Construir mi producto",
+    message: "Hola, quiero construir un producto digital. La idea que necesito validar es:",
   },
 ] as const;
 
@@ -144,7 +151,7 @@ const PROCESS_STEPS = [
   {
     num: "02",
     title: "Cerramos alcance y precio",
-    desc: "Definimos el primer entregable útil sin inflar costos ni tiempo. Precio cerrado antes de empezar.",
+    desc: "Definimos la pieza que desbloquea el siguiente paso. Alcance y precio cerrados antes de empezar.",
   },
   {
     num: "03",
@@ -295,15 +302,15 @@ function StudioHeader() {
           ))}
         </div>
 
-        <a
+        <TrackedWhatsappLink
           href={CONTACT_URL}
-          target="_blank"
-          rel="noopener noreferrer"
+          location="studio_nav"
+          offer="studio"
           className="inline-flex shrink-0 items-center gap-2 rounded-full bg-black px-5 py-2.5 text-[14px] font-semibold text-white transition-transform duration-200 hover:bg-neutral-800 active:scale-[0.97]"
         >
           <MessageCircle className="h-4 w-4" aria-hidden />
           Hablemos
-        </a>
+        </TrackedWhatsappLink>
       </nav>
     </header>
   );
@@ -328,37 +335,36 @@ function Hero() {
         <div className="lg:col-span-7 lg:pt-4">
           <span className="inline-flex items-center gap-2 rounded-full border border-[var(--studio-hairline)] bg-white px-3.5 py-1.5 text-[13px] font-medium text-neutral-700">
             <span className="h-1.5 w-1.5 rounded-full bg-[#c5f04a]" aria-hidden />
-            Disponible para nuevos proyectos
+            Para negocios que ya no pueden crecer a pulso
           </span>
 
           <h1 className="mt-6 text-[clamp(2.4rem,4.4vw,3.9rem)] font-semibold text-black">
-            Tu web y tus procesos,{" "}
+            Más clientes.{" "}
             {/* Gradient highlight instead of an absolute bar: it re-draws per
                 line, so a wrap never leaves the mark hanging past the text. */}
-            <span className="studio-mark">trabajando para vender.</span>
+            <span className="studio-mark">Menos trabajo manual.</span>
           </h1>
 
           <p className="mt-6 max-w-xl text-[17px] leading-relaxed text-neutral-600 sm:text-[19px]">
-            Diseñamos y construimos landings, tiendas y automatizaciones con IA que
-            convierten visitas en conversaciones y quitan trabajo manual de tu equipo.
+            Landings, automatizaciones y software a medida, listos para mover tu negocio.
             Primer entregable en 3 días, con precio cerrado.
           </p>
 
           <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
-            <a
+            <TrackedWhatsappLink
               href={CONTACT_URL}
-              target="_blank"
-              rel="noopener noreferrer"
+              location="studio_hero"
+              offer="studio"
               className="inline-flex items-center justify-center gap-2 rounded-full bg-black px-7 py-4 text-[16px] font-semibold text-white transition-all hover:bg-neutral-800 active:scale-[0.98]"
             >
-              Escríbenos por WhatsApp
+              Empezar mi proyecto
               <ArrowRight className="h-4 w-4" aria-hidden />
-            </a>
+            </TrackedWhatsappLink>
             <a
-              href="#precios"
+              href="#trabajo"
               className="inline-flex items-center justify-center gap-2 rounded-full border border-neutral-300 px-7 py-4 text-[16px] font-semibold text-black transition-colors hover:border-black"
             >
-              Ver precios
+              Ver lo que ya funciona
             </a>
           </div>
 
@@ -505,24 +511,29 @@ function ServicesSection() {
       <div className="mx-auto max-w-6xl px-5 sm:px-8">
         <SectionHead
           label="Servicios"
-          title="Dos formas de mover el negocio: vender más u operar con menos."
-          lead="Cada proyecto empieza por decidir cuál de las dos necesitas primero. Nunca las dos a la vez."
+          title="Elige qué desbloquear primero."
+          lead="Más clientes, menos trabajo manual o un producto que ya pueda salir a producción."
         />
 
-        <div className="mt-14 grid gap-5 md:grid-cols-3">
-          {SERVICES.map((service) => (
+        <div className="mt-14 grid gap-5 md:grid-cols-12">
+          {SERVICES.map((service, index) => (
             <article
               key={service.id}
-              className="flex flex-col rounded-3xl border border-[var(--studio-hairline)] bg-white p-7 transition-shadow duration-200 hover:shadow-[var(--studio-shadow)]"
+              className={`group flex flex-col rounded-3xl border border-[var(--studio-hairline)] bg-white p-7 transition-[transform,box-shadow] duration-300 hover:-translate-y-1 hover:shadow-[var(--studio-shadow)] md:p-8 ${
+                index === 0 ? "md:col-span-7" : index === 1 ? "md:col-span-5" : "md:col-span-12"
+              }`}
             >
-              <span className="inline-flex w-fit rounded-full bg-[var(--studio-surface)] px-3 py-1 text-[12px] font-semibold uppercase tracking-wide text-neutral-700">
+              <span className="inline-flex w-fit items-center gap-2 rounded-full bg-[var(--studio-surface)] px-3 py-1 text-[12px] font-semibold uppercase tracking-wide text-neutral-700">
+                <span className="h-1.5 w-1.5 rounded-full bg-[#c5f04a]" aria-hidden />
                 {service.kicker}
               </span>
-              <h3 className="mt-5 text-[24px] font-semibold text-black">{service.title}</h3>
-              <p className="mt-3 text-[15px] leading-relaxed text-neutral-600">
+              <h3 className="mt-6 max-w-xl text-[clamp(1.6rem,2.4vw,2.2rem)] font-semibold leading-tight text-black">
+                {service.title}
+              </h3>
+              <p className="mt-3 max-w-2xl text-[15px] leading-relaxed text-neutral-600">
                 {service.description}
               </p>
-              <ul className="mt-6 space-y-2.5 border-t border-[var(--studio-hairline)] pt-6">
+              <ul className="mt-7 grid gap-x-8 gap-y-2.5 border-t border-[var(--studio-hairline)] pt-6 sm:grid-cols-2">
                 {service.bullets.map((bullet) => (
                   <li key={bullet} className="flex gap-2.5 text-[14px] font-medium text-neutral-700">
                     <Check className="mt-0.5 h-4 w-4 shrink-0 text-black" aria-hidden />
@@ -530,6 +541,15 @@ function ServicesSection() {
                   </li>
                 ))}
               </ul>
+              <TrackedWhatsappLink
+                href={whatsappUrl(service.message)}
+                location={`studio_service_${service.id}`}
+                offer={service.id}
+                className="mt-8 inline-flex w-fit items-center gap-2 text-[14px] font-semibold text-black transition-transform duration-200 group-hover:translate-x-1"
+              >
+                {service.cta}
+                <ArrowRight className="h-4 w-4" aria-hidden />
+              </TrackedWhatsappLink>
             </article>
           ))}
         </div>
@@ -548,8 +568,8 @@ function WorkSection() {
         <div className="flex flex-wrap items-end justify-between gap-6">
           <SectionHead
             label="Trabajo"
-            title="Sistemas reales, funcionando hoy."
-            lead="No maquetas. Cada uno está en producción con usuarios usándolo."
+            title="Lo que construimos ya está trabajando."
+            lead="Casos reales: productos que reciben clientes, cobran y ordenan operaciones."
           />
           <Link
             href="/projects"
@@ -631,8 +651,8 @@ function ProcessSection() {
       <div className="mx-auto max-w-6xl px-5 sm:px-8">
         <SectionHead
           label="Proceso"
-          title="De la idea a producción en cinco pasos."
-          lead="Sin discovery de tres semanas ni presentaciones de 40 láminas."
+          title="Lanzamos algo útil. Escalamos con evidencia."
+          lead="Cerramos una primera versión, la ponemos frente a usuarios y usamos lo que ocurre para decidir qué sigue."
         />
 
         <ol className="mt-14 grid gap-px overflow-hidden rounded-3xl border border-[var(--studio-hairline)] bg-[var(--studio-hairline)] md:grid-cols-5">
@@ -662,8 +682,8 @@ function PricingSection() {
       <div className="mx-auto max-w-6xl px-5 sm:px-8">
         <SectionHead
           label="Precios"
-          title="Precio a la vista, cerrado antes de empezar."
-          lead="Escoge el punto de partida. Si tu caso no encaja en ninguno, lo cotizamos en la primera conversación."
+          title="Un primer entregable claro. Un precio cerrado."
+          lead="Empieza con la pieza que desbloquea el siguiente paso, sin alcance difuso ni sorpresas."
           align="center"
         />
 
@@ -733,10 +753,10 @@ function PricingSection() {
                 ))}
               </ul>
 
-              <a
+              <TrackedWhatsappLink
                 href={whatsappUrl(plan.msg)}
-                target="_blank"
-                rel="noopener noreferrer"
+                location={`studio_pricing_${plan.name.toLowerCase().replaceAll(" ", "_")}`}
+                offer={plan.name}
                 className={`mt-8 inline-flex w-full items-center justify-center gap-2 rounded-full py-4 text-[15px] font-semibold transition-transform active:scale-[0.98] ${
                   plan.featured
                     ? "bg-white text-black hover:bg-neutral-100"
@@ -745,7 +765,7 @@ function PricingSection() {
               >
                 {plan.cta}
                 <ArrowUpRight className="h-4 w-4" aria-hidden />
-              </a>
+              </TrackedWhatsappLink>
             </article>
           ))}
         </div>
@@ -767,7 +787,7 @@ function FaqSection() {
   return (
     <section id="preguntas" className="scroll-mt-20 border-b border-[var(--studio-hairline)] py-20 sm:py-28">
       <div className="mx-auto max-w-4xl px-5 sm:px-8">
-        <SectionHead label="Preguntas frecuentes" title="Lo que suelen preguntar antes de empezar." />
+        <SectionHead label="Preguntas frecuentes" title="Antes de empezar, esto es lo importante." />
 
         <div className="mt-12 divide-y divide-[var(--studio-hairline)] border-y border-[var(--studio-hairline)]">
           {STUDIO_FAQS.map((faq) => (
@@ -794,23 +814,23 @@ function FinalCta() {
     <section className="bg-black py-20 text-white sm:py-28">
       <div className="mx-auto max-w-4xl px-5 text-center sm:px-8">
         <h2 className="text-[clamp(2.1rem,4.6vw,3.6rem)] font-semibold text-white">
-          Cuéntanos qué necesita vender o dejar de doler.
+          Dinos qué está frenando el crecimiento.
         </h2>
         <p className="mx-auto mt-5 max-w-xl text-[17px] leading-relaxed text-neutral-400 sm:text-[19px]">
-          Respondemos el mismo día con un alcance concreto y un precio cerrado. Sin
-          formularios largos ni llamadas de descubrimiento eternas.
+          Te respondemos el mismo día con la primera pieza que construiríamos, el alcance
+          y el precio. Sin formularios largos ni llamadas de descubrimiento eternas.
         </p>
 
         <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
-          <a
+          <TrackedWhatsappLink
             href={CONTACT_URL}
-            target="_blank"
-            rel="noopener noreferrer"
+            location="studio_final"
+            offer="studio"
             className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#c5f04a] px-8 py-4 text-[16px] font-semibold text-black transition-transform hover:bg-[#c5f04a] active:scale-[0.98] sm:w-auto"
           >
             <MessageCircle className="h-5 w-5" aria-hidden />
             Escribir por WhatsApp
-          </a>
+          </TrackedWhatsappLink>
           <a
             href={`mailto:${CONTACT_EMAIL}`}
             className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-white/25 px-8 py-4 text-[16px] font-semibold text-white transition-colors hover:border-white sm:w-auto"
@@ -839,7 +859,7 @@ function StudioFooter() {
             <AllokLogo variant="lockup-bare" className="h-8 w-auto text-black" />
             <p className="mt-3 max-w-sm text-[15px] text-neutral-600">
               Estudio de producto digital. Diseño, software y automatización con IA para
-              negocios que necesitan resultados medibles.
+              convertir oportunidades en negocio y trabajo manual en sistema.
             </p>
           </div>
 
@@ -858,14 +878,14 @@ function StudioFooter() {
         <div className="flex flex-col justify-between gap-4 border-t border-[var(--studio-hairline)] pt-7 text-[14px] text-neutral-500 sm:flex-row sm:items-center">
           <span>© {new Date().getFullYear()} Allok</span>
           <div className="flex flex-wrap items-center gap-6 font-medium">
-            <a
+            <TrackedWhatsappLink
               href={CONTACT_URL}
-              target="_blank"
-              rel="noopener noreferrer"
+              location="studio_footer"
+              offer="studio"
               className="flex items-center gap-1.5 transition-colors hover:text-black"
             >
               <MessageCircle className="h-4 w-4" aria-hidden /> WhatsApp
-            </a>
+            </TrackedWhatsappLink>
             <a
               href={`mailto:${CONTACT_EMAIL}`}
               className="flex items-center gap-1.5 transition-colors hover:text-black"

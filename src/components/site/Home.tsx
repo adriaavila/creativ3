@@ -2,7 +2,6 @@ import type { Locale, Messages } from "@/lib/i18n";
 import Hero from "./Hero";
 import ProductStory from "./ProductStory";
 import Benefits from "./Benefits";
-import SystemLayers from "./SystemLayers";
 import Positioning from "./Positioning";
 import IdealCustomer from "./IdealCustomer";
 import Pricing from "./Pricing";
@@ -15,10 +14,9 @@ export default function Home({ locale, messages }: { locale: Locale; messages: M
   return (
     <main>
       <Hero locale={locale} messages={messages} />
-      <ProductStory messages={messages} />
-      <Benefits messages={messages} />
-      <SystemLayers messages={messages} />
       <Positioning messages={messages} />
+      <Benefits messages={messages} />
+      <ProductStory messages={messages} />
       <IdealCustomer messages={messages} />
       <Pricing messages={messages} />
       <SevenDayPlan messages={messages} />

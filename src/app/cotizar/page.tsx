@@ -23,7 +23,7 @@ export default function CotizarPage() {
               Diseña tu sistema comercial.
             </h1>
             <p className="mt-4 max-w-xl text-base leading-relaxed text-[var(--text-secondary)]">
-              Cinco preguntas. Sin formularios largos y sin promesas infladas.
+              Tres preguntas. Un plan inicial según el problema que quieres resolver.
             </p>
           </div>
           <div className="rounded-[var(--r-xl)] border border-[var(--line)] bg-[var(--surface-1)]">

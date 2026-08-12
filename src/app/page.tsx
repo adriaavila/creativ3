@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import StudioHome, { STUDIO_FAQS } from "@/components/home/StudioHome";
 import { faqJsonLd } from "@/lib/seo";
 
-const TITLE = "Allok | Agencia de producto, web y automatización";
+const TITLE = "Allok | Webs, productos y automatizaciones que venden";
 const DESCRIPTION =
-  "Diseñamos webs, productos digitales y automatizaciones con IA para negocios que necesitan vender y operar mejor.";
+  "Construimos landings, productos digitales y automatizaciones con IA para negocios que quieren vender más y operar mejor.";
 
 export const metadata: Metadata = {
   title: TITLE,

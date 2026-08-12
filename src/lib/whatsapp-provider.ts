@@ -52,6 +52,20 @@ type WhatsAppNormalizedEventBase = {
   occurredAt?: string;
 };
 
+/**
+ * De dónde salió la conversación. Meta lo estampa solo cuando el contacto llegó
+ * por un anuncio Click-to-WhatsApp o por un post; si escribió por su cuenta no
+ * viene. Es la única señal confiable del origen: el texto se puede escribir a
+ * mano, esto no.
+ */
+export type WhatsAppReferral = {
+  sourceType?: string;
+  sourceId?: string;
+  sourceUrl?: string;
+  headline?: string;
+  ctwaClid?: string;
+};
+
 export type WhatsAppMessageReceivedEvent = WhatsAppNormalizedEventBase & {
   type: "message.received";
   message: {
@@ -65,6 +79,7 @@ export type WhatsAppMessageReceivedEvent = WhatsAppNormalizedEventBase & {
     status?: string;
     contactName?: string;
     contactPhone?: string;
+    referral?: WhatsAppReferral;
   };
 };
 

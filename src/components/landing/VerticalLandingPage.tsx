@@ -3,6 +3,7 @@ import { ArrowRight, CheckCircle2, MapPin } from "lucide-react";
 import { whatsappUrl } from "@/lib/contact";
 import { VERTICAL_LIST, type Vertical } from "@/lib/verticals";
 import { CITIES, VERTICAL_LABELS, cityVerticalPath } from "@/lib/cities";
+import TrackedWhatsappLink from "@/components/analytics/TrackedWhatsappLink";
 import Colofon from "./Colofon";
 
 type Props = {
@@ -34,15 +35,15 @@ export default function VerticalLandingPage({ vertical, city }: Props) {
             {vertical.subtitle}
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
-            <a
+            <TrackedWhatsappLink
               href={whatsappUrl(vertical.message)}
-              target="_blank"
-              rel="noopener noreferrer"
+              location={`vertical_${vertical.slug}_hero`}
+              offer="whatsapp_system"
               className="inline-flex min-h-12 items-center gap-2 rounded-full bg-[var(--lima)] px-6 text-sm font-semibold text-[var(--lima-ink)] transition-all hover:-translate-y-0.5"
             >
               Quiero revisar mi caso
               <ArrowRight className="h-4 w-4" aria-hidden />
-            </a>
+            </TrackedWhatsappLink>
             <Link
               href="/cotizar"
               className="inline-flex min-h-12 items-center gap-2 rounded-full border border-[var(--line)] px-6 text-sm font-semibold text-[var(--text-primary)] transition-colors hover:bg-[var(--surface-2)]"

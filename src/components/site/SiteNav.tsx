@@ -89,16 +89,10 @@ export default function SiteNav({ locale, messages }: { locale: Locale; messages
           >
             {otherLocale}
           </Link>
-          <Link
-            href="/ops-login"
-            className="hidden rounded-full px-3.5 py-2 text-sm font-medium text-[var(--text-secondary)] transition-colors hover:bg-[var(--surface-3)] hover:text-[var(--text-primary)] sm:inline-flex"
-          >
-            {messages.common.enter}
-          </Link>
           <button
             type="button"
             onClick={() => {
-              track("whatsapp_cta", { location: "nav" });
+              track("qualification_opened", { location: "nav", offer: "whatsapp_system" });
               openQualification();
             }}
             className="hidden items-center gap-1.5 rounded-full bg-[var(--lima)] px-4 py-2 text-sm font-semibold text-[var(--lima-ink)] transition-transform hover:-translate-y-0.5 sm:inline-flex"
@@ -143,20 +137,13 @@ export default function SiteNav({ locale, messages }: { locale: Locale; messages
             >
               Agencia
             </Link>
-            <Link
-              href="/ops-login"
-              onClick={() => setOpen(false)}
-              className="rounded-[var(--r-md)] px-4 py-3 text-base font-medium text-[var(--text-secondary)] transition-colors hover:bg-[var(--surface-3)]"
-            >
-              {messages.common.enter}
-            </Link>
           </div>
           <div className="flex flex-col gap-2 border-t border-[var(--line)] p-3">
             <button
               type="button"
               onClick={() => {
                 setOpen(false);
-                track("whatsapp_cta", { location: "nav_mobile" });
+                track("qualification_opened", { location: "nav_mobile", offer: "whatsapp_system" });
                 openQualification();
               }}
               className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-[var(--lima)] px-5 text-sm font-semibold text-[var(--lima-ink)]"
@@ -167,7 +154,7 @@ export default function SiteNav({ locale, messages }: { locale: Locale; messages
               href={whatsappUrl()}
               target="_blank"
               rel="noopener noreferrer"
-              onClick={() => track("whatsapp_cta", { location: "nav_mobile_direct" })}
+              onClick={() => track("whatsapp_opened", { location: "nav_mobile_direct", offer: "whatsapp_system" })}
               className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-[var(--line)] px-5 text-sm font-semibold text-[var(--text-primary)]"
             >
               <MessageCircle className="size-4" aria-hidden />

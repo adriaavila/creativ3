@@ -3,6 +3,7 @@ import { Mail, MessageCircle } from "lucide-react";
 import AllokLogo from "@/components/brand/AllokLogo";
 import { CONTACT_EMAIL, whatsappUrl } from "@/lib/contact";
 import type { Locale, Messages } from "@/lib/i18n";
+import TrackedWhatsappLink from "@/components/analytics/TrackedWhatsappLink";
 
 export default function SiteFooter({ locale, messages }: { locale: Locale; messages: Messages }) {
   const { common, home } = messages;
@@ -41,15 +42,15 @@ export default function SiteFooter({ locale, messages }: { locale: Locale; messa
             ))}
           </div>
           <div className="flex flex-wrap items-center gap-3">
-            <a
+            <TrackedWhatsappLink
               href={whatsappUrl()}
-              target="_blank"
-              rel="noopener noreferrer"
+              location="whatsapp_footer"
+              offer="whatsapp_system"
               className="inline-flex items-center gap-2 rounded-full border border-[var(--line)] px-4 py-2 text-sm text-[var(--text-secondary)] transition-colors hover:border-[var(--line-strong)] hover:text-[var(--text-primary)]"
             >
               <MessageCircle className="size-3.5" aria-hidden />
               WhatsApp
-            </a>
+            </TrackedWhatsappLink>
             <a
               href={`mailto:${CONTACT_EMAIL}`}
               className="inline-flex items-center gap-2 rounded-full border border-[var(--line)] px-4 py-2 text-sm text-[var(--text-secondary)] transition-colors hover:border-[var(--line-strong)] hover:text-[var(--text-primary)]"

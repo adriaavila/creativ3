@@ -129,27 +129,170 @@
   --radius: var(--r-lg);
 }
 
-/* Agency homepage: the restored light editorial system is intentionally
-   scoped so the dark WhatsApp product and Ops UI keep their own tokens. */
+/* Agency homepage: its own dark editorial scale, scoped so the product and
+   Ops UI keep their tokens. Same canvas and accent as the app — the site and
+   the software look like one company. */
 .studio {
-  --studio-surface: #f3f3f3;
-  --studio-hairline: #ebebeb;
-  --studio-muted-text: #6b6b6b;
-  --studio-shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 8px 24px rgba(0, 0, 0, 0.06);
+  --studio-bg: #08090a;
+  --studio-surface: #0e0f11;
+  --studio-raised: #141517;
+  --studio-hairline: rgba(242, 241, 238, 0.09);
+  --studio-hairline-strong: rgba(242, 241, 238, 0.18);
+  --studio-text: #f2f1ee;
+  --studio-muted-text: #8e8e8b;
+  --studio-dim-text: #6c6c69;
   --studio-accent: #c5f04a;
-  color-scheme: light;
+  --studio-shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 24px 70px rgba(0, 0, 0, 0.5);
+  /* Strong ease-out — the built-in one is too weak to read as intentional. */
+  --studio-ease: cubic-bezier(0.23, 1, 0.32, 1);
+  color-scheme: dark;
 }
 
-.studio-mark {
-  background-image: linear-gradient(
-    to top,
-    transparent 0.08em,
-    var(--studio-accent) 0.08em,
-    var(--studio-accent) 0.42em,
-    transparent 0.42em
-  );
-  box-decoration-break: clone;
-  -webkit-box-decoration-break: clone;
+/* ─── Cinematic hero ────────────────────────────────────────────
+   One sticky stage, one scroll-driven playhead. `--p` (0→1) is written
+   by CinematicHero on the section; CSS owns every transform from there,
+   so the frame loop never touches layout. Depth rule: the further the
+   layer, the smaller its motion. */
+.studio-cine {
+  --p: 0;
+  --mx: 0;
+  --my: 0;
+  /* Two beats: copy leaves, world pushes in and the statement lands. They
+     span the whole travel bar a short hold at the end — any scroll distance
+     past the last beat is dead scroll, and dead scroll reads as a stuck page. */
+  --beat1: clamp(0, var(--p) / 0.36, 1);
+  --beat2: clamp(0, (var(--p) - 0.34) / 0.5, 1);
+}
+
+/* Below `lg` the timeline is off (see the flatten block), so the extra
+   height would just be empty page. */
+@media (min-width: 1024px) {
+  .studio-cine { min-height: 200vh; }
+}
+
+.studio-stage {
+  position: sticky;
+  top: 0;
+  min-height: 100svh;
+  overflow: clip;
+  isolation: isolate;
+}
+
+.studio-glow {
+  opacity: calc(0.85 - var(--beat2) * 0.45);
+  transform: translate3d(calc(var(--mx) * 6px), calc(var(--my) * 4px), 0)
+    scale(calc(1 + var(--beat1) * 0.28));
+}
+
+.studio-copy {
+  opacity: calc(1 - var(--beat1));
+  transform: translate3d(0, calc(var(--beat1) * -3rem), 0);
+}
+
+.studio-plate {
+  /* Beat 2 walks the plate out of its right-hand column and into the middle
+     of the frame, so the statement lands over a scene rather than over a
+     half-empty canvas. */
+  transform: translate3d(calc(var(--mx) * 8px + var(--beat2) * -52%), calc(var(--my) * 6px - var(--beat1) * 1.5rem), 0)
+    scale(calc(1 + var(--beat1) * 0.1 + var(--beat2) * 0.34));
+  /* Blur only as far as the statement needs to read — enough to push the
+     world back, not enough to turn it into fog. */
+  filter: brightness(calc(1 - var(--beat2) * 0.35)) saturate(calc(1 - var(--beat2) * 0.3))
+    blur(calc(var(--beat2) * 4px));
+}
+
+/* Near layer: bigger travel, opposing pointer direction — that opposition
+   is what reads as depth. */
+.studio-card {
+  /* Leaves at roughly twice the beat's rate: a near layer lingering under
+     the statement competes with it for the same pixels. */
+  opacity: calc(1 - var(--beat2) * 2.2);
+  transform: translate3d(calc(var(--mx) * -16px), calc(var(--my) * -10px + var(--beat1) * 2.5rem), 0)
+    scale(calc(1 - var(--beat1) * 0.06));
+}
+
+.studio-veil {
+  opacity: calc(var(--beat2) * 0.6);
+}
+
+.studio-statement {
+  opacity: var(--beat2);
+  transform: translate3d(0, calc((1 - var(--beat2)) * 1.75rem), 0);
+  pointer-events: none;
+}
+.studio-cine[data-settled="true"] .studio-statement {
+  pointer-events: auto;
+}
+
+.studio-cue {
+  opacity: calc(1 - var(--beat1));
+}
+
+/* Two cases drop the timeline entirely, and both need the same thing: the
+   stage stops being a timeline and becomes a plain stack, with the statement
+   still reachable rather than merely un-animated.
+   - Reduced motion, for obvious reasons.
+   - Anything below `lg`, where the hero is a single column and the stage is
+     taller than the viewport. The choreography is art-directed against the
+     two-column composition; stacked, it pushes the plate off frame and pins
+     part of the stage permanently below the fold. */
+@media (max-width: 1023px), (prefers-reduced-motion: reduce) {
+  .studio-cine { min-height: 0; }
+  .studio-stage { position: static; min-height: 0; }
+  .studio-glow,
+  .studio-copy,
+  .studio-plate,
+  .studio-card,
+  .studio-statement {
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+  }
+  .studio-veil,
+  .studio-cue { display: none; }
+  .studio-statement {
+    position: static !important;
+    pointer-events: auto;
+    padding-top: 4rem;
+  }
+}
+
+/* ─── Studio buttons ───────────────────────────────────────────
+   Pressable things must answer the press: 160ms scale, nothing else. */
+.studio-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 999px;
+  padding: 0.95rem 1.75rem;
+  font-size: 15px;
+  font-weight: 600;
+  transition: transform 160ms var(--studio-ease), background-color 200ms ease,
+    border-color 200ms ease, color 200ms ease;
+}
+.studio-btn:active {
+  transform: scale(0.97);
+}
+.studio-btn-accent {
+  background: var(--studio-accent);
+  color: #08090a;
+}
+.studio-btn-ghost {
+  border: 1px solid var(--studio-hairline-strong);
+  color: var(--studio-text);
+}
+.studio-btn-solid {
+  background: var(--studio-text);
+  color: #08090a;
+}
+@media (hover: hover) and (pointer: fine) {
+  .studio-btn-accent:hover { background: #d9f77e; }
+  .studio-btn-ghost:hover {
+    border-color: var(--studio-text);
+    background: var(--studio-surface);
+  }
+  .studio-btn-solid:hover { background: #ffffff; }
 }
 
 .studio-marquee-mask {
@@ -170,7 +313,9 @@
   body {
     background-color: var(--surface-0);
     color: var(--text-primary);
-    overflow-x: hidden;
+    /* `clip`, not `hidden`: `hidden` makes body a scroll container, which
+       breaks `position: sticky` for the cinematic stage. */
+    overflow-x: clip;
     font-family: var(--font-grotesk), "Helvetica Neue", Helvetica, Arial, sans-serif;
   }
 

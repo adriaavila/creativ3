@@ -73,7 +73,7 @@ export default async function RootLayout({
   const locale = (await headers()).get("x-allok-locale") === "en" ? "en" : "es";
   return (
     <html lang={locale} className={`${jetbrains.variable} ${geist.variable}`}>
-      <body className="relative min-h-screen overflow-x-hidden antialiased">
+      <body className="relative min-h-screen overflow-x-clip antialiased">
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(siteJsonLd(locale)) }}

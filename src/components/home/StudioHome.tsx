@@ -4,6 +4,8 @@ import { ArrowRight, ArrowUpRight, Check, Mail, MessageCircle, Plus } from "luci
 import AllokLogo from "@/components/brand/AllokLogo";
 import Waveform from "@/components/brand/Waveform";
 import TrackedWhatsappLink from "@/components/analytics/TrackedWhatsappLink";
+import Reveal from "@/components/landing/Reveal";
+import CinematicHero from "@/components/home/CinematicHero";
 import { CONTACT_EMAIL, whatsappUrl } from "@/lib/contact";
 
 const CONTACT_URL = whatsappUrl(
@@ -22,12 +24,20 @@ const NAV = [
 const TRUST = [
   "Primer entregable en 3 días",
   "Precio cerrado, sin sorpresas",
-  "+10 productos en producción",
+  "El código queda tuyo",
+] as const;
+
+const STATS = [
+  { label: "Productos en producción", value: "+15" },
+  { label: "Primer entregable", value: "3 días" },
+  { label: "Precio", value: "Cerrado" },
+  { label: "Respuesta", value: "Mismo día" },
 ] as const;
 
 const SERVICES = [
   {
     id: "vender",
+    num: "01",
     kicker: "Aumentar ingresos",
     title: "Web que vende",
     description:
@@ -38,11 +48,13 @@ const SERVICES = [
       "Captura de leads directa a WhatsApp",
       "SEO técnico y velocidad real",
     ],
+    stack: ["Next.js", "SEO", "Checkout"],
     cta: "Quiero una web que venda",
     message: "Hola, quiero una web que venda. Mi negocio necesita:",
   },
   {
     id: "operar",
+    num: "02",
     kicker: "Reducir costos",
     title: "Automatización con IA",
     description:
@@ -53,11 +65,13 @@ const SERVICES = [
       "Leads clasificados y enrutados",
       "Reportes automáticos al equipo",
     ],
+    stack: ["n8n", "WhatsApp", "Agentes"],
     cta: "Automatizar un proceso",
     message: "Hola, quiero automatizar un proceso. Hoy mi equipo hace esto manualmente:",
   },
   {
     id: "producto",
+    num: "03",
     kicker: "Construir",
     title: "Producto a medida",
     description:
@@ -68,6 +82,7 @@ const SERVICES = [
       "Panel de administración",
       "Listo para producción",
     ],
+    stack: ["Next.js", "Postgres", "Auth"],
     cta: "Construir mi producto",
     message: "Hola, quiero construir un producto digital. La idea que necesito validar es:",
   },
@@ -145,26 +160,31 @@ const MARQUEE = [
 const PROCESS_STEPS = [
   {
     num: "01",
+    span: "1–3 días",
     title: "Entendemos el objetivo",
     desc: "El problema de negocio, el usuario final y la acción que necesitamos conseguir.",
   },
   {
     num: "02",
+    span: "1–2 días",
     title: "Cerramos alcance y precio",
     desc: "Definimos la pieza que desbloquea el siguiente paso. Alcance y precio cerrados antes de empezar.",
   },
   {
     num: "03",
+    span: "1–3 semanas",
     title: "Diseñamos y construimos",
     desc: "Interfaz a medida y software real con tecnologías modernas, no plantillas.",
   },
   {
     num: "04",
+    span: "Día de lanzamiento",
     title: "Lanzamos y medimos",
     desc: "Publicamos la versión funcional y observamos cómo la usan de verdad.",
   },
   {
     num: "05",
+    span: "Continuo",
     title: "Escalamos con evidencia",
     desc: "Conectamos automatizaciones, CRM o IA cuando los datos dicen que toca.",
   },
@@ -261,11 +281,12 @@ export const STUDIO_FAQS = [
 
 export default function StudioHome() {
   return (
-    <div className="studio min-h-screen bg-white text-black antialiased selection:bg-[#c5f04a] selection:text-black">
+    <div className="studio min-h-screen bg-[var(--studio-bg)] text-[var(--studio-text)] antialiased selection:bg-[#c5f04a] selection:text-black">
       <StudioHeader />
 
       <main>
-        <Hero />
+        <CinematicHero contactUrl={CONTACT_URL} trust={TRUST} />
+        <StatsBar />
         <LogoMarquee />
         <ServicesSection />
         <WorkSection />
@@ -284,10 +305,14 @@ export default function StudioHome() {
 
 function StudioHeader() {
   return (
-    <header className="sticky top-0 z-50 border-b border-[var(--studio-hairline)] bg-white/80 backdrop-blur-xl backdrop-saturate-150">
+    <header className="sticky top-0 z-50 border-b border-[var(--studio-hairline)] bg-[var(--studio-bg)]/75 backdrop-blur-xl backdrop-saturate-150">
       <nav className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-3 sm:px-8">
-        <Link href="/" aria-label="Allok" className="flex shrink-0 items-center text-black">
-          <AllokLogo variant="lockup-bare" className="h-7 w-auto text-black sm:h-[30px]" />
+        <Link
+          href="/"
+          aria-label="Allok"
+          className="flex shrink-0 items-center text-[var(--studio-text)]"
+        >
+          <AllokLogo variant="lockup-bare" className="h-7 w-auto sm:h-[30px]" />
         </Link>
 
         <div className="hidden items-center gap-0.5 md:flex">
@@ -295,7 +320,7 @@ function StudioHeader() {
             <a
               key={href}
               href={href}
-              className="rounded-full px-3.5 py-2 text-[14px] font-medium text-neutral-600 transition-colors hover:bg-[var(--studio-surface)] hover:text-black"
+              className="rounded-full px-3.5 py-2 text-[14px] font-medium text-[var(--studio-muted-text)] transition-colors hover:bg-[var(--studio-surface)] hover:text-[var(--studio-text)]"
             >
               {label}
             </a>
@@ -306,7 +331,7 @@ function StudioHeader() {
           href={CONTACT_URL}
           location="studio_nav"
           offer="studio"
-          className="inline-flex shrink-0 items-center gap-2 rounded-full bg-black px-5 py-2.5 text-[14px] font-semibold text-white transition-transform duration-200 hover:bg-neutral-800 active:scale-[0.97]"
+          className="studio-btn studio-btn-accent shrink-0 px-5 py-2.5 text-[14px]"
         >
           <MessageCircle className="h-4 w-4" aria-hidden />
           Hablemos
@@ -316,149 +341,39 @@ function StudioHeader() {
   );
 }
 
-/* ── Hero ────────────────────────────────────────────────────────────── */
+/* ── Proof ───────────────────────────────────────────────────────────── */
 
-function Hero() {
+function StatsBar() {
   return (
-    <section id="inicio" className="relative overflow-hidden border-b border-[var(--studio-hairline)]">
-      {/* Soft light behind the copy — one gradient, no 3D, no scroll-jack. */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-x-0 top-[-30%] h-[70%] opacity-70"
-        style={{
-          background:
-            "radial-gradient(60% 60% at 30% 60%, rgba(197,240,74,0.28) 0%, rgba(197,240,74,0) 70%)",
-        }}
-      />
-
-      <div className="relative mx-auto grid max-w-6xl gap-14 px-5 pb-20 pt-16 sm:px-8 sm:pb-24 sm:pt-24 lg:grid-cols-12 lg:gap-10">
-        <div className="lg:col-span-7 lg:pt-4">
-          <span className="inline-flex items-center gap-2 rounded-full border border-[var(--studio-hairline)] bg-white px-3.5 py-1.5 text-[13px] font-medium text-neutral-700">
-            <span className="h-1.5 w-1.5 rounded-full bg-[#c5f04a]" aria-hidden />
-            Para negocios que ya no pueden crecer a pulso
-          </span>
-
-          <h1 className="mt-6 text-[clamp(2.4rem,4.4vw,3.9rem)] font-semibold text-black">
-            Más clientes.{" "}
-            {/* Gradient highlight instead of an absolute bar: it re-draws per
-                line, so a wrap never leaves the mark hanging past the text. */}
-            <span className="studio-mark">Menos trabajo manual.</span>
-          </h1>
-
-          <p className="mt-6 max-w-xl text-[17px] leading-relaxed text-neutral-600 sm:text-[19px]">
-            Landings, automatizaciones y software a medida, listos para mover tu negocio.
-            Primer entregable en 3 días, con precio cerrado.
-          </p>
-
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
-            <TrackedWhatsappLink
-              href={CONTACT_URL}
-              location="studio_hero"
-              offer="studio"
-              className="inline-flex items-center justify-center gap-2 rounded-full bg-black px-7 py-4 text-[16px] font-semibold text-white transition-all hover:bg-neutral-800 active:scale-[0.98]"
-            >
-              Empezar mi proyecto
-              <ArrowRight className="h-4 w-4" aria-hidden />
-            </TrackedWhatsappLink>
-            <a
-              href="#trabajo"
-              className="inline-flex items-center justify-center gap-2 rounded-full border border-neutral-300 px-7 py-4 text-[16px] font-semibold text-black transition-colors hover:border-black"
-            >
-              Ver lo que ya funciona
-            </a>
+    <section
+      aria-label="Datos del estudio"
+      className="border-y border-[var(--studio-hairline)] bg-[var(--studio-surface)]"
+    >
+      <dl className="mx-auto grid max-w-6xl grid-cols-2 gap-px bg-[var(--studio-hairline)] sm:grid-cols-4">
+        {STATS.map((stat) => (
+          <div key={stat.label} className="bg-[var(--studio-surface)] px-5 py-8 sm:px-8">
+            <dt className="font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--studio-dim-text)]">
+              {stat.label}
+            </dt>
+            <dd className="mt-3 text-[clamp(1.6rem,3vw,2.3rem)] font-semibold tracking-[-0.03em] text-[var(--studio-text)]">
+              {stat.value}
+            </dd>
           </div>
-
-          <ul className="mt-9 flex flex-wrap gap-x-6 gap-y-2.5">
-            {TRUST.map((item) => (
-              <li key={item} className="flex items-center gap-2 text-[14px] font-medium text-neutral-700">
-                <Check className="h-4 w-4 shrink-0 text-black" aria-hidden />
-                {item}
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        <div className="lg:col-span-5 lg:pt-8">
-          <HeroShowcase />
-        </div>
-      </div>
+        ))}
+      </dl>
     </section>
   );
 }
-
-function HeroShowcase() {
-  return (
-    <div className="relative mx-auto max-w-lg lg:max-w-none">
-      <BrowserFrame
-        src="/projects/rei-fm/01-desktop.jpg"
-        alt="Panel de REI, la plataforma inmobiliaria construida por Allok"
-        url="reiprop.tech"
-        priority
-      />
-
-      <div className="absolute -bottom-10 -left-6 hidden w-[25%] overflow-hidden rounded-[22px] border border-[var(--studio-hairline)] bg-white p-1.5 shadow-[0_20px_50px_rgba(0,0,0,0.14)] sm:block lg:-left-10">
-        <div className="relative aspect-[9/16] overflow-hidden rounded-[16px] bg-[var(--studio-surface)]">
-          <Image
-            src="/projects/shopea/03-mobile.jpg"
-            alt="Shopea en móvil: catálogo y checkout por WhatsApp"
-            fill
-            sizes="200px"
-            className="object-cover object-top"
-          />
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function BrowserFrame({
-  src,
-  alt,
-  url,
-  priority = false,
-}: {
-  src: string;
-  alt: string;
-  url: string;
-  priority?: boolean;
-}) {
-  return (
-    <div className="overflow-hidden rounded-[20px] border border-[var(--studio-hairline)] bg-white shadow-[0_24px_70px_rgba(0,0,0,0.10)]">
-      <div className="flex items-center gap-2 border-b border-[var(--studio-hairline)] bg-[var(--studio-surface)] px-4 py-2.5">
-        <span className="flex gap-1.5" aria-hidden>
-          <span className="h-2.5 w-2.5 rounded-full bg-neutral-300" />
-          <span className="h-2.5 w-2.5 rounded-full bg-neutral-300" />
-          <span className="h-2.5 w-2.5 rounded-full bg-neutral-300" />
-        </span>
-        <span className="mx-auto rounded-full bg-white px-3 py-0.5 font-mono text-[11px] text-neutral-500">
-          {url}
-        </span>
-      </div>
-      <div className="relative aspect-[16/10] bg-[var(--studio-surface)]">
-        <Image
-          src={src}
-          alt={alt}
-          fill
-          priority={priority}
-          sizes="(max-width: 1024px) 100vw, 620px"
-          className="object-cover object-top"
-        />
-      </div>
-    </div>
-  );
-}
-
-/* ── Proof strip ─────────────────────────────────────────────────────── */
 
 function LogoMarquee() {
   return (
     <section
       aria-label="Productos en producción"
-      className="border-b border-[var(--studio-hairline)] bg-[var(--studio-surface)] py-7"
+      className="border-b border-[var(--studio-hairline)] py-8"
     >
-      <div className="mx-auto flex max-w-6xl flex-col gap-4 px-5 sm:px-8">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[var(--studio-muted-text)]">
-          Productos construidos y en producción
+      <div className="mx-auto flex max-w-6xl flex-col gap-5 px-5 sm:px-8">
+        <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-[var(--studio-dim-text)]">
+          — Construidos y en producción
         </p>
         {/* Marquee: duplicated list translated -50%, so the seam never shows. */}
         <div className="studio-marquee-mask overflow-hidden">
@@ -467,7 +382,7 @@ function LogoMarquee() {
               <li
                 key={`${name}-${i}`}
                 aria-hidden={i >= MARQUEE.length}
-                className="whitespace-nowrap text-[20px] font-semibold tracking-tight text-neutral-500 sm:text-[24px]"
+                className="whitespace-nowrap text-[20px] font-semibold tracking-tight text-[var(--studio-dim-text)] sm:text-[24px]"
               >
                 {name}
               </li>
@@ -494,12 +409,16 @@ function SectionHead({
 }) {
   return (
     <div className={align === "center" ? "mx-auto max-w-2xl text-center" : "max-w-3xl"}>
-      <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[var(--studio-muted-text)]">
-        {label}
+      <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-[var(--studio-dim-text)]">
+        — {label}
       </p>
-      <h2 className="mt-4 text-[clamp(2rem,4vw,3.2rem)] font-semibold text-black">{title}</h2>
+      <h2 className="mt-5 text-[clamp(2rem,4vw,3.2rem)] font-semibold text-[var(--studio-text)]">
+        {title}
+      </h2>
       {lead ? (
-        <p className="mt-4 text-[17px] leading-relaxed text-neutral-600 sm:text-[19px]">{lead}</p>
+        <p className="mt-5 text-[17px] leading-relaxed text-[var(--studio-muted-text)] sm:text-[19px]">
+          {lead}
+        </p>
       ) : null}
     </div>
   );
@@ -507,50 +426,77 @@ function SectionHead({
 
 function ServicesSection() {
   return (
-    <section id="servicios" className="scroll-mt-20 border-b border-[var(--studio-hairline)] py-20 sm:py-28">
+    <section
+      id="servicios"
+      className="scroll-mt-20 border-b border-[var(--studio-hairline)] py-20 sm:py-28"
+    >
       <div className="mx-auto max-w-6xl px-5 sm:px-8">
-        <SectionHead
-          label="Servicios"
-          title="Elige qué desbloquear primero."
-          lead="Más clientes, menos trabajo manual o un producto que ya pueda salir a producción."
-        />
+        <Reveal>
+          <SectionHead
+            label="Servicios"
+            title="Elige qué desbloquear primero."
+            lead="Más clientes, menos trabajo manual o un producto que ya pueda salir a producción."
+          />
+        </Reveal>
 
-        <div className="mt-14 grid gap-5 md:grid-cols-12">
+        <div className="mt-14 grid gap-px overflow-hidden rounded-[20px] border border-[var(--studio-hairline)] bg-[var(--studio-hairline)]">
           {SERVICES.map((service, index) => (
-            <article
-              key={service.id}
-              className={`group flex flex-col rounded-3xl border border-[var(--studio-hairline)] bg-white p-7 transition-[transform,box-shadow] duration-300 hover:-translate-y-1 hover:shadow-[var(--studio-shadow)] md:p-8 ${
-                index === 0 ? "md:col-span-7" : index === 1 ? "md:col-span-5" : "md:col-span-12"
-              }`}
-            >
-              <span className="inline-flex w-fit items-center gap-2 rounded-full bg-[var(--studio-surface)] px-3 py-1 text-[12px] font-semibold uppercase tracking-wide text-neutral-700">
-                <span className="h-1.5 w-1.5 rounded-full bg-[#c5f04a]" aria-hidden />
-                {service.kicker}
-              </span>
-              <h3 className="mt-6 max-w-xl text-[clamp(1.6rem,2.4vw,2.2rem)] font-semibold leading-tight text-black">
-                {service.title}
-              </h3>
-              <p className="mt-3 max-w-2xl text-[15px] leading-relaxed text-neutral-600">
-                {service.description}
-              </p>
-              <ul className="mt-7 grid gap-x-8 gap-y-2.5 border-t border-[var(--studio-hairline)] pt-6 sm:grid-cols-2">
-                {service.bullets.map((bullet) => (
-                  <li key={bullet} className="flex gap-2.5 text-[14px] font-medium text-neutral-700">
-                    <Check className="mt-0.5 h-4 w-4 shrink-0 text-black" aria-hidden />
-                    {bullet}
-                  </li>
-                ))}
-              </ul>
-              <TrackedWhatsappLink
-                href={whatsappUrl(service.message)}
-                location={`studio_service_${service.id}`}
-                offer={service.id}
-                className="mt-8 inline-flex w-fit items-center gap-2 text-[14px] font-semibold text-black transition-transform duration-200 group-hover:translate-x-1"
-              >
-                {service.cta}
-                <ArrowRight className="h-4 w-4" aria-hidden />
-              </TrackedWhatsappLink>
-            </article>
+            <Reveal key={service.id} delay={index * 0.06} y={16}>
+              <article className="group grid h-full gap-6 bg-[var(--studio-bg)] p-7 transition-colors duration-200 hover:bg-[var(--studio-surface)] md:grid-cols-12 md:gap-10 md:p-10">
+                <div className="md:col-span-5">
+                  <div className="flex items-center gap-3">
+                    <span className="font-mono text-[13px] font-medium text-[var(--studio-accent)]">
+                      {service.num}
+                    </span>
+                    <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--studio-dim-text)]">
+                      {service.kicker}
+                    </span>
+                  </div>
+                  <h3 className="mt-5 text-[clamp(1.6rem,2.4vw,2.1rem)] font-semibold leading-tight text-[var(--studio-text)]">
+                    {service.title}
+                  </h3>
+                  <div className="mt-6 flex flex-wrap gap-1.5">
+                    {service.stack.map((tech) => (
+                      <span
+                        key={tech}
+                        className="rounded-full border border-[var(--studio-hairline)] px-2.5 py-1 font-mono text-[11px] text-[var(--studio-muted-text)]"
+                      >
+                        {tech}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="md:col-span-7">
+                  <p className="max-w-2xl text-[15px] leading-relaxed text-[var(--studio-muted-text)]">
+                    {service.description}
+                  </p>
+                  <ul className="mt-7 grid gap-x-8 gap-y-2.5 border-t border-[var(--studio-hairline)] pt-6 sm:grid-cols-2">
+                    {service.bullets.map((bullet) => (
+                      <li
+                        key={bullet}
+                        className="flex gap-2.5 text-[14px] font-medium text-[var(--studio-muted-text)]"
+                      >
+                        <Check
+                          className="mt-0.5 h-4 w-4 shrink-0 text-[var(--studio-accent)]"
+                          aria-hidden
+                        />
+                        {bullet}
+                      </li>
+                    ))}
+                  </ul>
+                  <TrackedWhatsappLink
+                    href={whatsappUrl(service.message)}
+                    location={`studio_service_${service.id}`}
+                    offer={service.id}
+                    className="mt-8 inline-flex w-fit items-center gap-2 text-[14px] font-semibold text-[var(--studio-text)] transition-transform duration-200 group-hover:translate-x-1"
+                  >
+                    {service.cta}
+                    <ArrowRight className="h-4 w-4 text-[var(--studio-accent)]" aria-hidden />
+                  </TrackedWhatsappLink>
+                </div>
+              </article>
+            </Reveal>
           ))}
         </div>
       </div>
@@ -565,27 +511,26 @@ function WorkSection() {
       className="scroll-mt-20 border-b border-[var(--studio-hairline)] bg-[var(--studio-surface)] py-20 sm:py-28"
     >
       <div className="mx-auto max-w-6xl px-5 sm:px-8">
-        <div className="flex flex-wrap items-end justify-between gap-6">
-          <SectionHead
-            label="Trabajo"
-            title="Lo que construimos ya está trabajando."
-            lead="Casos reales: productos que reciben clientes, cobran y ordenan operaciones."
-          />
-          <Link
-            href="/projects"
-            className="inline-flex items-center gap-1.5 rounded-full border border-neutral-300 px-5 py-2.5 text-[14px] font-semibold text-black transition-colors hover:border-black"
-          >
-            Ver todo el archivo
-            <ArrowUpRight className="h-4 w-4" aria-hidden />
-          </Link>
-        </div>
+        <Reveal>
+          <div className="flex flex-wrap items-end justify-between gap-6">
+            <SectionHead
+              label="Trabajo"
+              title="Lo que construimos ya está trabajando."
+              lead="Casos reales: productos que reciben clientes, cobran y ordenan operaciones."
+            />
+            <Link href="/projects" className="studio-btn studio-btn-ghost px-5 py-2.5 text-[14px]">
+              Ver todo el archivo
+              <ArrowUpRight className="h-4 w-4" aria-hidden />
+            </Link>
+          </div>
+        </Reveal>
 
         <div className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {WORK.map((project) => {
+          {WORK.map((project, index) => {
             const external = project.link.startsWith("http");
             const Card = (
               <>
-                <div className="relative aspect-[16/11] overflow-hidden bg-white">
+                <div className="relative aspect-[16/11] overflow-hidden bg-[var(--studio-bg)]">
                   <Image
                     src={project.image}
                     alt={`${project.name} — ${project.kind}`}
@@ -596,23 +541,27 @@ function WorkSection() {
                 </div>
                 <div className="flex flex-1 flex-col p-6">
                   <div className="flex items-baseline justify-between gap-3">
-                    <h3 className="text-[21px] font-semibold text-black">{project.name}</h3>
-                    <span className="text-[13px] font-medium text-neutral-500">{project.kind}</span>
+                    <h3 className="text-[21px] font-semibold text-[var(--studio-text)]">
+                      {project.name}
+                    </h3>
+                    <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--studio-dim-text)]">
+                      {project.kind}
+                    </span>
                   </div>
-                  <p className="mt-3 flex-1 text-[14px] leading-relaxed text-neutral-600">
+                  <p className="mt-3 flex-1 text-[14px] leading-relaxed text-[var(--studio-muted-text)]">
                     {project.outcome}
                   </p>
                   <div className="mt-5 flex flex-wrap items-center gap-1.5">
                     {project.tags.map((tag) => (
                       <span
                         key={tag}
-                        className="rounded-full bg-[var(--studio-surface)] px-2.5 py-1 text-[12px] font-medium text-[var(--studio-muted-text)]"
+                        className="rounded-full bg-[var(--studio-bg)] px-2.5 py-1 font-mono text-[11px] text-[var(--studio-muted-text)]"
                       >
                         {tag}
                       </span>
                     ))}
                     <ArrowUpRight
-                      className="ml-auto h-4 w-4 text-neutral-400 transition-colors group-hover:text-black"
+                      className="ml-auto h-4 w-4 text-[var(--studio-dim-text)] transition-colors group-hover:text-[var(--studio-accent)]"
                       aria-hidden
                     />
                   </div>
@@ -621,22 +570,25 @@ function WorkSection() {
             );
 
             const className =
-              "group flex flex-col overflow-hidden rounded-3xl border border-[var(--studio-hairline)] bg-white transition-shadow duration-200 hover:shadow-[var(--studio-shadow)]";
+              "group flex h-full flex-col overflow-hidden rounded-[20px] border border-[var(--studio-hairline)] bg-[var(--studio-raised)] transition-colors duration-200 hover:border-[var(--studio-hairline-strong)]";
 
-            return external ? (
-              <a
-                key={project.name}
-                href={project.link}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={className}
-              >
-                {Card}
-              </a>
-            ) : (
-              <Link key={project.name} href={project.link} className={className}>
-                {Card}
-              </Link>
+            return (
+              <Reveal key={project.name} delay={index * 0.06} y={16} className="h-full">
+                {external ? (
+                  <a
+                    href={project.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={className}
+                  >
+                    {Card}
+                  </a>
+                ) : (
+                  <Link href={project.link} className={className}>
+                    {Card}
+                  </Link>
+                )}
+              </Reveal>
             );
           })}
         </div>
@@ -647,25 +599,37 @@ function WorkSection() {
 
 function ProcessSection() {
   return (
-    <section id="proceso" className="scroll-mt-20 border-b border-[var(--studio-hairline)] py-20 sm:py-28">
+    <section
+      id="proceso"
+      className="scroll-mt-20 border-b border-[var(--studio-hairline)] py-20 sm:py-28"
+    >
       <div className="mx-auto max-w-6xl px-5 sm:px-8">
-        <SectionHead
-          label="Proceso"
-          title="Lanzamos algo útil. Escalamos con evidencia."
-          lead="Cerramos una primera versión, la ponemos frente a usuarios y usamos lo que ocurre para decidir qué sigue."
-        />
+        <Reveal>
+          <SectionHead
+            label="Cómo trabajamos"
+            title="Predecible. Auditable. Sin sorpresas."
+            lead="Cerramos una primera versión, la ponemos frente a usuarios y usamos lo que ocurre para decidir qué sigue."
+          />
+        </Reveal>
 
-        <ol className="mt-14 grid gap-px overflow-hidden rounded-3xl border border-[var(--studio-hairline)] bg-[var(--studio-hairline)] md:grid-cols-5">
-          {PROCESS_STEPS.map((step) => (
-            <li key={step.num} className="flex flex-col bg-white p-6">
-              <span className="font-mono text-[13px] font-semibold tracking-widest text-neutral-400">
-                {step.num}
-              </span>
-              <h3 className="mt-4 text-[18px] font-semibold leading-snug text-black">
-                {step.title}
-              </h3>
-              <p className="mt-3 text-[14px] leading-relaxed text-neutral-600">{step.desc}</p>
-            </li>
+        <ol className="mt-14 border-t border-[var(--studio-hairline)]">
+          {PROCESS_STEPS.map((step, index) => (
+            <Reveal key={step.num} delay={index * 0.05} y={12}>
+              <li className="grid gap-4 border-b border-[var(--studio-hairline)] py-8 md:grid-cols-12 md:items-baseline md:gap-8">
+                <span className="font-mono text-[13px] font-medium text-[var(--studio-accent)] md:col-span-1">
+                  {step.num}
+                </span>
+                <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--studio-dim-text)] md:col-span-2">
+                  {step.span}
+                </span>
+                <h3 className="text-[20px] font-semibold leading-snug text-[var(--studio-text)] md:col-span-4">
+                  {step.title}
+                </h3>
+                <p className="text-[15px] leading-relaxed text-[var(--studio-muted-text)] md:col-span-5">
+                  {step.desc}
+                </p>
+              </li>
+            </Reveal>
           ))}
         </ol>
       </div>
@@ -680,100 +644,95 @@ function PricingSection() {
       className="scroll-mt-20 border-b border-[var(--studio-hairline)] bg-[var(--studio-surface)] py-20 sm:py-28"
     >
       <div className="mx-auto max-w-6xl px-5 sm:px-8">
-        <SectionHead
-          label="Precios"
-          title="Un primer entregable claro. Un precio cerrado."
-          lead="Empieza con la pieza que desbloquea el siguiente paso, sin alcance difuso ni sorpresas."
-          align="center"
-        />
+        <Reveal>
+          <SectionHead
+            label="Precios"
+            title="Un primer entregable claro. Un precio cerrado."
+            lead="Empieza con la pieza que desbloquea el siguiente paso, sin alcance difuso ni sorpresas."
+            align="center"
+          />
+        </Reveal>
 
         <div className="mt-14 grid gap-5 lg:grid-cols-3">
-          {PRICING_PLANS.map((plan) => (
-            <article
-              key={plan.name}
-              className={`relative flex flex-col rounded-3xl border p-8 ${
-                plan.featured
-                  ? "border-black bg-black text-white shadow-[0_24px_60px_rgba(0,0,0,0.22)] lg:-mt-4 lg:mb-[-1rem]"
-                  : "border-[var(--studio-hairline)] bg-white text-black"
-              }`}
-            >
-              <div className="flex items-center justify-between gap-2">
-                <span
-                  className={`rounded-full px-3 py-1 text-[12px] font-semibold ${
-                    plan.featured ? "bg-[#c5f04a] text-black" : "bg-[var(--studio-surface)] text-neutral-700"
-                  }`}
-                >
-                  {plan.badge}
-                </span>
-                <span
-                  className={`text-[13px] font-medium ${
-                    plan.featured ? "text-neutral-400" : "text-neutral-500"
-                  }`}
-                >
-                  {plan.timeline}
-                </span>
-              </div>
-
-              <h3 className="mt-7 text-[22px] font-semibold tracking-tight">{plan.name}</h3>
-
-              <div className="mt-2 flex items-baseline gap-2">
-                <span className="text-[38px] font-semibold tracking-tight">{plan.price}</span>
-                <span
-                  className={`text-[13px] font-medium ${
-                    plan.featured ? "text-neutral-400" : "text-neutral-500"
-                  }`}
-                >
-                  {plan.priceNote}
-                </span>
-              </div>
-
-              <p
-                className={`mt-4 text-[14px] leading-relaxed ${
-                  plan.featured ? "text-neutral-300" : "text-neutral-600"
-                }`}
-              >
-                {plan.description}
-              </p>
-
-              <ul
-                className={`mt-7 flex-1 space-y-3 border-t pt-7 ${
-                  plan.featured ? "border-white/15" : "border-[var(--studio-hairline)]"
-                }`}
-              >
-                {plan.features.map((feature) => (
-                  <li key={feature} className="flex gap-2.5 text-[14px] font-medium">
-                    <Check
-                      className={`mt-0.5 h-4 w-4 shrink-0 ${plan.featured ? "text-[#c5f04a]" : "text-black"}`}
-                      aria-hidden
-                    />
-                    <span className={plan.featured ? "text-neutral-200" : "text-neutral-700"}>
-                      {feature}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-
-              <TrackedWhatsappLink
-                href={whatsappUrl(plan.msg)}
-                location={`studio_pricing_${plan.name.toLowerCase().replaceAll(" ", "_")}`}
-                offer={plan.name}
-                className={`mt-8 inline-flex w-full items-center justify-center gap-2 rounded-full py-4 text-[15px] font-semibold transition-transform active:scale-[0.98] ${
+          {PRICING_PLANS.map((plan, index) => (
+            <Reveal key={plan.name} delay={index * 0.06} y={16} className="h-full">
+              <article
+                className={`relative flex h-full flex-col rounded-[20px] border p-8 ${
                   plan.featured
-                    ? "bg-white text-black hover:bg-neutral-100"
-                    : "bg-black text-white hover:bg-neutral-800"
+                    ? "border-[var(--studio-accent)]/45 bg-[var(--studio-raised)] shadow-[var(--studio-shadow)]"
+                    : "border-[var(--studio-hairline)] bg-[var(--studio-bg)]"
                 }`}
               >
-                {plan.cta}
-                <ArrowUpRight className="h-4 w-4" aria-hidden />
-              </TrackedWhatsappLink>
-            </article>
+                <div className="flex items-center justify-between gap-2">
+                  <span
+                    className={`rounded-full px-3 py-1 font-mono text-[10px] uppercase tracking-[0.14em] ${
+                      plan.featured
+                        ? "bg-[var(--studio-accent)] text-black"
+                        : "bg-[var(--studio-surface)] text-[var(--studio-muted-text)]"
+                    }`}
+                  >
+                    {plan.badge}
+                  </span>
+                  <span className="font-mono text-[11px] text-[var(--studio-dim-text)]">
+                    {plan.timeline}
+                  </span>
+                </div>
+
+                <h3 className="mt-7 text-[22px] font-semibold tracking-tight text-[var(--studio-text)]">
+                  {plan.name}
+                </h3>
+
+                <div className="mt-2 flex items-baseline gap-2">
+                  <span className="text-[38px] font-semibold tracking-tight text-[var(--studio-text)]">
+                    {plan.price}
+                  </span>
+                  <span className="text-[13px] font-medium text-[var(--studio-dim-text)]">
+                    {plan.priceNote}
+                  </span>
+                </div>
+
+                <p className="mt-4 text-[14px] leading-relaxed text-[var(--studio-muted-text)]">
+                  {plan.description}
+                </p>
+
+                <ul className="mt-7 flex-1 space-y-3 border-t border-[var(--studio-hairline)] pt-7">
+                  {plan.features.map((feature) => (
+                    <li
+                      key={feature}
+                      className="flex gap-2.5 text-[14px] font-medium text-[var(--studio-muted-text)]"
+                    >
+                      <Check
+                        className="mt-0.5 h-4 w-4 shrink-0 text-[var(--studio-accent)]"
+                        aria-hidden
+                      />
+                      {feature}
+                    </li>
+                  ))}
+                </ul>
+
+                <TrackedWhatsappLink
+                  href={whatsappUrl(plan.msg)}
+                  location={`studio_pricing_${plan.name.toLowerCase().replaceAll(" ", "_")}`}
+                  offer={plan.name}
+                  className={`studio-btn mt-8 w-full ${
+                    plan.featured ? "studio-btn-accent" : "studio-btn-solid"
+                  }`}
+                >
+                  {plan.cta}
+                  <ArrowUpRight className="h-4 w-4" aria-hidden />
+                </TrackedWhatsappLink>
+              </article>
+            </Reveal>
           ))}
         </div>
 
         <ul className="mt-10 flex flex-wrap items-center justify-center gap-x-7 gap-y-3">
           {PLAN_INCLUDES.map((item) => (
-            <li key={item} className="flex items-center gap-2 text-[14px] font-medium text-neutral-700">
-              <Check className="h-4 w-4 shrink-0 text-black" aria-hidden />
+            <li
+              key={item}
+              className="flex items-center gap-2 text-[14px] font-medium text-[var(--studio-muted-text)]"
+            >
+              <Check className="h-4 w-4 shrink-0 text-[var(--studio-accent)]" aria-hidden />
               {item}
             </li>
           ))}
@@ -785,20 +744,25 @@ function PricingSection() {
 
 function FaqSection() {
   return (
-    <section id="preguntas" className="scroll-mt-20 border-b border-[var(--studio-hairline)] py-20 sm:py-28">
+    <section
+      id="preguntas"
+      className="scroll-mt-20 border-b border-[var(--studio-hairline)] py-20 sm:py-28"
+    >
       <div className="mx-auto max-w-4xl px-5 sm:px-8">
-        <SectionHead label="Preguntas frecuentes" title="Antes de empezar, esto es lo importante." />
+        <Reveal>
+          <SectionHead label="Preguntas frecuentes" title="Antes de escribirnos." />
+        </Reveal>
 
         <div className="mt-12 divide-y divide-[var(--studio-hairline)] border-y border-[var(--studio-hairline)]">
           {STUDIO_FAQS.map((faq) => (
             <details key={faq.question} className="group py-6">
-              <summary className="flex cursor-pointer list-none select-none items-center justify-between gap-4 text-[18px] font-semibold leading-snug text-black sm:text-[20px]">
+              <summary className="flex cursor-pointer list-none select-none items-center justify-between gap-4 text-[18px] font-semibold leading-snug text-[var(--studio-text)] sm:text-[20px]">
                 <span>{faq.question}</span>
-                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-neutral-300 transition-transform duration-200 group-open:rotate-45">
-                  <Plus className="h-4 w-4 text-black" aria-hidden />
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-[var(--studio-hairline-strong)] transition-transform duration-200 group-open:rotate-45">
+                  <Plus className="h-4 w-4 text-[var(--studio-accent)]" aria-hidden />
                 </span>
               </summary>
-              <p className="mt-4 max-w-2xl text-[16px] leading-relaxed text-neutral-600">
+              <p className="mt-4 max-w-2xl text-[16px] leading-relaxed text-[var(--studio-muted-text)]">
                 {faq.answer}
               </p>
             </details>
@@ -811,12 +775,23 @@ function FaqSection() {
 
 function FinalCta() {
   return (
-    <section className="bg-black py-20 text-white sm:py-28">
-      <div className="mx-auto max-w-4xl px-5 text-center sm:px-8">
-        <h2 className="text-[clamp(2.1rem,4.6vw,3.6rem)] font-semibold text-white">
+    <section className="relative overflow-hidden py-20 sm:py-28">
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 bottom-[-40%] h-[80%]"
+        style={{
+          background:
+            "radial-gradient(50% 50% at 50% 50%, rgba(197,240,74,0.14) 0%, rgba(197,240,74,0) 70%)",
+        }}
+      />
+      <div className="relative mx-auto max-w-4xl px-5 text-center sm:px-8">
+        <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-[var(--studio-dim-text)]">
+          — Contacto
+        </p>
+        <h2 className="mt-5 text-[clamp(2.1rem,4.6vw,3.6rem)] font-semibold text-[var(--studio-text)]">
           Dinos qué está frenando el crecimiento.
         </h2>
-        <p className="mx-auto mt-5 max-w-xl text-[17px] leading-relaxed text-neutral-400 sm:text-[19px]">
+        <p className="mx-auto mt-5 max-w-xl text-[17px] leading-relaxed text-[var(--studio-muted-text)] sm:text-[19px]">
           Te respondemos el mismo día con la primera pieza que construiríamos, el alcance
           y el precio. Sin formularios largos ni llamadas de descubrimiento eternas.
         </p>
@@ -826,15 +801,12 @@ function FinalCta() {
             href={CONTACT_URL}
             location="studio_final"
             offer="studio"
-            className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#c5f04a] px-8 py-4 text-[16px] font-semibold text-black transition-transform hover:bg-[#c5f04a] active:scale-[0.98] sm:w-auto"
+            className="studio-btn studio-btn-accent w-full sm:w-auto"
           >
             <MessageCircle className="h-5 w-5" aria-hidden />
             Escribir por WhatsApp
           </TrackedWhatsappLink>
-          <a
-            href={`mailto:${CONTACT_EMAIL}`}
-            className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-white/25 px-8 py-4 text-[16px] font-semibold text-white transition-colors hover:border-white sm:w-auto"
-          >
+          <a href={`mailto:${CONTACT_EMAIL}`} className="studio-btn studio-btn-ghost w-full sm:w-auto">
             <Mail className="h-5 w-5" aria-hidden />
             Enviar un correo
           </a>
@@ -846,56 +818,56 @@ function FinalCta() {
 
 function StudioFooter() {
   return (
-    <footer className="border-t border-[var(--studio-hairline)] bg-white">
+    <footer className="border-t border-[var(--studio-hairline)] bg-[var(--studio-surface)]">
       {/* The mark, full width — the page signs off with the same signal it opens with. */}
-      <Waveform
-        className="h-24 w-full text-black/[0.13] sm:h-32"
-        cycles={26}
-        weight={2.2}
-      />
+      <Waveform className="h-24 w-full text-white/[0.07] sm:h-32" cycles={26} weight={2.2} />
       <div className="mx-auto flex max-w-6xl flex-col gap-8 px-5 pb-12 sm:px-8">
         <div className="flex flex-col justify-between gap-6 sm:flex-row sm:items-start">
           <div>
-            <AllokLogo variant="lockup-bare" className="h-8 w-auto text-black" />
-            <p className="mt-3 max-w-sm text-[15px] text-neutral-600">
+            <AllokLogo variant="lockup-bare" className="h-8 w-auto text-[var(--studio-text)]" />
+            <p className="mt-3 max-w-sm text-[15px] text-[var(--studio-muted-text)]">
               Estudio de producto digital. Diseño, software y automatización con IA para
               convertir oportunidades en negocio y trabajo manual en sistema.
             </p>
           </div>
 
-          <nav className="flex flex-wrap gap-x-6 gap-y-2 text-[14px] font-medium text-neutral-600">
+          <nav className="flex flex-wrap gap-x-6 gap-y-2 text-[14px] font-medium text-[var(--studio-muted-text)]">
             {NAV.map(([label, href]) => (
-              <a key={href} href={href} className="transition-colors hover:text-black">
+              <a
+                key={href}
+                href={href}
+                className="transition-colors hover:text-[var(--studio-text)]"
+              >
                 {label}
               </a>
             ))}
-            <Link href="/projects" className="transition-colors hover:text-black">
+            <Link href="/projects" className="transition-colors hover:text-[var(--studio-text)]">
               Archivo
             </Link>
           </nav>
         </div>
 
-        <div className="flex flex-col justify-between gap-4 border-t border-[var(--studio-hairline)] pt-7 text-[14px] text-neutral-500 sm:flex-row sm:items-center">
+        <div className="flex flex-col justify-between gap-4 border-t border-[var(--studio-hairline)] pt-7 text-[14px] text-[var(--studio-dim-text)] sm:flex-row sm:items-center">
           <span>© {new Date().getFullYear()} Allok</span>
           <div className="flex flex-wrap items-center gap-6 font-medium">
             <TrackedWhatsappLink
               href={CONTACT_URL}
               location="studio_footer"
               offer="studio"
-              className="flex items-center gap-1.5 transition-colors hover:text-black"
+              className="flex items-center gap-1.5 transition-colors hover:text-[var(--studio-text)]"
             >
               <MessageCircle className="h-4 w-4" aria-hidden /> WhatsApp
             </TrackedWhatsappLink>
             <a
               href={`mailto:${CONTACT_EMAIL}`}
-              className="flex items-center gap-1.5 transition-colors hover:text-black"
+              className="flex items-center gap-1.5 transition-colors hover:text-[var(--studio-text)]"
             >
               <Mail className="h-4 w-4" aria-hidden /> {CONTACT_EMAIL}
             </a>
-            <Link href="/es/privacidad" className="transition-colors hover:text-black">
+            <Link href="/es/privacidad" className="transition-colors hover:text-[var(--studio-text)]">
               Privacidad
             </Link>
-            <Link href="/es/terminos" className="transition-colors hover:text-black">
+            <Link href="/es/terminos" className="transition-colors hover:text-[var(--studio-text)]">
               Términos
             </Link>
           </div>

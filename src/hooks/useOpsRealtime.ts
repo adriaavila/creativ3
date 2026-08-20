@@ -25,7 +25,7 @@ export const OpsRealtimeContext = createContext<OpsRealtimeValue | null>(null);
 const PROTOCOL = REALTIME_PROTOCOL;
 const INITIAL_RECONNECT_MS = 500;
 const MAX_RECONNECT_MS = 15_000;
-const POLL_INTERVAL_MS = 15_000;
+const POLL_INTERVAL_MS = 60_000;
 const TYPING_TTL_MS = 4_000;
 
 function realtimeEndpoint() {
@@ -165,11 +165,20 @@ export function useOpsRealtimeController(): OpsRealtimeValue {
   useEffect(() => {
     const endpoint = realtimeEndpoint();
     if (!endpoint) {
-      const timer = setInterval(
-        () => reconnectListenersRef.current.forEach((listener) => listener()),
-        POLL_INTERVAL_MS,
-      );
-      return () => clearInterval(timer);
+      // ponytail: sin servicio realtime desplegado sondeamos, pero sólo con la
+      // pestaña visible. Una pestaña de /ops olvidada en segundo plano refrescaba
+      // cada 15s para siempre, y eso sola mantenía la base despierta día y noche.
+      const tick = () => {
+        if (document.visibilityState !== "visible") return;
+        reconnectListenersRef.current.forEach((listener) => listener());
+      };
+      const timer = setInterval(tick, POLL_INTERVAL_MS);
+      // Al volver a la pestaña refresca en el acto: la espera no se paga al mirar.
+      document.addEventListener("visibilitychange", tick);
+      return () => {
+        clearInterval(timer);
+        document.removeEventListener("visibilitychange", tick);
+      };
     }
 
     let disposed = false;

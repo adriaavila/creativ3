@@ -1,11 +1,4 @@
 import { neon, type NeonQueryFunction } from "@neondatabase/serverless";
-import {
-  conversationUpdatedEvent,
-  messageCreatedEvent,
-  messageUpdatedEvent,
-  publishRealtimeEvent,
-  type RealtimeConversationChange,
-} from "@/lib/realtime-ingest";
 
 // Data access for the real WhatsApp inbox (migration 006). One conversation/message
 // model shared by both channels, discriminated by channel_kind/channel_key — see
@@ -254,7 +247,6 @@ export async function syncMetaContact(input: {
     RETURNING *
   `;
   const conversation = mapConversation(rows[0]);
-  await publishRealtimeEvent(conversationUpdatedEvent(conversation, ["contactName"]));
   return conversation;
 }
 
@@ -313,7 +305,7 @@ export async function setConversationAssignedMode(id: number, mode: AssignedMode
     WHERE id = ${id} AND assigned_mode IS DISTINCT FROM ${mode}
     RETURNING *
   `;
-  return emitConversationUpdate(rows[0], ["assignedMode"]);
+  return emitConversationUpdate(rows[0]);
 }
 
 export async function setConversationStatus(id: number, status: ConversationStatus): Promise<WaConversation | null> {
@@ -324,7 +316,7 @@ export async function setConversationStatus(id: number, status: ConversationStat
     WHERE id = ${id} AND status IS DISTINCT FROM ${status}
     RETURNING *
   `;
-  return emitConversationUpdate(rows[0], ["status"]);
+  return emitConversationUpdate(rows[0]);
 }
 
 export async function setConversationLeadId(id: number, leadId: string | null): Promise<WaConversation | null> {
@@ -335,7 +327,7 @@ export async function setConversationLeadId(id: number, leadId: string | null): 
     WHERE id = ${id} AND lead_id IS DISTINCT FROM ${leadId}
     RETURNING *
   `;
-  return emitConversationUpdate(rows[0], ["leadId"]);
+  return emitConversationUpdate(rows[0]);
 }
 
 /** Marks (or, with null, un-marks) the commercial result of a conversation. */
@@ -352,15 +344,14 @@ export async function setConversationOutcome(
     WHERE id = ${id} AND outcome IS DISTINCT FROM ${outcome}
     RETURNING *
   `;
-  return emitConversationUpdate(rows[0], ["outcome"]);
+  return emitConversationUpdate(rows[0]);
 }
 
+// Antes publicaba el cambio al servicio realtime que alimentaba la bandeja.
+// Retirada la bandeja, sólo queda mapear la fila.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-async function emitConversationUpdate(row: any, changed: RealtimeConversationChange[]) {
-  if (!row) return null;
-  const conversation = mapConversation(row);
-  await publishRealtimeEvent(conversationUpdatedEvent(conversation, changed));
-  return conversation;
+function emitConversationUpdate(row: any) {
+  return row ? mapConversation(row) : null;
 }
 
 export type NextStepSummary = {
@@ -463,9 +454,6 @@ export async function insertMessage(input: {
   `;
   if (!rows[0]) return null;
   const message = mapMessage(rows[0]);
-  const conversation = mapConversation(rows[0].conversation_row);
-  await publishRealtimeEvent(conversationUpdatedEvent(conversation, ["lastMessageAt"]));
-  await publishRealtimeEvent(messageCreatedEvent(conversation, message));
   return message;
 }
 
@@ -503,10 +491,7 @@ export async function beginOutboundMessage(input: {
 
   if (rows[0]) {
     const message = mapMessage(rows[0]);
-    const conversation = mapConversation(rows[0].conversation_row);
-    await publishRealtimeEvent(conversationUpdatedEvent(conversation, ["lastMessageAt"]));
-    await publishRealtimeEvent(messageCreatedEvent(conversation, message));
-    return { message, created: true };
+      return { message, created: true };
   }
 
   const existing = await sql`
@@ -529,8 +514,6 @@ export async function finalizeOutboundMessage(
   `;
   if (!rows[0]) return null;
   const message = mapMessage(rows[0]);
-  const conversation = await getConversationById(message.conversationId);
-  if (conversation) await publishRealtimeEvent(messageUpdatedEvent(conversation, message));
   return message;
 }
 
@@ -546,8 +529,6 @@ export async function markOutboundMessageUnknown(id: number, error: unknown): Pr
   `;
   if (!rows[0]) return null;
   const message = mapMessage(rows[0]);
-  const conversation = await getConversationById(message.conversationId);
-  if (conversation) await publishRealtimeEvent(messageUpdatedEvent(conversation, message));
   return message;
 }
 
@@ -586,8 +567,6 @@ export async function updateMessageStatusByWaId(waMessageId: string, status: str
   `;
   if (!rows[0]) return null;
   const message = mapMessage(rows[0]);
-  const conversation = await getConversationById(message.conversationId);
-  if (conversation) await publishRealtimeEvent(messageUpdatedEvent(conversation, message));
   return message;
 }
 

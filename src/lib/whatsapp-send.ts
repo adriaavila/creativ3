@@ -1,7 +1,6 @@
 import { sendTemplateMessage } from "@/lib/meta/server";
 import { MetaCloudWhatsAppProvider } from "@/lib/meta/cloud-whatsapp-provider";
 import { getWhatsAppProviderConnectionForStoredChannel } from "@/lib/whatsapp-connections-db";
-import { sendWahaText } from "@/lib/waha-send";
 import { assertOutboundRecipientAllowed } from "@/lib/outbound-safety";
 import {
   beginOutboundMessage,
@@ -59,9 +58,16 @@ export async function sendToConversation(input: SendToConversationInput): Promis
   assertOutboundRecipientAllowed(conversation.contactWaId);
   const actionId = input.actionId ?? crypto.randomUUID();
 
-  return conversation.channelKind === "cloud_api"
-    ? sendCloudApi(conversation, input, actionId)
-    : sendWaha(conversation, input, actionId);
+  // WAHA se retiró: allok sólo envía por Cloud API. La columna `channel_kind`
+  // sigue en el esquema por las conversaciones históricas, así que una fila
+  // vieja todavía puede decir 'waha' — falla claro en vez de enviar por un
+  // canal que ya no existe.
+  if (conversation.channelKind !== "cloud_api") {
+    throw new Error(
+      `La conversación ${conversation.id} es del canal retirado '${conversation.channelKind}'; allok sólo envía por Cloud API.`,
+    );
+  }
+  return sendCloudApi(conversation, input, actionId);
 }
 
 async function sendCloudApi(conversation: WaConversation, input: SendToConversationInput, actionId: string) {
@@ -103,28 +109,6 @@ async function sendCloudApi(conversation: WaConversation, input: SendToConversat
           body: input.text!,
         })).messageId;
     return await finalizeAction(action.message, waMessageId ?? null);
-  } catch (error) {
-    return unknownAction(action.message, error);
-  }
-}
-
-async function sendWaha(conversation: WaConversation, input: SendToConversationInput, actionId: string) {
-  if (!input.text) throw new Error("El envío por WAHA hoy solo soporta texto libre.");
-  const action = await beginOutboundMessage({
-    conversationId: conversation.id,
-    clientActionId: actionId,
-    source: input.source,
-    msgType: "text",
-    body: input.text,
-    payload: input.metadata,
-  });
-  if (!mayDispatchOutboundAction({ created: action.created, status: action.message.status })) {
-    return resultForExistingAction(action.message);
-  }
-
-  try {
-    const result = await sendWahaText(conversation.channelKey, conversation.contactWaId, input.text, { id: actionId });
-    return await finalizeAction(action.message, result.id ?? null);
   } catch (error) {
     return unknownAction(action.message, error);
   }

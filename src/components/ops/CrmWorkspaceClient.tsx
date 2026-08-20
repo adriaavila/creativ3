@@ -14,7 +14,6 @@ import {
   Network,
   Plus,
   Search,
-  Settings2,
   ShieldAlert,
   Smartphone,
   Sparkles,
@@ -379,10 +378,9 @@ function CoexistenceNumberCard({ channel, onChange }: { channel: CrmChannel; onC
           <span className={`inline-flex items-center gap-2 rounded-md px-2.5 py-1.5 text-[11px] font-semibold ${ready ? "bg-[#edf7df] text-[#527526]" : active ? "bg-[#edf2f6] text-[#526174]" : "bg-[#fff1df] text-[#86591f]"}`}><span className={`size-1.5 rounded-full ${ready ? "bg-[#83aa29]" : active ? "bg-[#7f91a6]" : "bg-[#c7842b]"}`} />{crmChannelStatusLabel(channel)}</span>
         </div>
 
-        <div className="mt-6 grid gap-5 lg:grid-cols-[minmax(0,1.1fr)_minmax(200px,.7fr)_auto] lg:items-end">
+        <div className="mt-6 grid gap-5 lg:grid-cols-[minmax(0,1.1fr)_minmax(200px,.7fr)] lg:items-end">
           <div><p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#8a96a5]">Estado actual</p><p className="mt-2 text-base font-semibold text-[#263b54]">{nextStep.label}</p><p className="mt-1 max-w-lg text-xs leading-5 text-[#708096]">{nextStep.detail}</p></div>
-          <div><p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#8a96a5]">Responde desde</p><p className="mt-2 text-sm font-semibold text-[#263b54]">{channel.crmConnectedAt ? channel.crmOrganizationName ?? "CRM externo" : automationActive ? "Allok" : "Por decidir"}</p><p className="mt-1 text-xs text-[#8a96a5]">{channel.crmConnectedAt ? "Webhook verificado" : automationActive ? automationLabel : "Sin automatización activa"}</p></div>
-          <Link href={`/ops/connections/${encodeURIComponent(channel.id)}`} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-[#172238] px-4 text-xs font-semibold text-white transition duration-200 hover:-translate-y-0.5 hover:bg-[#263b54] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3f5f7b] active:translate-y-0"><Settings2 className="size-4" /> {nextStep.action}</Link>
+          <div><p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#8a96a5]">Responde desde</p><p className="mt-2 text-sm font-semibold text-[#263b54]">{channel.crmConnectedAt ? channel.crmOrganizationName ?? "CRM externo" : "Sin entregar"}</p><p className="mt-1 text-xs text-[#8a96a5]">{channel.crmConnectedAt ? "Webhook verificado" : "Elegí a qué CRM entregarlo"}</p></div>
         </div>
 
         <ol className="mt-6 grid grid-cols-4 overflow-hidden rounded-lg border border-[#e3e8ed] bg-[#f8fafb]" aria-label="Progreso de la conexión">
@@ -430,7 +428,7 @@ function ChannelConnectionRow({ channel, onChange }: { channel: CrmChannel; onCh
 
   return (
     <div className="border-b border-[#edf0f3] py-4 first:pt-0 last:border-b-0 last:pb-0">
-      <Link href={`/ops/connections/${encodeURIComponent(channel.id)}`} className="flex flex-wrap items-start justify-between gap-3 rounded-lg px-2 transition hover:bg-[#f7f9fb] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#3f5f7b]">{content}</Link>
+      <div className="flex flex-wrap items-start justify-between gap-3 rounded-lg px-2">{content}</div>
       {channel.official && <CrmHandoverForm channel={channel} onChange={onChange} compact />}
     </div>
   );

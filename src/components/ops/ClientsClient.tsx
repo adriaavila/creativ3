@@ -276,10 +276,10 @@ function ConnectionCard({
           <span>Última sync {formatDate(connection.lastSyncedAt)}</span>
         </div>
         <Link
-          href={`/ops/connections/${encodeURIComponent(connection.phoneNumberId)}`}
+          href="/ops/crm?view=connections"
           className="inline-flex min-h-9 items-center rounded-lg border border-[#d6e0e7] bg-white px-3 text-xs font-semibold text-[#385875] transition hover:border-[#9aabba] hover:text-[#142b4b]"
         >
-          Ver conexión
+          Ver conexiones
         </Link>
       </footer>
     </article>

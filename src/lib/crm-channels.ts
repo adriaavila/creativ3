@@ -1,5 +1,4 @@
 import type { CrmChannel } from "@/lib/crm-types";
-import type { WahaConnectionRecord } from "@/lib/whatsapp-inbox-db";
 import type { WhatsAppConnectionView } from "@/lib/whatsapp-connections-db";
 
 const ACTIVE_STATUSES = new Set(["connected", "subscribed", "coexistence_sync_requested"]);
@@ -40,18 +39,17 @@ export function crmNameStatusLabel(value: string | null) {
   return crmQualityLabel(value);
 }
 
-export function crmChannelNextStep(channel: Pick<CrmChannel, "status" | "businessTokenStored" | "crmConnectedAt" | "crmOrganizationName" | "automationEnabled" | "operatingMode">) {
+export function crmChannelNextStep(channel: Pick<CrmChannel, "status" | "businessTokenStored" | "crmConnectedAt" | "crmOrganizationName">) {
   if (!isCrmChannelActive(channel)) return { label: "Requiere atención", detail: "Revisa la conexión con Meta antes de continuar.", action: "Revisar conexión" };
   if (!channel.businessTokenStored) return { label: "Falta el token", detail: "Repite el onboarding para recuperar una credencial válida.", action: "Completar onboarding" };
   if (channel.crmConnectedAt) return { label: `En ${channel.crmOrganizationName ?? "CRM externo"}`, detail: "El webhook está entregado. Haz una prueba desde el CRM.", action: "Revisar entrega" };
-  if (channel.automationEnabled && channel.operatingMode !== "off") return { label: "Responde desde Allok", detail: "La automatización está activa y lista para probar.", action: "Probar automatización" };
-  return { label: "Listo para configurar", detail: "Elige si responderá desde Allok o desde otro CRM.", action: "Configurar número" };
+  // allok ya no atiende conversaciones: el único próximo paso posible es
+  // entregar el número al CRM donde el cliente trabaja.
+  return { label: "Listo para entregar", detail: "Entrega el número al CRM donde lo va a trabajar el cliente.", action: "Entregar número" };
 }
 
-export function buildCrmChannels(
-  meta: WhatsAppConnectionView[],
-  waha: WahaConnectionRecord[],
-): CrmChannel[] {
+/** Sólo Cloud API: WAHA se retiró de allok junto con la bandeja. */
+export function buildCrmChannels(meta: WhatsAppConnectionView[]): CrmChannel[] {
   return [
     ...meta.map((connection): CrmChannel => ({
       id: connection.phoneNumberId,
@@ -80,16 +78,6 @@ export function buildCrmChannels(
       automationEnabled: connection.automationEnabled,
       operatingMode: connection.operatingMode,
       modelTier: connection.modelTier,
-    })),
-    ...waha.map((connection): CrmChannel => ({
-      id: connection.wahaSessionId,
-      channel: "waha",
-      official: false,
-      label: connection.phoneDisplay ?? connection.wahaSessionId,
-      phone: connection.phoneDisplay,
-      status: connection.status,
-      detail: "WAHA · no oficial",
-      lastSyncedAt: connection.lastSyncedAt,
     })),
   ].sort((left, right) => Number(right.official) - Number(left.official));
 }

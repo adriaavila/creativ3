@@ -1,5 +1,4 @@
 import { after, NextRequest, NextResponse } from "next/server";
-import { processAutoReplyQueue } from "@/lib/auto-reply";
 import { enqueueMetaWebhookEvent } from "@/lib/meta/webhook-events-db";
 import { processMetaWebhookQueue } from "@/lib/meta/webhook-processor";
 import { verifyHexHmac } from "@/lib/webhook-signature";
@@ -59,10 +58,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const queued = await enqueueMetaWebhookEvent(rawBody, payload);
-    after(async () => {
-      await processMetaWebhookQueue(5);
-      await processAutoReplyQueue(5);
-    });
+    after(() => processMetaWebhookQueue(5));
     return NextResponse.json({
       ok: true,
       received: true,

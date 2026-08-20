@@ -4,7 +4,6 @@ import {
   updateMessageStatusByWaId,
   upsertConversation,
 } from "@/lib/whatsapp-inbox-db";
-import { enqueueAutoReplyJob } from "@/lib/auto-reply";
 import { normalizeWhatsAppPhone } from "@/lib/phone";
 import { markWhatsAppConnectionStatusByWaba } from "@/lib/whatsapp-connections-db";
 import { normalizeMetaWebhook } from "@/lib/meta/cloud-whatsapp-provider";
@@ -106,6 +105,5 @@ async function persistNormalizedEvent(event: WhatsAppNormalizedEvent): Promise<n
     status: event.message.status ?? null,
     occurredAt: event.occurredAt,
   });
-  if (inserted && direction === "in") await enqueueAutoReplyJob(conversation.id, inserted.id);
   return inserted ? 1 : 0;
 }

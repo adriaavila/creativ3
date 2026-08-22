@@ -1,0 +1,16 @@
+node_modules
+.next
+.git
+.github
+.claude
+.env
+.env.*
+!.env.example
+*.log
+.DS_Store
+coverage
+docs
+specs
+plans
+marketing
+scripts/*.sh

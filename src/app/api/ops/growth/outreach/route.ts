@@ -13,10 +13,7 @@ import {
   getWhatsAppProviderConnection,
   getWhatsAppProviderConnectionForStoredChannel,
 } from "@/lib/whatsapp-connections-db";
-import {
-  getWahaConnection,
-  upsertConversation,
-} from "@/lib/whatsapp-inbox-db";
+import { upsertConversation } from "@/lib/whatsapp-inbox-db";
 import { normalizeWhatsAppId } from "@/lib/phone";
 import { OutsideFreeTextWindowError, outboundActionOutcome, sendToConversation } from "@/lib/whatsapp-send";
 
@@ -26,7 +23,7 @@ export const growthOutreachSchema = z.object({
   actionId: z.string().uuid(),
   leadId: z.string().uuid(),
   connectionId: z.string().trim().min(2).max(200),
-  channel: z.enum(["cloud_api", "waha"]),
+  channel: z.literal("cloud_api"),
   phone: z.string().regex(/^\+?[1-9]\d{7,14}$/, "Usa formato internacional, por ejemplo +58412…"),
   message: z.string().trim().min(10).max(1000),
   templateName: z.string().trim().min(1).max(100).optional(),
@@ -105,7 +102,7 @@ export async function POST(request: Request) {
     const message = await sendToConversation({
       conversationId: conversation.id,
       actionId: input.actionId,
-      text: input.channel === "waha" ? input.message : undefined,
+      text: undefined,
       template:
         input.channel === "cloud_api"
           ? {
@@ -182,32 +179,21 @@ export async function POST(request: Request) {
   }
 }
 
+/** Retirado WAHA, el outreach del growth agent sale sólo por el canal oficial. */
 async function resolveConnection(
-  channel: "cloud_api" | "waha",
+  channel: "cloud_api",
   connectionId: string,
   workspace: string | null,
 ) {
-  if (channel === "cloud_api") {
-    const connection = workspace
-      ? await getWhatsAppProviderConnection(connectionId, workspace)
-      : await getWhatsAppProviderConnectionForStoredChannel(connectionId);
-    if (!connection) throw new Error("La conexión oficial no está disponible.");
-    return {
-      channelKey: connection.phoneNumberId,
-      connectionId: null,
-      providerConnection: connection,
-    };
-  }
-
-  const connection = await getWahaConnection(connectionId);
-  if (!connection) throw new Error("La sesión WAHA no existe.");
-  if (connection.status !== "connected") {
-    throw new Error(`La sesión WAHA no está conectada (${connection.status}).`);
-  }
+  void channel;
+  const connection = workspace
+    ? await getWhatsAppProviderConnection(connectionId, workspace)
+    : await getWhatsAppProviderConnectionForStoredChannel(connectionId);
+  if (!connection) throw new Error("La conexión oficial no está disponible.");
   return {
-    channelKey: connection.wahaSessionId,
-    connectionId: connection.connectionId,
-    providerConnection: null,
+    channelKey: connection.phoneNumberId,
+    connectionId: null,
+    providerConnection: connection,
   };
 }
 

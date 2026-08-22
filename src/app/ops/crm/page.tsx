@@ -3,7 +3,6 @@ import CrmWorkspaceClient from "@/components/ops/CrmWorkspaceClient";
 import type { CrmChannel } from "@/lib/crm-types";
 import { getGrowthLeadById, getGrowthLeads, isGrowthDatabaseConfigured } from "@/lib/growth-db";
 import { authorizeOps, isOpsAuthConfigured } from "@/lib/ops-auth";
-import { listWahaConnections } from "@/lib/whatsapp-inbox-db";
 import { listWhatsAppConnections } from "@/lib/whatsapp-connections-db";
 import { buildCrmChannels } from "@/lib/crm-channels";
 
@@ -37,17 +36,16 @@ export default async function OpsCrmPage({
   const params = searchParams ? await searchParams : {};
   const rawLeadId = typeof params.lead === "string" ? params.lead : "";
   const requestedLeadId = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(rawLeadId) ? rawLeadId : null;
-  const [listedLeads, metaConnections, wahaConnections, requestedLead] = await Promise.all([
+  const [listedLeads, metaConnections, requestedLead] = await Promise.all([
     getGrowthLeads(100),
     listWhatsAppConnections().catch(() => []),
-    listWahaConnections().catch(() => []),
     requestedLeadId ? getGrowthLeadById(requestedLeadId).catch(() => null) : null,
   ]);
   const leads = requestedLead && !listedLeads.some(({ id }) => id === requestedLead.id)
     ? [requestedLead, ...listedLeads]
     : listedLeads;
 
-  const channels: CrmChannel[] = buildCrmChannels(metaConnections, wahaConnections);
+  const channels: CrmChannel[] = buildCrmChannels(metaConnections);
 
   return (
     <CrmWorkspaceClient

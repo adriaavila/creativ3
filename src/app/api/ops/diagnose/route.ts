@@ -3,7 +3,7 @@ import { getGraphVersion } from "@/lib/meta/server";
 import { getGrowthAgentRuntime } from "@/lib/growth-agent-runtime";
 import { authorizeOps } from "@/lib/ops-auth";
 import { getMetaWebhookEventStats } from "@/lib/meta/webhook-events-db";
-import { getWahaWebhookEventStats } from "@/lib/whatsapp-inbox-db";
+import { } from "@/lib/whatsapp-inbox-db";
 
 export const dynamic = "force-dynamic";
 
@@ -14,8 +14,7 @@ const SERVER_ENV_KEYS = [
   "META_APP_ID", "META_APP_SECRET", "META_CONFIG_ID", "META_GRAPH_VERSION",
   "META_WEBHOOK_VERIFY_TOKEN", "META_WEBHOOK_CALLBACK_URL", "N8N_WEBHOOK_URL",
   "N8N_WEBHOOK_SECRET", "APP_URL", "DATABASE_URL", "GROWTH_AGENT_URL",
-  "GROWTH_AGENT_RUNTIME", "HERMES_API_URL", "HERMES_API_KEY", "WAHA_URL",
-  "WAHA_API_KEY", "TOKEN_ENCRYPTION_KEY",
+  "GROWTH_AGENT_RUNTIME", "HERMES_API_URL", "HERMES_API_KEY", "TOKEN_ENCRYPTION_KEY",
 ];
 
 export async function POST() {
@@ -30,7 +29,6 @@ export async function POST() {
     : { status: "unknown", detail: "No configurado." };
   const callbackUrl = await callbackHealth();
   const webhookEvents = await getMetaWebhookEventStats().catch(() => ({ unavailable: 1 }));
-  const wahaWebhookEvents = await getWahaWebhookEventStats().catch(() => ({ unavailable: 1 }));
 
   return Response.json({
     env,
@@ -39,7 +37,6 @@ export async function POST() {
     n8n,
     callbackUrl,
     webhookEvents,
-    wahaWebhookEvents,
     metaVersion: getGraphVersion(),
   });
 }

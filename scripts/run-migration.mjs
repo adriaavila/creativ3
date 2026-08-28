@@ -1,9 +1,9 @@
-// Applies a .sql migration file over the Neon HTTP driver (port 443),
-// the same transport the app uses. Usage: node scripts/run-migration.mjs <file.sql>
+// Applies a .sql migration file over the same Postgres driver the app uses.
+// Usage: node scripts/run-migration.mjs <file.sql>
 // Self-check: node scripts/run-migration.mjs --self-check
 import { readFileSync } from "node:fs";
 import assert from "node:assert/strict";
-import { neon } from "@neondatabase/serverless";
+import postgres from "postgres";
 
 // Splits on top-level semicolons only: a `;` inside a -- comment, a '...' literal,
 // or a $tag$...$tag$ body is not a statement boundary.
@@ -63,11 +63,13 @@ if (file === "--self-check") {
 } else {
   const url = process.env.DATABASE_URL;
   if (!url) throw new Error("DATABASE_URL is required");
-  const sql = neon(url);
+  const sql = postgres(url, { max: 1, prepare: false });
   const statements = splitStatements(readFileSync(file, "utf8"));
   for (const stmt of statements) {
-    await sql.query(stmt);
+    await sql.unsafe(stmt);
     console.log("ok:", stmt.slice(0, 60).replace(/\s+/g, " "));
   }
   console.log(`done: ${statements.length} statements from ${file}`);
+  // A TCP pool keeps the event loop alive; the HTTP driver did not.
+  await sql.end();
 }

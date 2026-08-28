@@ -1,6 +1,10 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Self-hosted Docker image; Vercel did this packaging itself.
+  output: "standalone",
+  // `postgres` uses Node APIs that must not be bundled.
+  serverExternalPackages: ["postgres"],
   async redirects() {
     return [
       { source: "/privacidad", destination: "/es/privacidad", permanent: true },
@@ -10,6 +14,9 @@ const nextConfig: NextConfig = {
     ];
   },
   outputFileTracingIncludes: {
+    // Only the prose: tracing a .ts here makes Next parse it and resolve `eve`,
+    // which this image deliberately does not install. The Dockerfile copies the
+    // whole agent directory into the runner instead, for eve-agent-catalog.ts.
     "/ops": ["./apps/growth-agent/agent/**/*.md"],
   },
   images: {

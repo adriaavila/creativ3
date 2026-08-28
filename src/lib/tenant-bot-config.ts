@@ -1,4 +1,4 @@
-import { neon, type NeonQueryFunction } from "@neondatabase/serverless";
+import { neon, type NeonQueryFunction } from "@/lib/db";
 import { isAutomaticAutomation, type AutomationMode, type ModelTier } from "@/lib/tenant-automation";
 
 // Per-tenant bot behavior (migration 015). Keyed by the channel key: Meta

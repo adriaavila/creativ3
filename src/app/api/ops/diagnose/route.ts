@@ -1,4 +1,4 @@
-import { neon } from "@neondatabase/serverless";
+import { neon } from "@/lib/db";
 import { getGraphVersion } from "@/lib/meta/server";
 import { getGrowthAgentRuntime } from "@/lib/growth-agent-runtime";
 import { authorizeOps } from "@/lib/ops-auth";

@@ -1,4 +1,4 @@
-import { neon, type NeonQueryFunction } from "@neondatabase/serverless";
+import { neon, type NeonQueryFunction } from "@/lib/db";
 import type { MetaEmbeddedSignupPayload } from "@/lib/meta/embedded-signup";
 import type { TokenMetadata } from "@/lib/meta/server";
 import { decryptToken, encryptToken } from "@/lib/crypto/token-cipher";

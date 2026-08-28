@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 import { wavePath } from "@/lib/waveform";
 
-export const runtime = "edge";
+export const runtime = "nodejs";
 export const alt = "Allok — Convierte conversaciones en ventas.";
 export const size = {
   width: 1200,

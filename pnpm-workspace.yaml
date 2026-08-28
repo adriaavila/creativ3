@@ -7,5 +7,21 @@ overrides:
   sharp: 0.35.3
 
 ignoredBuiltDependencies:
+  # All three ship prebuilt platform binaries as optional deps, so their
+  # install scripts are redundant. Declaring them keeps `pnpm install` from
+  # failing the Docker build on pnpm 10's build-script gate.
+  - esbuild
   - sharp
   - unrs-resolver
+
+# The lockfile is generated on macOS but the image is built for Linux (the VPS
+# is x86_64). Without this, sharp's platform binary is absent under
+# --frozen-lockfile and Next silently serves unoptimised originals.
+supportedArchitectures:
+  os:
+    - current
+    - linux
+  cpu:
+    - current
+    - x64
+    - arm64

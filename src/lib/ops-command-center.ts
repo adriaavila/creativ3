@@ -394,5 +394,5 @@ function jsonRows(value: unknown): Array<Record<string, unknown>> {
 function iso(value: unknown): string | null {
   return value ? new Date(String(value)).toISOString() : null;
 }
-import { neon, type NeonQueryFunction } from "@neondatabase/serverless";
+import { neon, type NeonQueryFunction } from "@/lib/db";
 import { getNextStepSummary } from "@/lib/whatsapp-inbox-db";

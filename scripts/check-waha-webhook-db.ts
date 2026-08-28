@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { neon } from "@neondatabase/serverless";
+import { neon } from "../src/lib/db";
 import { processWahaWebhookQueue } from "../src/lib/waha-webhook-processor";
 import { recordWahaWebhookEvent, upsertWahaConnection } from "../src/lib/whatsapp-inbox-db";
 

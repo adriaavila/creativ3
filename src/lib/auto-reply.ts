@@ -1,4 +1,4 @@
-import { neon, type NeonQueryFunction } from "@neondatabase/serverless";
+import { neon, type NeonQueryFunction } from "@/lib/db";
 import { getConversationById, setConversationAssignedMode, type AssignedMode, type ConversationStatus, type MessageDirection, type WaConversation } from "@/lib/whatsapp-inbox-db";
 import { PilotRecipientDeniedError } from "@/lib/outbound-safety";
 import { isAutomaticAutomation, matchAutomationRule } from "@/lib/tenant-automation";

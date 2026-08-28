@@ -1,0 +1,32 @@
+.git
+.github
+.claude
+.docs
+.next
+node_modules
+**/node_modules
+dist
+out
+
+# Vercel leftovers
+.vercel
+.env*
+!.env.example
+
+# Not part of the app image
+marketing
+video
+video-como-trabajamos
+output
+ops/agents/data
+apps/growth-agent/.workflow-data
+apps/growth-agent/.eve
+apps/growth-agent/.output
+apps/growth-agent/node_modules
+.playwright-cli
+.firecrawl
+.clerk
+plans
+docs
+backups
+*.tsbuildinfo

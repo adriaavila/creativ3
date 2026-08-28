@@ -1,11 +1,20 @@
-import { gateway, generateText } from "ai";
+import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
+import { generateText } from "ai";
 import { getRecentMessagesForAi, type WaConversation } from "@/lib/whatsapp-inbox-db";
 import { composeSystemPrompt, getTenantBotConfig } from "@/lib/tenant-bot-config";
 import { automationRuntimePolicy } from "@/lib/tenant-automation";
 
-// Vercel AI Gateway, plain "provider/model" strings — same convention as
-// apps/growth-agent/agent/agent.ts. Needs AI_GATEWAY_API_KEY (or Vercel OIDC).
-const FAQ_MODEL = process.env.WHATSAPP_AI_FAQ_MODEL ?? "anthropic/claude-haiku-4-5";
+// OpenRouter, the same provider vocero-crm uses. Not Vercel AI Gateway: its
+// `gateway()` authenticates through Vercel OIDC, which does not exist once this
+// app runs on Coolify. Model ids keep the "provider/model" shape either way.
+const openrouter = createOpenAICompatible({
+  name: "openrouter",
+  baseURL: process.env.OPENROUTER_BASE_URL ?? "https://openrouter.ai/api/v1",
+  apiKey: process.env.OPENROUTER_API_TOKEN ?? "",
+});
+const aiModel = (id: string) => openrouter(id);
+
+const FAQ_MODEL = process.env.WHATSAPP_AI_FAQ_MODEL ?? "anthropic/claude-haiku-4.5";
 const QUALIFY_MODEL = process.env.WHATSAPP_AI_QUALIFY_MODEL ?? "anthropic/claude-sonnet-5";
 
 export type ReplyClassification = "faq" | "qualify";
@@ -39,7 +48,7 @@ function toModelMessages(messages: Awaited<ReturnType<typeof getRecentMessagesFo
 
 async function classify(history: ReturnType<typeof toModelMessages>, model: string): Promise<ReplyClassification> {
   const { text } = await generateText({
-    model: gateway(model),
+    model: aiModel(model),
     system: CLASSIFIER_SYSTEM,
     messages: history,
     abortSignal: AbortSignal.timeout(20_000),
@@ -75,7 +84,7 @@ export async function suggestReply(conversation: WaConversation): Promise<Sugges
   let result;
   try {
     result = await generateText({
-      model: gateway(model),
+      model: aiModel(model),
       system,
       messages: history,
       abortSignal: AbortSignal.timeout(20_000),
@@ -84,7 +93,7 @@ export async function suggestReply(conversation: WaConversation): Promise<Sugges
     if (model === policy.fallbackModel) throw error;
     model = policy.fallbackModel;
     result = await generateText({
-      model: gateway(model),
+      model: aiModel(model),
       system,
       messages: history,
       abortSignal: AbortSignal.timeout(20_000),

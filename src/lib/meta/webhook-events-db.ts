@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { neon, type NeonQueryFunction } from "@neondatabase/serverless";
+import { neon, type NeonQueryFunction } from "@/lib/db";
 
 export type MetaWebhookEventRecord = {
   id: number;

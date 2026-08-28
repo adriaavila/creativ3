@@ -1,4 +1,4 @@
-import { neon } from "@neondatabase/serverless";
+import { neon } from "../src/lib/db";
 
 const phoneNumberId = process.argv[2];
 if (!process.env.DATABASE_URL) {

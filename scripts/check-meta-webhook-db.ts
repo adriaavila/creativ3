@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
-import { neon } from "@neondatabase/serverless";
+import { neon } from "../src/lib/db";
 import { enqueueMetaWebhookEvent } from "../src/lib/meta/webhook-events-db";
 import { processMetaWebhookQueue } from "../src/lib/meta/webhook-processor";
 import {

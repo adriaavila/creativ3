@@ -7,7 +7,7 @@
  * destino tiene endpoint de provisión, le empuja las credenciales antes. REI
  * CRM no es especial; es la primera fila.
  */
-import { neon, type NeonQueryFunction } from "@neondatabase/serverless";
+import { neon, type NeonQueryFunction } from "@/lib/db";
 import { decryptToken, encryptToken } from "@/lib/crypto/token-cipher";
 
 let sqlClient: NeonQueryFunction<false, false> | null = null;

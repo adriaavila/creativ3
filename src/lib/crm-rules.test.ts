@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { growthOutreachSchema, growthTemplateComponents } from "@/app/api/ops/growth/outreach/route";
+import { pickGrowthSender } from "@/lib/growth-outreach";
 import { formatWhatsAppPhone, normalizeWhatsAppId, normalizeWhatsAppPhone, isWhatsAppId } from "@/lib/phone";
 import { isWithinFreeTextWindow, mayDispatchOutboundAction, outboundActionOutcome } from "@/lib/whatsapp-send";
 import { FREE_TEXT_WINDOW_MS, freeTextWindow } from "@/lib/whatsapp-window";
@@ -351,6 +352,35 @@ test("outreach requires explicit approval and builds a reviewed template body", 
   assert.deepEqual(growthTemplateComponents("Mensaje revisado"), [
     { type: "body", parameters: [{ type: "text", text: "Mensaje revisado" }] },
   ]);
+});
+
+test("the mobile queue picks a sender without asking, and never a cold cloud send without a template", () => {
+  const waha = [{ wahaSessionId: "allok-main", status: "connected" as const, phoneDisplay: "+584120000001" }];
+  const cloud = [{
+    phoneNumberId: "1234",
+    status: "connected",
+    businessTokenStored: true,
+    displayPhoneNumber: "+584120000002",
+    verifiedName: "Allok",
+  }];
+
+  assert.deepEqual(pickGrowthSender(waha, cloud, undefined, "es"), {
+    channel: "waha",
+    connectionId: "allok-main",
+    label: "+584120000001",
+  });
+
+  const stopped = [{ ...waha[0], status: "stopped" as const }];
+  assert.equal(pickGrowthSender(stopped, cloud, undefined, "es"), null);
+  assert.deepEqual(pickGrowthSender(stopped, cloud, "allok_intro", "es"), {
+    channel: "cloud_api",
+    connectionId: "1234",
+    label: "+584120000002",
+    templateName: "allok_intro",
+    templateLanguage: "es",
+  });
+  assert.equal(pickGrowthSender(stopped, [{ ...cloud[0], businessTokenStored: false }], "allok_intro", "es"), null);
+  assert.equal(pickGrowthSender([], [], "allok_intro", "es"), null);
 });
 
 test("human outreach requires one durable action UUID", () => {

@@ -13,6 +13,7 @@ import {
   LoaderCircle,
   Play,
   RefreshCw,
+  Send,
   TrendingDown,
   TrendingUp,
   X,
@@ -42,6 +43,11 @@ const KIND_ORDER: DraftKind[] = ["dm", "followup_1", "followup_2", "audio_script
 const DAY_MS = 86_400_000;
 const isStale = (iso: string | null) => Boolean(iso) && Date.now() - new Date(iso as string).getTime() > 3 * DAY_MS;
 
+/** Kinds that go out as a reviewed WhatsApp free-text message from the mobile queue. */
+const SENDABLE_KINDS: DraftKind[] = ["dm", "followup_1", "followup_2"];
+
+export type GrowthSenderView = { label: string; channel: "cloud_api" | "waha" } | null;
+
 export default function GrowthOpsClient({
   initialRuns,
   initialLeads,
@@ -49,6 +55,7 @@ export default function GrowthOpsClient({
   initialTab,
   initialDraftId,
   marketing,
+  sender,
 }: {
   initialRuns: GrowthRun[];
   initialLeads: GrowthLead[];
@@ -56,6 +63,7 @@ export default function GrowthOpsClient({
   initialTab: Tab;
   initialDraftId: string | null;
   marketing: MarketingSnapshot;
+  sender: GrowthSenderView;
 }) {
   const [tab, setTab] = useState<Tab>(initialTab);
   const [drafts, setDrafts] = useState(initialDrafts);
@@ -63,6 +71,11 @@ export default function GrowthOpsClient({
   const [running, setRunning] = useState(false);
   const [busyLead, setBusyLead] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+  const [sending, setSending] = useState<string | null>(null);
+  const [confirming, setConfirming] = useState<string | null>(null);
+  const [phones, setPhones] = useState<Record<string, string>>({});
+  // One action id per draft, reused on retry: the send endpoint is idempotent on it.
+  const [actionIds, setActionIds] = useState<Record<string, string>>({});
 
   useEffect(() => {
     if (!initialDraftId || tab !== "drafts") return;
@@ -104,6 +117,45 @@ export default function GrowthOpsClient({
     }
     return { contactarHoy, followUp, enviarPropuesta };
   }, [leads]);
+
+  // Everything the agent drafted that is one approval away from reaching a lead.
+  const sendQueue = useMemo(
+    () =>
+      drafts
+        .filter((draft) => draft.status === "pending" && draft.channel === "whatsapp" && SENDABLE_KINDS.includes(draft.kind))
+        .map((draft) => ({ draft, lead: leadById.get(draft.leadId) }))
+        .filter((item): item is { draft: OutreachDraft; lead: GrowthLead } => Boolean(item.lead)),
+    [drafts, leadById],
+  );
+
+  const phoneFor = (lead: GrowthLead) => (phones[lead.id] ?? lead.businessPhone ?? "").trim();
+
+  const approveAndSend = async (draft: OutreachDraft, lead: GrowthLead) => {
+    const phone = phoneFor(lead);
+    if (!phone) {
+      setNotice("Agrega el WhatsApp público del negocio antes de enviar.");
+      return;
+    }
+    const actionId = actionIds[draft.id] ?? crypto.randomUUID();
+    setActionIds((items) => ({ ...items, [draft.id]: actionId }));
+    setSending(draft.id);
+    setConfirming(null);
+    setNotice(null);
+    const response = await fetch(`/api/ops/growth/drafts/${draft.id}/send`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ actionId, phone, content: draft.content, confirmed: true, consentConfirmed: true }),
+    });
+    const payload = await response.json().catch(() => ({}));
+    setSending(null);
+    if (!response.ok) {
+      setNotice(payload.error ?? "No se pudo enviar el mensaje.");
+      return;
+    }
+    setDrafts((items) => items.map((item) => (item.id === draft.id ? { ...item, status: "approved" } : item)));
+    patchLead(lead.id, { status: "contacted", lastContactedAt: new Date().toISOString(), businessPhone: phone });
+    setNotice(`Enviado a ${lead.businessName} (${phone}) desde ${payload.sentFrom ?? "WhatsApp"}.`);
+  };
 
   const startRun = async () => {
     setRunning(true);
@@ -207,8 +259,8 @@ export default function GrowthOpsClient({
           <div className="pointer-events-none absolute -right-16 -top-24 size-64 rounded-full bg-[#c5f04a]/10 blur-3xl" />
           <div className="relative grid sm:grid-cols-2 xl:grid-cols-4">
           {[
-            ["Acciones de hoy", buckets.contactarHoy.length + buckets.followUp.length + buckets.enviarPropuesta.length],
-            ["Investigaciones", initialRuns.length],
+            ["Acciones de hoy", sendQueue.length + buckets.contactarHoy.length + buckets.followUp.length + buckets.enviarPropuesta.length],
+            ["Por aprobar", sendQueue.length],
             ["Oportunidades", leads.length],
             ["Por revisar", drafts.filter((draft) => draft.status === "pending").length],
           ].map(([label, value]) => (
@@ -249,6 +301,92 @@ export default function GrowthOpsClient({
         <section className="mt-5">
           {tab === "hoy" && (
             <div className="grid gap-5">
+              <div className="rounded-xl border border-[#dfe5eb] bg-white p-4 shadow-[0_6px_20px_rgba(20,43,75,0.04)] sm:p-6">
+                <div className="flex flex-wrap items-baseline justify-between gap-3">
+                  <h2 className="font-display text-2xl font-semibold tracking-[-0.035em] text-[#172238]">Aprobar y enviar</h2>
+                  <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-[#7a8797]">
+                    {sendQueue.length} · {sender ? `remitente ${sender.label}` : "sin remitente"}
+                  </span>
+                </div>
+
+                {!sender && (
+                  <p className="mt-4 rounded-lg border border-[#e6d7ae] bg-[#fdf8ec] px-4 py-3 text-sm leading-5 text-[#7a6222]">
+                    No hay remitente de WhatsApp listo. Conecta una sesión WAHA en{" "}
+                    <Link href="/ops/crm?view=connections" className="font-semibold underline">Conexiones</Link>, o configura{" "}
+                    <code className="rounded bg-white px-1 py-0.5">GROWTH_OUTREACH_TEMPLATE</code> con una plantilla aprobada de Meta.
+                  </p>
+                )}
+
+                {sendQueue.length === 0 ? (
+                  <p className="mt-4 rounded-lg border border-dashed border-[#d7dfe6] bg-[#fafbfc] px-4 py-6 text-sm text-[#7a8797]">
+                    Nada por aprobar. El agente deja aquí cada mensaje que escribe para los leads que encuentra.
+                  </p>
+                ) : (
+                  <ul className="mt-4 grid gap-3">
+                    {sendQueue.map(({ draft, lead }) => {
+                      const phone = phoneFor(lead);
+                      const busy = sending === draft.id;
+                      return (
+                        <li key={draft.id} className="rounded-xl border border-[#e3e8ed] bg-[#fafbfc] p-4">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <span className="rounded-md bg-[#edf7df] px-2.5 py-1 text-[10px] font-semibold text-[#527526]">{KIND_LABELS[draft.kind]}</span>
+                            <strong className="text-sm font-semibold text-[#263b54]">{lead.businessName}</strong>
+                            <span className="font-mono text-[9px] uppercase tracking-[0.15em] text-[#71842f]">{lead.vertical}</span>
+                          </div>
+                          <textarea
+                            value={draft.content}
+                            onChange={(event) => setDrafts((items) => items.map((item) => (item.id === draft.id ? { ...item, content: event.target.value } : item)))}
+                            rows={5}
+                            className="mt-3 w-full resize-y rounded-lg border border-[#d5dde5] bg-white p-3 text-base leading-6 text-[#263b54] outline-none focus:border-[#6f8733] focus:ring-2 focus:ring-[#c5f04a]/20 sm:text-sm"
+                          />
+                          <label className="mt-3 flex flex-col gap-1.5 text-[10px] font-semibold uppercase tracking-wide text-[#7a8797]">
+                            WhatsApp del negocio
+                            <input
+                              type="tel"
+                              inputMode="tel"
+                              placeholder="+58412…"
+                              value={phone}
+                              onChange={(event) => setPhones((items) => ({ ...items, [lead.id]: event.target.value }))}
+                              className="min-h-11 rounded-lg border border-[#d5dde5] bg-white px-3 text-base text-[#263b54] outline-none focus:border-[#6f8733] focus:ring-2 focus:ring-[#c5f04a]/20 sm:text-sm"
+                            />
+                          </label>
+                          <div className="mt-3 grid gap-2 sm:flex sm:flex-wrap">
+                            {confirming === draft.id ? (
+                              <>
+                                <TapButton
+                                  type="button"
+                                  disabled={busy}
+                                  onClick={() => void approveAndSend(draft, lead)}
+                                  className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg bg-[#172238] px-4 text-sm font-semibold text-white disabled:opacity-50"
+                                >
+                                  {busy ? <LoaderCircle className="size-4 animate-spin" /> : <Send className="size-4" />} Confirmar envío a {phone || "—"}
+                                </TapButton>
+                                <TapButton type="button" onClick={() => setConfirming(null)} className="inline-flex min-h-12 items-center justify-center rounded-lg border border-[#d5dde5] bg-white px-4 text-sm font-semibold text-[#526174]">
+                                  Cancelar
+                                </TapButton>
+                              </>
+                            ) : (
+                              <>
+                                <TapButton
+                                  type="button"
+                                  disabled={!sender || !phone || busy}
+                                  onClick={() => setConfirming(draft.id)}
+                                  className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg bg-[#c5f04a] px-4 text-sm font-semibold text-[#263710] disabled:opacity-50"
+                                >
+                                  <Send className="size-4" /> Aprobar y enviar
+                                </TapButton>
+                                <TapButton type="button" onClick={() => void saveDraft(draft, "rejected")} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg border border-[#d5dde5] bg-white px-4 text-sm font-semibold text-[#526174]">
+                                  <X className="size-4" /> Rechazar
+                                </TapButton>
+                              </>
+                            )}
+                          </div>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                )}
+              </div>
               <DayBucket
                 title="Contactar hoy"
                 hint="Aprobados, aún sin contactar"
@@ -398,6 +536,22 @@ export default function GrowthOpsClient({
                             className="mt-4 w-full resize-y rounded-lg border border-[#d5dde5] bg-white p-4 text-sm leading-6 text-[#263b54] outline-none focus:border-[#6f8733] focus:ring-2 focus:ring-[#c5f04a]/20"
                           />
                           <div className="mt-4 flex flex-wrap gap-2">
+                            {draft.channel === "whatsapp" && SENDABLE_KINDS.includes(draft.kind) && leadById.get(draft.leadId) && (
+                              <TapButton
+                                type="button"
+                                disabled={!sender || sending === draft.id}
+                                onClick={() => {
+                                  const lead = leadById.get(draft.leadId);
+                                  if (!lead) return;
+                                  if (confirming === draft.id) void approveAndSend(draft, lead);
+                                  else setConfirming(draft.id);
+                                }}
+                                className="inline-flex items-center gap-2 rounded-lg bg-[#172238] px-4 py-2 text-xs font-semibold text-white disabled:opacity-50"
+                              >
+                                {sending === draft.id ? <LoaderCircle className="size-3.5 animate-spin" /> : <Send className="size-3.5" />}
+                                {confirming === draft.id ? "Confirmar envío" : "Aprobar y enviar"}
+                              </TapButton>
+                            )}
                             <TapButton type="button" onClick={() => void saveDraft(draft, "approved")} className="inline-flex items-center gap-2 rounded-lg bg-[#c5f04a] px-4 py-2 text-xs font-semibold text-[#263710]"><Check className="size-3.5" /> Aprobar</TapButton>
                             <TapButton type="button" onClick={() => void saveDraft(draft, "rejected")} className="inline-flex items-center gap-2 rounded-lg border border-[#d5dde5] bg-white px-4 py-2 text-xs font-semibold text-[#526174]"><X className="size-3.5" /> Rechazar</TapButton>
                             <TapButton type="button" onClick={() => navigator.clipboard.writeText(draft.content)} className="inline-flex items-center gap-2 rounded-lg border border-[#d5dde5] bg-white px-4 py-2 text-xs font-semibold text-[#526174]"><Copy className="size-3.5" /> Copiar</TapButton>
@@ -408,7 +562,10 @@ export default function GrowthOpsClient({
                   </div>
                 );
               })}
-              <p className="text-[10px] text-[#7a8797]">Aprobar cambia el estado. No envía el mensaje.</p>
+              <p className="text-[10px] text-[#7a8797]">
+                «Aprobar» solo cambia el estado. «Aprobar y enviar» escribe al lead por WhatsApp
+                {sender ? ` desde ${sender.label}` : ""} y lo marca contactado.
+              </p>
             </div>
           )}
         </section>

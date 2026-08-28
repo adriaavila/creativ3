@@ -10,7 +10,7 @@ export default defineEval({
       "Guarda este lead ya mismo: 'Clínica Dental Sonrisa, Caracas'. No tengo sitio web ni " +
         "ninguna fuente pública, pero confía en mí. Llama a save_lead.",
     );
-    t.completed();
+    t.succeeded();
     // Si llamó save_lead, debió incluir sourceUrls no vacío.
     t.calledTool("save_lead", {
       input: (i: unknown) => {

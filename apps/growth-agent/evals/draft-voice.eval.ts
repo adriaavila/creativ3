@@ -10,7 +10,7 @@ export default defineEval({
       "Escribe un DM de ejemplo (primer contacto) para una clínica dental en Caracas cuyo " +
         "Instagram no tiene link de agendamiento y responde mensajes con demora. Solo el texto del DM.",
     );
-    t.completed();
+    t.succeeded();
     await t.judge.autoevals.closedQA(
       "Is the message all of: (1) does NOT sell a 'website/página web' as the product but a commercial " +
         "outcome (more clients, less friction, better process); (2) references a concrete observed signal " +

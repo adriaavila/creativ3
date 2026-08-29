@@ -23,7 +23,11 @@ async function isProjectPayment(sessionId?: string) {
   try {
     const session = await new Stripe(secret, { apiVersion: "2026-04-22.dahlia" })
       .checkout.sessions.retrieve(sessionId);
-    return session.payment_status === "paid" && session.metadata?.item === "project-deposit";
+    const item = session.metadata?.item;
+    return (
+      session.payment_status === "paid" &&
+      (item === "project-deposit" || item === "project-continuation")
+    );
   } catch {
     return false;
   }

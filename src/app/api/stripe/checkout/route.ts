@@ -11,6 +11,7 @@ import { isLocale, type Locale } from "@/lib/i18n";
 const AD_HOC = {
   "project-deposit": { currency: "usd", unit_amount: 20_000, name: "Depósito de proyecto allok" },
   nodria: { currency: "eur", unit_amount: 20_000, name: "Nodria" },
+  "project-continuation": { currency: "eur", unit_amount: 20_000, name: "Continuación de proyecto allok" },
 } as const;
 
 const isAdHoc = (key: string): key is keyof typeof AD_HOC => key in AD_HOC;

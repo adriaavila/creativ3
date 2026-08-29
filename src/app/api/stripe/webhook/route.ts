@@ -33,6 +33,7 @@ async function sendProjectPaymentEmail(session: Stripe.Checkout.Session) {
     amount: session.amount_total,
     currency: session.currency,
     project: PROJECT_LABELS[item] ?? null,
+    kind: item === "project-continuation" ? "continuation" : "deposit",
   });
   const { error } = await new Resend(apiKey).emails.send(
     { from, to, subject: email.subject, html: email.html, text: email.text },

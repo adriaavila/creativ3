@@ -70,6 +70,16 @@ export async function POST(request: NextRequest) {
   try {
     if (event.type === "checkout.session.completed") {
       const session = event.data.object;
+
+      // El comprobante va ANTES de persistir: la base puede estar caída y el
+      // cliente igual tiene que recibir su recibo. Resend deduplica por
+      // session.id, así que los reintentos de Stripe no mandan dos correos, y
+      // si la escritura falla el 500 hace que Stripe reintente hasta que la
+      // base vuelva.
+      if (session.payment_status === "paid") {
+        await sendProjectPaymentEmail(session);
+      }
+
       await recordStripePurchase({
         stripeSessionId: session.id,
         plan: session.metadata?.item ?? session.metadata?.plan ?? "unknown",
@@ -85,10 +95,6 @@ export async function POST(request: NextRequest) {
             : session.subscription?.id ?? null,
         paymentStatus: session.payment_status,
       });
-
-      if (session.payment_status === "paid") {
-        await sendProjectPaymentEmail(session);
-      }
     }
 
     if (

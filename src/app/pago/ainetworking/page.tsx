@@ -1,18 +1,19 @@
 import ProjectCheckout from "@/components/billing/ProjectCheckout";
 
-export default function ProjectContinuationPage() {
+export default function AiNetworkingPaymentPage() {
   return (
     <ProjectCheckout
       item="project-continuation"
-      eyebrow="Continuación de proyecto"
+      client="ainetworking"
+      eyebrow="AiNetworking"
       title="Seguimos donde lo dejamos."
-      lead="Este pago cubre el siguiente tramo de trabajo sobre tu proyecto en curso. Sin reinicios ni alcance nuevo: continuidad."
+      lead="Reserva el siguiente tramo del proyecto AiNetworking con Allok. Sin reinicios ni alcance nuevo: continuidad."
       included={[
         "Siguiente tramo de desarrollo acordado",
         "Ajustes y mejoras sobre lo ya entregado",
         "Seguimiento y reporte de avance",
       ]}
-      priceLabel="Tramo de continuación"
+      priceLabel="Proyecto AiNetworking"
       currencySymbol="€"
       amount="200"
       currencyCode="EUR"

@@ -14,6 +14,7 @@ const id = (value: string | Stripe.Customer | Stripe.DeletedCustomer | null) =>
 
 const PROJECT_LABELS: Record<string, string> = {
   nodria: "Nodria",
+  ainetworking: "AiNetworking",
   "allok-launch": "Launch",
   "allok-automate": "Automate",
   desk: "Desk",
@@ -28,11 +29,12 @@ async function sendProjectPaymentEmail(session: Stripe.Checkout.Session) {
   if (!apiKey || !from || !to) return;
 
   const item = session.metadata?.item ?? session.metadata?.plan ?? "";
+  const client = session.metadata?.client ?? "";
   const email = projectPaymentEmail({
     name: session.customer_details?.name ?? null,
     amount: session.amount_total,
     currency: session.currency,
-    project: PROJECT_LABELS[item] ?? null,
+    project: PROJECT_LABELS[client] ?? PROJECT_LABELS[item] ?? null,
     kind: item === "project-continuation" ? "continuation" : "deposit",
   });
   const { error } = await new Resend(apiKey).emails.send(

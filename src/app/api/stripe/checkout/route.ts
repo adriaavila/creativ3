@@ -32,12 +32,14 @@ export async function POST(request: NextRequest) {
     const locale: Locale = body.locale && isLocale(body.locale) ? body.locale : "es";
     const adHoc = isAdHoc(key) ? AD_HOC[key] : null;
     const catalogItem = adHoc ? null : getBillingItem(key as Exclude<typeof key, keyof typeof AD_HOC>);
-    const channel: BillingChannel =
+    // Ad-hoc items (nodria, project-deposit, client continuations) are project
+    // payments with no WhatsApp channel — null, not a made-up "waha" default.
+    const channel: BillingChannel | null =
       body.channel === "cloud_api" || body.channel === "waha"
         ? body.channel
         : catalogItem && "defaultChannel" in catalogItem
           ? catalogItem.defaultChannel
-          : "waha";
+          : null;
     const secret = process.env.STRIPE_SECRET_KEY;
     if (!secret) {
       return NextResponse.json({ error: "Stripe is not configured." }, { status: 503 });
@@ -72,10 +74,11 @@ export async function POST(request: NextRequest) {
       allow_promotion_codes: true,
       customer_creation: catalogItem?.kind !== "subscription" ? "always" : undefined,
       integration_identifier: "allok-project-payment-qnplrxav",
-      metadata: { item: key, plan: key, channel, client: body.client ?? "", locale },
+      // Stripe metadata values must be strings; null means "no channel".
+      metadata: { item: key, plan: key, channel: channel ?? "", client: body.client ?? "", locale },
       subscription_data:
         catalogItem?.kind === "subscription"
-          ? { metadata: { item: key, plan: key, channel, locale } }
+          ? { metadata: { item: key, plan: key, channel: channel ?? "", locale } }
           : undefined,
     });
 

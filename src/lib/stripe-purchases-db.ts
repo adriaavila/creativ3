@@ -14,7 +14,7 @@ export type StripePurchase = {
   id: string;
   stripeSessionId: string;
   plan: string;
-  channel: "waha" | "cloud_api";
+  channel: "waha" | "cloud_api" | null;
   client: string | null;
   customerEmail: string | null;
   stripeCustomerId: string | null;
@@ -50,7 +50,7 @@ export async function getStripePurchaseBySessionId(
     id: String(row.id),
     stripeSessionId: String(row.stripe_session_id),
     plan: String(row.plan),
-    channel: row.channel === "cloud_api" ? "cloud_api" : "waha",
+    channel: row.channel === "cloud_api" || row.channel === "waha" ? row.channel : null,
     client: row.client ? String(row.client) : null,
     customerEmail: row.customer_email ? String(row.customer_email) : null,
     stripeCustomerId: row.stripe_customer_id ? String(row.stripe_customer_id) : null,
@@ -66,7 +66,7 @@ export async function getStripePurchaseBySessionId(
 export async function recordStripePurchase(input: {
   stripeSessionId: string;
   plan: string;
-  channel: "waha" | "cloud_api";
+  channel: "waha" | "cloud_api" | null;
   client?: string | null;
   amountTotal?: number | null;
   currency?: string | null;

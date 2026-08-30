@@ -43,7 +43,13 @@ async function authorize(req: NextRequest): Promise<
   if (!purchase) return NextResponse.json({ error: "Compra no encontrada." }, { status: 404 });
   if (purchase.channel !== "waha") {
     return NextResponse.json(
-      { error: "Esta compra usa Cloud API — la activación va por /embedded-whatsapp.", channel: purchase.channel },
+      {
+        error:
+          purchase.channel === "cloud_api"
+            ? "Esta compra usa Cloud API — la activación va por /embedded-whatsapp."
+            : "Esta compra no incluye una conexión de WhatsApp.",
+        channel: purchase.channel,
+      },
       { status: 409 },
     );
   }

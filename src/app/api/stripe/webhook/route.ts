@@ -70,7 +70,12 @@ export async function POST(request: NextRequest) {
       await recordStripePurchase({
         stripeSessionId: session.id,
         plan: session.metadata?.item ?? session.metadata?.plan ?? "unknown",
-        channel: session.metadata?.channel === "cloud_api" ? "cloud_api" : "waha",
+        // "" from checkout ad-hoc items means no WhatsApp channel at all —
+        // not a default. See src/app/api/stripe/checkout/route.ts.
+        channel:
+          session.metadata?.channel === "cloud_api" || session.metadata?.channel === "waha"
+            ? session.metadata.channel
+            : null,
         client: session.metadata?.client || null,
         amountTotal: session.amount_total,
         currency: session.currency,

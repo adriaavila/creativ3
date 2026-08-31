@@ -1,65 +1,54 @@
 import type { MetadataRoute } from "next";
+import { EXPERIMENTS } from "@/components/lab/registry";
+import { PORTFOLIO_PROJECTS } from "@/lib/projects";
 import { SITE_URL } from "@/lib/seo";
-import { CITIES, cityVerticalPath } from "@/lib/cities";
-import { VERTICAL_LIST } from "@/lib/verticals";
 
-const LOCALIZED_ROUTES = [
-  ["/whatsapp", "/en/whatsapp", "weekly" as const, 0.9],
-  ["/es/desk", "/en/desk", "weekly" as const, 0.9],
-  ["/es/privacidad", "/en/privacy", "yearly" as const, 0.3],
-  ["/es/terminos", "/en/terms", "yearly" as const, 0.3],
-] as const;
-
-const SPANISH_ONLY_ROUTES: [path: string, changeFrequency: MetadataRoute.Sitemap[number]["changeFrequency"], priority: number][] = [
-  ["/", "weekly", 1],
-  ["/cotizar", "monthly", 0.8],
-  ["/docs", "monthly", 0.8],
-  ["/projects", "weekly", 0.7],
-  ["/projects/mistica", "yearly", 0.4],
-  ["/automatizar", "monthly", 0.6],
-  ...VERTICAL_LIST.map(
-    (vertical): [string, MetadataRoute.Sitemap[number]["changeFrequency"], number] => [
-      `/${vertical.slug}`,
-      "monthly",
-      0.7,
-    ]
-  ),
-  ...CITIES.flatMap((city) =>
-    VERTICAL_LIST.map(
-      (vertical): [string, MetadataRoute.Sitemap[number]["changeFrequency"], number] => [
-        cityVerticalPath(city.slug, vertical.slug),
-        "monthly",
-        0.5,
-      ]
-    )
-  ),
-];
-
+/**
+ * The portfolio, plus the legal pages Meta requires for the WhatsApp
+ * integration. The /ops product and checkout routes stay out on purpose —
+ * they are not for search engines.
+ */
 export default function sitemap(): MetadataRoute.Sitemap {
-  const localized = LOCALIZED_ROUTES.flatMap(([es, en, changeFrequency, priority]) =>
-    [
-      ["es", es, en],
-      ["en", en, es],
-    ].map(([language, path, alternate]) => ({
-      url: `${SITE_URL}${path}`,
-      lastModified: new Date(),
-      changeFrequency,
-      priority: language === "es" ? priority : priority - 0.1,
-      alternates: {
-        languages: {
-          [language]: `${SITE_URL}${path}`,
-          [language === "es" ? "en" : "es"]: `${SITE_URL}${alternate}`,
-        },
-      },
-    }))
-  );
+  const now = new Date();
 
-  const spanishOnly = SPANISH_ONLY_ROUTES.map(([path, changeFrequency, priority]) => ({
-    url: `${SITE_URL}${path}`,
-    lastModified: new Date(),
-    changeFrequency,
-    priority,
+  const core: MetadataRoute.Sitemap = [
+    { url: `${SITE_URL}/`, lastModified: now, changeFrequency: "weekly", priority: 1 },
+    { url: `${SITE_URL}/work`, lastModified: now, changeFrequency: "weekly", priority: 0.9 },
+    { url: `${SITE_URL}/lab`, lastModified: now, changeFrequency: "monthly", priority: 0.8 },
+    {
+      url: `${SITE_URL}/projects/mistica`,
+      lastModified: now,
+      changeFrequency: "yearly",
+      priority: 0.4,
+    },
+  ];
+
+  const work: MetadataRoute.Sitemap = PORTFOLIO_PROJECTS.map((project) => ({
+    url: `${SITE_URL}/work/${project.id}`,
+    lastModified: new Date(project.githubPushedAt),
+    changeFrequency: "monthly",
+    priority: 0.7,
   }));
 
-  return [...localized, ...spanishOnly];
+  const lab: MetadataRoute.Sitemap = EXPERIMENTS.map((experiment) => ({
+    url: `${SITE_URL}/lab/${experiment.slug}`,
+    lastModified: now,
+    changeFrequency: "monthly",
+    priority: 0.6,
+  }));
+
+  const legal: MetadataRoute.Sitemap = [
+    "/es/privacidad",
+    "/en/privacy",
+    "/es/terminos",
+    "/en/terms",
+    "/eliminacion-de-datos",
+  ].map((path) => ({
+    url: `${SITE_URL}${path}`,
+    lastModified: now,
+    changeFrequency: "yearly",
+    priority: 0.3,
+  }));
+
+  return [...core, ...work, ...lab, ...legal];
 }

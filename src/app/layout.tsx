@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
-import { JetBrains_Mono, Geist } from "next/font/google";
+import { Archivo_Black, JetBrains_Mono, Geist } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
-import SiteChrome from "@/components/site/SiteChrome";
 import { siteJsonLd } from "@/lib/seo";
 import { headers } from "next/headers";
 
@@ -10,6 +9,16 @@ const jetbrains = JetBrains_Mono({
   weight: ["300", "400", "500"],
   subsets: ["latin"],
   variable: "--font-jetbrains",
+  display: "swap",
+});
+
+// The macro voice of the portfolio: one weight, uppercase, set enormous.
+// Structure on the page is typographic, so the display face is a real
+// industrial black rather than the body grotesque pushed to 800.
+const archivo = Archivo_Black({
+  weight: "400",
+  subsets: ["latin"],
+  variable: "--font-archivo",
   display: "swap",
 });
 
@@ -25,42 +34,46 @@ const geist = Geist({
 export const metadata: Metadata = {
   metadataBase: new URL("https://allok.fun"),
   title: {
-    default: "Allok — Agencia de producto, web y automatización",
-    template: "%s | Allok",
+    default: "Adrián Ávila Molina — Industrial engineer building software",
+    template: "%s | Adrián Ávila Molina",
   },
   description:
-    "Diseñamos webs, productos digitales y automatizaciones con IA para negocios que necesitan vender y operar mejor.",
+    "Industrial engineer turned design engineer. I design and build commercial software — storefronts, CRMs, property platforms, booking apps and AI agents — from blank canvas to live checkout.",
   verification: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION
     ? { google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION }
     : undefined,
   keywords: [
-    "allok",
-    "agencia digital",
-    "desarrollo de producto",
-    "diseño web",
-    "automatización con IA",
-    "CRM WhatsApp",
-    "seguimiento de clientes",
-    "pipeline de ventas",
-    "automatizacion de ventas",
-    "inbox WhatsApp",
-    "gestion de leads",
+    "design engineer",
+    "industrial engineer",
+    "portfolio",
+    "Next.js",
+    "TypeScript",
+    "AI agents",
+    "product design",
+    "Adrián Ávila Molina",
   ],
   openGraph: {
-    title: "Allok — Agencia de producto, web y automatización",
+    title: "Adrián Ávila Molina — Industrial engineer building software",
     description:
-      "Diseñamos webs, productos digitales y automatizaciones con IA para negocios que necesitan vender y operar mejor.",
+      "24 systems in production: storefronts, CRMs, property platforms, booking apps and AI agents. Design through deploy, by the same pair of hands.",
     url: "https://allok.fun",
-    siteName: "Allok",
-    locale: "es_VE",
+    siteName: "Adrián Ávila Molina",
+    locale: "en",
     type: "website",
-    images: [{ url: "/opengraph-image", width: 1200, height: 630, alt: "Allok" }],
+    images: [
+      {
+        url: "/opengraph-image",
+        width: 1200,
+        height: 630,
+        alt: "Adrián Ávila Molina — industrial engineer building software",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Allok — Agencia de producto, web y automatización",
+    title: "Adrián Ávila Molina — Industrial engineer building software",
     description:
-      "Webs, productos digitales y automatizaciones construidos para vender y operar mejor.",
+      "24 systems in production. Design, frontend, backend and deploy, with agents doing the boring half.",
     images: ["/opengraph-image"],
   },
 };
@@ -70,15 +83,15 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const locale = (await headers()).get("x-allok-locale") === "en" ? "en" : "es";
+  const locale = (await headers()).get("x-allok-locale") === "es" ? "es" : "en";
   return (
-    <html lang={locale} className={`${jetbrains.variable} ${geist.variable}`}>
+    <html lang={locale} className={`${jetbrains.variable} ${geist.variable} ${archivo.variable}`}>
       <body className="relative min-h-screen overflow-x-hidden antialiased">
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(siteJsonLd(locale)) }}
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(siteJsonLd()) }}
         />
-        <SiteChrome>{children}</SiteChrome>
+        {children}
         <Analytics mode={process.env.VERCEL ? "auto" : "development"} debug={false} />
       </body>
     </html>

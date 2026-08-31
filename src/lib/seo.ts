@@ -1,71 +1,39 @@
-import { CONTACT_EMAIL, WHATSAPP_NUMBER } from "@/lib/contact";
+import { CONTACT_EMAIL } from "@/lib/contact";
 
 export const SITE_URL = "https://allok.fun";
-export const SITE_NAME = "Allok";
+export const SITE_NAME = "Adrián Ávila Molina";
 
-// Organization + WebSite — emitted once in the root layout.
-export function siteJsonLd(locale: "es" | "en" = "es") {
+/**
+ * Person schema — this is a portfolio, not a company. Emitted once in the
+ * root layout.
+ */
+export function siteJsonLd() {
   return [
     {
       "@context": "https://schema.org",
-      "@type": "Organization",
-      name: SITE_NAME,
+      "@type": "Person",
+      name: "Adrián Ávila Molina",
       url: SITE_URL,
-      logo: `${SITE_URL}/logo.svg`,
       email: CONTACT_EMAIL,
+      jobTitle: "Industrial engineer · design engineer",
       description:
-        locale === "es"
-          ? "Agencia de producto digital: diseño web, software y automatización con IA."
-          : "Digital product agency: web design, software, and AI automation.",
-      areaServed: ["VE", "Latin America"],
-      contactPoint: {
-        "@type": "ContactPoint",
-        contactType: "sales",
-        telephone: `+${WHATSAPP_NUMBER}`,
-        availableLanguage: ["es", "en"],
-      },
+        "Industrial engineer who designs and builds commercial software: storefronts, CRMs, property platforms, booking apps and AI agents.",
+      knowsAbout: [
+        "Product design",
+        "Design engineering",
+        "Next.js",
+        "TypeScript",
+        "AI agents",
+        "Stripe",
+      ],
+      sameAs: ["https://github.com/adriaavila"],
     },
     {
       "@context": "https://schema.org",
       "@type": "WebSite",
       name: SITE_NAME,
       url: SITE_URL,
-      inLanguage: locale,
+      inLanguage: "en",
     },
   ];
-}
-
-// Service schema for vertical/service pages.
-export function serviceJsonLd(name: string, description: string, path: string) {
-  return {
-    "@context": "https://schema.org",
-    "@type": "Service",
-    name,
-    description,
-    url: `${SITE_URL}${path}`,
-    provider: { "@type": "Organization", name: SITE_NAME, url: SITE_URL },
-    areaServed: ["VE", "Latin America"],
-  };
-}
-
-// FAQPage schema. Pass [{q, a}] — also render the same Q&A visibly on the page.
-export function faqJsonLd(items: { q: string; a: string }[], locale = "es") {
-  return {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    inLanguage: locale,
-    mainEntity: items.map(({ q, a }) => ({
-      "@type": "Question",
-      name: q,
-      acceptedAnswer: { "@type": "Answer", text: a },
-    })),
-  };
-}
-
-// Tiny helper to drop a JSON-LD <script>. Use inside a server component.
-export function jsonLdScript(data: unknown) {
-  return {
-    type: "application/ld+json",
-    dangerouslySetInnerHTML: { __html: JSON.stringify(data) },
-  };
 }

@@ -47,23 +47,23 @@ export const PROJECT_CATEGORIES: {
 }[] = [
   {
     id: "all",
-    label: "Todos",
-    description: "Los últimos trabajos sincronizados desde GitHub.",
+    label: "All",
+    description: "The most recent work, synced from GitHub.",
   },
   {
     id: "web",
     label: "Web",
-    description: "Landings, ecommerce y sitios públicos con narrativa clara.",
+    description: "Landings, stores and public sites with a clear narrative.",
   },
   {
     id: "webapp",
     label: "Web app",
-    description: "Dashboards, SaaS y sistemas operativos para negocios reales.",
+    description: "Dashboards, SaaS and operating systems for real businesses.",
   },
   {
     id: "automation",
-    label: "Automatización",
-    description: "Agentes, workflows y software que reduce trabajo manual.",
+    label: "Automation",
+    description: "Agents, workflows and software that removes manual work.",
   },
 ];
 
@@ -71,15 +71,15 @@ const RAW_PORTFOLIO_PROJECTS: PortfolioProject[] = [
   {
     id: "shopea",
     name: "Shopea",
-    kind: "Una forma más simple de vender por WhatsApp.",
+    kind: "A simpler way to sell over WhatsApp.",
     categories: ["webapp", "web"],
     description:
-      "Catálogo, checkout y pagos en distintas monedas dentro de una experiencia construida alrededor de cómo realmente compran las personas.",
+      "Catalogue, checkout and multi-currency payments inside one experience built around how people actually buy.",
     result:
-      "Shopea conecta el descubrimiento de un producto con la conversación donde ocurre la venta.",
+      "Shopea connects finding a product with the conversation where the sale actually happens.",
     businessGoal: "increase_revenue",
-    businessOutcome: "Shopea conecta el descubrimiento de un producto con la conversación donde ocurre la venta.",
-    agentRole: "Asistente de catálogo y preparación de pedidos",
+    businessOutcome: "Shopea connects finding a product with the conversation where the sale actually happens.",
+    agentRole: "Catalogue and order-prep assistant",
     status: "launched",
     stack: ["Next.js", "TypeScript", "Convex", "Clerk"],
     year: "2026",
@@ -89,17 +89,17 @@ const RAW_PORTFOLIO_PROJECTS: PortfolioProject[] = [
     images: [
       {
         src: "/projects/shopea/01-desktop.jpg",
-        alt: "Landing de Shopea en desktop",
+        alt: "Shopea landing on desktop",
         label: "Landing",
       },
       {
         src: "/projects/shopea/02-desktop-scroll.jpg",
-        alt: "Shopea: como funciona, pagos y precios",
-        label: "Cómo funciona",
+        alt: "Shopea: how it works, payments and pricing",
+        label: "How it works",
       },
       {
         src: "/projects/shopea/03-mobile.jpg",
-        alt: "Shopea en movil",
+        alt: "Shopea on mobile",
         label: "Mobile",
       },
     ],
@@ -107,15 +107,15 @@ const RAW_PORTFOLIO_PROJECTS: PortfolioProject[] = [
   {
     id: "rei-fm",
     name: "REI",
-    kind: "Una nueva infraestructura para el mercado inmobiliario.",
+    kind: "New infrastructure for the property market.",
     categories: ["webapp"],
     description:
-      "Marketplace, CRM, administración de propiedades, portal de residentes y procesamiento de documentos con IA supervisada.",
+      "Marketplace, CRM, property administration, resident portal and supervised AI document processing.",
     result:
-      "REI conecta las distintas partes de una operación inmobiliaria que normalmente viven separadas.",
+      "REI joins the parts of a property operation that normally live in separate tools.",
     businessGoal: "reduce_costs",
-    businessOutcome: "REI conecta las distintas partes de una operación inmobiliaria que normalmente viven separadas.",
-    agentRole: "Copiloto de seguimiento operativo",
+    businessOutcome: "REI joins the parts of a property operation that normally live in separate tools.",
+    agentRole: "Operational follow-up copilot",
     status: "launched",
     stack: ["Next.js", "TypeScript", "Postgres", "Stripe"],
     year: "2026",
@@ -125,17 +125,17 @@ const RAW_PORTFOLIO_PROJECTS: PortfolioProject[] = [
     images: [
       {
         src: "/projects/rei-fm/01-desktop.jpg",
-        alt: "Vista desktop del dashboard de rei",
+        alt: "REI dashboard on desktop",
         label: "Dashboard",
       },
       {
         src: "/projects/rei-fm/02-desktop-scroll.jpg",
-        alt: "Vista extendida de la operacion inmobiliaria en rei",
-        label: "Operacion",
+        alt: "REI property operation, extended view",
+        label: "Operation",
       },
       {
         src: "/projects/rei-fm/03-mobile.jpg",
-        alt: "Vista movil de rei",
+        alt: "REI on mobile",
         label: "Mobile",
       },
     ],
@@ -143,15 +143,15 @@ const RAW_PORTFOLIO_PROJECTS: PortfolioProject[] = [
   {
     id: "frontai-landing",
     name: "Frontia",
-    kind: "Conversaciones que se convierten en acciones.",
+    kind: "Conversations that turn into actions.",
     categories: ["web", "automation"],
     description:
-      "Un agente de voz con IA que atiende, entiende, califica y organiza cada interacción.",
+      "An AI voice agent that answers, understands, qualifies and files every interaction.",
     result:
-      "Frontia conecta una llamada con el siguiente paso del proceso comercial.",
+      "Frontia connects a phone call to the next step in the sales process.",
     businessGoal: "both",
-    businessOutcome: "Frontia conecta una llamada con el siguiente paso del proceso comercial.",
-    agentRole: "Agente de front desk",
+    businessOutcome: "Frontia connects a phone call to the next step in the sales process.",
+    agentRole: "Front-desk agent",
     status: "demo",
     stack: ["Next.js", "AI UX", "Vercel", "Motion"],
     year: "2026",
@@ -161,17 +161,17 @@ const RAW_PORTFOLIO_PROJECTS: PortfolioProject[] = [
     images: [
       {
         src: "/projects/frontai-landing/01-desktop.jpg",
-        alt: "Hero de Frontia con interfaz de agente AI",
+        alt: "Frontia hero with the AI agent interface",
         label: "Hero",
       },
       {
         src: "/projects/frontai-landing/02-desktop-scroll.jpg",
-        alt: "Seccion de problema y solucion en Frontia",
+        alt: "Problem and solution section on Frontia",
         label: "Story",
       },
       {
         src: "/projects/frontai-landing/03-mobile.jpg",
-        alt: "Version movil de Frontia",
+        alt: "Frontia on mobile",
         label: "Mobile",
       },
     ],
@@ -182,12 +182,12 @@ const RAW_PORTFOLIO_PROJECTS: PortfolioProject[] = [
     kind: "Social game",
     categories: ["webapp"],
     description:
-      "Juego mundialero para crear perfil, armar ligas privadas y competir por predicciones con una identidad visual propia.",
+      "World-Cup prediction game: build a profile, run private leagues, compete on picks, with an identity of its own.",
     result:
-      "Transforma una quiniela informal en un producto social con onboarding, avatares, tabla y experiencia compartible.",
+      "Turns an informal office pool into a social product with onboarding, avatars, a table and something worth sharing.",
     businessGoal: "increase_revenue",
-    businessOutcome: "Convierte una dinámica informal en un producto compartible con registro y recurrencia.",
-    agentRole: "Moderación y soporte de juego",
+    businessOutcome: "Turns a casual ritual into a shareable product with sign-up and a reason to come back.",
+    agentRole: "Moderation and in-game support",
     status: "prototype",
     stack: ["Next.js", "React", "TypeScript", "Game UI"],
     year: "2026",
@@ -198,17 +198,17 @@ const RAW_PORTFOLIO_PROJECTS: PortfolioProject[] = [
     images: [
       {
         src: "/projects/parley-mundial/01-desktop.jpg",
-        alt: "Pantalla de registro de Parlai Mundial",
-        label: "Registro",
+        alt: "Parlai Mundial sign-up screen",
+        label: "Sign-up",
       },
       {
         src: "/projects/parley-mundial/02-desktop-scroll.jpg",
-        alt: "Vista scrolleada de Parlai Mundial",
-        label: "Flujo",
+        alt: "Parlai Mundial, scrolled",
+        label: "Flow",
       },
       {
         src: "/projects/parley-mundial/03-mobile.jpg",
-        alt: "Version movil de Parlai Mundial",
+        alt: "Parlai Mundial on mobile",
         label: "Mobile",
       },
     ],
@@ -216,15 +216,15 @@ const RAW_PORTFOLIO_PROJECTS: PortfolioProject[] = [
   {
     id: "artistheway",
     name: "Artistheway",
-    kind: "Ecommerce de marca",
+    kind: "Brand ecommerce",
     categories: ["web"],
     description:
-      "Tienda online para una marca de arte, con catalogo visual, narrativa editorial y checkout listo para compra.",
+      "Online store for an art brand: visual catalogue, editorial narrative and a checkout ready to take money.",
     result:
-      "Ordena la experiencia de descubrimiento y compra para que la marca se sienta coleccionable, no generica.",
+      "Orders discovery and purchase so the brand reads as collectable rather than generic.",
     businessGoal: "increase_revenue",
-    businessOutcome: "Eleva descubrimiento y compra con una experiencia editorial coherente con la marca.",
-    agentRole: "Curador de catálogo",
+    businessOutcome: "Lifts discovery and purchase with an editorial experience that matches the brand.",
+    agentRole: "Catalogue curator",
     status: "launched",
     stack: ["Next.js", "Stripe", "Tailwind", "Ecommerce"],
     year: "2026",
@@ -235,17 +235,17 @@ const RAW_PORTFOLIO_PROJECTS: PortfolioProject[] = [
     images: [
       {
         src: "/projects/artistheway/01-desktop.jpg",
-        alt: "Home de Artistheway en desktop",
+        alt: "Artistheway home on desktop",
         label: "Home",
       },
       {
         src: "/projects/artistheway/02-desktop-scroll.jpg",
-        alt: "Catalogo scrolleado de Artistheway",
-        label: "Catalogo",
+        alt: "Artistheway catalogue, scrolled",
+        label: "Catalogue",
       },
       {
         src: "/projects/artistheway/03-mobile.jpg",
-        alt: "Version movil de Artistheway",
+        alt: "Artistheway on mobile",
         label: "Mobile",
       },
     ],
@@ -256,12 +256,12 @@ const RAW_PORTFOLIO_PROJECTS: PortfolioProject[] = [
     kind: "Coaching SaaS",
     categories: ["webapp"],
     description:
-      "App para coaches de running con atletas, planes, sesiones y metricas semanales en una misma superficie.",
+      "App for running coaches: athletes, plans, sessions and weekly metrics on one surface.",
     result:
-      "Le da al coach una operacion medible: seguimiento por atleta, menos chat disperso y planes faciles de revisar.",
+      "Gives the coach a measurable operation: per-athlete tracking, less scattered chat, plans that are easy to review.",
     businessGoal: "reduce_costs",
-    businessOutcome: "Concentra planes y seguimiento para reducir coordinación dispersa entre coach y atletas.",
-    agentRole: "Asistente de seguimiento semanal",
+    businessOutcome: "Concentrates plans and tracking so coach and athletes stop coordinating across four apps.",
+    agentRole: "Weekly check-in assistant",
     status: "improving",
     stack: ["Next.js", "Supabase", "TypeScript", "Analytics"],
     year: "2026",
@@ -271,17 +271,17 @@ const RAW_PORTFOLIO_PROJECTS: PortfolioProject[] = [
     images: [
       {
         src: "/projects/pace-running/01-desktop.jpg",
-        alt: "Vista desktop de Pace Running",
+        alt: "Pace Running on desktop",
         label: "Dashboard",
       },
       {
         src: "/projects/pace-running/02-desktop-scroll.jpg",
-        alt: "Vista extendida de Pace Running",
-        label: "Planes",
+        alt: "Pace Running, extended view",
+        label: "Plans",
       },
       {
         src: "/projects/pace-running/03-mobile.jpg",
-        alt: "Version movil de Pace Running",
+        alt: "Pace Running on mobile",
         label: "Mobile",
       },
     ],
@@ -289,15 +289,15 @@ const RAW_PORTFOLIO_PROJECTS: PortfolioProject[] = [
   {
     id: "soapy",
     name: "Soapy",
-    kind: "Cada orden conectada de principio a fin.",
+    kind: "Every order connected end to end.",
     categories: ["webapp", "automation"],
     description:
-      "Recepción, estados, rutas, notificaciones y entregas dentro de una sola experiencia operativa.",
+      "Intake, statuses, routes, notifications and delivery inside one operational experience.",
     result:
-      "Soapy conecta cada parte del servicio para que nada se pierda en el camino.",
+      "Soapy connects every part of the service so nothing gets lost on the way.",
     businessGoal: "reduce_costs",
-    businessOutcome: "Soapy conecta cada parte del servicio para que nada se pierda en el camino.",
-    agentRole: "Operador de estados y notificaciones",
+    businessOutcome: "Soapy connects every part of the service so nothing gets lost on the way.",
+    agentRole: "Status and notification operator",
     status: "launched",
     stack: ["Next.js", "Supabase", "WhatsApp", "Operations"],
     year: "2026",
@@ -307,17 +307,17 @@ const RAW_PORTFOLIO_PROJECTS: PortfolioProject[] = [
     images: [
       {
         src: "/projects/soapy/01-desktop.jpg",
-        alt: "Dashboard de Soapy para lavanderias",
-        label: "Ordenes",
+        alt: "Soapy dashboard for laundries",
+        label: "Orders",
       },
       {
         src: "/projects/soapy/02-desktop-scroll.jpg",
-        alt: "Vista extendida de operaciones en Soapy",
-        label: "Ruta",
+        alt: "Soapy operations, extended view",
+        label: "Route",
       },
       {
         src: "/projects/soapy/03-mobile.jpg",
-        alt: "Version movil de Soapy",
+        alt: "Soapy on mobile",
         label: "Mobile",
       },
     ],
@@ -325,15 +325,15 @@ const RAW_PORTFOLIO_PROJECTS: PortfolioProject[] = [
   {
     id: "mistica",
     name: "Mística",
-    kind: "La operación detrás de una experiencia de bienestar.",
+    kind: "The operation behind a wellness experience.",
     categories: ["webapp"],
     description:
-      "Alumnos, horarios, asistencia, productos y pagos dentro de un sistema creado para una escuela de natación.",
+      "Students, schedules, attendance, products and payments inside one system built for a swimming school.",
     result:
-      "Mística conecta la experiencia de cada alumno con la operación que la hace posible.",
+      "Mística connects each student's experience to the operation that makes it possible.",
     businessGoal: "reduce_costs",
-    businessOutcome: "Mística conecta la experiencia de cada alumno con la operación que la hace posible.",
-    agentRole: "Asistente de cobranza y operación",
+    businessOutcome: "Mística connects each student's experience to the operation that makes it possible.",
+    agentRole: "Billing and operations assistant",
     status: "launched",
     stack: ["Next.js", "Supabase", "Stripe", "Case study"],
     year: "2026",
@@ -345,18 +345,18 @@ const RAW_PORTFOLIO_PROJECTS: PortfolioProject[] = [
     images: [
       {
         src: "/projects/mistica/dashboard.png",
-        alt: "Dashboard de metricas de Mistica",
+        alt: "Mística metrics dashboard",
         label: "Dashboard",
       },
       {
         src: "/projects/mistica/home.png",
-        alt: "Inicio de Mistica para profesores",
-        label: "Inicio",
+        alt: "Mística home for instructors",
+        label: "Home",
       },
       {
         src: "/projects/mistica/cobros.png",
-        alt: "Modulo de cobros de Mistica",
-        label: "Cobros",
+        alt: "Mística billing module",
+        label: "Billing",
       },
     ],
   },
@@ -366,12 +366,12 @@ const RAW_PORTFOLIO_PROJECTS: PortfolioProject[] = [
     kind: "Workshop OS",
     categories: ["webapp", "automation"],
     description:
-      "Software para taller mecanico: ordenes de trabajo, clientes, repuestos, estados y seguimiento de servicio.",
+      "Software for a mechanic's workshop: work orders, customers, parts, statuses and service tracking.",
     result:
-      "Hace trazable cada reparación, desde la recepción hasta la entrega, con menos dependencia de memoria y papel.",
+      "Makes every repair traceable from intake to handover, with less dependence on paper and memory.",
     businessGoal: "reduce_costs",
-    businessOutcome: "Da trazabilidad a órdenes, repuestos y estados para reducir dependencia de papel y memoria.",
-    agentRole: "Seguimiento de órdenes de trabajo",
+    businessOutcome: "Traceability across orders, parts and statuses, so the shop stops running on paper and memory.",
+    agentRole: "Work-order tracking",
     status: "improving",
     stack: ["Next.js", "Postgres", "Supabase", "CRM"],
     year: "2026",
@@ -382,17 +382,17 @@ const RAW_PORTFOLIO_PROJECTS: PortfolioProject[] = [
     images: [
       {
         src: "/projects/taller-samer/01-desktop.jpg",
-        alt: "Dashboard de Taller Samer",
-        label: "Ordenes",
+        alt: "Taller Samer dashboard",
+        label: "Orders",
       },
       {
         src: "/projects/taller-samer/02-desktop-scroll.jpg",
-        alt: "Vista extendida de Taller Samer",
-        label: "Seguimiento",
+        alt: "Taller Samer, extended view",
+        label: "Tracking",
       },
       {
         src: "/projects/taller-samer/03-mobile.jpg",
-        alt: "Version movil de Taller Samer",
+        alt: "Taller Samer on mobile",
         label: "Mobile",
       },
     ],
@@ -403,12 +403,12 @@ const RAW_PORTFOLIO_PROJECTS: PortfolioProject[] = [
     kind: "Inventory control",
     categories: ["webapp", "automation"],
     description:
-      "Control de almacen para Vistacampo, pensado para entradas, salidas, existencias y decisiones de reposicion.",
+      "Warehouse control for Vistacampo: goods in, goods out, stock on hand and restocking calls.",
     result:
-      "Reduce el inventario invisible: cada movimiento queda registrado y el equipo ve stock critico antes de quedarse corto.",
+      "Cuts invisible inventory: every movement is recorded and the team sees critical stock before it runs out.",
     businessGoal: "reduce_costs",
-    businessOutcome: "Registra movimientos y alertas de stock para evitar compras tardías e inventario invisible.",
-    agentRole: "Monitor de inventario crítico",
+    businessOutcome: "Records movements and flags low stock, so purchasing happens before the shelf is empty.",
+    agentRole: "Critical-stock monitor",
     status: "launched",
     stack: ["Next.js", "TypeScript", "Inventory", "Ops"],
     year: "2026",
@@ -419,17 +419,17 @@ const RAW_PORTFOLIO_PROJECTS: PortfolioProject[] = [
     images: [
       {
         src: "/projects/almacen-vc/01-desktop.jpg",
-        alt: "Vista desktop de Almacen VC",
+        alt: "Almacén VC on desktop",
         label: "Panel",
       },
       {
         src: "/projects/almacen-vc/02-desktop-scroll.jpg",
-        alt: "Vista extendida de Almacen VC",
-        label: "Movimientos",
+        alt: "Almacén VC, extended view",
+        label: "Movements",
       },
       {
         src: "/projects/almacen-vc/03-mobile.jpg",
-        alt: "Version movil de Almacen VC",
+        alt: "Almacén VC on mobile",
         label: "Mobile",
       },
     ],
@@ -440,12 +440,12 @@ const RAW_PORTFOLIO_PROJECTS: PortfolioProject[] = [
     kind: "WhatsApp agent",
     categories: ["automation"],
     description:
-      "Agente para conversaciones de WhatsApp SaaS: responde, califica, ordena contexto y prepara el siguiente paso comercial.",
+      "Agent for WhatsApp SaaS conversations: replies, qualifies, files context and sets up the next commercial step.",
     result:
-      "Baja la carga de atencion manual y convierte chats entrantes en oportunidades con estructura.",
+      "Cuts manual reply load and turns inbound chats into structured opportunities.",
     businessGoal: "both",
-    businessOutcome: "Clasifica conversaciones y prepara próximos pasos sin ocultar cuándo debe intervenir una persona.",
-    agentRole: "Agente de calificación y seguimiento",
+    businessOutcome: "Sorts conversations and drafts next steps without hiding when a human has to step in.",
+    agentRole: "Qualification and follow-up agent",
     status: "prototype",
     stack: ["TypeScript", "WhatsApp", "Agents", "Automation"],
     year: "2026",
@@ -457,16 +457,16 @@ const RAW_PORTFOLIO_PROJECTS: PortfolioProject[] = [
   {
     id: "integra",
     name: "Integra",
-    kind: "Consultoría que se explica antes de la primera reunión.",
+    kind: "A consultancy that explains itself before the first meeting.",
     categories: ["web"],
     description:
-      "Sitio corporativo y motor de contenido para una consultora de transformación digital en hospitalidad y retail.",
+      "Corporate site and content engine for a digital-transformation consultancy in hospitality and retail.",
     result:
-      "Integra convierte el criterio de una consultora en material publicado que trabaja antes de la llamada.",
+      "Integra turns a consultancy's judgement into published material that works before the call.",
     businessGoal: "increase_revenue",
     businessOutcome:
-      "Blog y recursos con rutas dinámicas: el equipo publica sin depender de desarrollo.",
-    agentRole: "Sin agente: arquitectura de contenido y SEO",
+      "Blog and resources on dynamic routes: the team publishes without waiting on a developer.",
+    agentRole: "No agent: content architecture and SEO",
     status: "launched",
     stack: ["Next.js", "TypeScript", "Tailwind CSS", "Vercel"],
     year: "2026",
@@ -477,17 +477,17 @@ const RAW_PORTFOLIO_PROJECTS: PortfolioProject[] = [
     images: [
       {
         src: "/projects/integra/01-desktop.webp",
-        alt: "Home de Integra en desktop",
+        alt: "Integra home on desktop",
         label: "Home",
       },
       {
         src: "/projects/integra/02-desktop-scroll.webp",
-        alt: "Servicios y recursos de Integra",
-        label: "Servicios",
+        alt: "Integra services and resources",
+        label: "Services",
       },
       {
         src: "/projects/integra/03-mobile.webp",
-        alt: "Integra en movil",
+        alt: "Integra on mobile",
         label: "Mobile",
       },
     ],
@@ -495,16 +495,16 @@ const RAW_PORTFOLIO_PROJECTS: PortfolioProject[] = [
   {
     id: "vistacampo",
     name: "Vistacampo",
-    kind: "Diseño que también comunica seguridad.",
+    kind: "Design that also has to communicate safety.",
     categories: ["web"],
     description:
-      "Sitio institucional multilingüe para un centro de rehabilitación de adicciones: contenido, equipo, instalaciones y blog en una estructura coherente.",
+      "Multilingual institutional site for an addiction rehabilitation centre: content, team, facilities and blog in one coherent structure.",
     result:
-      "Vistacampo convierte un tema delicado en una experiencia donde la información genera confianza en vez de ansiedad.",
+      "Vistacampo turns a delicate subject into an experience where information builds trust instead of anxiety.",
     businessGoal: "increase_revenue",
     businessOutcome:
-      "Arquitectura multilingüe y MDX: el equipo publica contenido sin depender de desarrollo.",
-    agentRole: "Sin agente: arquitectura de contenido, i18n y SEO",
+      "Multilingual architecture and MDX: the team publishes without waiting on a developer.",
+    agentRole: "No agent: content architecture, i18n and SEO",
     status: "launched",
     stack: ["Next.js", "TypeScript", "MDX", "i18n"],
     year: "2026",
@@ -517,16 +517,16 @@ const RAW_PORTFOLIO_PROJECTS: PortfolioProject[] = [
   {
     id: "avepane",
     name: "AVEPANE",
-    kind: "Cincuenta años de trabajo social, legibles en una página.",
+    kind: "Fifty years of social work, readable on one page.",
     categories: ["web"],
     description:
-      "Sitio institucional para una organización venezolana dedicada a inclusión y formación de personas con discapacidad intelectual.",
+      "Institutional site for a Venezuelan organisation working on inclusion and training for people with intellectual disabilities.",
     result:
-      "AVEPANE ordena programas, impacto y formas de participar sin perder cercanía humana.",
+      "AVEPANE orders programmes, impact and ways to take part without losing its human warmth.",
     businessGoal: "increase_revenue",
     businessOutcome:
-      "Presenta la organización ante familias, aliados y posibles colaboradores con una sola pieza.",
-    agentRole: "Sin agente: narrativa institucional y estructura de contenido",
+      "Introduces the organisation to families, partners and would-be volunteers with a single piece.",
+    agentRole: "No agent: institutional narrative and content structure",
     status: "launched",
     stack: ["Next.js", "TypeScript", "Tailwind CSS", "Radix UI"],
     year: "2026",
@@ -539,16 +539,16 @@ const RAW_PORTFOLIO_PROJECTS: PortfolioProject[] = [
   {
     id: "samer",
     name: "SAMER",
-    kind: "El comprador ve avanzar su obra sin llamar a nadie.",
+    kind: "Buyers watch their building go up without phoning anyone.",
     categories: ["web"],
     description:
-      "Sitio institucional de una constructora e inmobiliaria, con catálogo de proyectos y avance de obra por desarrollo.",
+      "Institutional site for a construction and property company, with a project catalogue and build progress per development.",
     result:
-      "SAMER convierte los dos años de silencio entre la firma y la entrega en una razón para volver al sitio.",
+      "SAMER turns the two silent years between signing and handover into a reason to come back to the site.",
     businessGoal: "reduce_costs",
     businessOutcome:
-      "La página de avance de obra absorbe las llamadas de '¿cómo va lo mío?' que consumían al equipo comercial.",
-    agentRole: "Sin agente: transparencia de obra como función de producto",
+      "The build-progress page absorbs the \"how's mine going?\" calls that used to eat the sales team's day.",
+    agentRole: "No agent: build transparency as a product feature",
     status: "launched",
     stack: ["Next.js", "TypeScript", "Tailwind CSS", "Base UI"],
     year: "2026",
@@ -560,16 +560,16 @@ const RAW_PORTFOLIO_PROJECTS: PortfolioProject[] = [
   {
     id: "viaja-ven",
     name: "Viaja Ven",
-    kind: "Inspirar y ayudar a decidir en la misma interfaz.",
+    kind: "Inspire and help decide in the same interface.",
     categories: ["web", "webapp"],
     description:
-      "Plataforma de turismo gastronómico en Colonia Tovar: explorar experiencias, armar rutas temáticas y compartir el itinerario.",
+      "Food-tourism platform for Colonia Tovar: explore experiences, build themed routes, share the itinerary.",
     result:
-      "Viaja Ven junta veinte pestañas y una nota de voz en un solo objeto compartible.",
+      "Viaja Ven collapses twenty browser tabs and a voice note into one shareable object.",
     businessGoal: "increase_revenue",
     businessOutcome:
-      "El itinerario es la unidad que se manda por WhatsApp: la distribución vive dentro del producto.",
-    agentRole: "Sin agente: descubrimiento y planificación guiada",
+      "The itinerary is the unit people send over WhatsApp: distribution lives inside the product.",
+    agentRole: "No agent: discovery and guided planning",
     status: "launched",
     stack: ["Next.js", "React", "TypeScript", "Tailwind CSS"],
     year: "2026",
@@ -582,16 +582,16 @@ const RAW_PORTFOLIO_PROJECTS: PortfolioProject[] = [
   {
     id: "kawsay",
     name: "Kawsay",
-    kind: "Vender origen, no solo grano.",
+    kind: "Selling origin, not just beans.",
     categories: ["web"],
     description:
-      "Ecommerce de café de especialidad con catálogo, colecciones, checkout y la narrativa de origen dentro del camino de compra.",
+      "Specialty-coffee ecommerce with catalogue, collections, checkout, and the origin story inside the buying path.",
     result:
-      "Kawsay pone orígenes e impacto en la ruta de conversión, no en una página enterrada en el footer.",
+      "Kawsay puts origin and impact on the conversion path, not on a page buried in the footer.",
     businessGoal: "increase_revenue",
     businessOutcome:
-      "Sostiene el precio del café de especialidad frente a un producto que cuesta la cuarta parte y se ve igual en una foto.",
-    agentRole: "Sin agente: contenido de marca en el camino de compra",
+      "Holds a specialty price against a product that costs a quarter as much and photographs identically.",
+    agentRole: "No agent: brand content on the buying path",
     status: "launched",
     stack: ["Next.js", "TypeScript", "Tailwind CSS", "Vercel"],
     year: "2025",
@@ -603,16 +603,16 @@ const RAW_PORTFOLIO_PROJECTS: PortfolioProject[] = [
   {
     id: "dream-drop",
     name: "Dream Drop",
-    kind: "Una tienda construida alrededor de la ventana, no del catálogo.",
+    kind: "A store built around the window, not the catalogue.",
     categories: ["web"],
     description:
-      "Ecommerce de lanzamientos por tiempo limitado, con la interfaz diseñada para comunicar escasez sin volverse ansiosa.",
+      "Limited-window drop ecommerce, with an interface designed to convey scarcity without turning anxious.",
     result:
-      "Dream Drop aplica el mismo stack de ecommerce a una lógica comercial distinta: el drop en vez del stock permanente.",
+      "Dream Drop points the same ecommerce stack at a different commercial logic: the drop instead of standing stock.",
     businessGoal: "increase_revenue",
     businessOutcome:
-      "La urgencia se comunica por diseño, sin contadores falsos ni presión artificial.",
-    agentRole: "Sin agente: dirección visual y ritmo de lanzamiento",
+      "Urgency is communicated by design — no fake counters, no manufactured pressure.",
+    agentRole: "No agent: art direction and release rhythm",
     status: "launched",
     stack: ["Next.js", "TypeScript", "Radix UI", "Framer Motion"],
     year: "2026",
@@ -624,16 +624,16 @@ const RAW_PORTFOLIO_PROJECTS: PortfolioProject[] = [
   {
     id: "ainetworking-canada",
     name: "AiNetworking Canada",
-    kind: "Salió a producción como plataforma, no como lista de espera.",
+    kind: "Shipped as a platform, not as a waiting list.",
     categories: ["web", "webapp"],
     description:
-      "Sitio público y plataforma de miembros para una organización canadiense de IA: hubs, aplicaciones, eventos y área autenticada.",
+      "Public site and member platform for a Canadian AI organisation: hubs, applications, events and an authenticated area.",
     result:
-      "AiNetworking Canada lanzó con el producto adentro: nueve canales, tablero de colaboración y onboarding con consentimiento explícito.",
+      "AiNetworking Canada launched with the product inside it: nine channels, a collaboration board, and onboarding with explicit consent.",
     businessGoal: "increase_revenue",
     businessOutcome:
-      "El miembro que se registra encuentra a alguien con quien hablar el mismo día, en vez de un correo de bienvenida.",
-    agentRole: "Sin agente: matcher de hubs y rutas de participación",
+      "A member who signs up finds someone to talk to the same day, instead of a welcome email.",
+    agentRole: "No agent: hub matcher and participation paths",
     status: "launched",
     stack: ["Next.js", "TypeScript", "Convex", "Better Auth"],
     year: "2026",
@@ -645,16 +645,16 @@ const RAW_PORTFOLIO_PROJECTS: PortfolioProject[] = [
   {
     id: "pausa",
     name: "Pausa",
-    kind: "En crisis, dos toques valen más que un dashboard.",
+    kind: "In a crisis, two taps beat a dashboard.",
     categories: ["webapp"],
     description:
-      "App privada mobile-first de acompañamiento en recuperación: check-ins diarios, curva de recuperación, grounding y contactos de apoyo.",
+      "Private mobile-first recovery companion: daily check-ins, a recovery curve, grounding exercises and support contacts.",
     result:
-      "Pausa trata la fricción como el producto, no como un detalle de interfaz.",
+      "Pausa treats friction as the product, not as an interface detail.",
     businessGoal: "reduce_costs",
     businessOutcome:
-      "PWA con notificaciones y datos privados por usuario, pensada para uso diario sostenido.",
-    agentRole: "Insights diarios asistidos por IA",
+      "A PWA with notifications and per-user private data, built for sustained daily use.",
+    agentRole: "AI-assisted daily insights",
     status: "improving",
     stack: ["React", "Vite", "Supabase", "Tailwind CSS"],
     year: "2026",
@@ -666,16 +666,16 @@ const RAW_PORTFOLIO_PROJECTS: PortfolioProject[] = [
   {
     id: "santorini",
     name: "Santorini Engine",
-    kind: "Contenido con IA sin inventar un solo dato.",
+    kind: "AI content that never invents a single figure.",
     categories: ["automation"],
     description:
-      "Motor interno de contenido y ventas para un proyecto residencial: conocimiento, estrategia, batches, producción, analítica y aprendizajes conectados.",
+      "Internal content and sales engine for a residential development: knowledge, strategy, batches, production, analytics and learnings, all connected.",
     result:
-      "Santorini Engine publica todas las semanas con una regla de verdad incorporada.",
+      "Santorini Engine publishes every week with a truth rule built into it.",
     businessGoal: "increase_revenue",
     businessOutcome:
-      "Precio, entrega y financiamiento se marcan como pendientes de verificación en vez de rellenarse: en vivienda, una cifra inventada no es un error de copy.",
-    agentRole: "Agente de marketing con aprobación humana",
+      "Price, handover date and financing are flagged for verification rather than filled in: in housing, an invented number is not a copy mistake.",
+    agentRole: "Marketing agent with human approval",
     status: "launched",
     stack: ["Next.js", "TypeScript", "Markdown", "Zod"],
     year: "2026",
@@ -685,17 +685,17 @@ const RAW_PORTFOLIO_PROJECTS: PortfolioProject[] = [
   },
   {
     id: "waha-fisio-agent",
-    name: "Agente de Citas",
-    kind: "Un agente que cierra la transacción, no que responde bonito.",
+    name: "Booking Agent",
+    kind: "An agent that closes the transaction, not one that replies nicely.",
     categories: ["automation"],
     description:
-      "Agente de WhatsApp para fisioterapia: conversa en español, consulta disponibilidad real en Cal.com, reserva la cita y envía recordatorios.",
+      "WhatsApp agent for a physiotherapy clinic: talks in Spanish, checks real availability in Cal.com, books the slot and sends reminders.",
     result:
-      "El agente agenda sin que nadie del consultorio toque el teléfono.",
+      "The agent books appointments without anyone at the clinic touching a phone.",
     businessGoal: "both",
     businessOutcome:
-      "Contesta a las 11:00 en vez de a las 19:00, que es cuando la persona ya reservó en otro lado.",
-    agentRole: "Agente de agendamiento con herramientas reales",
+      "It answers at 11:00 instead of 19:00 — by which time the patient has booked somewhere else.",
+    agentRole: "Booking agent with real tools",
     status: "demo",
     stack: ["Python", "FastAPI", "WAHA", "Cal.com"],
     year: "2026",
@@ -707,16 +707,16 @@ const RAW_PORTFOLIO_PROJECTS: PortfolioProject[] = [
   {
     id: "expense-inbox-agent",
     name: "Expense Inbox",
-    kind: "La foto del recibo entra; el gasto sale estructurado.",
+    kind: "A photo of the receipt goes in; a structured expense comes out.",
     categories: ["automation"],
     description:
-      "Microservicio que convierte texto, nota de voz, foto o PDF en un gasto estructurado. Diseñado para colgarse de n8n.",
+      "Microservice that turns text, a voice note, a photo or a PDF into a structured expense. Built to hang off n8n.",
     result:
-      "Expense Inbox elimina la tarde de fin de mes transcribiendo papeles arrugados.",
+      "Expense Inbox deletes the end-of-month afternoon spent transcribing crumpled paper.",
     businessGoal: "reduce_costs",
     businessOutcome:
-      "Contrato de API, autenticación, esquema de datos y health check: lo que separa un agente de algo de lo que se puede depender.",
-    agentRole: "Agente de captura y estructuración de gastos",
+      "API contract, auth, data schema and a health check — what separates an agent from something you can depend on.",
+    agentRole: "Expense capture and structuring agent",
     status: "launched",
     stack: ["Python", "FastAPI", "OpenAI", "Postgres"],
     year: "2026",
@@ -727,16 +727,16 @@ const RAW_PORTFOLIO_PROJECTS: PortfolioProject[] = [
   {
     id: "frontdesk-ai",
     name: "Frontia CRM",
-    kind: "No falta tráfico: falta quien recupere al que no cerró.",
+    kind: "The problem isn't traffic. It's that nobody chases the ones who didn't close.",
     categories: ["automation"],
     description:
-      "Agente que atiende llamadas, califica leads, mantiene un pipeline de ventas y hace seguimiento automático.",
+      "Agent that answers calls, qualifies leads, keeps a sales pipeline and follows up on its own.",
     result:
-      "Frontia CRM ataca la parte cara del embudo: el lead pagado que se pierde después del primer contacto.",
+      "Frontia CRM attacks the expensive part of the funnel: the paid lead that evaporates after first contact.",
     businessGoal: "both",
     businessOutcome:
-      "Seguimiento automático sobre leads ya pagados, que es el dinero que el negocio ya gastó y no cobró.",
-    agentRole: "Recepcionista y seguimiento comercial",
+      "Automatic follow-up on leads already paid for — money the business has spent and not collected.",
+    agentRole: "Receptionist and commercial follow-up",
     status: "prototype",
     stack: ["React", "TypeScript", "TanStack Start", "Supabase"],
     year: "2026",

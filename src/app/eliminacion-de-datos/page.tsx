@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Colofon from "@/components/landing/Colofon";
+import RigFooter from "@/components/rig/RigFooter";
 
 export const metadata: Metadata = {
   title: "Eliminación de datos de usuario | Servicios Creativos",
@@ -42,7 +42,7 @@ export default function LegalDataDeletion() {
           </div>
         </div>
       </main>
-      <Colofon />
+      <RigFooter />
     </div>
   );
 }

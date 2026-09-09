@@ -27,12 +27,15 @@ export default function TypeWeather({ compact = false }: { compact?: boolean }) 
   useEffect(() => {
     const el = stage.current;
     if (!el) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const motion = window.matchMedia("(prefers-reduced-motion: reduce)");
+    let visible = false;
 
     let frame = 0;
     const start = performance.now();
 
     const tick = (now: number) => {
+      frame = 0;
+      if (!visible || document.hidden || motion.matches) return;
       const time = (now - start) / 1000;
       const amp = knobs.current.turbulence;
       const letters = el.querySelectorAll<HTMLElement>("[data-glyph]");
@@ -61,7 +64,15 @@ export default function TypeWeather({ compact = false }: { compact?: boolean }) 
       frame = requestAnimationFrame(tick);
     };
 
-    frame = requestAnimationFrame(tick);
+    const update = () => {
+      cancelAnimationFrame(frame); frame = 0;
+      if (motion.matches) el.querySelectorAll<HTMLElement>('[data-glyph]').forEach(glyph => { glyph.style.transform = ''; });
+      if (visible && !document.hidden && !motion.matches) frame = requestAnimationFrame(tick);
+    };
+    const observer = new IntersectionObserver(([entry]) => { visible = entry.isIntersecting; update(); });
+    observer.observe(el);
+    motion.addEventListener('change', update);
+    document.addEventListener('visibilitychange', update);
     const onMove = (e: PointerEvent) => {
       knobs.current.mx = e.clientX;
       knobs.current.my = e.clientY;
@@ -74,6 +85,9 @@ export default function TypeWeather({ compact = false }: { compact?: boolean }) 
     window.addEventListener("pointerleave", onLeave);
     return () => {
       cancelAnimationFrame(frame);
+      observer.disconnect();
+      motion.removeEventListener("change", update);
+      document.removeEventListener("visibilitychange", update);
       window.removeEventListener("pointermove", onMove);
       window.removeEventListener("pointerleave", onLeave);
     };
@@ -81,6 +95,7 @@ export default function TypeWeather({ compact = false }: { compact?: boolean }) 
 
   return (
     <div className="grid gap-px bg-[var(--rule)]">
+      <button type="button" className="lab-reset mono" onClick={() => { setText("INDUSTRIAL ENGINEER"); setTurbulence(34); }}>Reset type ↺</button>
       <div
         ref={stage}
         className="sky-plate flex items-center justify-center overflow-hidden p-6"

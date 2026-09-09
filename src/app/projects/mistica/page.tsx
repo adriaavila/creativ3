@@ -331,7 +331,7 @@ export default function MisticaPage() {
         </div>
         <div className="m-footer-links">
           <Link href="/">Servicios Creativos</Link>
-          <Link href="/shopea">Shopea</Link>
+          <Link href="/work">Work archive</Link>
           <a
             href="https://mistica-app-fawn.vercel.app/"
             target="_blank"

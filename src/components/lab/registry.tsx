@@ -1,3 +1,4 @@
+import SystemsConstellation from "./SystemsConstellation";
 import type { ComponentType } from "react";
 import AgentTerminal from "./AgentTerminal";
 import GlassForge from "./GlassForge";
@@ -15,6 +16,12 @@ export type Experiment = {
 };
 
 export const EXPERIMENTS: Experiment[] = [
+  {
+    slug: "systems-constellation", unit: "L-05", title: "Systems constellation",
+    question: "What connects the things I build?",
+    note: "Every bright point is a project, grouped by its primary role: web, applications or automation. Rotate the field to see the connections, then open a system to see the work behind it. A Canvas 2D projection gives the field depth; an ordinary list keeps every project within reach.",
+    Component: SystemsConstellation,
+  },
   {
     slug: "sky-machine",
     unit: "L-01",

@@ -1,3 +1,4 @@
+import { WRITING } from "@/lib/writing";
 import type { MetadataRoute } from "next";
 import { EXPERIMENTS } from "@/components/lab/registry";
 import { PORTFOLIO_PROJECTS } from "@/lib/projects";
@@ -50,5 +51,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.3,
   }));
 
-  return [...core, ...work, ...lab, ...legal];
+  const writing: MetadataRoute.Sitemap = ["/writing", ...WRITING.map(note => `/writing/${note.slug}`)].map(path => ({ url: `${SITE_URL}${path}`, changeFrequency: "monthly", priority: .6 }));
+  return [...core, ...work, ...lab, ...writing, ...legal];
 }

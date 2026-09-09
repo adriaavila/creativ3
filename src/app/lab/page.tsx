@@ -8,7 +8,7 @@ import { EXPERIMENTS } from "@/components/lab/registry";
 
 const TITLE = "Lab — working toys, not screenshots";
 const DESCRIPTION =
-  "Four playable experiments by Adrián Ávila Molina: the sky engine behind this site, a liquid-glass workshop, a typography flow field, and a replay of building with AI agents.";
+  "Four playable experiments by Adrian Avila Molina: the sky engine behind this site, a liquid-glass workshop, a typography flow field, and a replay of building with AI agents.";
 
 export const metadata: Metadata = {
   title: TITLE,

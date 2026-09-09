@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 import { CONTACT_EMAIL } from "@/lib/contact";
 
-export const alt = "Adrián Ávila Molina — industrial engineer building software";
+export const alt = "Adrian Avila Molina — industrial engineer building software";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -34,7 +34,7 @@ export default async function Image() {
             paddingBottom: 20,
           }}
         >
-          <span>Adrián Ávila Molina</span>
+          <span>Adrian Avila Molina</span>
           <span style={{ color: "#e61919" }}>{CONTACT_EMAIL}</span>
         </div>
 

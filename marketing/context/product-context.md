@@ -4,7 +4,7 @@
 
 ## Qué es
 
-**[HECHO]** allok (allok.fun) es un estudio de diseño + código + IA que construye sistemas comerciales digitales para PYMEs de LATAM: landing pages, webs/productos, automatizaciones y agentes IA sobre WhatsApp. Marca operativa: **allok**; dominio: **allok.fun**; contacto: **contacto@allok.fun**, WhatsApp +58 422 002 3684 (`src/lib/contact.ts`).
+**[HECHO]** allok (allok.fun) es un estudio de diseño + código + IA que construye sistemas comerciales digitales para PYMEs de LATAM: landing pages, webs/productos, automatizaciones y agentes IA sobre WhatsApp. Marca operativa: **allok**; dominio: **allok.fun**; contacto: **hi@allok.fun**, WhatsApp +58 422 002 3684 (`src/lib/contact.ts`).
 
 **[INFERENCIA]** Operación de una sola persona (fundador), con base en Caracas, Venezuela (el growth agent limita su mercado inicial a Caracas/Venezuela en `apps/growth-agent/agent/instructions.md`).
 

@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 const NAV = [
   { href: "/work", label: "Work" },
   { href: "/lab", label: "Lab" },
+  { href: "/writing", label: "Writing" },
 ];
 
 /** Nav as a masthead rule, not a floating pill. Nothing here is rounded. */
@@ -22,9 +23,9 @@ export default function RigHeader() {
       <ScrollProgress className="h-[3px] bg-[var(--hazard)] bg-none" />
       <div className="flex flex-wrap items-center justify-between gap-x-8 gap-y-3 px-5 py-4 sm:px-10">
         <Link href="/" className="mono font-medium tracking-[0.14em]">
-          Adrián Ávila Molina<span className="ml-2 text-[var(--carbon-3)]">®</span>
+          Adrian Avila Molina<span className="ml-2 text-[var(--carbon-3)]">®</span>
         </Link>
-        <nav aria-label="Main" className="flex items-center gap-6 sm:gap-8">
+        <nav aria-label="Main" className="flex flex-wrap items-center gap-x-5 gap-y-3 sm:gap-8">
           {NAV.map((item) => {
             const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
             return (

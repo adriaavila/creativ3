@@ -1,3 +1,5 @@
+import imageDimensions from "@/data/project-image-dimensions.json";
+import { CURATED_IMAGES, type ProjectDate, type ProjectStory } from "./project-editorial";
 import syncData from "@/data/projects-sync.json";
 
 export type ProjectCategory = "web" | "webapp" | "automation";
@@ -6,6 +8,8 @@ export type ProjectImage = {
   src: string;
   alt: string;
   label: string;
+  width?: number;
+  height?: number;
 };
 
 export type PortfolioProject = {
@@ -21,6 +25,9 @@ export type PortfolioProject = {
   status: "launched" | "demo" | "prototype" | "improving";
   stack: string[];
   year: string;
+  chronology?: ProjectDate;
+  story?: ProjectStory;
+  attribution?: { name: string; url: string };
   liveUrl?: string;
   caseStudyUrl?: string;
   sourceUrl?: string;
@@ -68,6 +75,26 @@ export const PROJECT_CATEGORIES: {
 ];
 
 const RAW_PORTFOLIO_PROJECTS: PortfolioProject[] = [
+  {
+    id: "nea-agent", name: "Nea", kind: "From a WhatsApp conversation to a real appointment.",
+    categories: ["automation"], description: "An open-source scheduling agent with qualification, calendar tools and human handover, connected to Vocero CRM.",
+    result: "A supervised pilot with server-validated booking and explicit escalation.",
+    businessGoal: "both", businessOutcome: "Connects customer conversations to the scheduling workflow.",
+    agentRole: "Qualification and appointment scheduling", status: "prototype",
+    stack: ["Python", "FastAPI", "Postgres", "WhatsApp"], year: "2026",
+    sourceUrl: "https://github.com/adriaavila/nea-agent", githubPushedAt: "2026-09-06T10:28:02Z", githubUpdatedLabel: "6 Sep 2026", images: [],
+  },
+  {
+    id: "vocero-crm", name: "Vocero · agency edition", kind: "An installation you can confidently hand over.",
+    categories: ["webapp", "automation"], description: "An agency adaptation of Vocero CRM: readiness checks, account provisioning, pilot controls, calendar integration and a delivery workflow.",
+    result: "A visible path from an unconfigured installation to a client-ready pilot.",
+    businessGoal: "reduce_costs", businessOutcome: "Makes deployment readiness and handover explicit.",
+    agentRole: "CRM integration and supervised agent delivery", status: "prototype",
+    stack: ["Next.js", "TypeScript", "Postgres", "Docker"], year: "2026",
+    sourceUrl: "https://github.com/adriaavila/vocero-crm", githubPushedAt: "2026-09-06T10:27:45Z", githubUpdatedLabel: "6 Sep 2026", images: [],
+    attribution: { name: "Vocero CRM by Kevin Belier", url: "https://github.com/kevinrivm/vocero-crm" },
+  },
+
   {
     id: "shopea",
     name: "Shopea",
@@ -746,19 +773,28 @@ const RAW_PORTFOLIO_PROJECTS: PortfolioProject[] = [
   },
 ];
 
-export const PORTFOLIO_PROJECTS: PortfolioProject[] = RAW_PORTFOLIO_PROJECTS.map(
+const MERGED_PROJECTS: PortfolioProject[] = RAW_PORTFOLIO_PROJECTS.map(
   (project) => {
     const sync = SYNC.projects[project.id];
-    if (!sync) return project;
+    if (!sync) return { ...project, images: CURATED_IMAGES[project.id] ?? project.images };
     return {
       ...project,
       githubPushedAt: sync.githubPushedAt ?? project.githubPushedAt,
       githubUpdatedLabel: sync.githubUpdatedLabel ?? project.githubUpdatedLabel,
       // ponytail: las capturas escritas a mano ganan; el sync solo rellena las vacias
-      images: project.images.length > 0 ? project.images : (sync.images ?? []),
+      images: CURATED_IMAGES[project.id] ?? (project.images.length > 0 ? project.images : (sync.images ?? [])),
     };
   },
 );
+
+export const ALL_PORTFOLIO_PROJECTS: PortfolioProject[] = MERGED_PROJECTS.map(project => ({
+  ...project,
+  images: project.images.map(image => ({ ...(imageDimensions as Record<string, { width: number; height: number }>)[image.src], ...image })),
+}));
+
+// Kept in the raw catalogue for operational history and sync safety; these are no longer public portfolio work.
+export const HIDDEN_PROJECT_IDS = new Set(["nea-agent", "expense-inbox-agent", "santorini", "shopea", "waha-fisio-agent"]);
+export const PORTFOLIO_PROJECTS: PortfolioProject[] = ALL_PORTFOLIO_PROJECTS.filter(project => !HIDDEN_PROJECT_IDS.has(project.id));
 
 const FEATURED_IDS = ["rei-fm", "mistica", "frontai-landing", "soapy"] as const;
 

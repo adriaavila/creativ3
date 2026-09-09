@@ -63,6 +63,7 @@ export default function GlassForge({ compact = false }: { compact?: boolean }) {
 
   return (
     <div className="grid gap-px bg-[var(--rule)]">
+      <button type="button" className="lab-reset mono" onClick={() => setV(DEFAULTS)}>Reset glass ↺</button>
       <div
         className="sky-plate flex items-center justify-center gap-6 p-8"
         style={{ minHeight: compact ? 190 : 300 }}
@@ -120,13 +121,6 @@ export default function GlassForge({ compact = false }: { compact?: boolean }) {
           <div className="mono flex items-center justify-between">
             <span className="text-[var(--carbon-3)]">[ Output ]</span>
             <div className="flex gap-4">
-              <button
-                type="button"
-                onClick={() => setV(DEFAULTS)}
-                className="text-[var(--carbon-2)] hover:text-[var(--carbon)]"
-              >
-                Reset
-              </button>
               <button type="button" onClick={copy} className="text-[var(--hazard)] hover:underline">
                 {copied ? "Copied ✓" : "Copy CSS"}
               </button>

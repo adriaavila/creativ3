@@ -26,6 +26,7 @@ export default function SkyMachine({ compact = false }: { compact?: boolean }) {
 
   return (
     <div className="grid gap-px bg-[var(--rule)]">
+      <button type="button" className="lab-reset mono" onClick={() => { setT(.28); setSpread(42); setGrain(.18); }}>Reset sky ↺</button>
       <div
         className="sky-plate relative bg-[var(--paper)]"
         style={{ ...vars, "--sky-glow": `${spread}px`, height: compact ? 190 : 420 } as React.CSSProperties}

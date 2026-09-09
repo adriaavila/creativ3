@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
-import Image from "next/image";
+import ProjectScreens from "@/components/work/ProjectScreens";
+import ScreenGallery from "@/components/work/ScreenGallery";
+import { chronologicalProjects, dateLabel, projectStory } from "@/lib/project-editorial";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import RigFooter from "@/components/rig/RigFooter";
@@ -39,8 +41,8 @@ export async function generateMetadata({
 
 const STATUS_COPY: Record<PortfolioProject["status"], string> = {
   launched: "In production",
-  improving: "In production · still moving",
-  demo: "Demo you can open",
+  improving: "In development",
+  demo: "Demo",
   prototype: "Prototype",
 };
 
@@ -58,8 +60,11 @@ export default async function CasePage({ params }: { params: Promise<Params> }) 
   const project = find(slug);
   if (!project) notFound();
 
-  const index = PORTFOLIO_PROJECTS.indexOf(project);
-  const next = PORTFOLIO_PROJECTS[(index + 1) % PORTFOLIO_PROJECTS.length];
+  const ordered = chronologicalProjects(PORTFOLIO_PROJECTS);
+  const index = ordered.indexOf(project);
+  const next = ordered[(index + 1) % ordered.length];
+  const previous = ordered[(index - 1 + ordered.length) % ordered.length];
+  const story = projectStory(project);
 
   return (
     <div className="rig min-h-screen">
@@ -91,7 +96,7 @@ export default async function CasePage({ params }: { params: Promise<Params> }) 
         {/* ── Spec sheet ── */}
         <dl className="hairgrid border-y border-[var(--rule)] sm:grid-cols-2 lg:grid-cols-4">
           <Spec label="Status">{STATUS_COPY[project.status]}</Spec>
-          <Spec label="Year">{project.year}</Spec>
+          <Spec label="Chronology">{dateLabel(project)}</Spec>
           <Spec label="Stack">{project.stack.join(" · ")}</Spec>
           <Spec label="Agent role">{project.agentRole}</Spec>
         </dl>
@@ -99,17 +104,17 @@ export default async function CasePage({ params }: { params: Promise<Params> }) 
         {/* ── The story ── */}
         <section className="grid gap-10 px-5 py-14 sm:px-10 sm:py-20 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
           <div>
-            <h2 className="mono border-b-2 border-[var(--rule-hard)] pb-3">[ What it is ]</h2>
+            <h2 className="mono border-b-2 border-[var(--rule-hard)] pb-3">[ The problem ]</h2>
             <p className="mt-6 text-[17px] leading-[1.55] text-[var(--carbon-2)]">
-              {project.description}
+              {story.problem}
             </p>
           </div>
           <div>
-            <h2 className="mono border-b-2 border-[var(--rule-hard)] pb-3">[ Why it matters ]</h2>
-            <p className="mt-6 text-[17px] leading-[1.55] text-[var(--carbon-2)]">{project.result}</p>
-            {project.businessOutcome !== project.result ? (
+            <h2 className="mono border-b-2 border-[var(--rule-hard)] pb-3">[ My contribution ]</h2>
+            <p className="mt-6 text-[17px] leading-[1.55] text-[var(--carbon-2)]">{story.contribution}</p>
+            {story.outcome ? (
               <p className="mt-4 text-[17px] leading-[1.55] text-[var(--carbon-2)]">
-                {project.businessOutcome}
+                {story.outcome}
               </p>
             ) : null}
             <div className="mono mt-8 flex flex-wrap gap-x-8 gap-y-3">
@@ -126,7 +131,7 @@ export default async function CasePage({ params }: { params: Promise<Params> }) 
                   Source ↗
                 </a>
               ) : null}
-              <span className="text-[var(--carbon-3)]">Last push · {project.githubUpdatedLabel}</span>
+              <span className="text-[var(--carbon-3)]">Last push · {new Intl.DateTimeFormat('en', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' }).format(new Date(project.githubPushedAt))}</span>
             </div>
           </div>
         </section>
@@ -135,32 +140,16 @@ export default async function CasePage({ params }: { params: Promise<Params> }) 
         {project.images.length > 0 ? (
           <section className="border-t border-[var(--rule)]">
             <h2 className="mono border-b border-[var(--rule)] px-5 py-4 sm:px-10">
-              [ The product, running · {project.images.length} frames ]
+              [ {project.id === 'vocero-crm' ? 'Upstream reference interface' : 'The product, running'} · {project.images.length} frames ]
             </h2>
-            <div className="hairgrid lg:grid-cols-2">
-              {project.images.map((image) => (
-                <figure key={image.src} className="p-5 sm:p-8">
-                  {/* Every frame is cropped to the same plate. Portrait mobile
-                      captures would otherwise stretch their grid cell and blow
-                      a hole in the row. */}
-                  <Image
-                    src={image.src}
-                    alt={image.alt}
-                    width={1440}
-                    height={900}
-                    className="aspect-[16/10] w-full border border-[var(--rule)] object-cover object-top"
-                    sizes="(min-width: 1024px) 50vw, 100vw"
-                  />
-                  <figcaption className="mono mt-3 text-[var(--carbon-3)]">{image.label}</figcaption>
-                </figure>
-              ))}
-              {project.images.length % 2 === 1 ? <div aria-hidden="true" /> : null}
-            </div>
+            <ScreenGallery images={project.images} name={project.name} />
           </section>
-        ) : null}
+        ) : <section className="mx-auto max-w-4xl border-t border-[var(--rule)] py-10"><ProjectScreens project={project} /></section>}
 
+        {project.attribution && <p className="px-5 py-8 sm:px-10">Built on <a className="underline" href={project.attribution.url}>{project.attribution.name}</a>. The agency adaptation is my contribution.</p>}
         {/* ── Next ── */}
         <section className="border-t-2 border-[var(--rule-hard)] px-5 py-12 sm:px-10">
+          <Link className="mono mb-8 block" href={`/work/${previous.id}`}>← Previous: {previous.name}</Link>
           <Link href={`/work/${next.id}`} className="group block">
             <span className="mono text-[var(--carbon-3)]">Next system →</span>
             <span className="macro mt-3 block !text-[clamp(2rem,6vw,4.5rem)] group-hover:text-[var(--hazard)]">

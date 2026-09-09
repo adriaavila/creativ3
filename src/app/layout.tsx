@@ -34,8 +34,8 @@ const geist = Geist({
 export const metadata: Metadata = {
   metadataBase: new URL("https://allok.fun"),
   title: {
-    default: "Adrián Ávila Molina — Industrial engineer building software",
-    template: "%s | Adrián Ávila Molina",
+    default: "Adrian Avila Molina — Industrial engineer building software",
+    template: "%s | Adrian Avila Molina",
   },
   description:
     "Industrial engineer turned design engineer. I design and build commercial software — storefronts, CRMs, property platforms, booking apps and AI agents — from blank canvas to live checkout.",
@@ -50,14 +50,14 @@ export const metadata: Metadata = {
     "TypeScript",
     "AI agents",
     "product design",
-    "Adrián Ávila Molina",
+    "Adrian Avila Molina",
   ],
   openGraph: {
-    title: "Adrián Ávila Molina — Industrial engineer building software",
+    title: "Adrian Avila Molina — Industrial engineer building software",
     description:
       "24 systems in production: storefronts, CRMs, property platforms, booking apps and AI agents. Design through deploy, by the same pair of hands.",
     url: "https://allok.fun",
-    siteName: "Adrián Ávila Molina",
+    siteName: "Adrian Avila Molina",
     locale: "en",
     type: "website",
     images: [
@@ -65,13 +65,13 @@ export const metadata: Metadata = {
         url: "/opengraph-image",
         width: 1200,
         height: 630,
-        alt: "Adrián Ávila Molina — industrial engineer building software",
+    alt: "Adrian Avila Molina — industrial engineer building software",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Adrián Ávila Molina — Industrial engineer building software",
+    title: "Adrian Avila Molina — Industrial engineer building software",
     description:
       "24 systems in production. Design, frontend, backend and deploy, with agents doing the boring half.",
     images: ["/opengraph-image"],

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 
 type Line = { kind: "cmd" | "out" | "ok" | "note"; text: string };
 
@@ -47,20 +47,31 @@ function usePrefersReducedMotion() {
 }
 
 export default function AgentTerminal({ compact = false }: { compact?: boolean }) {
+  const stage = useRef<HTMLDivElement>(null);
   const reduced = usePrefersReducedMotion();
   const [typed, setTyped] = useState(0);
+  const [replay, setReplay] = useState(0);
   const shown = reduced ? SCRIPT.length : typed;
 
   useEffect(() => {
     if (reduced) return;
-    const id = setInterval(() => {
-      setTyped((n) => (n >= SCRIPT.length ? n : n + 1));
-    }, 620);
-    return () => clearInterval(id);
-  }, [reduced]);
+    let timer: ReturnType<typeof setInterval> | undefined;
+    let visible = false;
+    const update = () => {
+      clearInterval(timer);
+      if (visible && !document.hidden) timer = setInterval(() => {
+        setTyped(n => { if (n + 1 >= SCRIPT.length) clearInterval(timer); return Math.min(SCRIPT.length, n + 1); });
+      }, 620);
+    };
+    const observer = new IntersectionObserver(([entry]) => { visible = entry.isIntersecting; update(); });
+    if (stage.current) observer.observe(stage.current);
+    document.addEventListener('visibilitychange', update);
+    return () => { clearInterval(timer); observer.disconnect(); document.removeEventListener('visibilitychange', update); };
+  }, [reduced, replay]);
 
   return (
-    <div className="grid gap-px bg-[var(--rule)]">
+    <div ref={stage} className="grid gap-px bg-[var(--rule)]">
+      <button type="button" className="lab-reset mono" onClick={() => { setTyped(0); setReplay(n => n + 1); }}>Replay session ↺</button>
       <div
         className="bg-[var(--carbon)] p-5 font-[family-name:var(--font-jetbrains)] text-[13px] leading-[1.9] text-[var(--paper)] sm:p-6"
         style={{ minHeight: compact ? 190 : 300 }}

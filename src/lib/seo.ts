@@ -1,7 +1,7 @@
 import { CONTACT_EMAIL } from "@/lib/contact";
 
 export const SITE_URL = "https://allok.fun";
-export const SITE_NAME = "Adrián Ávila Molina";
+export const SITE_NAME = "Adrian Avila Molina";
 
 /**
  * Person schema — this is a portfolio, not a company. Emitted once in the
@@ -12,7 +12,7 @@ export function siteJsonLd() {
     {
       "@context": "https://schema.org",
       "@type": "Person",
-      name: "Adrián Ávila Molina",
+      name: "Adrian Avila Molina",
       url: SITE_URL,
       email: CONTACT_EMAIL,
       jobTitle: "Industrial engineer · design engineer",

@@ -15,6 +15,7 @@ import { execFile } from "node:child_process";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { promisify } from "node:util";
+import { CURATED_IMAGES } from "../src/lib/project-editorial";
 import { PORTFOLIO_PROJECTS, type ProjectImage } from "../src/lib/projects";
 
 const execFileAsync = promisify(execFile);
@@ -94,7 +95,7 @@ async function main() {
       }
     }
 
-    if (project.liveUrl) {
+    if (project.liveUrl && !(project.id in CURATED_IMAGES)) {
       const dir = join(OUT_BASE, project.id);
       await mkdir(dir, { recursive: true });
       const images: ProjectImage[] = [];
@@ -102,7 +103,7 @@ async function main() {
         const rel = `/projects/${project.id}/${shot.file}.jpg`;
         try {
           await capture(page, project.liveUrl, join(dir, `${shot.file}.jpg`), shot);
-          images.push({ src: rel, alt: `${project.name} — ${shot.label}`, label: shot.label });
+          images.push({ src: rel, alt: `${project.name} — ${shot.label}`, label: shot.label, width: shot.viewport.width * 2, height: shot.viewport.height * 2 });
         } catch (e) {
           failed += 1;
           console.error(`  ✗ ${project.id} ${shot.file}: ${(e as Error).message}`);

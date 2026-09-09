@@ -1,3 +1,8 @@
+import WorkSequence from "@/components/work/WorkSequence";
+import PersonalSections from "@/components/home/PersonalSections";
+import SystemsConstellation from "@/components/lab/SystemsConstellation";
+import { chronologicalProjects } from "@/lib/project-editorial";
+import { EXPERIMENTS } from "@/components/lab/registry";
 import type { Metadata } from "next";
 import Link from "next/link";
 import Lens from "@/components/rig/Lens";
@@ -9,7 +14,7 @@ import { Marquee } from "@/components/ui/marquee";
 import { NumberTicker } from "@/components/ui/number-ticker";
 import { PORTFOLIO_PROJECTS } from "@/lib/projects";
 
-const TITLE = "Adrián Ávila Molina — Industrial engineer building software";
+const TITLE = "Adrian Avila Molina — Industrial engineer building software";
 const DESCRIPTION =
   "Industrial engineer turned design engineer. I build the software that fixes a business's bottlenecks — storefronts, CRMs, property platforms, booking apps — design through deploy, with AI agents doing the boring half.";
 
@@ -36,7 +41,7 @@ const STACK = Object.entries(
   .sort((a, b) => b[1] - a[1])
   .slice(0, 12);
 
-const SELECTED = ["rei-fm", "shopea", "mistica", "samer", "soapy", "ainetworking-canada"]
+const SELECTED = ["rei-fm", "mistica", "samer", "soapy", "ainetworking-canada"]
   .map((id) => PORTFOLIO_PROJECTS.find((p) => p.id === id))
   .filter((p): p is (typeof PORTFOLIO_PROJECTS)[number] => Boolean(p));
 
@@ -108,7 +113,7 @@ export default function Home() {
 
             <div className="min-w-0 flex-1 px-5 pb-12 pt-10 sm:px-10 sm:pb-16 sm:pt-14">
               <p className="mono text-[var(--carbon-2)]">
-                Adrián Ávila Molina · industrial engineer · designs and ships the whole system
+                Adrian Avila Molina · industrial engineer · designs and ships the whole system
               </p>
 
               <h1 className="macro mt-5">
@@ -173,31 +178,7 @@ export default function Home() {
             </Link>
           </div>
 
-          <ol>
-            {SELECTED.map((project, i) => (
-              <li key={project.id} className="border-b border-[var(--rule)]">
-                <Link
-                  href={`/work/${project.id}`}
-                  className="group grid grid-cols-1 items-baseline gap-x-6 gap-y-2 py-6 md:grid-cols-[64px_minmax(0,1fr)_minmax(0,1fr)_120px]"
-                >
-                  <span className="mono text-[var(--carbon-3)]">
-                    {String(i + 1).padStart(2, "0")}
-                  </span>
-                  <span className="text-[clamp(1.75rem,4vw,3rem)] font-medium leading-[1.02] tracking-[-0.035em] group-hover:text-[var(--hazard)]">
-                    {project.name}
-                  </span>
-                  <span className="text-[15px] leading-snug text-[var(--carbon-2)]">
-                    {project.kind}
-                  </span>
-                  <span className="mono text-[var(--carbon-3)] md:text-right">
-                    {project.status === "launched" ? "In production" : project.status}
-                    <br />
-                    {project.year}
-                  </span>
-                </Link>
-              </li>
-            ))}
-          </ol>
+          <WorkSequence projects={chronologicalProjects(SELECTED)} />
         </section>
 
         {/* ─── SPEC SHEET ───────────────────────────────────────── */}
@@ -262,7 +243,10 @@ export default function Home() {
               </Link>
             </p>
           </div>
+          <div className="mt-12"><SystemsConstellation compact /></div>
+          <div className="lab-preview-links">{EXPERIMENTS.filter(e => e.slug !== "systems-constellation").map(e => <Link key={e.slug} href={`/lab/${e.slug}`}><div className={`lab-miniature lab-miniature-${e.slug}`} aria-hidden><span>{e.slug === "sky-machine" ? "◒" : e.slug === "glass-forge" ? "◉" : e.slug === "type-weather" ? "Aa" : ">_"}</span></div><span className="mono">{e.unit} / Explore ↗</span><h3>{e.title}</h3><p>{e.question}</p></Link>)}</div>
         </section>
+        <PersonalSections />
       </main>
 
       <RigFooter />

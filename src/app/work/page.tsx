@@ -8,7 +8,7 @@ import { PORTFOLIO_PROJECTS, PROJECTS_LAST_SYNCED_AT } from "@/lib/projects";
 
 const TITLE = "Work — every system, nothing staged";
 const DESCRIPTION =
-  "Every system Adrián Ávila Molina has shipped: storefronts, CRMs, property platforms, booking apps and agents. Real screenshots, real stacks, live links where they exist.";
+  "Every system Adrian Avila Molina has shipped: storefronts, CRMs, property platforms, booking apps and agents. Real screenshots, real stacks, live links where they exist.";
 
 export const metadata: Metadata = {
   title: TITLE,

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import Colofon from "@/components/landing/Colofon";
+import RigFooter from "@/components/rig/RigFooter";
+import { CONTACT_EMAIL } from "@/lib/contact";
 
 export const metadata: Metadata = {
   title: "Eliminación de datos de usuario | Servicios Creativos",
@@ -26,7 +27,7 @@ export default function LegalDataDeletion() {
               <h2 className="text-2xl font-semibold mb-3 text-[#0a0a0a]">2. Instrucciones para la eliminación</h2>
               <p>Para solicitar formalmente la eliminación de tus datos, debes seguir estos pasos:</p>
               <ul className="list-disc pl-6 mt-4 space-y-2">
-                <li>Envía un correo electrónico a <strong><a className="text-[#1c1d20] hover:underline" href="mailto:contacto@allok.fun">contacto@allok.fun</a></strong>.</li>
+                <li>Envía un correo electrónico a <strong><a className="text-[#1c1d20] hover:underline" href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a></strong>.</li>
                 <li><strong>Asunto sugerido:</strong> Solicitud de Eliminación de Datos.</li>
                 <li><strong>Cuerpo del correo:</strong> Indica claramente el correo o número de teléfono que deseas eliminar de los registros, y especifica si la solicitud involucra alguna aplicación conectada específica o si se trata del registro general comercial.</li>
               </ul>
@@ -42,7 +43,7 @@ export default function LegalDataDeletion() {
           </div>
         </div>
       </main>
-      <Colofon />
+      <RigFooter />
     </div>
   );
 }

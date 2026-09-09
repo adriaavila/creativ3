@@ -1,68 +1,83 @@
 import { ImageResponse } from "next/og";
-import { wavePath } from "@/lib/waveform";
+import { CONTACT_EMAIL } from "@/lib/contact";
 
-export const runtime = "edge";
-export const alt = "Allok — Convierte conversaciones en ventas.";
-export const size = {
-  width: 1200,
-  height: 630,
-};
+export const alt = "Adrian Avila Molina — industrial engineer building software";
+export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
-// The same generator the logo uses, at banner density.
-const WAVE = wavePath({ cycles: 26, width: 1040, amp: 58, midY: 80 });
-
+// Node runtime on purpose: this app ships as a standalone container, and
+// ImageResponse needs no edge runtime to render.
 export default async function Image() {
   return new ImageResponse(
     (
       <div
         style={{
-          background: "#08090a",
+          background: "#f4f4f0",
           width: "100%",
           height: "100%",
           display: "flex",
           flexDirection: "column",
           justifyContent: "space-between",
-          padding: "72px 80px",
-          color: "#f5f5f4",
+          padding: "56px 64px",
+          color: "#0a0a0a",
           fontFamily: "sans-serif",
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <span style={{ fontSize: 34, fontWeight: 600, letterSpacing: "-0.03em" }}>Allok</span>
-          <span style={{ fontSize: 22, color: "#8a8a8a", letterSpacing: "0.12em" }}>
-            SISTEMA COMERCIAL PARA WHATSAPP
-          </span>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            fontSize: 20,
+            letterSpacing: "0.16em",
+            textTransform: "uppercase",
+            borderBottom: "3px solid #0a0a0a",
+            paddingBottom: 20,
+          }}
+        >
+          <span>Adrian Avila Molina</span>
+          <span style={{ color: "#e61919" }}>{CONTACT_EMAIL}</span>
         </div>
 
-        <div style={{ display: "flex", justifyContent: "center" }}>
-          <svg width="1040" height="160" viewBox="0 0 1040 160">
-            <path d={WAVE} fill="none" stroke="#c5f04a" strokeWidth="3.4" strokeLinecap="round" />
-          </svg>
-        </div>
-
-        <div style={{ display: "flex", flexDirection: "column", gap: "18px" }}>
+        <div style={{ display: "flex", flexDirection: "column" }}>
           <div
             style={{
               display: "flex",
               flexDirection: "column",
-              fontSize: 88,
-              fontWeight: 600,
-              lineHeight: 0.94,
-              letterSpacing: "-0.04em",
+              fontSize: 116,
+              fontWeight: 900,
+              lineHeight: 0.84,
+              letterSpacing: "-0.05em",
+              textTransform: "uppercase",
             }}
           >
-            <span>Convierte conversaciones</span>
-            <span style={{ color: "#8a8a8a" }}>en ventas.</span>
+            <span>Industrial</span>
+            <span>Engineer</span>
           </div>
-          <div style={{ display: "flex", fontSize: 26, color: "#a1a1a3" }}>
-            allok.fun
+          {/* The one plate of sky, same dawn→dusk ramp as the site. */}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              height: 74,
+              marginTop: 22,
+              padding: "0 22px",
+              fontSize: 18,
+              letterSpacing: "0.16em",
+              textTransform: "uppercase",
+              color: "#f7f4ef",
+              backgroundImage:
+                "linear-gradient(96deg, rgb(3,18,63) 0%, rgb(27,63,150) 30%, rgb(103,39,125) 62%, rgb(180,16,101) 100%)",
+            }}
+          >
+            24 systems in production · design through deploy
           </div>
+        </div>
+
+        <div style={{ display: "flex", fontSize: 22, color: "rgba(10,10,10,0.62)" }}>
+          allok.fun/work
         </div>
       </div>
     ),
-    {
-      ...size,
-    }
+    size,
   );
 }

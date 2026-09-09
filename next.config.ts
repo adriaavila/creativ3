@@ -11,6 +11,10 @@ const nextConfig: NextConfig = {
       { source: "/terminos", destination: "/es/terminos", permanent: true },
       { source: "/pago/exito", destination: "/es/pago/exito", permanent: true },
       { source: "/pago/cancelado", destination: "/es/pago/cancelado", permanent: true },
+      // The agency site became the portfolio; these had live inbound links.
+      { source: "/projects", destination: "/work", permanent: true },
+      { source: "/whatsapp", destination: "/", permanent: true },
+      { source: "/cotizar", destination: "/", permanent: true },
     ];
   },
   outputFileTracingIncludes: {

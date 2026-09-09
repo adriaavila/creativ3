@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { authorizeOps, isOpsAuthConfigured } from "@/lib/ops-auth";
-import { PORTFOLIO_PROJECTS, PROJECTS_LAST_SYNCED_AT } from "@/lib/projects";
+import { ALL_PORTFOLIO_PROJECTS, PROJECTS_LAST_SYNCED_AT } from "@/lib/projects";
 import OpsPortfolioClient from "@/components/ops/OpsPortfolioClient";
 
 export const metadata = {
@@ -26,6 +26,6 @@ export default async function OpsPortfolioPage() {
   if (!authorization.authorized) redirect("/ops-login");
 
   return (
-    <OpsPortfolioClient projects={PORTFOLIO_PROJECTS} lastSyncedAt={PROJECTS_LAST_SYNCED_AT} />
+    <OpsPortfolioClient projects={ALL_PORTFOLIO_PROJECTS} lastSyncedAt={PROJECTS_LAST_SYNCED_AT} />
   );
 }

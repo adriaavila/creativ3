@@ -3,7 +3,9 @@ import { OPS_COOKIE_NAME, verifyOpsSessionToken } from "@/lib/ops-session";
 
 export default function proxy(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
-  const locale = request.nextUrl.pathname.split("/")[1] === "en" ? "en" : "es";
+  // The portfolio is English; the surviving /es routes (legal, checkout)
+  // still opt in through their own path prefix.
+  const locale = request.nextUrl.pathname.split("/")[1] === "es" ? "es" : "en";
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set("x-allok-locale", locale);
 

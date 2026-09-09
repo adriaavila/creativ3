@@ -1,4 +1,4 @@
-export const CONTACT_EMAIL = "contacto@allok.fun";
+export const CONTACT_EMAIL = "hi@allok.fun";
 export const WHATSAPP_NUMBER = "584220023684";
 
 export const DEFAULT_WHATSAPP_MESSAGE =

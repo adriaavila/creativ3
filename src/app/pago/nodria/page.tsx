@@ -3,21 +3,21 @@ import ProjectCheckout from "@/components/billing/ProjectCheckout";
 export default function NodriaPaymentPage() {
   return (
     <ProjectCheckout
-      item="nodria"
+      item="project-continuation"
       client="nodria"
       eyebrow="Nodria"
-      title="Tu próxima mejora empieza aquí."
-      lead="Reserva el inicio del proyecto Nodria con Allok. Claridad, dirección y un equipo que convierte la intención en algo real."
+      title="Seguimos donde lo dejamos."
+      lead="Continúa el servicio de Nodria con Allok. Sin reinicios ni alcance nuevo: continuidad."
       included={[
-        "Reserva de tu espacio de trabajo",
-        "Sesión de dirección y alcance",
-        "Plan de acción para tu proyecto",
+        "Siguiente tramo de desarrollo acordado",
+        "Ajustes y mejoras sobre lo ya entregado",
+        "Seguimiento y reporte de avance",
       ]}
-      priceLabel="Proyecto Nodria"
+      priceLabel="Continuación de proyecto Nodria"
       currencySymbol="€"
       amount="200"
       currencyCode="EUR"
-      note="Pago único. Se confirma al instante y recibes tu comprobante por correo."
+      note="Pago único sobre un proyecto ya iniciado. Se confirma al instante y recibes tu comprobante por correo."
       cta="Pagar 200 € de forma segura"
     />
   );

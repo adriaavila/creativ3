@@ -2,7 +2,12 @@
 
 allok es el Tech Provider: es dueño de la app de Meta, así que **todo número de
 WhatsApp oficial entra por su Embedded Signup**, aunque después el cliente no
-trabaje en esta bandeja. Este documento es el orden de ese trabajo.
+trabaje en esta bandeja. Este documento es el orden de ese trabajo **del lado de
+allok**.
+
+> El alta completa de un cliente —los tres caminos, los comandos y las trampas—
+> vive en un solo sitio: `ssh-c001/docs/runbooks/alta-cliente-whatsapp.md`.
+> Aquí queda sólo lo propio de allok: destinos, entrega y su inventario.
 
 ## Piloto interno con WAHA
 
@@ -150,10 +155,19 @@ y su referencia dentro de `token_metadata.crm_handover`.
 | Entregó credenciales pero falló el webhook | La respuesta trae `credentials_delivered: true`. Reintentar «Entregar» repite sólo el paso del webhook en la práctica |
 | El cliente conectó pero no aparece en ninguna bandeja | `scripts/check-meta-coexistence-acceptance.ts <PHONE_NUMBER_ID>` |
 
-## Límite conocido
+## Entrega manual y entrega automática
 
-La entrega es una acción manual del operador, no un paso automático del
-Embedded Signup. Es a propósito: el alta es el momento frágil (el cliente está
-mirando la pantalla) y la entrega necesita un dato que no viene de Meta. Si el
-volumen crece, el paso natural es dejar que la ruta de exchange entregue sola
-cuando el cliente ya está registrado con un destino y su referencia.
+Para un cliente que ya conocías, la entrega es una acción explícita del operador
+desde Ops. Es a propósito: es reintentable y sirve también para los números que
+ya estaban conectados de antes.
+
+Para el alta pública del SaaS eso no alcanzaba —nadie va a apretar un botón por
+alguien que se registró hace diez minutos— así que la ruta de exchange entrega
+sola cuando el enlace venía con destino `vocero`: empuja las credenciales a la
+instancia, redirige el webhook de esa WABA y relee `subscribed_apps` para
+confirmar. Es `src/lib/handover/tenant.ts`.
+
+Si esa entrega automática falla, el número queda conectado en Meta y el cliente
+sin CRM. La salida es `POST /api/meta/tenant-handover/retry` con el `workspace`
+(mismo Bearer que el enlace de alta), que el cliente dispara solo desde
+«Recuperar mi conexión». Reconectar el número es justo lo que no hay que hacer.

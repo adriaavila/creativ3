@@ -198,6 +198,8 @@ export function getExchangeEnv() {
 export type MetaSignupStateContext = {
   workspace: string;
   connection_mode: MetaConnectionMode;
+  destination?: "vocero";
+  return_url?: string;
   issued_at: number;
   expires_at: number;
   nonce: string;
@@ -210,12 +212,15 @@ export type MetaOnboardingInviteContext = MetaSignupStateContext & {
 export function createMetaOnboardingInvite(
   workspace: string,
   connectionMode: MetaConnectionMode,
+  secret = process.env.META_APP_SECRET,
+  destination?: "vocero",
+  returnUrl?: string,
 ): string | null {
-  const secret = process.env.META_APP_SECRET;
   if (
     !secret ||
     !/^[a-zA-Z0-9._-]{1,80}$/.test(workspace) ||
     !META_CONNECTION_MODES.includes(connectionMode)
+    || (returnUrl !== undefined && !isSafeReturnUrl(returnUrl))
   ) {
     return null;
   }
@@ -226,6 +231,8 @@ export function createMetaOnboardingInvite(
       purpose: "meta_onboarding_invite",
       workspace,
       connection_mode: connectionMode,
+      ...(destination ? { destination } : {}),
+      ...(returnUrl ? { return_url: returnUrl } : {}),
       issued_at: issuedAt,
       expires_at: issuedAt + META_ONBOARDING_INVITE_TTL_SECONDS,
       nonce: crypto.randomUUID(),
@@ -246,6 +253,8 @@ export function verifyMetaOnboardingInvite(
     typeof context.workspace !== "string" ||
     !/^[a-zA-Z0-9._-]{1,80}$/.test(context.workspace) ||
     !META_CONNECTION_MODES.includes(context.connection_mode as MetaConnectionMode) ||
+    (context.destination !== undefined && context.destination !== "vocero") ||
+    (context.return_url !== undefined && !isSafeReturnUrl(context.return_url)) ||
     typeof context.issued_at !== "number" ||
     typeof context.expires_at !== "number" ||
     typeof context.nonce !== "string" ||
@@ -259,15 +268,19 @@ export function verifyMetaOnboardingInvite(
 export function createMetaSignupState(
   workspace: string,
   connectionMode: MetaConnectionMode,
+  destination?: "vocero",
+  returnUrl?: string,
 ): string | null {
   const secret = process.env.META_APP_SECRET;
-  if (!secret) return null;
+  if (!secret || (returnUrl !== undefined && !isSafeReturnUrl(returnUrl))) return null;
 
   const issuedAt = Math.floor(Date.now() / 1000);
   const payload = Buffer.from(
     JSON.stringify({
       workspace,
       connection_mode: connectionMode,
+      ...(destination ? { destination } : {}),
+      ...(returnUrl ? { return_url: returnUrl } : {}),
       issued_at: issuedAt,
       expires_at: issuedAt + META_SIGNUP_STATE_TTL_SECONDS,
       nonce: crypto.randomUUID(),
@@ -288,6 +301,8 @@ export function verifyMetaSignupState(
     typeof context.workspace !== "string" ||
     !/^[a-zA-Z0-9._-]{1,80}$/.test(context.workspace) ||
     !META_CONNECTION_MODES.includes(context.connection_mode as MetaConnectionMode) ||
+    (context.destination !== undefined && context.destination !== "vocero") ||
+    (context.return_url !== undefined && !isSafeReturnUrl(context.return_url)) ||
     typeof context.issued_at !== "number" ||
     typeof context.expires_at !== "number" ||
     typeof context.nonce !== "string" ||
@@ -296,6 +311,17 @@ export function verifyMetaSignupState(
     return null;
   }
   return context as unknown as MetaSignupStateContext;
+}
+
+function isSafeReturnUrl(value: unknown): value is string {
+  if (typeof value !== "string" || value.length > 500) return false;
+  try {
+    const url = new URL(value);
+    return url.protocol === "https:" ||
+      (process.env.NODE_ENV !== "production" && url.protocol === "http:" && url.hostname === "localhost");
+  } catch {
+    return false;
+  }
 }
 
 function verifySignedMetaContext(

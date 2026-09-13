@@ -69,6 +69,7 @@ export type MetaEmbeddedSignupConfig = {
   cloudApiConfigId?: string;
   graphVersion: string;
   appUrl?: string;
+  returnUrl?: string;
   state: string;
   allowedMessageOrigins: readonly string[];
   requiredPermissions: readonly string[];

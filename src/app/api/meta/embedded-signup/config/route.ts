@@ -51,9 +51,10 @@ export async function GET(request: NextRequest) {
   }
 
   if (!authorization.authorized) {
-    const invite = verifyMetaOnboardingInvite(
-      request.nextUrl.searchParams.get("invite") ?? undefined,
-    );
+    const inviteValue = request.nextUrl.searchParams.get("invite") ?? undefined;
+    const invite =
+      verifyMetaOnboardingInvite(inviteValue) ??
+      verifyMetaOnboardingInvite(inviteValue, process.env.ALLOK_SAAS_LINK_SECRET);
     if (
       !invite ||
       invite.workspace !== workspace ||
@@ -64,6 +65,38 @@ export async function GET(request: NextRequest) {
         { status: 403 },
       );
     }
+
+    const state = createMetaSignupState(workspace, connectionMode, invite.destination, invite.return_url);
+    if (!state) {
+      return NextResponse.json(
+        { error: "Meta Embedded Signup server environment is incomplete.", missing_env: ["META_APP_SECRET"] },
+        { status: 500 },
+      );
+    }
+
+    const connection = await getLatestWhatsAppConnectionForClient(workspace).catch(() => null);
+    const response = NextResponse.json({
+      appId: result.config.appId,
+      configId: result.config.configId,
+      cloudApiConfigId: result.config.cloudApiConfigId,
+      graphVersion: result.config.graphVersion,
+      appUrl: result.config.appUrl,
+      state,
+      returnUrl: invite.return_url,
+      allowedMessageOrigins: META_MESSAGE_ORIGINS,
+      requiredPermissions: META_REQUIRED_PERMISSIONS,
+      connection,
+    });
+
+    response.cookies.set(META_SIGNUP_STATE_COOKIE, state, {
+      httpOnly: true,
+      maxAge: 15 * 60,
+      path: "/api/meta/embedded-signup",
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+    });
+
+    return response;
   }
 
   const state = createMetaSignupState(workspace, connectionMode);
@@ -84,6 +117,7 @@ export async function GET(request: NextRequest) {
     graphVersion: result.config.graphVersion,
     appUrl: result.config.appUrl,
     state,
+    returnUrl: undefined,
     allowedMessageOrigins: META_MESSAGE_ORIGINS,
     requiredPermissions: META_REQUIRED_PERMISSIONS,
     connection,

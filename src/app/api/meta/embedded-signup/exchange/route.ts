@@ -23,6 +23,7 @@ import {
   upsertWhatsAppConnection,
 } from "@/lib/whatsapp-connections-db";
 import { authorizeOps } from "@/lib/ops-auth";
+import { handoverSaaSTenant, type TenantHandoverResult } from "@/lib/handover/tenant";
 
 export async function POST(req: NextRequest) {
   const authorization = await authorizeOps();
@@ -294,6 +295,33 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    let tenantHandover: TenantHandoverResult | null = null;
+    if (signupState.destination === "vocero") {
+      tenantHandover = await handoverSaaSTenant({
+        workspace: signupState.workspace,
+        wabaId: connectedPayload.waba_id,
+        phoneNumberId: connectedPayload.phone_number_id,
+        businessId: connectedPayload.business_id ?? null,
+        businessToken,
+        connectionMode,
+        status: finalStatus,
+        displayPhoneNumber: phoneProfile.display_phone_number ?? null,
+        verifiedName: phoneProfile.verified_name ?? null,
+      });
+      if (!tenantHandover.ok) {
+        return NextResponse.json(
+          {
+            error: "WhatsApp se conectó, pero no pudimos terminar la entrega a tu espacio Allok.",
+            step: tenantHandover.step,
+            handover: tenantHandover,
+            waba_id: connectedPayload.waba_id,
+            phone_number_id: connectedPayload.phone_number_id,
+          },
+          { status: 502 },
+        );
+      }
+    }
+
     const response = NextResponse.json({
       ok: true,
       connected_account: {
@@ -319,6 +347,7 @@ export async function POST(req: NextRequest) {
             }
           : { required: false, registered: false, already_registered: false, error: null },
       coexistence,
+      handover: tenantHandover,
       database: { ok: true },
       test_message: {
         endpoint: "/api/meta/embedded-signup/test-message",

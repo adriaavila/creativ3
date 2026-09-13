@@ -100,6 +100,8 @@ export default function EmbeddedSignupClient({
   const [status, setStatus] = useState<Status>("idle");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successDetails, setSuccessDetails] = useState<ConnectionDetails | null>(null);
+  const [returnUrl, setReturnUrl] = useState<string | null>(null);
+  const [handoverComplete, setHandoverComplete] = useState(false);
   const pendingSignupRef = useRef<PendingSignup>({});
   const exchangeStartedRef = useRef(false);
   const signupStateRef = useRef<string>("");
@@ -147,6 +149,7 @@ export default function EmbeddedSignupClient({
         phone_number_id: pending.phone_number_id,
       }),
     );
+    setHandoverComplete(result.handover?.ok === true);
     setStatus("success");
   }, [workspace, connectionMode]);
 
@@ -175,6 +178,7 @@ export default function EmbeddedSignupClient({
         if (cancelled) return;
 
         setConfig(metaConfig);
+        setReturnUrl(metaConfig.returnUrl ?? null);
         signupStateRef.current = metaConfig.state;
         if (metaConfig.connection) {
           setSuccessDetails(normalizeConnection(metaConfig.connection));
@@ -422,12 +426,17 @@ export default function EmbeddedSignupClient({
                     </span>
                     <div className="min-w-0">
                       <p className="font-semibold text-[#29420d]">
-                        {successDetails.verifiedName || "WhatsApp Business conectado"}
+                        {publicAccess && handoverComplete ? "Tu WhatsApp ya está listo en Allok" : successDetails.verifiedName || "WhatsApp Business conectado"}
                       </p>
                       <p className="mt-1 text-[13px] text-[#63734b]">
                         {successDetails.displayPhoneNumber || "Número conectado"}
                         {successDetails.connectionMode === "META_COEXISTENCE" ? " · Coexistencia oficial" : " · Meta Cloud API"}
                       </p>
+                      {publicAccess && handoverComplete && returnUrl && (
+                        <a href={returnUrl} className="mt-3 inline-flex items-center gap-2 text-[13px] font-semibold text-[#52720f] hover:underline">
+                          Volver a mi espacio <ArrowRight className="size-3.5" aria-hidden="true" />
+                        </a>
+                      )}
                     </div>
                   </div>
 

@@ -32,7 +32,9 @@ export default async function EmbeddedWhatsappPage({
   }
 
   if (!authorization.authorized) {
-    const invite = verifyMetaOnboardingInvite(params.invite);
+    const invite =
+      verifyMetaOnboardingInvite(params.invite) ??
+      verifyMetaOnboardingInvite(params.invite, process.env.ALLOK_SAAS_LINK_SECRET);
     if (
       !invite ||
       invite.workspace !== workspace ||

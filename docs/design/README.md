@@ -133,16 +133,23 @@ Poco, y siempre con una señal estática al lado — nunca el movimiento como
 - **Hover sólo con ratón**: todo lo que cambie en hover va dentro de
   `@media (hover: hover) and (pointer: fine)`, para que un dedo no deje un
   estado pegado.
-- **La frase que se enciende al bajar** (`.allok-reveal`, una sola por página):
-  el texto empieza en `--ink-40` y se rellena a `--ink` conforme entra en
-  pantalla. Es `animation-timeline: view()` con `background-clip: text` — el
-  avance lo manda el scroll, no un reloj. Va envuelto en
-  `@supports (animation-timeline: view())` y en
-  `@media (prefers-reduced-motion: no-preference)`: sin soporte, o con el
-  movimiento reducido, la frase sale entera en tinta plena.
-- **Los deslizantes son cielo**: la pista de `input[type="range"]` lleva el
-  mismo degradado del cierre y el pulgar es papel. Reemplazó al verde lima que
-  quedaba del diseño anterior.
+- **La frase que se enciende al bajar** (`Reveal.tsx`, una sola por página):
+  cada palabra pasa de `--ink-40` a `--ink` conforme el párrafo sube por la
+  pantalla, y cada una abre su ventana un poco más tarde que la anterior. Es
+  `animation-timeline: view()` sobre el propio párrafo — el avance lo manda el
+  scroll, no un reloj; el escalonado son dos custom properties por palabra
+  (`--from`/`--to`) que calcula el componente. En escritorio el relleno arranca
+  cuando el párrafo va por la mitad de la pantalla y termina justo cuando llega
+  arriba.
+  **El apagado vive en el fotograma `from`, nunca en la regla base**: si el
+  navegador no trae `animation-timeline`, si el usuario pidió menos movimiento,
+  o si la línea de tiempo queda inactiva, la frase sale entera en tinta plena
+  en vez de quedarse gris.
+- **Los deslizantes y la barra del navegador son cielo**: la pista de
+  `input[type="range"]` y el pulgar del scrollbar en las páginas de allok
+  llevan el mismo degradado del cierre (`--sky-stops`, declarado una sola vez
+  en `:root`; el ángulo lo pone quien lo usa). Reemplazaron al lima del diseño
+  anterior.
 
 ---
 

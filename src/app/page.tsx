@@ -7,6 +7,7 @@ import SiteHeader from "@/components/allok/SiteHeader";
 import SiteFooter from "@/components/allok/SiteFooter";
 import PlanCheckout from "@/components/allok/PlanCheckout";
 import Conversation from "@/components/allok/Conversation";
+import Reveal from "@/components/allok/Reveal";
 import MetaCostCalculator from "@/components/rei/MetaCostCalculator";
 
 const TITLE = "allok — el CRM de WhatsApp para negocios de servicios";
@@ -110,11 +111,11 @@ export default function Home() {
 
       {/* ── Una sola frase, del tamaño de la idea ───────────────────────── */}
       <section className="mx-auto max-w-[1100px] px-5 py-24 sm:px-10 sm:py-36">
-        <p className="statement allok-reveal">
-          A las 3:14 de la mañana alguien preguntó por tu servicio. La
-          respuesta salió cuatro segundos después, con el cupo, la fecha y el
-          precio correctos. Nadie de tu equipo estaba despierto.
-        </p>
+        <Reveal className="statement">
+          A las 3:14 de la mañana alguien preguntó por tu servicio. La respuesta
+          salió cuatro segundos después, con el cupo, la fecha y el precio
+          correctos. Nadie de tu equipo estaba despierto.
+        </Reveal>
       </section>
 
       {/* ── Lo que hace ─────────────────────────────────────────────────── */}

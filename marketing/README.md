@@ -1,5 +1,9 @@
 # marketing/ — Sistema de marketing de allok
 
+## Campaña actual propuesta · septiembre de 2026
+
+[Sistema comercial de suscripción y servicios](campaigns/2026-09-sistema-comercial/README.md): revisión de web y VPS del 15 sep, plan de 30 días, 12 piezas de contenido, 4 posts de LinkedIn, referidos, aliados, 8 anuncios y copy web. Distingue demo/alta asistida de SaaS de autoservicio. Los apartados históricos de agosto que siguen no acreditan el estado actual de producción ni sustituyen esta revisión.
+
 Centro de operaciones de adquisición de clientes. Todo lo que un agente (o un humano) necesita para investigar, crear contenido, prospectar, publicar, medir y mejorar vive aquí. El objetivo del sistema no son likes: son **conversaciones comerciales, diagnósticos vendidos, pilotos y clientes**.
 
 ## Qué hay ya construido en este repo (no duplicar)

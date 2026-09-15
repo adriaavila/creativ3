@@ -933,3 +933,152 @@ html:has(.rig) ::selection { background: var(--hazard); color: var(--paper); }
 }
 
 .allok input[type="range"] { accent-color: var(--dusk); height: 22px; width: 100%; }
+
+/* ─────────────────────────────────────────────────────────────────────────
+   allok · superficie de producto
+   El cielo pasa a ser un momento, no un papel tapiz: la portada y el cierre
+   lo usan, y entre medio manda el negro y el papel. Lo que llena la pantalla
+   es el producto, no el degradado.
+   ───────────────────────────────────────────────────────────────────────── */
+
+.allok {
+  --void: #08090a;
+  --void-2: #101214;
+  --on-void: #f5f4f0;
+  --on-void-60: rgba(245, 244, 240, 0.62);
+  --on-void-40: rgba(245, 244, 240, 0.38);
+  --hair-void: rgba(245, 244, 240, 0.12);
+}
+
+.allok-void {
+  position: relative;
+  overflow: hidden;
+  background: var(--void);
+  color: var(--on-void);
+}
+.allok-void > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Un solo resplandor del cielo, detrás del producto: la marca respirando
+   debajo, no pintada encima. Se coloca respecto al objeto que ilumina, no
+   respecto a la sección, para que no dependa de cuánto contenido haya. */
+.allok-bloom {
+  position: relative;
+  display: flex;
+  justify-content: center;
+}
+.allok-bloom::before {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  left: 50%;
+  top: 46%;
+  width: min(1280px, 210%);
+  aspect-ratio: 1.3;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse 50% 50% at 50% 50%,
+    rgb(214 62 122 / 0.85) 0%,
+    rgb(180 16 101 / 0.62) 26%,
+    rgb(103 39 125 / 0.44) 48%,
+    rgb(27 63 150 / 0.24) 70%,
+    transparent 88%
+  );
+  filter: blur(80px);
+}
+.allok-bloom > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* El titular de portada. Comfortaa a tamaño de cartel pide el tracking más
+   cerrado que aguanta antes de que las panzas se toquen. */
+.allok .hero {
+  font-family: var(--font-comfortaa), var(--font-grotesk), sans-serif;
+  font-weight: 700;
+  font-size: clamp(2.75rem, 7.4vw, 6.5rem);
+  line-height: 0.98;
+  letter-spacing: -0.042em;
+  text-wrap: balance;
+}
+/* El mismo tamaño, pero para una frase que ocupa una pantalla entera. */
+.allok .statement {
+  font-family: var(--font-comfortaa), var(--font-grotesk), sans-serif;
+  font-weight: 600;
+  font-size: clamp(1.9rem, 4.6vw, 4rem);
+  line-height: 1.08;
+  letter-spacing: -0.035em;
+  text-wrap: balance;
+}
+.allok .lede {
+  font-size: clamp(1.0625rem, 1.35vw, 1.3125rem);
+  line-height: 1.55;
+  text-wrap: pretty;
+}
+
+/* Un teléfono de verdad, no una caja con bordes redondeados. El bisel es
+   oscuro sobre el contenido para que la pantalla parezca encendida. */
+.allok-device {
+  position: relative;
+  width: 100%;
+  max-width: 340px;
+  border-radius: 46px;
+  padding: 10px;
+  background: linear-gradient(170deg, #2b2e33 0%, #121417 38%, #1e2126 100%);
+  box-shadow:
+    0 0 0 1px rgb(255 255 255 / 0.08),
+    0 44px 90px -30px rgb(0 0 0 / 0.75),
+    0 8px 22px -10px rgb(0 0 0 / 0.6);
+}
+.allok-device-screen {
+  position: relative;
+  overflow: hidden;
+  border-radius: 37px;
+  background: #ece5dd;
+}
+/* La isla, del mismo color que el bisel para que se lea como hardware. */
+.allok-device-screen::before {
+  content: "";
+  position: absolute;
+  top: 9px;
+  left: 50%;
+  z-index: 3;
+  width: 84px;
+  height: 22px;
+  transform: translateX(-50%);
+  border-radius: 999px;
+  background: #0b0d0f;
+}
+
+/* Las burbujas entran en secuencia una sola vez. Es la única animación por
+   pasos del sitio: comunica el orden de una conversación, que es el
+   producto. */
+@keyframes allok-bubble-in {
+  from {
+    opacity: 0;
+    transform: translateY(9px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.allok-bubble {
+  animation: allok-bubble-in 420ms cubic-bezier(0.23, 1, 0.32, 1) both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .allok-bubble {
+    animation: none;
+  }
+}
+
+/* Una rejilla de pelo, para las tablas de especificaciones. */
+.allok-hair {
+  border-top: 1px solid var(--line);
+}
+.allok-void .allok-hair {
+  border-color: var(--hair-void);
+}

@@ -174,20 +174,20 @@ export default function AgenciaPage() {
 
   return (
     <div className="allok">
-      <div className="allok-sky pb-[150px]">
+      <div className="allok-void pb-[150px]">
         <SiteHeader
           nav={NAV}
           cta={{ href: whatsappUrl(QUOTE_MESSAGE), label: "Hablemos" }}
         />
 
         <div className="mx-auto max-w-[1000px] px-5 pt-10 text-center sm:px-10 sm:pt-20">
-          <p className="mono opacity-85">Para negocios que ya no pueden crecer a pulso</p>
-          <h1 className="display mt-6 text-[clamp(42px,7vw,92px)]">
+          <p className="mono text-[var(--on-void-60)]">Para negocios que ya no pueden crecer a pulso</p>
+          <h1 className="hero mt-7">
             Más clientes.
             <br />
             Menos trabajo manual.
           </h1>
-          <p className="mx-auto mt-6 max-w-[620px] text-[clamp(17px,1.4vw,20px)] leading-relaxed opacity-85 text-pretty">
+          <p className="lede mx-auto mt-7 max-w-[620px] text-[var(--on-void-60)]">
             Landings, automatizaciones y software a medida, listos para mover tu
             negocio. El primer entregable sale entre 3 y 21 días según la pieza, siempre con precio cerrado.
           </p>
@@ -195,11 +195,11 @@ export default function AgenciaPage() {
             <a href={whatsappUrl(QUOTE_MESSAGE)} className="allok-btn allok-btn-solid">
               Empezar mi proyecto
             </a>
-            <Link href="/portfolio" className="allok-btn allok-btn-outline">
+            <Link href="/portfolio" className="allok-btn border border-[var(--hair-void)] text-[var(--on-void)]">
               Ver lo que ya funciona
             </Link>
           </div>
-          <p className="mono mt-8 flex flex-wrap justify-center gap-x-6 gap-y-2 opacity-70">
+          <p className="mono mt-10 flex flex-wrap justify-center gap-x-6 gap-y-2 text-[var(--on-void-60)]">
             <span>Primer entregable desde 3 días</span>
             <span aria-hidden="true">·</span>
             <span>Precio cerrado, sin sorpresas</span>
@@ -246,7 +246,7 @@ export default function AgenciaPage() {
         <p className="mx-auto mt-7 max-w-[720px] text-center text-[14.5px] leading-relaxed text-[var(--ink-60)] text-pretty">
           ¿Lo que necesitas es atender WhatsApp? Eso ya es un producto:{" "}
           <Link href="/rei" className="underline underline-offset-4">REI</Link> si vendes
-          propiedades,{" "}
+          propiedades, y el CRM genérico está en la{" "}
           <Link href="/vocero" className="underline underline-offset-4">Vocero</Link> si tu
           operación tiene reglas propias.
         </p>
@@ -257,9 +257,7 @@ export default function AgenciaPage() {
         <div className="grid gap-10 border-t border-[var(--line)] pt-10 lg:grid-cols-[1.1fr_1fr] lg:items-end">
           <div>
             <p className="mono text-[var(--dusk)]">El trabajo</p>
-            <h2 className="display mt-4 text-[clamp(30px,4vw,50px)] text-balance">
-              Lo que construimos ya está trabajando.
-            </h2>
+            <h2 className="statement mt-4">Lo que construimos ya está trabajando.</h2>
           </div>
           <div>
             <p className="text-[16px] leading-relaxed text-[var(--ink-60)] text-pretty">
@@ -279,9 +277,7 @@ export default function AgenciaPage() {
 
       <section id="como-trabajamos" className="mx-auto max-w-[1200px] px-5 pt-20 sm:px-10 sm:pt-28">
         <div className="mx-auto max-w-[640px] text-center">
-          <h2 className="display text-[clamp(30px,4vw,50px)] text-balance">
-            Lanzamos algo útil. Escalamos con evidencia.
-          </h2>
+          <h2 className="statement">Lanzamos algo útil. Escalamos con evidencia.</h2>
           <p className="mt-4 text-[17px] leading-relaxed text-[var(--ink-60)] text-pretty">
             Cerramos una primera versión, la ponemos frente a usuarios y usamos
             lo que ocurre para decidir qué sigue.
@@ -300,9 +296,7 @@ export default function AgenciaPage() {
 
       <section id="precios" className="mx-auto max-w-[1200px] px-5 pt-20 sm:px-10 sm:pt-28">
         <div className="mx-auto max-w-[640px] text-center">
-          <h2 className="display text-[clamp(30px,4vw,50px)] text-balance">
-            Un primer entregable claro. Un precio cerrado.
-          </h2>
+          <h2 className="statement">Un primer entregable claro. Un precio cerrado.</h2>
           <p className="mt-4 text-[17px] leading-relaxed text-[var(--ink-60)] text-pretty">
             Empieza con la pieza que desbloquea el siguiente paso, sin alcance
             difuso ni sorpresas.
@@ -379,9 +373,7 @@ export default function AgenciaPage() {
       </section>
 
       <section id="preguntas" className="mx-auto max-w-[840px] px-5 pt-20 sm:px-10 sm:pt-28">
-        <h2 className="display text-[clamp(28px,3.6vw,46px)] text-balance">
-          Antes de empezar, esto es lo importante.
-        </h2>
+        <h2 className="statement">Antes de empezar, esto es lo importante.</h2>
         <div className="mt-9 border-t border-[var(--line)]">
           {FAQS.map(([q, a]) => (
             <details key={q} className="group border-b border-[var(--line)]">
@@ -404,9 +396,7 @@ export default function AgenciaPage() {
 
       <section className="mx-auto max-w-[1200px] px-5 pt-20 sm:px-10 sm:pt-28">
         <div className="allok-sky rounded-[26px] px-7 py-14 text-center sm:px-14 sm:py-20">
-          <h2 className="display text-[clamp(30px,4.4vw,56px)] text-balance">
-            Dinos qué está frenando el crecimiento.
-          </h2>
+          <h2 className="hero !text-[clamp(2rem,4.6vw,3.75rem)]">Dinos qué está frenando el crecimiento.</h2>
           <p className="mx-auto mt-5 max-w-[620px] text-[17px] leading-relaxed opacity-85 text-pretty">
             Te respondemos el mismo día con la primera pieza que
             construiríamos, el alcance y el precio. Sin formularios largos ni

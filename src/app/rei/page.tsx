@@ -1,14 +1,16 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { whatsappUrl } from "@/lib/contact";
-import { PLANS } from "@/lib/rei-pricing";
+import { PLANS } from "@/lib/plans";
 import SiteHeader from "@/components/allok/SiteHeader";
 import SiteFooter from "@/components/allok/SiteFooter";
+import PlanCheckout from "@/components/allok/PlanCheckout";
+import { isConfigured } from "@/lib/billing/catalog";
 import MetaCostCalculator from "@/components/rei/MetaCostCalculator";
 
-const TITLE = "REI — el CRM de WhatsApp que no te cobra por conversación";
+const TITLE = "REI — el CRM de WhatsApp para inmobiliarias";
 const DESCRIPTION =
-  "REI responde, califica y agenda las consultas de WhatsApp de una corredora. Mensualidad fija: la cuenta de WhatsApp es de tu empresa y Meta te cobra los mensajes directo, a su tarifa.";
+  "REI es allok con el pipeline de una corredora: responde, califica y agenda visitas en el WhatsApp de siempre. Mismos planes desde US$29 al mes, y los mensajes te los cobra Meta al costo.";
 
 export const metadata: Metadata = {
   title: TITLE,
@@ -47,7 +49,7 @@ export default function ReiPage() {
   return (
     <div className="allok">
       {/* ── El cielo: la portada es el degradado, y la cabecera flota encima ── */}
-      <div className="allok-sky pb-[150px]">
+      <div className="allok-void pb-[150px]">
         <SiteHeader
           product="rei"
           nav={NAV}
@@ -55,23 +57,26 @@ export default function ReiPage() {
         />
 
         <div className="mx-auto max-w-[980px] px-5 pt-10 text-center sm:px-10 sm:pt-20">
-          <p className="mono opacity-85">El CRM de WhatsApp para inmobiliarias</p>
-          <h1 className="display mt-6 text-[clamp(44px,7vw,92px)]">
+          <p className="mono text-[var(--on-void-60)]">allok, con el pipeline de una corredora</p>
+          <h1 className="hero mt-7">
             Cada consulta,
             <br />
             atendida y contada.
           </h1>
-          <p className="mx-auto mt-6 max-w-[560px] text-[clamp(17px,1.4vw,20px)] leading-relaxed opacity-85 text-pretty">
-            REI responde, califica y agenda visitas en el número de siempre de
-            tu corredora. Tú pagas una mensualidad fija; Meta le cobra los
-            mensajes a tu empresa, al costo, sin que nosotros pongamos un peso
-            encima.
+          <p className="lede mx-auto mt-7 max-w-[600px] text-[var(--on-void-60)]">
+            REI es{" "}
+            <Link href="/" className="text-[var(--on-void)] underline underline-offset-4">
+              allok
+            </Link>{" "}
+            hablando de captaciones, visitas y cierres: responde, califica y
+            agenda en el número de siempre de tu corredora. Mismo producto,
+            mismos planes, vocabulario de inmobiliaria.
           </p>
           <div className="mt-9 flex flex-wrap justify-center gap-3">
             <a href={whatsappUrl(DEMO_MESSAGE)} className="allok-btn allok-btn-solid">
               Probar el agente en WhatsApp
             </a>
-            <Link href="#precios" className="allok-btn allok-btn-outline">
+            <Link href="#precios" className="allok-btn border border-[var(--hair-void)] text-[var(--on-void)]">
               Ver precios
             </Link>
           </div>
@@ -97,11 +102,11 @@ export default function ReiPage() {
 
       <section id="precios" className="mx-auto max-w-[1200px] px-5 pt-16 sm:px-10 sm:pt-24">
         <div className="mx-auto max-w-[640px] text-center">
-          <h2 className="display text-[clamp(32px,4vw,52px)]">Precio fijo. Mensajes al costo.</h2>
+          <h2 className="statement">Los mismos planes de allok.</h2>
           <p className="mt-4 text-[17px] leading-relaxed text-[var(--ink-60)] text-pretty">
-            La cuenta de WhatsApp queda a nombre de tu empresa y Meta te factura
-            el consumo directo. Nosotros cobramos el software, no tus
-            conversaciones.
+            REI no tiene precio aparte: es el producto de la casa con el
+            pipeline inmobiliario puesto. La cuenta de WhatsApp queda a nombre
+            de tu empresa y Meta te factura el consumo directo, al costo.
           </p>
         </div>
 
@@ -123,18 +128,19 @@ export default function ReiPage() {
               </p>
               <p className="mt-2.5 mb-5 text-[14.5px] opacity-70">{plan.line}</p>
 
-              <a
-                href={whatsappUrl(
-                  `Hola, vengo de allok.fun. Quiero empezar con el plan ${plan.name} de REI (US$${plan.price}/mes).`,
+              <PlanCheckout
+                billingKey={plan.billingKey}
+                label={`Empezar con ${plan.name}`}
+                checkoutReady={isConfigured(plan.billingKey)}
+                fallbackUrl={whatsappUrl(
+                  `Hola, vengo de allok.fun. Quiero el plan ${plan.name} (US$${plan.price}/mes) para mi inmobiliaria.`,
                 )}
                 className={`allok-btn w-full !py-3.5 !text-[15px] ${
                   plan.featured
                     ? "allok-btn-sky"
                     : "border border-[rgba(16,17,18,.22)] text-[var(--ink)]"
                 }`}
-              >
-                Empezar con {plan.name}
-              </a>
+              />
 
               <ul
                 className={`mt-5 grid gap-2.5 border-t pt-4.5 ${

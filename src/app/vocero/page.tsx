@@ -20,10 +20,10 @@ const QUOTE_MESSAGE =
   "Hola, vengo de allok.fun. Quiero cotizar un Vocero a medida — te cuento la operación.";
 
 const NAV = [
-  { href: "#cuando", label: "¿Vocero o REI?" },
+  { href: "#cuando", label: "¿Vocero o allok?" },
   { href: "#como-trabajamos", label: "Cómo trabajamos" },
   { href: "#precios", label: "El precio" },
-  { href: "/rei", label: "REI" },
+  { href: "/", label: "El CRM" },
 ];
 
 /** Un hilo de ejemplo. Ilustra el producto — no es la conversación de nadie. */
@@ -46,10 +46,10 @@ const WHEN = [
     ],
   },
   {
-    head: "REI, si…",
+    head: "allok, si…",
     accent: false,
     items: [
-      "Vendes o arriendas propiedades y el flujo es consulta → calificación → visita.",
+      "Tu negocio vive de una pregunta que se repite: cupo, precio, hora, disponibilidad.",
       "Quieres empezar esta semana, con un plan y una tarjeta.",
       "El equipo necesita un tablero con etapas, no una integración.",
       "Prefieres pagar una mensualidad fija y que Meta te cobre los mensajes directo.",
@@ -74,7 +74,7 @@ const PRICE_DRIVERS = [
 export default function VoceroPage() {
   return (
     <div className="allok">
-      <div className="allok-sky pb-[170px]">
+      <div className="allok-void pb-[170px]">
         <SiteHeader
           product="vocero"
           nav={NAV}
@@ -82,13 +82,13 @@ export default function VoceroPage() {
         />
 
         <div className="mx-auto max-w-[980px] px-5 pt-10 text-center sm:px-10 sm:pt-20">
-          <p className="mono opacity-85">Agente de WhatsApp a medida</p>
-          <h1 className="display mt-6 text-[clamp(42px,7vw,92px)]">
+          <p className="mono text-[var(--on-void-60)]">Agente de WhatsApp a medida</p>
+          <h1 className="hero mt-7">
             Tu operación,
             <br />
             contestando sola.
           </h1>
-          <p className="mx-auto mt-6 max-w-[600px] text-[clamp(17px,1.4vw,20px)] leading-relaxed opacity-85 text-pretty">
+          <p className="lede mx-auto mt-7 max-w-[600px] text-[var(--on-void-60)]">
             Vocero no es una plantilla con tu logo. Se construye alrededor de
             las reglas que ya tiene tu negocio y habla con los sistemas que ya
             usas — para que la respuesta que da sea la verdadera.
@@ -97,8 +97,8 @@ export default function VoceroPage() {
             <a href={whatsappUrl(QUOTE_MESSAGE)} className="allok-btn allok-btn-solid">
               Contar mi operación
             </a>
-            <Link href="#cuando" className="allok-btn allok-btn-outline">
-              ¿Vocero o REI?
+            <Link href="#cuando" className="allok-btn border border-[var(--hair-void)] text-[var(--on-void)]">
+              ¿Vocero o allok?
             </Link>
           </div>
         </div>
@@ -132,9 +132,7 @@ export default function VoceroPage() {
 
       <section id="cuando" className="mx-auto max-w-[1200px] px-5 pt-20 sm:px-10 sm:pt-28">
         <div className="mx-auto max-w-[640px] text-center">
-          <h2 className="display text-[clamp(30px,4vw,50px)] text-balance">
-            ¿Vocero o REI?
-          </h2>
+          <h2 className="statement">¿Vocero o allok?</h2>
           <p className="mt-4 text-[17px] leading-relaxed text-[var(--ink-60)] text-pretty">
             Son el mismo motor. Cambia cuánto de tu negocio tiene que entender
             antes de abrir la boca.
@@ -166,8 +164,8 @@ export default function VoceroPage() {
                 ))}
               </ul>
               {col.accent ? null : (
-                <Link href="/rei" className="mono mt-6 inline-block text-[var(--dusk)] underline underline-offset-4">
-                  Ver REI ↗
+                <Link href="/" className="mono mt-6 inline-block text-[var(--dusk)] underline underline-offset-4">
+                  Ver allok ↗
                 </Link>
               )}
             </div>
@@ -176,7 +174,7 @@ export default function VoceroPage() {
       </section>
 
       <section id="como-trabajamos" className="mx-auto max-w-[1200px] px-5 pt-20 sm:px-10 sm:pt-28">
-        <h2 className="display text-[clamp(30px,4vw,50px)] text-balance">Cómo trabajamos</h2>
+        <h2 className="statement">Cómo trabajamos</h2>
         <div className="mt-10 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
           {PROCESS.map(([title, body], i) => (
             <div key={title} className="border-t border-[var(--line)] pt-5">

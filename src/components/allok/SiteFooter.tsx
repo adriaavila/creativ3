@@ -11,7 +11,8 @@ const COLUMNS = [
   {
     title: "Productos",
     links: [
-      { href: "/rei", label: "REI · CRM inmobiliario" },
+      { href: "/", label: "allok · el CRM" },
+      { href: "/rei", label: "REI · edición inmobiliaria" },
       { href: "/vocero", label: "Vocero · a medida" },
     ],
   },

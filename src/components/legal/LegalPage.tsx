@@ -14,7 +14,7 @@ export default function LegalPage({
   return (
     <main className="min-h-screen pt-28 sm:pt-36">
       <article className="mx-auto max-w-3xl px-5 pb-24 sm:px-8">
-        <p className="text-xs font-semibold uppercase tracking-[.18em] text-[var(--text-tertiary)]">Allok</p>
+        <p className="text-xs font-semibold uppercase tracking-[.18em] text-[var(--text-tertiary)]">allok</p>
         <h1 className="mt-4 text-[clamp(2.2rem,6vw,3.75rem)] font-medium tracking-[-.03em] text-[var(--text-primary)]">
           {title}
         </h1>

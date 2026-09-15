@@ -7,7 +7,7 @@ import { verifyMetaOnboardingInvite } from "@/lib/meta/server";
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Conectar WhatsApp oficial | allok",
+  title: "Conectar WhatsApp oficial",
   description: "Conecta tu número de WhatsApp Business con allok mediante Meta Embedded Signup.",
 };
 
@@ -67,7 +67,7 @@ function InvalidOnboardingLink() {
         <h1 className="mt-5 font-display text-2xl font-semibold">Este enlace no es válido</h1>
         <p className="mt-3 text-sm leading-6 text-[#657386]">
           Por seguridad, los enlaces para conectar WhatsApp vencen. Pídele a tu contacto de
-          Allok que genere uno nuevo; no necesitas iniciar sesión.
+          allok que genere uno nuevo; no necesitas iniciar sesión.
         </p>
       </section>
     </main>

@@ -3,9 +3,12 @@ import { OPS_COOKIE_NAME, verifyOpsSessionToken } from "@/lib/ops-session";
 
 export default function proxy(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
-  // The portfolio is English; the surviving /es routes (legal, checkout)
-  // still opt in through their own path prefix.
-  const locale = request.nextUrl.pathname.split("/")[1] === "es" ? "es" : "en";
+  // The house speaks Spanish: `/`, `/rei`, `/vocero`, `/agencia` and the
+  // WhatsApp onboarding are all Spanish, so Spanish is the default. English
+  // is the exception — the portfolio, and anything under `/en`.
+  const segment = pathname.split("/")[1];
+  const ENGLISH_SECTIONS = new Set(["en", "portfolio", "work", "lab", "writing", "projects"]);
+  const locale = ENGLISH_SECTIONS.has(segment) ? "en" : "es";
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set("x-allok-locale", locale);
 

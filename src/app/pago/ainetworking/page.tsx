@@ -7,7 +7,7 @@ export default function AiNetworkingPaymentPage() {
       client="ainetworking"
       eyebrow="AiNetworking"
       title="Seguimos donde lo dejamos."
-      lead="Reserva el siguiente tramo del proyecto AiNetworking con Allok. Sin reinicios ni alcance nuevo: continuidad."
+      lead="Reserva el siguiente tramo del proyecto AiNetworking con allok. Sin reinicios ni alcance nuevo: continuidad."
       included={[
         "Siguiente tramo de desarrollo acordado",
         "Ajustes y mejoras sobre lo ya entregado",

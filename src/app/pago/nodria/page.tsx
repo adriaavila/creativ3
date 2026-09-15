@@ -7,7 +7,7 @@ export default function NodriaPaymentPage() {
       client="nodria"
       eyebrow="Nodria"
       title="Seguimos donde lo dejamos."
-      lead="Continúa el servicio de Nodria con Allok. Sin reinicios ni alcance nuevo: continuidad."
+      lead="Continúa el servicio de Nodria con allok. Sin reinicios ni alcance nuevo: continuidad."
       included={[
         "Siguiente tramo de desarrollo acordado",
         "Ajustes y mejoras sobre lo ya entregado",

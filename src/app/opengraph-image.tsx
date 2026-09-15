@@ -1,9 +1,13 @@
 import { ImageResponse } from "next/og";
 import { CONTACT_EMAIL } from "@/lib/contact";
+import { PORTFOLIO_PROJECTS } from "@/lib/projects";
 
-export const alt = "Adrian Avila Molina — industrial engineer building software";
+export const alt = "allok — software que atiende, vende y deja registro";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
+
+// En producción = `launched`. Nunca una cifra escrita a mano.
+const LIVE = PORTFOLIO_PROJECTS.filter((p) => p.status === "launched").length;
 
 // Node runtime on purpose: this app ships as a standalone container, and
 // ImageResponse needs no edge runtime to render.
@@ -12,14 +16,14 @@ export default async function Image() {
     (
       <div
         style={{
-          background: "#f4f4f0",
+          background: "#f5f4f0",
           width: "100%",
           height: "100%",
           display: "flex",
           flexDirection: "column",
           justifyContent: "space-between",
           padding: "56px 64px",
-          color: "#0a0a0a",
+          color: "#101112",
           fontFamily: "sans-serif",
         }}
       >
@@ -30,12 +34,12 @@ export default async function Image() {
             fontSize: 20,
             letterSpacing: "0.16em",
             textTransform: "uppercase",
-            borderBottom: "3px solid #0a0a0a",
+            borderBottom: "3px solid #101112",
             paddingBottom: 20,
           }}
         >
-          <span>Adrian Avila Molina</span>
-          <span style={{ color: "#e61919" }}>{CONTACT_EMAIL}</span>
+          <span>allok</span>
+          <span style={{ color: "#b41065" }}>{CONTACT_EMAIL}</span>
         </div>
 
         <div style={{ display: "flex", flexDirection: "column" }}>
@@ -43,23 +47,22 @@ export default async function Image() {
             style={{
               display: "flex",
               flexDirection: "column",
-              fontSize: 116,
+              fontSize: 108,
               fontWeight: 900,
-              lineHeight: 0.84,
+              lineHeight: 0.86,
               letterSpacing: "-0.05em",
-              textTransform: "uppercase",
             }}
           >
-            <span>Industrial</span>
-            <span>Engineer</span>
+            <span>Software que atiende</span>
+            <span>a tus clientes.</span>
           </div>
-          {/* The one plate of sky, same dawn→dusk ramp as the site. */}
+          {/* La única placa de cielo, con la misma rampa del sitio. */}
           <div
             style={{
               display: "flex",
               alignItems: "center",
               height: 74,
-              marginTop: 22,
+              marginTop: 24,
               padding: "0 22px",
               fontSize: 18,
               letterSpacing: "0.16em",
@@ -69,13 +72,11 @@ export default async function Image() {
                 "linear-gradient(96deg, rgb(3,18,63) 0%, rgb(27,63,150) 30%, rgb(103,39,125) 62%, rgb(180,16,101) 100%)",
             }}
           >
-            24 systems in production · design through deploy
+            {LIVE} sistemas en producción · rei · vocero · agencia
           </div>
         </div>
 
-        <div style={{ display: "flex", fontSize: 22, color: "rgba(10,10,10,0.62)" }}>
-          allok.fun/work
-        </div>
+        <div style={{ display: "flex", fontSize: 22, color: "rgba(16,17,18,0.62)" }}>allok.fun</div>
       </div>
     ),
     size,

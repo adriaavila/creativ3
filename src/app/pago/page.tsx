@@ -6,7 +6,7 @@ export default function ProjectPaymentPage() {
       item="project-deposit"
       eyebrow="Inicio de proyecto"
       title="Tu próxima mejora empieza aquí."
-      lead="Reserva el inicio de tu proyecto con Allok. Claridad, dirección y un equipo que convierte la intención en algo real."
+      lead="Reserva el inicio de tu proyecto con allok. Claridad, dirección y un equipo que convierte la intención en algo real."
       included={[
         "Reserva de tu espacio de trabajo",
         "Sesión de dirección y alcance",

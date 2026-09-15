@@ -330,7 +330,7 @@ export default function MisticaPage() {
           Mís<em>tica</em>.
         </div>
         <div className="m-footer-links">
-          <Link href="/">Servicios Creativos</Link>
+          <Link href="/">allok</Link>
           <Link href="/work">Work archive</Link>
           <a
             href="https://mistica-app-fawn.vercel.app/"
@@ -340,7 +340,7 @@ export default function MisticaPage() {
             App en vivo
           </a>
         </div>
-        <div>© 2026 Servicios Creativos · Caso de estudio</div>
+        <div>© 2026 allok · Caso de estudio</div>
       </footer>
     </div>
   );

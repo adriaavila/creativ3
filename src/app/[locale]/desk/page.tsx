@@ -20,6 +20,10 @@ export async function generateMetadata({
   return {
     title: desk.metaTitle,
     description: desk.metaDescription,
+    // La oferta vigente es /rei. Desk sigue operativo para quien ya lo
+    // compró, pero no se indexa: dos precios distintos para la misma promesa
+    // confunden al comprador.
+    robots: { index: false, follow: false },
     alternates: {
       canonical: localePath(locale, "/desk"),
       languages: alternateLanguages("/desk"),

@@ -28,7 +28,7 @@ export async function POST(req: NextRequest) {
     requestedWorkspace && /^[a-zA-Z0-9._-]{1,80}$/.test(requestedWorkspace)
       ? requestedWorkspace
       : authorization.userId;
-  const body = stringField(value.body) ?? "WhatsApp test message from Servicios Creativos.";
+  const body = stringField(value.body) ?? "WhatsApp test message from allok.";
 
   if (!phoneNumberId || !to) {
     return NextResponse.json(

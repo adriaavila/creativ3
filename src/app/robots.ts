@@ -15,6 +15,8 @@ export default function robots(): MetadataRoute.Robots {
         "/sign-in",
         "/embedded-whatsapp",
         "/conectar-whatsapp",
+        "/es/desk",
+        "/en/desk",
         "/pago",
         "/pago/",
         "/es/pago/",

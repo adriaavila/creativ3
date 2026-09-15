@@ -3,7 +3,7 @@ import RigFooter from "@/components/rig/RigFooter";
 import { CONTACT_EMAIL } from "@/lib/contact";
 
 export const metadata: Metadata = {
-  title: "Eliminación de datos de usuario | Servicios Creativos",
+  title: "Eliminación de datos de usuario | allok",
   description: "Instrucciones para solicitar la eliminación de datos de usuario en nuestras aplicaciones y sitios web.",
   alternates: { canonical: "/eliminacion-de-datos" },
 };
@@ -15,7 +15,7 @@ export default function LegalDataDeletion() {
         <div className="container mx-auto px-6 max-w-4xl">
           <h1 className="text-4xl md:text-5xl font-normal mb-6">Eliminación de Datos del Usuario</h1>
           <p className="text-[#6b6b6b] text-lg mb-10 leading-relaxed font-mono">
-            De acuerdo con las regulaciones de privacidad y los requisitos de plataformas de terceros, los usuarios tienen el derecho a solicitar que se eliminen sus datos personales de las bases de datos y aplicaciones utilizadas por Servicios Creativos.
+            De acuerdo con las regulaciones de privacidad y los requisitos de plataformas de terceros, los usuarios tienen el derecho a solicitar que se eliminen sus datos personales de las bases de datos y aplicaciones utilizadas por allok.
           </p>
 
           <div className="space-y-8 text-[#6b6b6b] leading-8">

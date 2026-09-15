@@ -1,7 +1,12 @@
+import type { BillingKey } from "@/lib/billing/catalog";
+
 /**
- * Planes de REI y el costo de mensajería que Meta le factura al cliente.
+ * Los planes de allok y el costo de mensajería que Meta le factura al cliente.
  *
- * REI cobra el software; la cuenta de WhatsApp queda a nombre del negocio y
+ * Es un solo producto con tres planes. REI es el mismo CRM con el vocabulario
+ * y el pipeline de una inmobiliaria; no tiene precio propio.
+ *
+ * allok cobra el software; la cuenta de WhatsApp queda a nombre del negocio y
  * Meta le cobra a él directo. Esa separación es deliberada: como Tech Provider
  * no podemos centralizar el pago de los mensajes de todos los clientes (eso
  * está reservado a los Solution Partners), y tampoco queremos — cobrar por
@@ -10,7 +15,10 @@
 
 export type Plan = {
   key: string;
+  /** Clave del catálogo de Stripe (`src/lib/billing/catalog.ts`). */
+  billingKey: BillingKey;
   name: string;
+  /** Dólares al mes, facturados por Stripe. */
   price: number;
   featured: boolean;
   line: string;
@@ -20,6 +28,7 @@ export type Plan = {
 export const PLANS: Plan[] = [
   {
     key: "starter",
+    billingKey: "allok-starter",
     name: "Starter",
     price: 29,
     featured: false,
@@ -33,6 +42,7 @@ export const PLANS: Plan[] = [
   },
   {
     key: "growth",
+    billingKey: "allok-growth",
     name: "Growth",
     price: 59,
     featured: true,
@@ -47,6 +57,7 @@ export const PLANS: Plan[] = [
   },
   {
     key: "pro",
+    billingKey: "allok-pro",
     name: "Pro",
     price: 99,
     featured: false,

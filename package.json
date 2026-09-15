@@ -14,7 +14,8 @@
     "check:meta-webhook-db": "tsx scripts/check-meta-webhook-db.ts",
     "check:webhook-signature": "tsx scripts/check-webhook-signature.ts",
     "meta:diagnostics": "node scripts/meta-embedded-signup-diagnostics.mjs",
-    "sync:projects": "tsx scripts/sync-projects.ts"
+    "sync:projects": "tsx scripts/sync-projects.ts",
+    "stripe:setup": "tsx scripts/stripe-setup.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",

@@ -1,7 +1,7 @@
 "use client";
 
 import { useId, useState } from "react";
-import { metaMonthlyCost, usd } from "@/lib/rei-pricing";
+import { metaMonthlyCost, usd } from "@/lib/plans";
 
 /**
  * La calculadora del costo de Meta. Es el argumento comercial entero: ningún

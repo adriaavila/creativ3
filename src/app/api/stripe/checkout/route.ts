@@ -3,6 +3,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import {
   getBillingItem,
   isBillingKey,
+  isSellable,
   type BillingChannel,
 } from "@/lib/billing/catalog";
 import { isLocale, type Locale } from "@/lib/i18n";
@@ -29,6 +30,9 @@ export async function POST(request: NextRequest) {
     if (!key || (!isAdHoc(key) && !isBillingKey(key))) {
       return NextResponse.json({ error: "Invalid billing item." }, { status: 400 });
     }
+    if (!isAdHoc(key) && isBillingKey(key) && !isSellable(key)) {
+      return NextResponse.json({ error: "That plan is no longer sold." }, { status: 410 });
+    }
 
     const locale: Locale = body.locale && isLocale(body.locale) ? body.locale : "es";
     const adHoc = isAdHoc(key) ? AD_HOC[key] : null;
@@ -36,9 +40,7 @@ export async function POST(request: NextRequest) {
     const channel: BillingChannel =
       body.channel === "cloud_api" || body.channel === "waha"
         ? body.channel
-        : catalogItem && "defaultChannel" in catalogItem
-          ? catalogItem.defaultChannel
-          : "waha";
+        : (catalogItem?.defaultChannel ?? "waha");
     const secret = process.env.STRIPE_SECRET_KEY;
     if (!secret) {
       return NextResponse.json({ error: "Stripe is not configured." }, { status: 503 });

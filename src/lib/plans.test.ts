@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { metaMonthlyCost, usd } from "./rei-pricing";
+import { metaMonthlyCost, usd } from "./plans";
 
 test("el tramo gratis de Meta deja el costo en cero", () => {
   // 200 consultas × 5 respuestas = 1.000 mensajes, justo el límite gratis.

@@ -1,49 +1,75 @@
-# Servicios Creativos — Landing Editorial
+# allok.fun
 
-La agencia que automatiza LATAM. Landing page con estética editorial, mucho silencio visual y animaciones cinemáticas usando Next.js 14, TailwindCSS y GSAP.
+El sitio de allok: la cara comercial de los productos, la agencia, y el
+portafolio de Adrián Ávila Molina. Next.js 16 (App Router), React 19,
+Tailwind 4, Neon Postgres y Stripe.
 
-## Stack
-
-- Next.js 14 (App Router)
-- Tailwind CSS 4
-- TypeScript
-- Tipografía: Fraunces (Display), Italiana (Editorial), JetBrains Mono (Metadata)
-- Animaciones: GSAP + ScrollTrigger
-- Smooth Scroll: Lenis
-
-## Cómo correrlo
-
-Instalá las dependencias y corré el servidor de desarrollo:
+## Correrlo
 
 ```bash
 pnpm install
 pnpm dev
 ```
 
-Visitá `http://localhost:3000`.
+En `http://localhost:3000`. Las variables de entorno están documentadas en
+`.env.example`.
 
-## Organización del código
+## La estructura del sitio
 
-- `src/app/page.tsx`: Es el archivo principal que renderiza todas las secciones en orden.
-- `src/app/globals.css`: Contiene las variables del design system (`--noche`, `--cobalto`, etc.), las texturas (grain, vignette) y animaciones nativas clave (como `animate-reveal-char`).
-- `src/app/layout.tsx`: Configuración de fuentes y metadata (SEO).
-- `src/app/opengraph-image.tsx`: Genera la imagen OG dinámicamente con `@vercel/og`.
-- `src/components/landing/*.tsx`: Componentes para cada sección, modularizados para separar la lógica de animación.
+```
+/               allok — la casa. Tres puertas y el portafolio como prueba.
+├── /rei        producto: CRM de WhatsApp para inmobiliarias, por mensualidad.
+├── /vocero     a medida: agente de WhatsApp sobre los sistemas del cliente.
+├── /agencia    web, automatización y producto a medida, por entregable.
+└── /portfolio  la prueba
+    ├── /work       índice de sistemas con capturas reales
+    ├── /lab        experimentos
+    └── /writing    notas
+```
 
-## Dónde ajustar...
+**Agencia y portafolio no son lo mismo**: la agencia es lo que se contrata, el
+portafolio es la prueba de que funciona. El pie del sitio los lista en columnas
+separadas a propósito.
 
-### 1. El Copy
-El texto vive directamente en los componentes dentro de `src/components/landing/`:
-- **Hero (`Hero.tsx`)**: Modificá el título desestructurado y la metadata editorial.
-- **Tesis (`Tesis.tsx`)**: Los párrafos del manifiesto.
-- **Productos (`Productos.tsx`)**: En el arreglo constante `PRODUCTS` en la parte superior del componente.
-- **Marquee (`Marquee.tsx`)**: En la lista de `items`.
-- **Principios (`Principios.tsx`)**: En la constante `PRINCIPIOS`.
-- **Método (`Metodo.tsx`)**: Los párrafos del ensayo.
-- **Puertas (`Puertas.tsx`)**: Los enlaces (mailto, links externos) y textos en la constante `PUERTAS`.
+Además: `/ops` (panel interno), `/conectar-whatsapp` y `/embedded-whatsapp` (el
+alta de WhatsApp con Meta), `/pago/*` (checkout de Stripe) y las páginas legales
+que Meta exige. Ninguna de ellas va al sitemap.
 
-### 2. Las Animaciones
-Las animaciones cinemáticas se manejan con `gsap` y `ScrollTrigger` dentro del `useEffect` de cada componente.
-- **Tiempos y Easing**: Editá el objeto de configuración en los llamados `gsap.to()` / `gsap.fromTo()`.
-- **Sticky Scroll (Productos)**: Revisá el mapeo matemático en la propiedad `onUpdate` de `ScrollTrigger` dentro de `Productos.tsx`.
-- **Animaciones CSS**: `globals.css` maneja keyframes nativos y utilidades globales. Las transiciones de hover se realizan con las clases de Tailwind (`duration-500`, `transition-all`, etc).
+## Diseño
+
+Hay **dos sistemas visuales**, a propósito: `.allok` para las páginas
+comerciales y `.rig` para el portafolio. Los dos viven en
+`src/app/globals.css` bajo su clase raíz, y comparten el degradado del cielo.
+
+**Antes de tocar una página, lee [`docs/design/README.md`](docs/design/README.md)** —
+tokens, tipografía, movimiento, las marcas y el gesto que estructura las
+páginas comerciales.
+
+## Dónde está cada cosa
+
+| | |
+|---|---|
+| Páginas comerciales | `src/app/{page,rei,vocero,agencia}/page.tsx` |
+| Cabecera, pie y marcas | `src/components/allok/` |
+| Chrome del portafolio | `src/components/rig/` |
+| Planes y costos de REI | `src/lib/rei-pricing.ts` (+ su test) |
+| Proyectos del portafolio | `src/lib/projects.ts`, sincronizado con `pnpm sync:projects` |
+| Alta de WhatsApp con Meta | `src/app/api/meta/`, `src/lib/handover/` |
+| Panel interno | `src/app/ops/`, `src/app/api/ops/` |
+
+## Comprobaciones
+
+```bash
+pnpm exec tsc --noEmit && pnpm lint && pnpm test && pnpm build
+```
+
+Más los `check:*` de `package.json` cuando tocas facturación, el proveedor de
+Meta o la firma de webhooks.
+
+## Documentación
+
+- [`docs/design/README.md`](docs/design/README.md) — el sistema de diseño y la estructura del sitio
+- [`docs/allok-whatsapp/`](docs/allok-whatsapp/) — alta de clientes de WhatsApp
+- [`docs/meta-embedded-signup.md`](docs/meta-embedded-signup.md) — el Embedded Signup de Meta
+- [`docs/meta-whatsapp-production-state.md`](docs/meta-whatsapp-production-state.md) — qué está vivo hoy en producción
+- [`docs/self-hosting-coolify.md`](docs/self-hosting-coolify.md) — despliegue propio

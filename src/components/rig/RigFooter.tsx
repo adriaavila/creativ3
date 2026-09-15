@@ -37,6 +37,11 @@ export default function RigFooter() {
             </a>
           </div>
           <div className="mono grid gap-2 opacity-80">
+            <Link href="/" className="hover:opacity-100">allok ↗</Link>
+            <Link href="/agencia" className="hover:opacity-100">Agencia ↗</Link>
+            <Link href="/rei" className="hover:opacity-100">REI ↗</Link>
+            <Link href="/vocero" className="hover:opacity-100">Vocero ↗</Link>
+            <Link href="/portfolio" className="hover:opacity-100">Portafolio ↗</Link>
             <Link href="/work" className="hover:opacity-100">Work ↗</Link>
             <Link href="/lab" className="hover:opacity-100">Lab ↗</Link>
             <a href="https://github.com/adriaavila" className="hover:opacity-100">GitHub ↗</a>

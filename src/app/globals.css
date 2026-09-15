@@ -317,6 +317,17 @@
   animation: allok-enter 280ms var(--ease-out) both;
 }
 
+@keyframes allok-demo-stage {
+  0%, 20% { opacity: .42; transform: translateY(2px); }
+  28%, 62% { opacity: 1; transform: translateY(0); }
+  70%, 100% { opacity: .42; transform: translateY(2px); }
+}
+.allok-demo-stage {
+  animation: allok-demo-stage 6s var(--ease-out) infinite;
+}
+.allok-demo-stage-closed { animation-delay: 1.5s; }
+.allok-demo-stage-reply { animation-delay: 3s; }
+
 /* `.allok-reveal` intentionally does not use `animation-timeline: view()`.
    Scroll-linked animations paint incorrectly (a fully black frame past the
    first viewport) in at least one Chromium-based engine this app is tested
@@ -357,7 +368,8 @@
      from scroll position, not time. Drop the timeline explicitly so
      reduced-motion users always see the settled, visible state. */
   .allok-reveal,
-  .allok-enter {
+  .allok-enter,
+  .allok-demo-stage {
     animation: none !important;
     opacity: 1 !important;
     transform: none !important;
@@ -775,3 +787,149 @@ html:has(.rig) ::selection { background: var(--hazard); color: var(--paper); }
 .personal-interlude > span { color:var(--carbon-2); }
 
 .work-sequence,.work-archive,.constellation,.personal-section,.screen-gallery { --carbon-3:#66665f; }
+
+/* ═══════════════════════════════════════════════════════════════════
+   REI — la superficie del CRM de WhatsApp. Usa el mismo cielo que las
+   planchas del portafolio, pero como clima de la página entera en vez de
+   una ventana recortada en el papel. Scoped como `.rig` y `.studio`, para
+   que el portafolio y el producto no se pisen los tokens.
+   ═══════════════════════════════════════════════════════════════════ */
+.allok {
+  --paper: #f5f4f0;
+  --paper-2: #f1efeb;
+  --ink: #101112;
+  --ink-60: #6b6d70;
+  --ink-40: #9a9c9f;
+  --line: rgba(16, 17, 18, 0.1);
+  --dusk: #b41065;
+  --lit-dawn: rgb(255 154 61);
+  --lit-dusk: rgb(255 227 194);
+  --on-sky: rgb(247 244 239);
+
+  color-scheme: light;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-grotesk), "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+/* La voz de marca del producto: redonda, geométrica. Sólo titulares y
+   cifras — Comfortaa por debajo de ~15px deja de leerse. */
+.allok .display {
+  font-family: var(--font-comfortaa), var(--font-grotesk), sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.03;
+}
+.allok .display-sm {
+  font-family: var(--font-comfortaa), var(--font-grotesk), sans-serif;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+}
+.allok .mono {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 0.6875rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+/* El cielo. Mismos anclajes que `.sky-plate` y que src/lib/sky.ts. */
+.allok-sky {
+  position: relative;
+  overflow: hidden;
+  color: var(--on-sky);
+  background-image: linear-gradient(
+    96deg,
+    rgb(3 18 63) 0%,
+    rgb(27 63 150) 26%,
+    #67277d 58%,
+    rgb(180 16 101) 82%,
+    #8f4a58 100%
+  );
+}
+.allok-sky::before,
+.allok-sky::after {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  pointer-events: none;
+  filter: blur(42px);
+}
+.allok-sky::before {
+  left: -8%;
+  top: -55%;
+  width: 68%;
+  height: 210%;
+  background: radial-gradient(closest-side at 50% 50%, var(--lit-dawn) 0%, transparent 100%);
+  opacity: 0.7;
+}
+.allok-sky::after {
+  right: -10%;
+  top: -45%;
+  width: 64%;
+  height: 190%;
+  background: radial-gradient(closest-side at 50% 50%, var(--lit-dusk) 0%, transparent 100%);
+  opacity: 0.5;
+}
+.allok-sky > * {
+  position: relative;
+  z-index: 1;
+}
+/* El mismo degradado escrito en el texto, para el correo del pie. */
+.allok-sky-text {
+  background-image: linear-gradient(96deg, rgb(27 63 150) 0%, #67277d 42%, rgb(180 16 101) 74%, var(--lit-dawn) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.allok-sky-rule {
+  height: 2px;
+  background-image: linear-gradient(96deg, rgb(3 18 63) 0%, rgb(27 63 150) 26%, #67277d 58%, rgb(180 16 101) 82%, #8f4a58 100%);
+}
+
+/* Botones: el press da la única respuesta táctil; nada más se mueve. */
+.allok-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 14px;
+  padding: 0.9rem 1.6rem;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition-property: transform, background-color, border-color, opacity;
+  transition-duration: 160ms;
+  transition-timing-function: var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1));
+}
+.allok-btn:active { transform: scale(0.96); }
+.allok-btn-solid {
+  background: var(--on-sky);
+  color: var(--ink);
+  border: 0;
+  font-family: var(--font-comfortaa), var(--font-grotesk), sans-serif;
+  font-weight: 600;
+}
+.allok-btn-sky {
+  border: 0;
+  color: #fff;
+  background-image: linear-gradient(
+    96deg,
+    rgb(3 18 63) 0%,
+    rgb(27 63 150) 26%,
+    #67277d 58%,
+    rgb(180 16 101) 82%,
+    #8f4a58 100%
+  );
+}
+.allok-btn-outline {
+  background: transparent;
+  color: var(--on-sky);
+  border: 1px solid rgba(247, 244, 239, 0.45);
+}
+@media (hover: hover) and (pointer: fine) {
+  .allok-btn-solid:hover { opacity: 0.92; }
+  .allok-btn-outline:hover { border-color: rgba(247, 244, 239, 0.8); }
+  .allok-btn-sky:hover { opacity: 0.92; }
+}
+
+.allok input[type="range"] { accent-color: var(--dusk); height: 22px; width: 100%; }

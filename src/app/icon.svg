@@ -1,4 +1,15 @@
 <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="allok">
+  <!-- La misma onda y el mismo degradado que `AllokMark` en
+       src/components/allok/Marks.tsx. Si cambia uno, cambia el otro. -->
+  <defs>
+    <linearGradient id="icon-sky" x1="7" y1="0" x2="57" y2="0" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#1B3F96"/>
+      <stop offset="0.42" stop-color="#67277D"/>
+      <stop offset="0.76" stop-color="#B41065"/>
+      <stop offset="1" stop-color="#FF9A3D"/>
+    </linearGradient>
+  </defs>
   <rect width="64" height="64" rx="16" fill="#08090a"/>
-  <path d="M0 32 Q2.08 30.35 4.17 32 Q6.25 40.86 8.33 32 Q10.42 14.22 12.5 32 Q14.58 55.17 16.67 32 Q18.75 10.62 20.83 32 Q22.92 44.55 25 32 Q27.08 19.45 29.17 32 Q31.25 53.38 33.33 32 Q35.42 8.83 37.5 32 Q39.58 49.78 41.67 32 Q43.75 23.14 45.83 32 Q47.92 33.65 50 32" transform="translate(7,0)" fill="none" stroke="#ffffff" stroke-width="2.6" stroke-linecap="round"/>
+  <path d="M7 32 Q9.1 30.4 11.2 32 Q13.3 40.9 15.3 32 Q17.4 14.2 19.5 32 Q21.6 55.2 23.7 32 Q25.8 10.6 27.8 32 Q29.9 44.6 32 32 Q34.1 19.5 36.2 32 Q38.3 53.4 40.3 32 Q42.4 8.8 44.5 32 Q46.6 49.8 48.7 32 Q50.8 23.1 52.8 32 Q54.9 33.7 57 32"
+    fill="none" stroke="url(#icon-sky)" stroke-width="2.8" stroke-linecap="round"/>
 </svg>

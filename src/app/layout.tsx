@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
-import { Archivo_Black, JetBrains_Mono, Geist } from "next/font/google";
+import { Archivo_Black, JetBrains_Mono, Geist, Comfortaa } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 import { siteJsonLd } from "@/lib/seo";
+import { PORTFOLIO_PROJECTS } from "@/lib/projects";
 import { headers } from "next/headers";
 
 const jetbrains = JetBrains_Mono({
@@ -31,49 +32,65 @@ const geist = Geist({
   display: "swap",
 });
 
+// Rounded geometric display face for the REI product surface. Body copy stays
+// on Geist — Comfortaa is a display voice and gets illegible below ~15px.
+const comfortaa = Comfortaa({
+  weight: ["400", "500", "600", "700"],
+  subsets: ["latin"],
+  variable: "--font-comfortaa",
+  display: "swap",
+});
+
+// El conteo sale del portafolio real, nunca de un número escrito a mano, y
+// cuenta sólo lo que está `launched`.
+const SHIPPED = PORTFOLIO_PROJECTS.filter((p) => p.status === "launched").length;
+
 export const metadata: Metadata = {
   metadataBase: new URL("https://allok.fun"),
   title: {
-    default: "Adrian Avila Molina — Industrial engineer building software",
-    template: "%s | Adrian Avila Molina",
+    default: "allok — software que atiende, vende y deja registro",
+    // La casa firma todas las páginas. El portafolio es la sección de allok
+    // donde manda Adrian, no un sitio aparte.
+    template: "%s | allok",
   },
   description:
-    "Industrial engineer turned design engineer. I design and build commercial software — storefronts, CRMs, property platforms, booking apps and AI agents — from blank canvas to live checkout.",
+    "allok construye software comercial: REI, el CRM de WhatsApp para inmobiliarias; Vocero, agentes de WhatsApp a medida; y la agencia que diseña, programa y despliega el resto.",
   verification: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION
     ? { google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION }
     : undefined,
   keywords: [
-    "design engineer",
-    "industrial engineer",
-    "portfolio",
+    "CRM de WhatsApp",
+    "WhatsApp Business API",
+    "agente de WhatsApp",
+    "software para inmobiliarias",
+    "automatización con IA",
+    "desarrollo web a medida",
     "Next.js",
-    "TypeScript",
-    "AI agents",
-    "product design",
+    "allok",
     "Adrian Avila Molina",
   ],
   openGraph: {
-    title: "Adrian Avila Molina — Industrial engineer building software",
+    title: "allok — software que atiende, vende y deja registro",
     description:
-      "24 systems in production: storefronts, CRMs, property platforms, booking apps and AI agents. Design through deploy, by the same pair of hands.",
+      `${SHIPPED} sistemas en producción. Un CRM de WhatsApp, agentes a medida y la agencia que construye el resto — diseño, código y despliegue por el mismo par de manos.`,
     url: "https://allok.fun",
-    siteName: "Adrian Avila Molina",
-    locale: "en",
+    siteName: "allok",
+    locale: "es",
     type: "website",
     images: [
       {
         url: "/opengraph-image",
         width: 1200,
         height: 630,
-    alt: "Adrian Avila Molina — industrial engineer building software",
+        alt: "allok — software que atiende, vende y deja registro",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Adrian Avila Molina — Industrial engineer building software",
+    title: "allok — software que atiende, vende y deja registro",
     description:
-      "24 systems in production. Design, frontend, backend and deploy, with agents doing the boring half.",
+      `${SHIPPED} sistemas en producción. Diseño, frontend, backend y despliegue, con los agentes haciendo la mitad aburrida.`,
     images: ["/opengraph-image"],
   },
 };
@@ -83,9 +100,11 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const locale = (await headers()).get("x-allok-locale") === "es" ? "es" : "en";
+  // Nadie pone esta cabecera hoy (no hay middleware), así que el valor por
+  // defecto es el que sale en todas las páginas — y la casa habla español.
+  const locale = (await headers()).get("x-allok-locale") === "en" ? "en" : "es";
   return (
-    <html lang={locale} className={`${jetbrains.variable} ${geist.variable} ${archivo.variable}`}>
+    <html lang={locale} className={`${jetbrains.variable} ${geist.variable} ${archivo.variable} ${comfortaa.variable}`}>
       <body className="relative min-h-screen overflow-x-hidden antialiased">
         <script
           type="application/ld+json"

@@ -110,12 +110,10 @@ export default function Home() {
 
       {/* ── Una sola frase, del tamaño de la idea ───────────────────────── */}
       <section className="mx-auto max-w-[1100px] px-5 py-24 sm:px-10 sm:py-36">
-        <p className="statement">
-          A las 3:14 de la mañana alguien preguntó por tu servicio.{" "}
-          <span className="text-[var(--ink-40)]">
-            La respuesta salió cuatro segundos después, con el cupo, la fecha y
-            el precio correctos. Nadie de tu equipo estaba despierto.
-          </span>
+        <p className="statement allok-reveal">
+          A las 3:14 de la mañana alguien preguntó por tu servicio. La
+          respuesta salió cuatro segundos después, con el cupo, la fecha y el
+          precio correctos. Nadie de tu equipo estaba despierto.
         </p>
       </section>
 

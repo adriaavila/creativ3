@@ -250,53 +250,6 @@
   z-index: 1;
 }
 
-/* ─── Savings / range input (quote calculator) ─────────────── */
-.savings-range {
-  --range-progress: 50%;
-  height: 1.25rem;
-  appearance: none;
-  background: transparent;
-  cursor: pointer;
-}
-.savings-range::-webkit-slider-runnable-track {
-  height: 0.4rem;
-  border-radius: 999px;
-  background: linear-gradient(
-    to right,
-    var(--lima) 0%,
-    var(--lima) var(--range-progress),
-    var(--surface-3) var(--range-progress),
-    var(--surface-3) 100%
-  );
-}
-.savings-range::-webkit-slider-thumb {
-  width: 1.25rem;
-  height: 1.25rem;
-  margin-top: -0.425rem;
-  appearance: none;
-  border: 3px solid var(--surface-0);
-  border-radius: 999px;
-  background: var(--lima);
-  box-shadow: var(--shadow-1);
-}
-.savings-range::-moz-range-track {
-  height: 0.4rem;
-  border-radius: 999px;
-  background: var(--surface-3);
-}
-.savings-range::-moz-range-progress {
-  height: 0.4rem;
-  border-radius: 999px;
-  background: var(--lima);
-}
-.savings-range::-moz-range-thumb {
-  width: 1rem;
-  height: 1rem;
-  border: 3px solid var(--surface-0);
-  border-radius: 999px;
-  background: var(--lima);
-  box-shadow: var(--shadow-1);
-}
 
 /* ─── Marquee / ticker edge fade ───────────────────────────── */
 .marquee-mask {
@@ -932,7 +885,58 @@ html:has(.rig) ::selection { background: var(--hazard); color: var(--paper); }
   .allok-btn-sky:hover { opacity: 0.92; }
 }
 
-.allok input[type="range"] { accent-color: var(--dusk); height: 22px; width: 100%; }
+/* La barra es el cielo: mismo degradado que cierra cada página. */
+.allok input[type="range"] {
+  appearance: none;
+  height: 22px;
+  width: 100%;
+  background: transparent;
+  cursor: pointer;
+}
+.allok input[type="range"]::-webkit-slider-runnable-track {
+  height: 6px;
+  border-radius: 999px;
+  background-image: linear-gradient(
+    96deg,
+    rgb(3 18 63) 0%,
+    rgb(27 63 150) 26%,
+    #67277d 58%,
+    rgb(180 16 101) 82%,
+    #8f4a58 100%
+  );
+}
+.allok input[type="range"]::-moz-range-track {
+  height: 6px;
+  border-radius: 999px;
+  background-image: linear-gradient(
+    96deg,
+    rgb(3 18 63) 0%,
+    rgb(27 63 150) 26%,
+    #67277d 58%,
+    rgb(180 16 101) 82%,
+    #8f4a58 100%
+  );
+}
+.allok input[type="range"]::-webkit-slider-thumb {
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  margin-top: -7px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--paper);
+  box-shadow: 0 1px 2px rgb(8 9 10 / 0.35), 0 0 0 1px rgb(8 9 10 / 0.12);
+}
+.allok input[type="range"]::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--paper);
+  box-shadow: 0 1px 2px rgb(8 9 10 / 0.35), 0 0 0 1px rgb(8 9 10 / 0.12);
+}
+.allok input[type="range"]:focus-visible::-webkit-slider-thumb { outline: 2px solid var(--dusk); outline-offset: 2px; }
+.allok input[type="range"]:focus-visible::-moz-range-thumb { outline: 2px solid var(--dusk); outline-offset: 2px; }
 
 /* ─────────────────────────────────────────────────────────────────────────
    allok · superficie de producto
@@ -1013,6 +1017,35 @@ html:has(.rig) ::selection { background: var(--hazard); color: var(--paper); }
   letter-spacing: -0.035em;
   text-wrap: balance;
 }
+/* La frase se enciende mientras baja: el relleno avanza con el scroll, no con
+   el tiempo. Sin soporte de scroll-driven animations el texto sale entero. */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .allok .allok-reveal {
+      color: transparent;
+      background-image: linear-gradient(
+        to bottom,
+        var(--ink) 0%,
+        var(--ink) 46%,
+        var(--ink-40) 54%,
+        var(--ink-40) 100%
+      );
+      background-size: 100% 200%;
+      background-position: 0% 100%;
+      background-repeat: no-repeat;
+      -webkit-background-clip: text;
+      background-clip: text;
+      animation: allok-reveal-fill linear both;
+      animation-timeline: view();
+      animation-range: entry 60% cover 72%;
+    }
+  }
+}
+@keyframes allok-reveal-fill {
+  from { background-position: 0% 100%; }
+  to { background-position: 0% 0%; }
+}
+
 .allok .lede {
   font-size: clamp(1.0625rem, 1.35vw, 1.3125rem);
   line-height: 1.55;

@@ -8,8 +8,8 @@ El sitio tiene **dos sistemas visuales**, a propósito, y no se mezclan:
 |---|---|---|
 | Dónde | `/`, `/rei`, `/vocero`, `/agencia` | `/portfolio`, `/work`, `/lab`, `/writing` |
 | Qué es | la cara comercial — lo que se contrata | el portafolio — la prueba de que funciona |
-| Voz | Comfortaa sobre Geist, degradado, esquinas de 22px | Archivo Black, reglas duras, nada redondeado |
-| Fondo | papel cálido `#f5f4f0`, roto por el cielo | papel, con el cielo sólo en el pie |
+| Voz | Comfortaa sobre Geist, esquinas de 22-30px | Archivo Black, reglas duras, nada redondeado |
+| Fondo | negro `#08090a` arriba, papel `#f5f4f0` abajo | papel, con el cielo sólo en el pie |
 
 Los dos comparten el **cielo**: el mismo degradado, los mismos anclajes de
 color. Es lo que hace que salte de una zona a otra sin que parezcan dos sitios.
@@ -20,11 +20,25 @@ exterior. Nunca los dos.
 
 ---
 
+## La regla: negro para abrir, cielo para cerrar
+
+El cielo dejó de ser papel tapiz. Cuando el degradado llenaba todas las
+portadas competía con lo único que importa —el producto— y al repetirse en
+cuatro páginas dejaba de ser un momento para volverse fondo.
+
+Ahora:
+
+- **Las portadas son negras** (`.allok-void`, `#08090a`). El titular a tamaño
+  de cartel y, debajo, el producto encendido.
+- **El cielo vuelve al final**, una vez por página, en el bloque de cierre.
+- **Entre medio manda el papel**, con mucho aire y reglas de pelo.
+
+El degradado sigue vivo en el pie, en el botón destacado, en el correo y en el
+logo. Lo que cambió es cuánta superficie ocupa.
+
 ## El cielo
 
-Un degradado de amanecer a anochecer, más dos resplandores desenfocados. Es el
-único objeto de la marca que se repite en todas partes: portada, pie, botón
-destacado, correo del pie, y el logo.
+Un degradado de amanecer a anochecer, más dos resplandores desenfocados.
 
 ```css
 linear-gradient(96deg,
@@ -51,6 +65,8 @@ Los mismos anclajes están en `src/lib/sky.ts` y en `.sky-plate` del sistema
 | `.allok-sky-text` | el mismo degradado recortado al texto (`background-clip: text`) — sólo para el correo del pie |
 | `.allok-sky-rule` | una regla de 2px con el degradado, para cerrar el pie |
 | `.allok-btn-sky` | el degradado como fondo de botón |
+| `.allok-void` | el negro de las portadas, con sus tokens `--on-void*` |
+| `.allok-bloom` | **el resplandor detrás del producto** — se coloca respecto al objeto que ilumina, nunca respecto a la sección, para que no dependa de cuánto contenido haya arriba |
 
 `.allok-sky` no es sólo para la portada: la sección final de `/agencia` lo usa
 como tarjeta con `rounded-[26px]`. Funciona en cualquier caja, porque los
@@ -122,24 +138,39 @@ Poco, y siempre con una señal estática al lado — nunca el movimiento como
 
 ## El gesto que estructura las páginas
 
-Las cuatro páginas comerciales usan el mismo movimiento: **el contenido rompe
-el borde inferior del cielo**.
-
-```tsx
-<div className="allok-sky pb-[150px]"> …portada… </div>
-<div className="relative z-[3] -mt-[130px] px-5 sm:px-10"> …el objeto… </div>
-```
-
-El `pb` del cielo y el `-mt` del objeto se mueven juntos: el `pb` siempre ~20px
-mayor, para que quede un respiro de cielo bajo la tarjeta. Qué objeto rompe el
-borde es lo que diferencia cada página:
+Cada página comercial enseña **un objeto propio** debajo de su titular. Es lo
+que la diferencia de las demás, y en todos los casos es el producto, no una
+ilustración:
 
 | Página | Objeto |
 |---|---|
-| `/` | las tres puertas — REI, Vocero, Agencia |
-| `/rei` | el tablero de etapas, con tarjetas de prospectos |
-| `/vocero` | un hilo de WhatsApp, porque Vocero vive en la conversación |
+| `/` | un teléfono con la conversación completa: la pregunta entra a las 3:14 y la respuesta sale con el cupo, la fecha y el precio |
+| `/rei` | el tablero de etapas de una corredora |
+| `/vocero` | un hilo con tres consultas al sistema del cliente dentro de una sola respuesta |
 | `/agencia` | las tres tarjetas de servicio |
+
+En `/` el objeto va dentro de un `.allok-bloom`, sobre negro. En las demás
+todavía rompe el borde inferior de la portada:
+
+```tsx
+<div className="allok-void pb-[150px]"> …portada… </div>
+<div className="relative z-[3] -mt-[130px] px-5 sm:px-10"> …el objeto… </div>
+```
+
+El `pb` de la portada y el `-mt` del objeto se mueven juntos, con el `pb` unos
+20px mayor para que quede un respiro debajo de la tarjeta.
+
+## La escala tipográfica de portada
+
+| Clase | Dónde |
+|---|---|
+| `.hero` | el titular de portada — `clamp(2.75rem, 7.4vw, 6.5rem)`, tracking `-0.042em` |
+| `.statement` | una frase que ocupa una sección entera — `clamp(1.9rem, 4.6vw, 4rem)` |
+| `.lede` | el párrafo bajo el titular — `clamp(1.0625rem, 1.35vw, 1.3125rem)`, interlineado 1.55 |
+
+Comfortaa a tamaño de cartel pide el tracking más cerrado que aguanta antes de
+que las panzas de las letras se toquen; por eso `-0.042em` y no el `-0.03em`
+de `.display`.
 
 ---
 
@@ -179,6 +210,11 @@ fuera del sitio.
     └── /writing    notas
 ```
 
+La portada **vende el CRM directamente**, genérico, para negocios de
+servicios: clínicas, academias, legales, talleres, turismo, tiendas. REI no es
+otro producto ni otro precio — es el mismo, con el vocabulario de una
+corredora. Eso mantiene una sola historia de precio para el mismo software.
+
 **Agencia y portafolio no son lo mismo, y el pie lo dice en columnas
 separadas**: *Agencia* es lo que se contrata, *Portafolio* es la prueba de que
 funciona. Confundirlos fue el problema del sitio anterior, donde `/work` hacía
@@ -196,12 +232,15 @@ tres, y cada una responde una pregunta distinta:
 
 | | Qué se compra | Cómo se cobra |
 |---|---|---|
-| **REI** | software que ya existe | mensualidad fija. Los mensajes los factura Meta a la empresa del cliente, al costo |
+| **allok** (y REI) | software que ya existe | mensualidad fija. Los mensajes los factura Meta a la empresa del cliente, al costo |
 | **Vocero** | un proyecto de integración | cotizado, con alcance y precio cerrados por escrito |
 | **Agencia** | un entregable definido | precio cerrado por pieza, 50% al arrancar y 50% contra entrega |
 
 La regla que las une, y que se repite en las tres páginas: **allok cobra el
 software, no las conversaciones.**
+
+Cómo se cobra cada una, con su estado real en Stripe, está en
+[`docs/cobros.md`](../cobros.md).
 
 ---
 

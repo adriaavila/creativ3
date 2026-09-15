@@ -17,8 +17,8 @@ En `http://localhost:3000`. Las variables de entorno están documentadas en
 ## La estructura del sitio
 
 ```
-/               allok — la casa. Tres puertas y el portafolio como prueba.
-├── /rei        producto: CRM de WhatsApp para inmobiliarias, por mensualidad.
+/               allok — el CRM de WhatsApp. Se compra aquí, por mensualidad.
+├── /rei        el mismo CRM con el pipeline de una inmobiliaria.
 ├── /vocero     a medida: agente de WhatsApp sobre los sistemas del cliente.
 ├── /agencia    web, automatización y producto a medida, por entregable.
 └── /portfolio  la prueba
@@ -52,7 +52,8 @@ páginas comerciales.
 | Páginas comerciales | `src/app/{page,rei,vocero,agencia}/page.tsx` |
 | Cabecera, pie y marcas | `src/components/allok/` |
 | Chrome del portafolio | `src/components/rig/` |
-| Planes y costos de REI | `src/lib/rei-pricing.ts` (+ su test) |
+| Planes y costos de Meta | `src/lib/plans.ts` (+ su test) |
+| Qué se puede cobrar | `src/lib/billing/catalog.ts` · ver [`docs/cobros.md`](docs/cobros.md) |
 | Proyectos del portafolio | `src/lib/projects.ts`, sincronizado con `pnpm sync:projects` |
 | Alta de WhatsApp con Meta | `src/app/api/meta/`, `src/lib/handover/` |
 | Panel interno | `src/app/ops/`, `src/app/api/ops/` |
@@ -69,6 +70,7 @@ Meta o la firma de webhooks.
 ## Documentación
 
 - [`docs/design/README.md`](docs/design/README.md) — el sistema de diseño y la estructura del sitio
+- [`docs/cobros.md`](docs/cobros.md) — suscripción del CRM y pagos de agencia, con el estado real en Stripe
 - [`docs/allok-whatsapp/`](docs/allok-whatsapp/) — alta de clientes de WhatsApp
 - [`docs/meta-embedded-signup.md`](docs/meta-embedded-signup.md) — el Embedded Signup de Meta
 - [`docs/meta-whatsapp-production-state.md`](docs/meta-whatsapp-production-state.md) — qué está vivo hoy en producción

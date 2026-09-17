@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" role="img" aria-label="allok — dawn to dusk, one build at a time">
+  <title>allok seal — dawn → dusk · one build at a time</title>
+  <defs>
+    <path id="dd-seal-ring" d="M64,9 A55,55 0 1,1 63.99,9" fill="none"/>
+    <linearGradient id="dd-seal-arc" x1="12" y1="0" x2="52" y2="0" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#4f79d6"/><stop offset="0.42" stop-color="#9a4fb4"/><stop offset="0.76" stop-color="#e0388b"/><stop offset="1" stop-color="#ffb066"/></linearGradient>
+  </defs>
+  <text font-family="'JetBrains Mono', Menlo, Consolas, 'DejaVu Sans Mono', ui-monospace, monospace" font-size="10.5" letter-spacing="2.9" fill="#ffe3c2">
+    <textPath href="#dd-seal-ring">DAWN → DUSK · ONE BUILD AT A TIME · </textPath>
+  </text>
+  <g transform="translate(38.4,36) scale(0.8)">
+    <path d="M5 46 H59" fill="none" stroke="#f5f4f0" stroke-opacity="0.3" stroke-width="3" stroke-linecap="round"/>
+    <path d="M12 46 A 20 27 0 0 1 52 46" fill="none" stroke="url(#dd-seal-arc)" stroke-width="6" stroke-linecap="round"/>
+    <circle cx="36.97" cy="19.85" r="6.4" fill="#ffe3c2"/>
+  </g>
+</svg>

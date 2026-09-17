@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="allok">
+  <title>allok — the day arc</title>
+  <defs><linearGradient id="dd-arc-paper" x1="12" y1="0" x2="52" y2="0" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#4f79d6"/><stop offset="0.42" stop-color="#9a4fb4"/><stop offset="0.76" stop-color="#e0388b"/><stop offset="1" stop-color="#ffb066"/></linearGradient></defs>
+  
+  <path d="M5 46 H59" fill="none" stroke="#f5f4f0" stroke-opacity="0.24" stroke-width="2.4" stroke-linecap="round"/>
+  <path d="M12 46 A 20 27 0 0 1 52 46" fill="none" stroke="url(#dd-arc-paper)" stroke-width="5" stroke-linecap="round"/>
+  <circle cx="36.97" cy="19.85" r="5.5" fill="#ff9a3d" stroke="#08090a" stroke-width="2.2"/>
+</svg>

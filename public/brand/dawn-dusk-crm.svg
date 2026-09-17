@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="allok CRM">
+  <title>allok — the day, in a conversation</title>
+  <defs><linearGradient id="dd-crm" x1="18" y1="0" x2="46" y2="0" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#4f79d6"/><stop offset="0.42" stop-color="#9a4fb4"/><stop offset="0.76" stop-color="#e0388b"/><stop offset="1" stop-color="#ffb066"/></linearGradient></defs>
+  <rect width="64" height="64" rx="16" fill="#08090a"/>
+  <path d="M20 8 H44 A12 12 0 0 1 56 20 V38 A12 12 0 0 1 44 50 H24 L13 58 L16 50 A12 12 0 0 1 8 38 V20 A12 12 0 0 1 20 8 Z" fill="none" stroke="#f5f4f0" stroke-opacity="0.55" stroke-width="2.4" stroke-linejoin="round"/>
+  <path d="M14 40 H50" fill="none" stroke="#f5f4f0" stroke-opacity="0.24" stroke-width="2" stroke-linecap="round"/>
+  <path d="M18 40 A 14 19 0 0 1 46 40" fill="none" stroke="url(#dd-crm)" stroke-width="4" stroke-linecap="round"/>
+  <circle cx="35.48" cy="21.6" r="4.2" fill="#ff9a3d" stroke="#08090a" stroke-width="1.8"/>
+</svg>

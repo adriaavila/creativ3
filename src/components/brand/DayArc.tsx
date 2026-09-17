@@ -9,6 +9,11 @@
  * drives `src/lib/sky.ts`, so a footer may hand it `--sky-t` and the sun
  * moves with the page.
  *
+ * The products keep the grammar the old marks had — same stroke, three
+ * containers: `CrmMark` puts the day inside a conversation bubble,
+ * `AgentMark` between brackets, the same day cut to the size of one
+ * business's systems. Both ship as badges only: the product UI is void.
+ *
  * Static files of every variant live in `public/brand/` for contexts
  * outside the site. Spec: docs/design/dawn-dusk.md.
  */
@@ -92,5 +97,93 @@ export function DayArc({
       />
       <circle cx={sun.x} cy={sun.y} r="5.5" fill="#ff9a3d" stroke={g.knockout} strokeWidth="2.2" />
     </svg>
+  );
+}
+
+/* ── Product marks: a smaller day inside a container, on the void tile. ── */
+
+const INNER_RX = 14;
+const INNER_RY = 19;
+const INNER_HORIZON = 40;
+
+function innerSunAt(t: number): { x: number; y: number } {
+  const k = t < 0 ? 0 : t > 1 ? 1 : t;
+  const phi = (1 - k) * Math.PI;
+  return {
+    x: Number((CX + INNER_RX * Math.cos(phi)).toFixed(2)),
+    y: Number((INNER_HORIZON - INNER_RY * Math.sin(phi)).toFixed(2)),
+  };
+}
+
+function ProductBadge({
+  id,
+  size,
+  t,
+  label,
+  className,
+  children,
+}: {
+  id: string;
+  size: number;
+  t: number;
+  label: string;
+  className?: string;
+  children: React.ReactNode;
+}) {
+  const sun = innerSunAt(t);
+  return (
+    <svg width={size} height={size} viewBox="0 0 64 64" role="img" aria-label={label} className={className}>
+      <defs>
+        <linearGradient id={id} x1="18" y1="0" x2="46" y2="0" gradientUnits="userSpaceOnUse">
+          {STOPS.paper.map((c, i) => (
+            <stop key={c} offset={OFFSETS[i]} stopColor={c} />
+          ))}
+        </linearGradient>
+      </defs>
+      <rect width="64" height="64" rx="16" fill="#08090a" />
+      {children}
+      <path d="M14 40 H50" fill="none" stroke="#f5f4f0" strokeOpacity="0.24" strokeWidth="2" strokeLinecap="round" />
+      <path
+        d={`M18 ${INNER_HORIZON} A ${INNER_RX} ${INNER_RY} 0 0 1 46 ${INNER_HORIZON}`}
+        fill="none"
+        stroke={`url(#${id})`}
+        strokeWidth="4"
+        strokeLinecap="round"
+      />
+      <circle cx={sun.x} cy={sun.y} r="4.2" fill="#ff9a3d" stroke="#08090a" strokeWidth="1.8" />
+    </svg>
+  );
+}
+
+/** The CRM: the day inside a conversation. The allok app icon and the `allok × rei` lockup's mark. */
+export function CrmMark({ size = 32, t = 0.58, className }: { size?: number; t?: number; className?: string }) {
+  return (
+    <ProductBadge id="day-arc-crm" size={size} t={t} label="allok CRM" className={className}>
+      <path
+        d="M20 8 H44 A12 12 0 0 1 56 20 V38 A12 12 0 0 1 44 50 H24 L13 58 L16 50 A12 12 0 0 1 8 38 V20 A12 12 0 0 1 20 8 Z"
+        fill="none"
+        stroke="#f5f4f0"
+        strokeOpacity="0.55"
+        strokeWidth="2.4"
+        strokeLinejoin="round"
+      />
+    </ProductBadge>
+  );
+}
+
+/** The agent: the same day between brackets — cut to the size of one business's systems. Vocero's mark. */
+export function AgentMark({ size = 32, t = 0.58, className }: { size?: number; t?: number; className?: string }) {
+  return (
+    <ProductBadge id="day-arc-agent" size={size} t={t} label="vocero" className={className}>
+      <path
+        d="M15 14 H9 V50 H15 M49 14 H55 V50 H49"
+        fill="none"
+        stroke="#f5f4f0"
+        strokeOpacity="0.55"
+        strokeWidth="2.6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </ProductBadge>
   );
 }

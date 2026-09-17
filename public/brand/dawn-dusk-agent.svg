@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="vocero">
+  <title>vocero — the day, between brackets</title>
+  <defs><linearGradient id="dd-agent" x1="18" y1="0" x2="46" y2="0" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#4f79d6"/><stop offset="0.42" stop-color="#9a4fb4"/><stop offset="0.76" stop-color="#e0388b"/><stop offset="1" stop-color="#ffb066"/></linearGradient></defs>
+  <rect width="64" height="64" rx="16" fill="#08090a"/>
+  <path d="M15 14 H9 V50 H15 M49 14 H55 V50 H49" fill="none" stroke="#f5f4f0" stroke-opacity="0.55" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M14 40 H50" fill="none" stroke="#f5f4f0" stroke-opacity="0.24" stroke-width="2" stroke-linecap="round"/>
+  <path d="M18 40 A 14 19 0 0 1 46 40" fill="none" stroke="url(#dd-agent)" stroke-width="4" stroke-linecap="round"/>
+  <circle cx="35.48" cy="21.6" r="4.2" fill="#ff9a3d" stroke="#08090a" stroke-width="1.8"/>
+</svg>

@@ -198,7 +198,8 @@ export function getExchangeEnv() {
 export type MetaSignupStateContext = {
   workspace: string;
   connection_mode: MetaConnectionMode;
-  destination?: "vocero";
+  destination?: string;
+  external_ref?: string | null;
   return_url?: string;
   issued_at: number;
   expires_at: number;
@@ -209,17 +210,23 @@ export type MetaOnboardingInviteContext = MetaSignupStateContext & {
   purpose: "meta_onboarding_invite";
 };
 
+const DESTINATION_SLUG = /^[a-z0-9][a-z0-9._-]{1,39}$/;
+const EXTERNAL_REF = /^[\w.:-]{1,80}$/;
+
 export function createMetaOnboardingInvite(
   workspace: string,
   connectionMode: MetaConnectionMode,
   secret = process.env.META_APP_SECRET,
-  destination?: "vocero",
+  destination?: string,
   returnUrl?: string,
+  externalRef?: string | null,
 ): string | null {
   if (
     !secret ||
     !/^[a-zA-Z0-9._-]{1,80}$/.test(workspace) ||
     !META_CONNECTION_MODES.includes(connectionMode)
+    || (destination !== undefined && !DESTINATION_SLUG.test(destination))
+    || (externalRef !== undefined && externalRef !== null && !EXTERNAL_REF.test(externalRef))
     || (returnUrl !== undefined && !isSafeReturnUrl(returnUrl))
   ) {
     return null;
@@ -232,6 +239,7 @@ export function createMetaOnboardingInvite(
       workspace,
       connection_mode: connectionMode,
       ...(destination ? { destination } : {}),
+      ...(externalRef !== undefined ? { external_ref: externalRef } : {}),
       ...(returnUrl ? { return_url: returnUrl } : {}),
       issued_at: issuedAt,
       expires_at: issuedAt + META_ONBOARDING_INVITE_TTL_SECONDS,
@@ -253,7 +261,8 @@ export function verifyMetaOnboardingInvite(
     typeof context.workspace !== "string" ||
     !/^[a-zA-Z0-9._-]{1,80}$/.test(context.workspace) ||
     !META_CONNECTION_MODES.includes(context.connection_mode as MetaConnectionMode) ||
-    (context.destination !== undefined && context.destination !== "vocero") ||
+    !isValidDestination(context.destination) ||
+    !isValidExternalRef(context.external_ref) ||
     (context.return_url !== undefined && !isSafeReturnUrl(context.return_url)) ||
     typeof context.issued_at !== "number" ||
     typeof context.expires_at !== "number" ||
@@ -268,11 +277,17 @@ export function verifyMetaOnboardingInvite(
 export function createMetaSignupState(
   workspace: string,
   connectionMode: MetaConnectionMode,
-  destination?: "vocero",
+  destination?: string,
   returnUrl?: string,
+  externalRef?: string | null,
 ): string | null {
   const secret = process.env.META_APP_SECRET;
-  if (!secret || (returnUrl !== undefined && !isSafeReturnUrl(returnUrl))) return null;
+  if (
+    !secret ||
+    (destination !== undefined && !DESTINATION_SLUG.test(destination)) ||
+    (externalRef !== undefined && externalRef !== null && !EXTERNAL_REF.test(externalRef)) ||
+    (returnUrl !== undefined && !isSafeReturnUrl(returnUrl))
+  ) return null;
 
   const issuedAt = Math.floor(Date.now() / 1000);
   const payload = Buffer.from(
@@ -280,6 +295,7 @@ export function createMetaSignupState(
       workspace,
       connection_mode: connectionMode,
       ...(destination ? { destination } : {}),
+      ...(externalRef !== undefined ? { external_ref: externalRef } : {}),
       ...(returnUrl ? { return_url: returnUrl } : {}),
       issued_at: issuedAt,
       expires_at: issuedAt + META_SIGNUP_STATE_TTL_SECONDS,
@@ -301,7 +317,8 @@ export function verifyMetaSignupState(
     typeof context.workspace !== "string" ||
     !/^[a-zA-Z0-9._-]{1,80}$/.test(context.workspace) ||
     !META_CONNECTION_MODES.includes(context.connection_mode as MetaConnectionMode) ||
-    (context.destination !== undefined && context.destination !== "vocero") ||
+    !isValidDestination(context.destination) ||
+    !isValidExternalRef(context.external_ref) ||
     (context.return_url !== undefined && !isSafeReturnUrl(context.return_url)) ||
     typeof context.issued_at !== "number" ||
     typeof context.expires_at !== "number" ||
@@ -322,6 +339,14 @@ function isSafeReturnUrl(value: unknown): value is string {
   } catch {
     return false;
   }
+}
+
+function isValidDestination(value: unknown): value is string | undefined {
+  return value === undefined || (typeof value === "string" && DESTINATION_SLUG.test(value));
+}
+
+function isValidExternalRef(value: unknown): value is string | null | undefined {
+  return value === undefined || value === null || (typeof value === "string" && EXTERNAL_REF.test(value));
 }
 
 function verifySignedMetaContext(

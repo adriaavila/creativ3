@@ -296,7 +296,7 @@ export async function POST(req: NextRequest) {
     }
 
     let tenantHandover: TenantHandoverResult | null = null;
-    if (signupState.destination === "vocero") {
+    if (signupState.destination) {
       tenantHandover = await handoverSaaSTenant({
         workspace: signupState.workspace,
         wabaId: connectedPayload.waba_id,
@@ -307,6 +307,8 @@ export async function POST(req: NextRequest) {
         status: finalStatus,
         displayPhoneNumber: phoneProfile.display_phone_number ?? null,
         verifiedName: phoneProfile.verified_name ?? null,
+        destination: signupState.destination,
+        externalRef: signupState.external_ref,
       });
       if (!tenantHandover.ok) {
         return NextResponse.json(

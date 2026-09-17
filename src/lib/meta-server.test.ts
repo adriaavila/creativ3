@@ -33,3 +33,29 @@ test("el estado de Meta conserva el destino, pero no acepta alteraciones", () =>
     else process.env.META_APP_SECRET = previous;
   }
 });
+
+test("el enlace firmado conserva destinos dedicados y la referencia SaaS", () => {
+  const secret = "x".repeat(32);
+  const invite = createMetaOnboardingInvite(
+    "cliente-rei",
+    "META_COEXISTENCE",
+    secret,
+    "rei-saas",
+    "https://rei.allok.fun/settings/whatsapp",
+    "org:42",
+  );
+  assert.ok(invite);
+  const parsed = verifyMetaOnboardingInvite(invite, secret);
+  assert.equal(parsed?.destination, "rei-saas");
+  assert.equal(parsed?.external_ref, "org:42");
+  assert.equal(parsed?.return_url, "https://rei.allok.fun/settings/whatsapp");
+});
+
+test("un destino con referencia dedicada puede firmarse sin external_ref", () => {
+  const secret = "x".repeat(32);
+  const invite = createMetaOnboardingInvite("mistica", "META_COEXISTENCE", secret, "mistica", undefined, null);
+  assert.ok(invite);
+  const parsed = verifyMetaOnboardingInvite(invite, secret);
+  assert.equal(parsed?.destination, "mistica");
+  assert.equal(parsed?.external_ref, null);
+});

@@ -133,7 +133,7 @@ export async function listDestinations(): Promise<DestinationView[]> {
   // Los destinos de entorno primero: volver a la bandeja de allok tiene que
   // estar a un clic antes de mover un número, no configurarse después de que
   // algo salga mal.
-  const builtIn = [DESTINATION_ALLOK, "rei_crm"]
+  const builtIn = [DESTINATION_ALLOK, "vocero", "rei_crm"]
     .filter((slug) => !stored.some((destination) => destination.slug === slug))
     .map(builtInDestination)
     .filter((destination): destination is DestinationSecrets => destination !== null)
@@ -179,6 +179,7 @@ export async function getDestinationSecrets(slug: string): Promise<DestinationSe
 
 function builtInDestination(slug: string): DestinationSecrets | null {
   if (slug === DESTINATION_ALLOK) return allokDestination();
+  if (slug === "vocero") return voceroDestination();
   if (slug !== "rei_crm") return null;
   const baseUrl = process.env.REI_PROVISION_URL?.trim();
   const secret = process.env.REI_PROVISION_SECRET?.trim();
@@ -191,6 +192,28 @@ function builtInDestination(slug: string): DestinationSecrets | null {
   return {
     slug,
     label: "REI CRM",
+    webhookUrl,
+    verifyToken,
+    provisionUrl: baseUrl,
+    provisionSecret: secret,
+    updatedAt: null,
+  };
+}
+
+function voceroDestination(): DestinationSecrets | null {
+  const baseUrl = process.env.ALLOK_SAAS_PROVISION_URL?.trim();
+  const secret = process.env.ALLOK_SAAS_PROVISION_SECRET?.trim();
+  const verifyToken = process.env.ALLOK_SAAS_WEBHOOK_VERIFY_TOKEN?.trim();
+  if (!baseUrl || !secret || !verifyToken) return null;
+
+  const webhookUrl = normalizeWebhookUrl(
+    new URL(`/api/webhooks/wa/${verifyToken}`, new URL(baseUrl).origin).toString(),
+  );
+  if (!webhookUrl) return null;
+
+  return {
+    slug: "vocero",
+    label: "Vocero SaaS",
     webhookUrl,
     verifyToken,
     provisionUrl: baseUrl,

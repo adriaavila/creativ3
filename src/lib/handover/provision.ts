@@ -16,6 +16,8 @@ export type ProvisionResult = {
   organizationName: string | null;
   /** La app puede corregir a qué URL quiere sus webhooks. */
   webhookUrl: string | null;
+  /** Endpoint opcional para probar el envío real después del handover. */
+  smokeTestUrl: string | null;
   error: string | null;
 };
 
@@ -63,6 +65,7 @@ export async function pushCredentials(input: {
       status: 502,
       organizationName: null,
       webhookUrl: null,
+      smokeTestUrl: null,
       error: error instanceof Error ? error.message : "La app destino no respondió.",
     };
   }
@@ -76,6 +79,7 @@ export async function pushCredentials(input: {
       status: response.status,
       organizationName: null,
       webhookUrl: null,
+      smokeTestUrl: null,
       error: typeof body.message === "string" ? body.message : `La app destino respondió ${response.status}.`,
     };
   }
@@ -87,7 +91,20 @@ export async function pushCredentials(input: {
       status: 502,
       organizationName: null,
       webhookUrl: null,
+      smokeTestUrl: null,
       error: "La app destino devolvió una URL de webhook inválida; debe usar HTTPS.",
+    };
+  }
+
+  const smokeTestUrl = body.smoke_test_url === undefined ? null : normalizeWebhookUrl(body.smoke_test_url);
+  if (body.smoke_test_url !== undefined && !smokeTestUrl) {
+    return {
+      ok: false,
+      status: 502,
+      organizationName: null,
+      webhookUrl: null,
+      smokeTestUrl: null,
+      error: "La app destino devolvió una URL de smoke test inválida; debe usar HTTPS.",
     };
   }
 
@@ -96,6 +113,38 @@ export async function pushCredentials(input: {
     status: response.status,
     organizationName: typeof body.organization_name === "string" ? body.organization_name : null,
     webhookUrl,
+    smokeTestUrl,
     error: null,
   };
+}
+
+export async function runProvisionSmokeTest(input: {
+  url: string;
+  secret: string;
+  externalRef: string | null;
+}): Promise<{ ok: true } | { ok: false; error: string; status: number }> {
+  let response: Response;
+  try {
+    response = await fetch(input.url, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${input.secret}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ organization_id: input.externalRef }),
+      signal: AbortSignal.timeout(20_000),
+    });
+  } catch (error) {
+    return { ok: false, error: error instanceof Error ? error.message : "El smoke test no respondió.", status: 502 };
+  }
+
+  const body = (await response.json().catch(() => ({}))) as Record<string, unknown>;
+  if (!response.ok) {
+    return {
+      ok: false,
+      error: typeof body.message === "string" ? body.message : `El smoke test respondió ${response.status}.`,
+      status: response.status,
+    };
+  }
+  return { ok: true };
 }

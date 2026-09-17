@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Check, Copy, Link2 } from "lucide-react";
 import { toWorkspaceSlug } from "@/lib/meta/onboarding-link";
 
@@ -13,6 +13,12 @@ import { toWorkspaceSlug } from "@/lib/meta/onboarding-link";
 
 const SLUG_MAX = 80;
 
+type DestinationView = {
+  slug: string;
+  label: string;
+  provisionUrl: string | null;
+};
+
 export default function OnboardingLinkGenerator({
   cloudApiAvailable,
 }: {
@@ -20,12 +26,22 @@ export default function OnboardingLinkGenerator({
 }) {
   const [name, setName] = useState("");
   const [cloudApi, setCloudApi] = useState(false);
+  const [destination, setDestination] = useState("");
+  const [externalRef, setExternalRef] = useState("");
+  const [destinations, setDestinations] = useState<DestinationView[]>([]);
   const [copied, setCopied] = useState(false);
   const [url, setUrl] = useState("");
   const [generating, setGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const slug = useMemo(() => toWorkspaceSlug(name), [name]);
+
+  useEffect(() => {
+    void fetch("/api/ops/destinations", { cache: "no-store" })
+      .then((response) => response.json())
+      .then((data: { destinations?: DestinationView[] }) => setDestinations(data.destinations ?? []))
+      .catch(() => setDestinations([]));
+  }, []);
 
   const generate = async () => {
     if (!slug) return;
@@ -35,7 +51,12 @@ export default function OnboardingLinkGenerator({
     const response = await fetch("/api/ops/meta/onboarding-link", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ workspace: slug, mode: cloudApi ? "cloud_api" : "coexistence" }),
+      body: JSON.stringify({
+        workspace: slug,
+        mode: cloudApi ? "cloud_api" : "coexistence",
+        ...(destination ? { destination } : {}),
+        ...(externalRef.trim() ? { external_ref: externalRef.trim() } : {}),
+      }),
     });
     const result = await response.json().catch(() => ({}));
     setGenerating(false);
@@ -136,6 +157,33 @@ export default function OnboardingLinkGenerator({
             </label>
           </div>
         </fieldset>
+
+        <label className="block">
+          <span className="text-xs font-semibold text-[#526174]">Entrega automática</span>
+          <select
+            value={destination}
+            onChange={(event) => { setDestination(event.target.value); setUrl(""); }}
+            className="mt-2 min-h-11 w-full rounded-lg border border-[#d5dde5] bg-[#fafbfc] px-3 text-sm text-[#172238] outline-none focus:border-[#6f8733] focus:ring-2 focus:ring-[#c5f04a]/25"
+          >
+            <option value="">Sólo conectar en Allok</option>
+            {destinations.filter((item) => item.slug !== "allok").map((item) => (
+              <option key={item.slug} value={item.slug}>{item.label}</option>
+            ))}
+          </select>
+          <span className="mt-2 block text-[11px] leading-5 text-[#7a8797]">El destino con provisión recibe las credenciales y el webhook automáticamente.</span>
+        </label>
+
+        {destination && destinations.find((item) => item.slug === destination)?.provisionUrl && (
+          <label className="block">
+            <span className="text-xs font-semibold text-[#526174]">Referencia SaaS (opcional)</span>
+            <input
+              value={externalRef}
+              onChange={(event) => { setExternalRef(event.target.value); setUrl(""); }}
+              placeholder="organization_id"
+              className="mt-2 min-h-11 w-full rounded-lg border border-[#d5dde5] bg-[#fafbfc] px-3 font-mono text-sm text-[#172238] outline-none focus:border-[#6f8733] focus:ring-2 focus:ring-[#c5f04a]/25"
+            />
+          </label>
+        )}
       </div>
 
       <button

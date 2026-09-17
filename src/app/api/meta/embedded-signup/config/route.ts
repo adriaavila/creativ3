@@ -66,7 +66,13 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const state = createMetaSignupState(workspace, connectionMode, invite.destination, invite.return_url);
+    const state = createMetaSignupState(
+      workspace,
+      connectionMode,
+      invite.destination,
+      invite.return_url,
+      invite.external_ref,
+    );
     if (!state) {
       return NextResponse.json(
         { error: "Meta Embedded Signup server environment is incomplete.", missing_env: ["META_APP_SECRET"] },

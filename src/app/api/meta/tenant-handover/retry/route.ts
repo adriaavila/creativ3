@@ -5,6 +5,7 @@ import {
   getLatestWhatsAppConnectionForClient,
   getWhatsAppProviderConnection,
 } from "@/lib/whatsapp-connections-db";
+import { parseExternalRef } from "@/lib/handover/destinations";
 
 export const dynamic = "force-dynamic";
 
@@ -28,8 +29,23 @@ export async function POST(request: NextRequest) {
 
   const input = (await request.json().catch(() => null)) as Record<string, unknown> | null;
   const workspace = typeof input?.workspace === "string" ? input.workspace.trim() : "";
+  const destination = typeof input?.destination === "string"
+    ? input.destination.trim().toLowerCase()
+    : undefined;
+  const hasExternalRef = Object.prototype.hasOwnProperty.call(input ?? {}, "external_ref");
+  const externalRef = !hasExternalRef
+    ? undefined
+    : input?.external_ref === null || input?.external_ref === ""
+      ? null
+      : parseExternalRef(input?.external_ref);
   if (!/^[a-zA-Z0-9._-]{1,80}$/.test(workspace)) {
     return NextResponse.json({ error: "A valid workspace is required." }, { status: 400 });
+  }
+  if (destination && !/^[a-z0-9][a-z0-9._-]{1,39}$/.test(destination)) {
+    return NextResponse.json({ error: "A valid onboarding destination is required." }, { status: 400 });
+  }
+  if (input?.external_ref !== undefined && input?.external_ref !== null && input?.external_ref !== "" && !externalRef) {
+    return NextResponse.json({ error: "A valid destination reference is required." }, { status: 400 });
   }
 
   const connection = await getLatestWhatsAppConnectionForClient(workspace);
@@ -61,10 +77,12 @@ export async function POST(request: NextRequest) {
     status: connection.status,
     displayPhoneNumber: connection.displayPhoneNumber,
     verifiedName: connection.verifiedName,
+    destination,
+    externalRef,
   });
 
   if (!result.ok) {
-    return NextResponse.json({ error: result.error, step: result.step }, { status: 502 });
+    return NextResponse.json({ error: result.error, step: result.step }, { status: result.status && result.status >= 400 ? result.status : 502 });
   }
   return NextResponse.json({
     ok: true,

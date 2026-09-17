@@ -304,6 +304,7 @@ export async function recordWhatsAppCrmHandover(input: {
   organizationName: string | null;
   webhookUri: string;
   connectedAt: string;
+  state?: "delivered" | "smoke_test_pending";
 }) {
   const sql = getSql();
   const rows = await sql`
@@ -318,10 +319,41 @@ export async function recordWhatsAppCrmHandover(input: {
             organization_id: input.organizationId,
             organization_name: input.organizationName,
             connected_at: input.connectedAt,
+            state: input.state ?? "delivered",
           })}::jsonb,
           true
         ),
         updated_at = now()
+    WHERE waba_id = ${input.wabaId} AND phone_number_id = ${input.phoneNumberId}
+    RETURNING phone_number_id
+  `;
+  if (!rows[0]) throw new Error("crm_handover_connection_not_found");
+}
+
+/** Guarda el estado de provisión sin anunciar un webhook como entregado. */
+export async function recordWhatsAppCrmHandoverState(input: {
+  wabaId: string;
+  phoneNumberId: string;
+  provider: string;
+  organizationId: string | null;
+  state: "provision_pending" | "provision_failed" | "webhook_pending" | "webhook_failed" | "smoke_test_pending";
+  error?: string | null;
+}) {
+  const sql = getSql();
+  const rows = await sql`
+    UPDATE whatsapp_connections
+    SET token_metadata = jsonb_set(
+      COALESCE(token_metadata, '{}'::jsonb),
+      '{crm_handover}',
+      COALESCE(token_metadata -> 'crm_handover', '{}'::jsonb) || ${JSON.stringify({
+        provider: input.provider,
+        organization_id: input.organizationId,
+        state: input.state,
+        last_error: input.error ?? null,
+      })}::jsonb,
+      true
+    ),
+    updated_at = now()
     WHERE waba_id = ${input.wabaId} AND phone_number_id = ${input.phoneNumberId}
     RETURNING phone_number_id
   `;

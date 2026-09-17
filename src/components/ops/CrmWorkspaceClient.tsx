@@ -482,7 +482,7 @@ function CrmHandoverForm({
   const available = channel.businessTokenStored && channel.status !== "deauthorized";
   const selected = destinations?.find((destination) => destination.slug === slug) ?? null;
   const ready = Boolean(selected) && (selected?.provisionUrl
-    ? externalRef.trim().length > 0
+    ? true
     : selected?.slug === "allok" || credentialsConfirmed);
 
   const loadDestinations = useCallback(async () => {
@@ -604,13 +604,12 @@ function CrmHandoverForm({
                   id={`ref-${channel.id}`}
                   value={externalRef}
                   onChange={(event) => setExternalRef(event.target.value.trim())}
-                  required
                   autoComplete="off"
                   spellCheck={false}
-                  placeholder="organization_id"
+                  placeholder="organization_id (sólo SaaS)"
                   className="mt-2 min-h-11 w-full rounded-lg border border-[#ccd8c6] bg-white px-3 font-mono text-sm text-[#172238] outline-none transition focus:border-[#789e45] focus:ring-2 focus:ring-[#c5f04a]/25"
                 />
-                <p className="mt-2 text-[11px] leading-5 text-[#74806e]">Esta app recibe el token por HTTPS antes de que se mueva el webhook.</p>
+                <p className="mt-2 text-[11px] leading-5 text-[#74806e]">Esta app recibe el token por HTTPS antes de que se mueva el webhook. En una instancia dedicada puede quedar vacío.</p>
               </>
             )}
 

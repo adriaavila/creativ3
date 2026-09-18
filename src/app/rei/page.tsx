@@ -1,16 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { whatsappUrl } from "@/lib/contact";
-import { PLANS } from "@/lib/plans";
+import { FROM_PRICE, PLANS, registerUrl } from "@/lib/plans";
 import SiteHeader from "@/components/allok/SiteHeader";
 import SiteFooter from "@/components/allok/SiteFooter";
-import PlanCheckout from "@/components/allok/PlanCheckout";
-import { isConfigured } from "@/lib/billing/catalog";
 import MetaCostCalculator from "@/components/rei/MetaCostCalculator";
 
 const TITLE = "REI — el CRM de WhatsApp para inmobiliarias";
 const DESCRIPTION =
-  "REI es allok con el pipeline de una corredora: responde, califica y agenda visitas en el WhatsApp de siempre. Mismos planes desde US$29 al mes, y los mensajes te los cobra Meta al costo.";
+  `REI es allok con el pipeline de una corredora: responde, califica y agenda visitas en el WhatsApp de siempre. Mismos planes desde US$${FROM_PRICE} al mes, y los mensajes te los cobra Meta al costo.`;
 
 export const metadata: Metadata = {
   title: TITLE,
@@ -124,23 +122,28 @@ export default function ReiPage() {
               </div>
               <p className="display mt-4 text-[48px]">
                 ${plan.price}
-                <span className="align-baseline text-[15px] font-normal tracking-normal opacity-55"> /mes</span>
+                <span className="align-baseline text-[15px] font-normal tracking-normal opacity-55">
+                  {plan.period ? " /mes" : " una vez"}
+                </span>
               </p>
               <p className="mt-2.5 mb-5 text-[14.5px] opacity-70">{plan.line}</p>
 
-              <PlanCheckout
-                billingKey={plan.billingKey}
-                label={`Empezar con ${plan.name}`}
-                checkoutReady={isConfigured(plan.billingKey)}
-                fallbackUrl={whatsappUrl(
-                  `Hola, vengo de allok.fun. Quiero el plan ${plan.name} (US$${plan.price}/mes) para mi inmobiliaria.`,
-                )}
+              <a
+                href={
+                  plan.appPlan
+                    ? registerUrl(plan.appPlan)
+                    : whatsappUrl(
+                        `Hola, vengo de allok.fun. Quiero la implementación de allok (US$${plan.price}) para mi inmobiliaria.`,
+                      )
+                }
                 className={`allok-btn w-full !py-3.5 !text-[15px] ${
                   plan.featured
                     ? "allok-btn-sky"
                     : "border border-[rgba(16,17,18,.22)] text-[var(--ink)]"
                 }`}
-              />
+              >
+                {plan.appPlan ? `Empezar con ${plan.name}` : "Hablemos"}
+              </a>
 
               <ul
                 className={`mt-5 grid gap-2.5 border-t pt-4.5 ${

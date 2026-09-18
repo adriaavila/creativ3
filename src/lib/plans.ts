@@ -1,76 +1,113 @@
-import type { BillingKey } from "@/lib/billing/catalog";
-
 /**
  * Los planes de allok y el costo de mensajería que Meta le factura al cliente.
  *
- * Es un solo producto con tres planes. REI es el mismo CRM con el vocabulario
- * y el pipeline de una inmobiliaria; no tiene precio propio.
+ * Es un solo producto: dos planes de suscripción que se contratan solos, y una
+ * implementación de pago único para quien prefiere que se lo dejemos andando.
+ * REI es el mismo CRM con el vocabulario y el pipeline de una inmobiliaria; no
+ * tiene precio propio.
  *
  * allok cobra el software; la cuenta de WhatsApp queda a nombre del negocio y
  * Meta le cobra a él directo. Esa separación es deliberada: como Tech Provider
  * no podemos centralizar el pago de los mensajes de todos los clientes (eso
  * está reservado a los Solution Partners), y tampoco queremos — cobrar por
  * conversación es justo lo que nos diferencia de los demás CRM de WhatsApp.
+ *
+ * **Dónde se cobra.** El checkout de la suscripción NO vive acá: el botón lleva
+ * a `CRM_APP_URL/register?plan=…`, y es la app la que crea el negocio y abre
+ * Stripe en el mismo paso. Cobrar desde este sitio dejaba al cliente pagando
+ * sin que nadie le creara la cuenta (ver `docs/cobros.md`). Las claves
+ * `allok-*` del catálogo de Stripe quedan sin uso a propósito.
+ *
+ * Lo que dice cada plan sale de lo que la app realmente cierra por plan
+ * (`hasSaaSPlan(org, "pro")` en vocero-crm): pipeline, agenda, equipo y
+ * respuesta fuera de horario son de Pro. No inventar una diferencia que el
+ * código no hace.
  */
+
+/** La app del CRM: ahí se registra el negocio y ahí se cobra. */
+export const CRM_APP_URL = "https://whatsapp.allok.fun";
 
 export type Plan = {
   key: string;
-  /** Clave del catálogo de Stripe (`src/lib/billing/catalog.ts`). */
-  billingKey: BillingKey;
+  /**
+   * El plan tal como lo nombra la app (`basic` | `pro`), o `null` cuando no es
+   * una suscripción y se conversa por WhatsApp.
+   */
+  appPlan: "basic" | "pro" | null;
   name: string;
-  /** Dólares al mes, facturados por Stripe. */
+  /** Dólares. Al mes si `period` es "mes"; una sola vez si es `null`. */
   price: number;
+  period: "mes" | null;
   featured: boolean;
   line: string;
   features: string[];
+  /** Los 7 días de prueba de Pro salen de `trialDaysForPlan` en la app. */
+  trialDays?: number;
 };
+
+/** A dónde manda el botón de un plan de suscripción. */
+export function registerUrl(appPlan: "basic" | "pro"): string {
+  return `${CRM_APP_URL}/register?plan=${appPlan}`;
+}
 
 export const PLANS: Plan[] = [
   {
-    key: "starter",
-    billingKey: "allok-starter",
-    name: "Starter",
-    price: 29,
+    key: "basico",
+    appPlan: "basic",
+    name: "Básico",
+    price: 49,
+    period: "mes",
     featured: false,
     line: "Un número que deja de perder mensajes.",
     features: [
       "1 número de WhatsApp",
       "Agente 24/7 con la información de tu negocio",
       "Bandeja compartida y ficha de cliente",
-      "Respuestas fuera de horario",
-    ],
-  },
-  {
-    key: "growth",
-    billingKey: "allok-growth",
-    name: "Growth",
-    price: 59,
-    featured: true,
-    line: "Para cuando la consulta ya vale plata.",
-    features: [
-      "Todo lo de Starter",
-      "Pipeline con las etapas de tu rubro",
-      "Agenda y confirmación de citas",
-      "Atribución de anuncios Click-to-WhatsApp",
-      "Documentos e imágenes en la conversación",
+      "Plantillas y ventana de 24 h vigilada",
+      "Laboratorio: pruébalo antes de activarlo",
     ],
   },
   {
     key: "pro",
-    billingKey: "allok-pro",
+    appPlan: "pro",
     name: "Pro",
     price: 99,
-    featured: false,
-    line: "Varios números, varios asesores.",
+    period: "mes",
+    featured: true,
+    trialDays: 7,
+    line: "Para cuando la consulta ya vale plata.",
     features: [
-      "Todo lo de Growth",
-      "2 a 3 números",
-      "Reparto automático por asesor",
-      "Integraciones y API",
-      "Reportes por equipo",
+      "Todo lo de Básico",
+      "Pipeline con las etapas de tu rubro",
+      "Agenda y confirmación de citas",
+      "Tu equipo en la misma bandeja",
+      "Responde a toda hora, no solo en tu horario",
+    ],
+  },
+  {
+    key: "implementacion",
+    appPlan: null,
+    name: "Implementación",
+    price: 499,
+    period: null,
+    featured: false,
+    line: "Lo dejamos andando nosotros.",
+    features: [
+      "Cargamos tu agente: precios, servicios, políticas",
+      "Armamos tu pipeline y tus etapas contigo",
+      "Conectamos WhatsApp con Meta de punta a punta",
+      "Una semana de ajustes sobre conversaciones reales",
     ],
   },
 ];
+
+/**
+ * El "desde" de la página. Sale de PLANS a propósito: el número suelto en una
+ * frase de copy es exactamente lo que se queda viejo cuando cambia el precio.
+ */
+export const FROM_PRICE = Math.min(
+  ...PLANS.filter((p) => p.period === "mes").map((p) => p.price),
+);
 
 /**
  * Tarifas de Meta para la categoría «Rest of Latin America» (incluye

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Archivo_Black, JetBrains_Mono, Geist, Comfortaa } from "next/font/google";
+import { Archivo_Black, JetBrains_Mono, Geist } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 import { siteJsonLd } from "@/lib/seo";
@@ -33,13 +33,6 @@ const geist = Geist({
 });
 
 // Rounded geometric display face for the REI product surface. Body copy stays
-// on Geist — Comfortaa is a display voice and gets illegible below ~15px.
-const comfortaa = Comfortaa({
-  weight: ["400", "500", "600", "700"],
-  subsets: ["latin"],
-  variable: "--font-comfortaa",
-  display: "swap",
-});
 
 // El conteo sale del portafolio real, nunca de un número escrito a mano, y
 // cuenta sólo lo que está `launched`.
@@ -104,7 +97,7 @@ export default async function RootLayout({
   // defecto es el que sale en todas las páginas — y la casa habla español.
   const locale = (await headers()).get("x-allok-locale") === "en" ? "en" : "es";
   return (
-    <html lang={locale} className={`${jetbrains.variable} ${geist.variable} ${archivo.variable} ${comfortaa.variable}`}>
+    <html lang={locale} className={`${jetbrains.variable} ${geist.variable} ${archivo.variable}`}>
       <body className="relative min-h-screen overflow-x-hidden antialiased">
         <script
           type="application/ld+json"

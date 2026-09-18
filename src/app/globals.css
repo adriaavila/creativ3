@@ -785,16 +785,17 @@ html:has(.rig) ::selection { background: var(--hazard); color: var(--paper); }
   font-family: var(--font-grotesk), "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
-/* La voz de marca del producto: redonda, geométrica. Sólo titulares y
-   cifras — Comfortaa por debajo de ~15px deja de leerse. */
+/* Display por PESO y TRACKING, nunca por cara (Dawn → Dusk). Geist para cada
+   palabra del sitio; Comfortaa está retirada y no se reintroduce una cara
+   redonda de display. */
 .allok .display {
-  font-family: var(--font-comfortaa), var(--font-grotesk), sans-serif;
+  font-family: var(--font-grotesk), sans-serif;
   font-weight: 700;
   letter-spacing: -0.03em;
   line-height: 1.03;
 }
 .allok .display-sm {
-  font-family: var(--font-comfortaa), var(--font-grotesk), sans-serif;
+  font-family: var(--font-grotesk), sans-serif;
   font-weight: 600;
   letter-spacing: -0.025em;
 }
@@ -875,7 +876,7 @@ html:has(.rig) ::selection { background: var(--hazard); color: var(--paper); }
   background: var(--on-sky);
   color: var(--ink);
   border: 0;
-  font-family: var(--font-comfortaa), var(--font-grotesk), sans-serif;
+  font-family: var(--font-grotesk), sans-serif;
   font-weight: 600;
 }
 .allok-btn-sky {
@@ -1002,10 +1003,10 @@ html:has(.rig) ::selection { background: var(--hazard); color: var(--paper); }
   z-index: 1;
 }
 
-/* El titular de portada. Comfortaa a tamaño de cartel pide el tracking más
-   cerrado que aguanta antes de que las panzas se toquen. */
+/* El titular de portada, a tamaño de cartel: el tracking más cerrado que
+   aguanta Geist antes de que las letras se toquen. */
 .allok .hero {
-  font-family: var(--font-comfortaa), var(--font-grotesk), sans-serif;
+  font-family: var(--font-grotesk), sans-serif;
   font-weight: 700;
   font-size: clamp(2.75rem, 7.4vw, 6.5rem);
   line-height: 0.98;
@@ -1014,7 +1015,7 @@ html:has(.rig) ::selection { background: var(--hazard); color: var(--paper); }
 }
 /* El mismo tamaño, pero para una frase que ocupa una pantalla entera. */
 .allok .statement {
-  font-family: var(--font-comfortaa), var(--font-grotesk), sans-serif;
+  font-family: var(--font-grotesk), sans-serif;
   font-weight: 600;
   font-size: clamp(1.9rem, 4.6vw, 4rem);
   line-height: 1.08;

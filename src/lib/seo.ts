@@ -23,6 +23,11 @@ export function siteJsonLd() {
       makesOffer: [
         {
           "@type": "Offer",
+          name: "allok — CRM de WhatsApp para negocios de servicios",
+          url: `${SITE_URL}/crm`,
+        },
+        {
+          "@type": "Offer",
           name: "REI — CRM de WhatsApp para inmobiliarias",
           url: `${SITE_URL}/rei`,
         },

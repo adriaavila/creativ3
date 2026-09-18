@@ -1,18 +1,16 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { whatsappUrl } from "@/lib/contact";
-import { PLANS } from "@/lib/plans";
-import { isConfigured } from "@/lib/billing/catalog";
+import { FROM_PRICE, PLANS, registerUrl } from "@/lib/plans";
 import SiteHeader from "@/components/allok/SiteHeader";
 import SiteFooter from "@/components/allok/SiteFooter";
-import PlanCheckout from "@/components/allok/PlanCheckout";
 import Conversation from "@/components/allok/Conversation";
 import Reveal from "@/components/allok/Reveal";
 import MetaCostCalculator from "@/components/rei/MetaCostCalculator";
 
 const TITLE = "allok — el CRM de WhatsApp para negocios de servicios";
 const DESCRIPTION =
-  "allok contesta, califica y agenda en el WhatsApp de siempre de tu negocio. Mensualidad fija desde US$29: la cuenta es de tu empresa y Meta te cobra los mensajes directo, al costo.";
+  "allok contesta, califica y agenda en el WhatsApp de siempre de tu negocio. Mensualidad fija desde US$49: la cuenta es de tu empresa y Meta te cobra los mensajes directo, al costo.";
 
 export const metadata: Metadata = {
   title: TITLE,
@@ -25,7 +23,7 @@ export const metadata: Metadata = {
 const DEMO = "Hola, vengo de allok.fun. Quiero probar el agente en mi WhatsApp.";
 
 const NAV = [
-  { href: "#producto", label: "Producto" },
+  { href: "/crm", label: "El CRM" },
   { href: "#precios", label: "Precios" },
   { href: "#rubros", label: "Rubros" },
   { href: "/agencia", label: "Agencia" },
@@ -99,7 +97,7 @@ export default function Home() {
               href="#precios"
               className="allok-btn border border-[var(--hair-void)] text-[var(--on-void)]"
             >
-              Ver planes · desde US$29
+              Ver planes · desde US${FROM_PRICE}
             </Link>
           </div>
 
@@ -201,22 +199,35 @@ export default function Home() {
                 <span className="align-super text-[22px]">$</span>
                 {plan.price}
               </p>
-              <p className="mono mt-2.5 opacity-55">USD por mes</p>
+              <p className="mono mt-2.5 opacity-55">
+                {plan.period ? "USD por mes" : "USD pago único"}
+              </p>
               <p className="mt-4 mb-7 text-[15px] leading-snug opacity-70">{plan.line}</p>
 
-              <PlanCheckout
-                billingKey={plan.billingKey}
-                label={`Empezar con ${plan.name}`}
-                checkoutReady={isConfigured(plan.billingKey)}
-                fallbackUrl={whatsappUrl(
-                  `Hola, vengo de allok.fun. Quiero el plan ${plan.name} (US$${plan.price}/mes).`,
-                )}
+              {/* El cobro vive en la app: /register crea el negocio y abre
+                  Stripe en el mismo paso, así nadie paga sin quedar dado de
+                  alta. La implementación se conversa. */}
+              <a
+                href={
+                  plan.appPlan
+                    ? registerUrl(plan.appPlan)
+                    : whatsappUrl(
+                        `Hola, vengo de allok.fun. Quiero la implementación de allok (US$${plan.price}).`,
+                      )
+                }
                 className={`allok-btn w-full !py-3.5 !text-[15px] ${
                   plan.featured
                     ? "allok-btn-sky"
                     : "border border-[rgba(16,17,18,.22)] text-[var(--ink)]"
                 }`}
-              />
+              >
+                {plan.appPlan ? `Empezar con ${plan.name}` : "Hablemos"}
+              </a>
+              {plan.trialDays ? (
+                <p className="mono mt-3 text-center opacity-55">
+                  {plan.trialDays} días de prueba
+                </p>
+              ) : null}
 
               <ul
                 className={`allok-hair mt-7 grid gap-3 pt-6 ${plan.featured ? "border-[var(--hair-void)]" : ""}`}

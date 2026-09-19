@@ -5,7 +5,7 @@ import { PORTFOLIO_PROJECTS } from "@/lib/projects";
 import { SITE_URL } from "@/lib/seo";
 
 /**
- * The commercial pages (`/`, `/crm`, `/rei`, `/vocero`, `/agencia`), the
+ * The commercial pages (`/`, `/rei`, `/vocero`, `/agencia`), the
  * portfolio, plus the legal pages Meta requires for the WhatsApp
  * integration. The /ops product and checkout routes stay out on purpose —
  * they are not for search engines.
@@ -16,7 +16,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const core: MetadataRoute.Sitemap = [
     { url: `${SITE_URL}/`, lastModified: now, changeFrequency: "weekly", priority: 1 },
     { url: `${SITE_URL}/rei`, lastModified: now, changeFrequency: "weekly", priority: 0.95 },
-    { url: `${SITE_URL}/crm`, lastModified: now, changeFrequency: "monthly", priority: 0.95 },
     { url: `${SITE_URL}/vocero`, lastModified: now, changeFrequency: "monthly", priority: 0.9 },
     { url: `${SITE_URL}/agencia`, lastModified: now, changeFrequency: "monthly", priority: 0.9 },
     { url: `${SITE_URL}/portfolio`, lastModified: now, changeFrequency: "weekly", priority: 0.9 },

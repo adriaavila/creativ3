@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { whatsappUrl } from "@/lib/contact";
-import { FROM_PRICE, PLANS, registerUrl } from "@/lib/plans";
+import { FROM_PRICE, PLANS, SETUP_SERVICE, priceLabel, registerUrl } from "@/lib/plans";
 import SiteHeader from "@/components/allok/SiteHeader";
 import SiteFooter from "@/components/allok/SiteFooter";
 import Conversation from "@/components/allok/Conversation";
@@ -23,10 +23,10 @@ export const metadata: Metadata = {
 const DEMO = "Hola, vengo de allok.fun. Quiero probar el agente en mi WhatsApp.";
 
 const NAV = [
-  { href: "/crm", label: "El CRM" },
+  { href: "#producto", label: "Qué hace" },
+  { href: "#rubros", label: "Para quién" },
   { href: "#precios", label: "Precios" },
-  { href: "#rubros", label: "Rubros" },
-  { href: "/agencia", label: "Agencia" },
+  { href: "/vocero", label: "A medida" },
 ];
 
 /** Lo que hace, en el orden en que ocurre dentro de una conversación. */
@@ -158,10 +158,10 @@ export default function Home() {
           <Link href="/rei" className="text-[var(--ink)] underline underline-offset-4">
             REI
           </Link>
-          . ¿Tu operación tiene reglas propias y hay que hablar con tus
-          sistemas? Eso es{" "}
+          . ¿Tu operación tiene reglas propias, hay que hablar con tus
+          sistemas o lo quieres en tu propio servidor? Eso es{" "}
           <Link href="/vocero" className="text-[var(--ink)] underline underline-offset-4">
-            Vocero
+            allok a tu medida
           </Link>
           .
         </p>
@@ -194,26 +194,29 @@ export default function Home() {
                   <span className="mono text-[var(--lit-dawn)]">Más elegido</span>
                 ) : null}
               </div>
+              <p className="mono mt-1.5 opacity-55">{plan.kicker}</p>
 
               <p className="display mt-5 text-[52px] leading-none">
+                {plan.from ? (
+                  <span className="mr-2 align-middle text-[19px] tracking-normal opacity-60">
+                    desde
+                  </span>
+                ) : null}
                 <span className="align-super text-[22px]">$</span>
                 {plan.price}
               </p>
-              <p className="mono mt-2.5 opacity-55">
-                {plan.period ? "USD por mes" : "USD pago único"}
-              </p>
+              <p className="mono mt-2.5 opacity-55">{priceLabel(plan).unit}</p>
               <p className="mt-4 mb-7 text-[15px] leading-snug opacity-70">{plan.line}</p>
 
               {/* El cobro vive en la app: /register crea el negocio y abre
                   Stripe en el mismo paso, así nadie paga sin quedar dado de
-                  alta. La implementación se conversa. */}
+                  alta. Lo que es a medida se conversa: un precio cerrado en
+                  la web es una promesa que se rompe en la primera llamada. */}
               <a
                 href={
                   plan.appPlan
                     ? registerUrl(plan.appPlan)
-                    : whatsappUrl(
-                        `Hola, vengo de allok.fun. Quiero la implementación de allok (US$${plan.price}).`,
-                      )
+                    : whatsappUrl(plan.talkTo ?? DEMO)
                 }
                 className={`allok-btn w-full !py-3.5 !text-[15px] ${
                   plan.featured
@@ -244,6 +247,25 @@ export default function Home() {
               </ul>
             </div>
           ))}
+        </div>
+
+        <div className="allok-hair mt-12 grid items-baseline gap-x-10 gap-y-3 pt-10 md:grid-cols-[minmax(0,1fr)_auto]">
+          <div>
+            <h3 className="display-sm text-[17px]">
+              {SETUP_SERVICE.name} · ${SETUP_SERVICE.price} una vez
+            </h3>
+            <p className="mt-2 max-w-[62ch] text-[15.5px] leading-relaxed text-[var(--ink-60)] text-pretty">
+              {SETUP_SERVICE.line} Cargamos tu agente, armamos tus etapas de
+              venta y conectamos WhatsApp con Meta de punta a punta. Una semana
+              de ajustes sobre conversaciones reales.
+            </p>
+          </div>
+          <a
+            href={whatsappUrl(SETUP_SERVICE.talkTo)}
+            className="allok-btn border border-[rgba(16,17,18,.22)] text-[var(--ink)] md:justify-self-end"
+          >
+            Que lo dejen andando
+          </a>
         </div>
       </section>
 

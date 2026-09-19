@@ -1,10 +1,12 @@
 /**
  * Los planes de allok y el costo de mensajería que Meta le factura al cliente.
  *
- * Es un solo producto: dos planes de suscripción que se contratan solos, y una
- * implementación de pago único para quien prefiere que se lo dejemos andando.
- * REI es el mismo CRM con el vocabulario y el pipeline de una inmobiliaria; no
- * tiene precio propio.
+ * Tres planes y una sola idea: que nadie se quede sin respuesta. Dos se
+ * contratan solos desde la web; el tercero se conversa, porque es a medida.
+ *
+ * **Los nombres son comerciales a propósito.** Nada de "básico", "headless" ni
+ * "tier": quien compra esto tiene un taller, una clínica o una academia, y
+ * compra dejar de perder clientes, no una categoría de producto.
  *
  * allok cobra el software; la cuenta de WhatsApp queda a nombre del negocio y
  * Meta le cobra a él directo. Esa separación es deliberada: como Tech Provider
@@ -15,13 +17,15 @@
  * **Dónde se cobra.** El checkout de la suscripción NO vive acá: el botón lleva
  * a `CRM_APP_URL/register?plan=…`, y es la app la que crea el negocio y abre
  * Stripe en el mismo paso. Cobrar desde este sitio dejaba al cliente pagando
- * sin que nadie le creara la cuenta (ver `docs/cobros.md`). Las claves
- * `allok-*` del catálogo de Stripe quedan sin uso a propósito.
+ * sin que nadie le creara la cuenta (ver `docs/cobros.md`). El catálogo de
+ * Stripe de este repo es el de **agencia** — pagos únicos de proyecto — y sigue
+ * vivo para eso; la suscripción del CRM tiene su propia cuenta y su propio
+ * código dentro de la app.
  *
  * Lo que dice cada plan sale de lo que la app realmente cierra por plan
  * (`hasSaaSPlan(org, "pro")` en vocero-crm): pipeline, agenda, equipo y
- * respuesta fuera de horario son de Pro. No inventar una diferencia que el
- * código no hace.
+ * respuesta fuera de horario son de Completo. No inventar una diferencia que
+ * el código no hace.
  */
 
 /** La app del CRM: ahí se registra el negocio y ahí se cobra. */
@@ -31,18 +35,28 @@ export type Plan = {
   key: string;
   /**
    * El plan tal como lo nombra la app (`basic` | `pro`), o `null` cuando no es
-   * una suscripción y se conversa por WhatsApp.
+   * una suscripción de autoservicio y se conversa por WhatsApp.
    */
   appPlan: "basic" | "pro" | null;
   name: string;
+  /** Lo que se lee bajo el nombre, en una línea. */
+  kicker: string;
   /** Dólares. Al mes si `period` es "mes"; una sola vez si es `null`. */
   price: number;
   period: "mes" | null;
+  /**
+   * `true` cuando el precio es un piso y no una tarifa: la página escribe
+   * "desde US$499". Un plan a medida con precio cerrado es una promesa que se
+   * rompe en la primera llamada.
+   */
+  from?: boolean;
   featured: boolean;
   line: string;
   features: string[];
-  /** Los 7 días de prueba de Pro salen de `trialDaysForPlan` en la app. */
+  /** Los 7 días de prueba de Completo salen de `trialDaysForPlan` en la app. */
   trialDays?: number;
+  /** Adónde va el botón cuando no hay autoservicio. */
+  talkTo?: string;
 };
 
 /** A dónde manda el botón de un plan de suscripción. */
@@ -52,62 +66,96 @@ export function registerUrl(appPlan: "basic" | "pro"): string {
 
 export const PLANS: Plan[] = [
   {
-    key: "basico",
+    key: "esencial",
     appPlan: "basic",
-    name: "Básico",
+    name: "Esencial",
+    kicker: "Para empezar hoy",
     price: 49,
     period: "mes",
     featured: false,
-    line: "Un número que deja de perder mensajes.",
+    line: "Que nadie se quede sin respuesta.",
     features: [
-      "1 número de WhatsApp",
-      "Agente 24/7 con la información de tu negocio",
-      "Bandeja compartida y ficha de cliente",
-      "Plantillas y ventana de 24 h vigilada",
-      "Laboratorio: pruébalo antes de activarlo",
+      "Tu número de siempre, sin cambiar nada",
+      "Contesta a cualquier hora con lo que de verdad vendes",
+      "Una bandeja donde queda toda la conversación",
+      "Ficha del cliente y su historial",
+      "Pruébalo antes de soltarlo con clientes reales",
     ],
   },
   {
-    key: "pro",
+    key: "completo",
     appPlan: "pro",
-    name: "Pro",
+    name: "Completo",
+    kicker: "El que elige casi todo el mundo",
     price: 99,
     period: "mes",
     featured: true,
     trialDays: 7,
-    line: "Para cuando la consulta ya vale plata.",
+    line: "Cuando la consulta ya vale plata.",
     features: [
-      "Todo lo de Básico",
-      "Pipeline con las etapas de tu rubro",
-      "Agenda y confirmación de citas",
-      "Tu equipo en la misma bandeja",
-      "Responde a toda hora, no solo en tu horario",
+      "Todo lo de Esencial",
+      "Tus ventas en etapas, de la consulta al cliente",
+      "Agenda citas y las confirma solo",
+      "Tu equipo entero en la misma bandeja",
+      "Responde todo el día, no solo en tu horario",
     ],
   },
   {
-    key: "implementacion",
+    key: "a-medida",
     appPlan: null,
-    name: "Implementación",
+    name: "A tu medida",
+    kicker: "Tu propio servidor",
     price: 499,
-    period: null,
+    period: "mes",
+    from: true,
     featured: false,
-    line: "Lo dejamos andando nosotros.",
+    line: "Tu instalación, tu dominio, tus reglas.",
     features: [
-      "Cargamos tu agente: precios, servicios, políticas",
-      "Armamos tu pipeline y tus etapas contigo",
-      "Conectamos WhatsApp con Meta de punta a punta",
-      "Una semana de ajustes sobre conversaciones reales",
+      "allok corriendo en el servidor de tu empresa",
+      "Tu dominio y tu marca de punta a punta",
+      "Integramos con lo que ya usas",
+      "Flujos y herramientas hechos para tu operación",
+      "Canal directo con quien lo construyó",
     ],
+    talkTo:
+      "Hola, vengo de allok.fun. Quiero allok a medida, en el servidor de mi empresa.",
   },
 ];
+
+/**
+ * La puesta en marcha se suma a cualquier plan; no es un cuarto bloque.
+ * Ponerla como plan hacía elegir entre "pagar la mensualidad" y "que me lo
+ * dejen andando", que no son alternativas: son dos cosas distintas.
+ */
+export const SETUP_SERVICE = {
+  name: "Puesta en marcha",
+  price: 499,
+  line: "Lo dejamos andando nosotros, sobre cualquier plan.",
+  features: [
+    "Cargamos tu agente: precios, servicios, políticas",
+    "Armamos tus etapas de venta contigo",
+    "Conectamos WhatsApp con Meta de punta a punta",
+    "Una semana de ajustes sobre conversaciones reales",
+  ],
+  talkTo:
+    "Hola, vengo de allok.fun. Quiero la puesta en marcha de allok (US$499).",
+} as const;
 
 /**
  * El "desde" de la página. Sale de PLANS a propósito: el número suelto en una
  * frase de copy es exactamente lo que se queda viejo cuando cambia el precio.
  */
 export const FROM_PRICE = Math.min(
-  ...PLANS.filter((p) => p.period === "mes").map((p) => p.price),
+  ...PLANS.filter((p) => p.appPlan !== null && p.period === "mes").map((p) => p.price),
 );
+
+/** El texto del precio, ya resuelto. La página no decide formato. */
+export function priceLabel(plan: Plan): { amount: string; unit: string } {
+  return {
+    amount: `${plan.from ? "desde " : ""}$${plan.price}`,
+    unit: plan.period ? "USD al mes" : "USD una vez",
+  };
+}
 
 /**
  * Tarifas de Meta para la categoría «Rest of Latin America» (incluye

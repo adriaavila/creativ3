@@ -14,6 +14,9 @@ const nextConfig: NextConfig = {
       // The agency site became the portfolio; these had live inbound links.
       { source: "/projects", destination: "/work", permanent: true },
       { source: "/whatsapp", destination: "/", permanent: true },
+      // `/crm` y `/` vendían el mismo producto con dos rejillas de precio.
+      // La home es la página del producto; ésta se queda por los enlaces vivos.
+      { source: "/crm", destination: "/", permanent: true },
       { source: "/cotizar", destination: "/", permanent: true },
     ];
   },

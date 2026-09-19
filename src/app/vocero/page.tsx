@@ -20,10 +20,10 @@ const QUOTE_MESSAGE =
   "Hola, vengo de allok.fun. Quiero cotizar un Vocero a medida — te cuento la operación.";
 
 const NAV = [
-  { href: "#cuando", label: "¿Vocero o allok?" },
+  { href: "#cuando", label: "¿Es para ti?" },
   { href: "#como-trabajamos", label: "Cómo trabajamos" },
   { href: "#precios", label: "El precio" },
-  { href: "/", label: "El CRM" },
+  { href: "/", label: "Los planes" },
 ];
 
 /** Un hilo de ejemplo. Ilustra el producto — no es la conversación de nadie. */

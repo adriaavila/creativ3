@@ -24,11 +24,11 @@ export default async function GrowthOpsPage({
 }) {
   if (!isOpsAuthConfigured() || !isGrowthDatabaseConfigured()) {
     return (
-      <main className="flex min-h-dvh items-center justify-center bg-[#f7f8fa] p-6 text-[#172238]">
-        <div className="max-w-xl rounded-2xl border border-[#dfe5eb] bg-white p-8 shadow-[0_16px_40px_rgba(20,43,75,0.06)]">
-          <div className="font-mono text-[9px] font-semibold uppercase tracking-[0.18em] text-[#71842f]">Setup requerido</div>
+      <main className="flex min-h-dvh items-center justify-center bg-[var(--ground-2)] p-6 text-[var(--ink)]">
+        <div className="max-w-xl rounded-2xl border border-[var(--rule)] bg-white p-8 shadow-[var(--shadow-md)]">
+          <div className="font-mono text-[9px] font-semibold uppercase tracking-[0.18em] text-[var(--assist-ink)]">Setup requerido</div>
           <h1 className="mt-4 font-display text-4xl font-semibold leading-[0.95] tracking-[-0.04em]">Growth está listo para conectarse.</h1>
-          <p className="mt-5 text-sm leading-6 text-[#68778a]">
+          <p className="mt-5 text-sm leading-6 text-[var(--ink-60)]">
             Configura OPS_ACCESS_PASSWORD, OPS_SESSION_SECRET y DATABASE_URL, ejecuta las migraciones y vuelve a cargar esta ruta.
           </p>
         </div>

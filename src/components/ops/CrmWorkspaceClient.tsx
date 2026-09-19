@@ -107,17 +107,17 @@ export default function CrmWorkspaceClient({
   }, [leads, query]);
 
   return (
-    <main className="min-h-dvh bg-[#f7f8fa] pb-8 text-[#142b4b] lg:pb-5">
+    <main className="min-h-dvh bg-[var(--ground-2)] pb-8 text-[var(--ink)] lg:pb-5">
       <div className="mx-auto max-w-[1660px] px-4 py-6 sm:px-7 sm:py-8 lg:px-10">
         <header className="flex flex-wrap items-end justify-between gap-5">
           <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#7a8797]">{view === "connections" ? "WhatsApp" : "Pipeline"}</p>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--ink-60)]">{view === "connections" ? "WhatsApp" : "Pipeline"}</p>
             <h1 className="mt-2 text-3xl font-semibold tracking-[-0.04em] sm:text-4xl">{view === "connections" ? "Conexiones de WhatsApp" : "Oportunidades"}</h1>
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-[#68778a]">{view === "connections" ? "Conecta, entrega y supervisa cada número desde un solo lugar." : "Organiza oportunidades, próximos pasos y resultados comerciales."}</p>
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-[var(--ink-60)]">{view === "connections" ? "Conecta, entrega y supervisa cada número desde un solo lugar." : "Organiza oportunidades, próximos pasos y resultados comerciales."}</p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            {view === "workspace" && <Link href="/ops/growth?tab=leads" className="inline-flex min-h-10 items-center gap-2 rounded-lg bg-[#c5f04a] px-3 text-xs font-semibold text-[#142b4b] transition hover:bg-[#b7e63b] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#142b4b]"><Sparkles className="size-4" aria-hidden="true" /> Gestionar en Growth</Link>}
-            <button type="button" onClick={() => setView(view === "connections" ? "workspace" : "connections")} className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-[#dce3ea] bg-white px-3 text-xs font-medium text-[#526174] transition hover:border-[#b9c5d2] hover:text-[#142b4b] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3f5f7b]">
+            {view === "workspace" && <Link href="/ops/growth?tab=leads" className="inline-flex min-h-10 items-center gap-2 rounded-lg bg-[var(--assist)] px-3 text-xs font-semibold text-[var(--on-assist)] transition hover:bg-[var(--assist)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--rule)]"><Sparkles className="size-4" aria-hidden="true" /> Gestionar en Growth</Link>}
+            <button type="button" onClick={() => setView(view === "connections" ? "workspace" : "connections")} className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-[var(--rule)] bg-white px-3 text-xs font-medium text-[var(--ink-60)] transition hover:border-[var(--rule)] hover:text-[var(--ink)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--rule)]">
               <Network className="size-4" aria-hidden="true" /> {view === "connections" ? "Volver al pipeline" : "Conexiones"}
             </button>
           </div>
@@ -132,7 +132,7 @@ export default function CrmWorkspaceClient({
           </section>
         ) : (
           <>
-            <section className="mt-7 grid overflow-hidden rounded-xl border border-[#e2e7ed] bg-white sm:grid-cols-3" aria-label="Resumen del pipeline">
+            <section className="mt-7 grid overflow-hidden rounded-xl border border-[var(--rule)] bg-white sm:grid-cols-3" aria-label="Resumen del pipeline">
               <Metric label="Oportunidades" value={leads.length} detail="en el pipeline" icon={Users} />
               <Metric label="En seguimiento" value={leads.filter((item) => !["won", "lost"].includes(item.status)).length} detail="con próximo paso" icon={Sparkles} />
               <Metric label="Clientes" value={leads.filter((item) => item.status === "won").length} detail="oportunidades ganadas" icon={CheckCircle2} />
@@ -142,12 +142,12 @@ export default function CrmWorkspaceClient({
               <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
                 <div>
                   <h2 id="pipeline-heading" className="text-lg font-semibold tracking-[-0.02em]">Pipeline comercial</h2>
-                  <p className="mt-1 text-xs text-[#7a8797]">Las etapas se calculan desde el estado persistido de cada lead.</p>
+                  <p className="mt-1 text-xs text-[var(--ink-60)]">Las etapas se calculan desde el estado persistido de cada lead.</p>
                 </div>
-                <label className="flex min-h-10 w-full max-w-[280px] items-center gap-2 rounded-lg border border-[#dce3ea] bg-white px-3 text-sm shadow-[0_1px_2px_rgba(20,43,75,0.03)]">
-                  <Search className="size-4 text-[#8a96a5]" aria-hidden="true" />
+                <label className="flex min-h-10 w-full max-w-[280px] items-center gap-2 rounded-lg border border-[var(--rule)] bg-white px-3 text-sm shadow-[var(--shadow-sm)]">
+                  <Search className="size-4 text-[var(--ink-40)]" aria-hidden="true" />
                   <span className="sr-only">Buscar lead</span>
-                  <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Buscar lead…" className="w-full bg-transparent text-[#142b4b] outline-none placeholder:text-[#9aa5b2]" />
+                  <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Buscar lead…" className="w-full bg-transparent text-[var(--ink)] outline-none placeholder:text-[var(--ink-40)]" />
                 </label>
               </div>
 
@@ -168,19 +168,19 @@ export default function CrmWorkspaceClient({
             </section>
 
             {selectedLead && (
-              <section className="mt-5 overflow-hidden rounded-xl border border-[#dce3ea] bg-white shadow-[0_8px_24px_rgba(20,43,75,0.06)]" aria-label={`Detalle de ${selectedLead.businessName}`}>
-                <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#e7ebf0] px-4 py-3 sm:px-5">
+              <section className="mt-5 overflow-hidden rounded-xl border border-[var(--rule)] bg-white shadow-[var(--shadow-md)]" aria-label={`Detalle de ${selectedLead.businessName}`}>
+                <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--hairline)] px-4 py-3 sm:px-5">
                   <div className="flex items-center gap-3">
-                    <span className="flex size-9 items-center justify-center rounded-full bg-[#e9eef3] text-xs font-semibold text-[#526d87]">{initials(selectedLead.businessName)}</span>
-                    <div><h2 className="text-sm font-semibold text-[#172238]">{selectedLead.businessName}</h2><p className="mt-0.5 text-[11px] text-[#7a8797]">{statusLabel(selectedLead.status)} · oportunidad comercial</p></div>
+                    <span className="flex size-9 items-center justify-center rounded-full bg-[var(--ground-4)] text-xs font-semibold text-[var(--ink-60)]">{initials(selectedLead.businessName)}</span>
+                    <div><h2 className="text-sm font-semibold text-[var(--ink)]">{selectedLead.businessName}</h2><p className="mt-0.5 text-[11px] text-[var(--ink-60)]">{statusLabel(selectedLead.status)} · oportunidad comercial</p></div>
                   </div>
-                  <button type="button" onClick={() => setSelectedLeadId(null)} className="inline-flex min-h-9 items-center gap-1 rounded-lg border border-[#dce3ea] px-3 text-xs font-medium text-[#526174] hover:border-[#b9c5d2] hover:text-[#142b4b] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3f5f7b]"><ChevronDown className="size-4" /> Cerrar detalle</button>
+                  <button type="button" onClick={() => setSelectedLeadId(null)} className="inline-flex min-h-9 items-center gap-1 rounded-lg border border-[var(--rule)] px-3 text-xs font-medium text-[var(--ink-60)] hover:border-[var(--rule)] hover:text-[var(--ink)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--rule)]"><ChevronDown className="size-4" /> Cerrar detalle</button>
                 </div>
                 <div className="grid gap-5 p-5 sm:grid-cols-3 sm:p-6">
                   <DataPoint label="Estado" value={statusLabel(selectedLead.status)} />
                   <DataPoint label="Score" value={String(selectedLead.leadScore)} />
                   <DataPoint label="Próxima acción" value={selectedLead.nextAction ?? "Definir en Growth"} />
-                  <div className="sm:col-span-3"><Link href="/ops/growth?tab=leads" className="inline-flex min-h-10 items-center gap-2 rounded-lg bg-[#172238] px-4 text-xs font-semibold text-white transition hover:bg-[#263b54]">Abrir oportunidad en Growth <ArrowRight className="size-4" /></Link></div>
+                  <div className="sm:col-span-3"><Link href="/ops/growth?tab=leads" className="on-ink inline-flex min-h-10 items-center gap-2 rounded-lg bg-[var(--ink-fill)] px-4 text-xs font-semibold text-white transition hover:bg-[var(--ink-fill)]">Abrir oportunidad en Growth <ArrowRight className="size-4" /></Link></div>
                 </div>
               </section>
             )}
@@ -193,26 +193,26 @@ export default function CrmWorkspaceClient({
 
 function Metric({ label, value, detail, icon: Icon }: { label: string; value: number; detail: string; icon: typeof Users }) {
   return (
-    <div className="border-b border-[#e7ebf0] p-4 last:border-b-0 sm:border-b-0 sm:border-r sm:p-5 sm:last:border-r-0">
-      <div className="flex items-center justify-between gap-3"><span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#7a8797]">{label}</span><Icon className="size-4 text-[#526d87]" aria-hidden="true" /></div>
-      <div className="mt-3 text-2xl font-semibold tracking-[-0.03em] tabular-nums text-[#172238]">{value}</div>
-      <p className="mt-1 text-xs text-[#7a8797]">{detail}</p>
+    <div className="border-b border-[var(--hairline)] p-4 last:border-b-0 sm:border-b-0 sm:border-r sm:p-5 sm:last:border-r-0">
+      <div className="flex items-center justify-between gap-3"><span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--ink-60)]">{label}</span><Icon className="size-4 text-[var(--ink-60)]" aria-hidden="true" /></div>
+      <div className="mt-3 text-2xl font-semibold tracking-[-0.03em] tabular-nums text-[var(--ink)]">{value}</div>
+      <p className="mt-1 text-xs text-[var(--ink-60)]">{detail}</p>
     </div>
   );
 }
 
 function StageColumn({ label, statuses, leads, selectedId, onSelect }: { label: string; statuses: GrowthLead["status"][]; leads: GrowthLead[]; selectedId: string | null; onSelect: (id: string) => void }) {
   return (
-    <section className="flex min-h-[540px] flex-col rounded-xl border border-[#e1e6ec] bg-white" aria-labelledby={`stage-${label}`}>
-      <header className="flex items-center justify-between border-b border-[#e7ebf0] px-3.5 py-3">
-        <h3 id={`stage-${label}`} className="text-sm font-semibold text-[#172238]">{label}</h3>
-        <span className="rounded-full bg-[#f1f4f7] px-2 py-0.5 text-[11px] font-medium text-[#7a8797]">{leads.length}</span>
+    <section className="flex min-h-[540px] flex-col rounded-xl border border-[var(--rule)] bg-white" aria-labelledby={`stage-${label}`}>
+      <header className="flex items-center justify-between border-b border-[var(--hairline)] px-3.5 py-3">
+        <h3 id={`stage-${label}`} className="text-sm font-semibold text-[var(--ink)]">{label}</h3>
+        <span className="rounded-full bg-[var(--ground-3)] px-2 py-0.5 text-[11px] font-medium text-[var(--ink-60)]">{leads.length}</span>
       </header>
       <div className="flex-1 space-y-2.5 p-2.5">
-        {leads.length === 0 && <p className="rounded-lg border border-dashed border-[#dfe5eb] px-3 py-8 text-center text-xs leading-5 text-[#8a96a5]">No hay leads en esta etapa.</p>}
+        {leads.length === 0 && <p className="rounded-lg border border-dashed border-[var(--rule)] px-3 py-8 text-center text-xs leading-5 text-[var(--ink-40)]">No hay leads en esta etapa.</p>}
         {leads.map((lead) => <LeadCard key={lead.id} lead={lead} active={lead.id === selectedId} onSelect={() => onSelect(lead.id)} />)}
       </div>
-      <p className="border-t border-[#edf0f3] px-3 py-2.5 text-[10px] text-[#8a96a5]">{statuses.length} estados · datos persistidos</p>
+      <p className="border-t border-[var(--hairline)] px-3 py-2.5 text-[10px] text-[var(--ink-40)]">{statuses.length} estados · datos persistidos</p>
     </section>
   );
 }
@@ -220,11 +220,11 @@ function StageColumn({ label, statuses, leads, selectedId, onSelect }: { label: 
 function LeadCard({ lead, active, onSelect }: { lead: GrowthLead; active: boolean; onSelect: () => void }) {
   const value = formatCurrency(lead.potentialValue);
   return (
-    <button type="button" onClick={onSelect} aria-pressed={active} className={`w-full rounded-lg border p-3 text-left transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-[#3f5f7b] ${active ? "border-[#3f5f7b] bg-[#f1f5f9] shadow-[0_4px_12px_rgba(63,95,123,0.12)]" : "border-[#e5e9ee] bg-white hover:border-[#b9c5d2] hover:shadow-[0_4px_12px_rgba(20,43,75,0.06)]"}`}>
-      <span className="flex items-start gap-2.5"><span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-[#e9eef3] text-[11px] font-semibold text-[#526d87]">{initials(lead.businessName)}</span><span className="min-w-0 flex-1"><strong className="block truncate text-[13px] font-semibold text-[#172238]">{lead.businessName}</strong><span className="mt-0.5 block truncate text-[11px] text-[#7a8797]">{lead.vertical || "Sin categoría"}</span></span></span>
-      <span className="mt-3 flex items-center justify-between gap-2 text-[10px]"><span className="rounded-full bg-[#f1f4f7] px-2 py-0.5 text-[#526174]">{statusLabel(lead.status)}</span><span className="font-medium text-[#7a8797]">Score {lead.leadScore}</span></span>
-      <span className="mt-3 flex items-center justify-between gap-2 border-t border-[#edf0f3] pt-2.5 text-[10px] text-[#8a96a5]"><span>{lead.nextAction ?? "Sin próximo paso"}</span><span>{formatDate(lead.lastContactedAt || lead.createdAt)}</span></span>
-      {value && <span className="mt-1 block text-right text-[11px] font-medium text-[#526174]">{value} potencial</span>}
+    <button type="button" onClick={onSelect} aria-pressed={active} className={`w-full rounded-lg border p-3 text-left transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-[var(--rule)] ${active ? "border-[var(--rule)] bg-[var(--ground-3)] shadow-[var(--shadow-md)]" : "border-[var(--hairline)] bg-white hover:border-[var(--rule)] hover:shadow-[var(--shadow-md)]"}`}>
+      <span className="flex items-start gap-2.5"><span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-[var(--ground-4)] text-[11px] font-semibold text-[var(--ink-60)]">{initials(lead.businessName)}</span><span className="min-w-0 flex-1"><strong className="block truncate text-[13px] font-semibold text-[var(--ink)]">{lead.businessName}</strong><span className="mt-0.5 block truncate text-[11px] text-[var(--ink-60)]">{lead.vertical || "Sin categoría"}</span></span></span>
+      <span className="mt-3 flex items-center justify-between gap-2 text-[10px]"><span className="rounded-full bg-[var(--ground-3)] px-2 py-0.5 text-[var(--ink-60)]">{statusLabel(lead.status)}</span><span className="font-medium text-[var(--ink-60)]">Score {lead.leadScore}</span></span>
+      <span className="mt-3 flex items-center justify-between gap-2 border-t border-[var(--hairline)] pt-2.5 text-[10px] text-[var(--ink-40)]"><span>{lead.nextAction ?? "Sin próximo paso"}</span><span>{formatDate(lead.lastContactedAt || lead.createdAt)}</span></span>
+      {value && <span className="mt-1 block text-right text-[11px] font-medium text-[var(--ink-60)]">{value} potencial</span>}
     </button>
   );
 }
@@ -294,20 +294,20 @@ function ConnectionsPanel({ initialChannels, onChannelsChange }: { initialChanne
 
   return (
     <div className="space-y-5">
-      <section className="relative overflow-hidden rounded-2xl bg-[#111b2d] text-white shadow-[0_24px_60px_rgba(20,43,75,0.16)]" aria-labelledby="connections-heading">
-        <div className="pointer-events-none absolute -right-20 -top-24 size-72 rounded-full bg-[#c5f04a]/10 blur-3xl" />
+      <section className="on-ink relative overflow-hidden rounded-2xl bg-[var(--ink-fill)] text-white shadow-[var(--shadow-pop)]" aria-labelledby="connections-heading">
+        <div className="pointer-events-none absolute -right-20 -top-24 size-72 rounded-full bg-[var(--assist-dim)] blur-3xl" />
         <div className="relative grid gap-8 p-6 sm:p-8 lg:grid-cols-[minmax(0,1.35fr)_minmax(310px,.65fr)] lg:p-9">
           <div className="flex flex-col items-start">
-            <span className="inline-flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#c5f04a]"><span className="size-1.5 rounded-full bg-[#c5f04a]" /> Control operativo</span>
+            <span className="inline-flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--assist-ink)]"><span className="size-1.5 rounded-full bg-[var(--assist)]" /> Control operativo</span>
             <h2 id="connections-heading" className="mt-5 max-w-xl text-3xl font-semibold leading-[1.05] tracking-[-0.045em] text-balance sm:text-4xl">Cada número, listo para su próximo paso.</h2>
-            <p className="mt-4 max-w-xl text-sm leading-6 text-[#aebbd0]">Conecta en Allok, decide dónde responderá y valida la entrega sin perder de vista credenciales ni estado.</p>
-            <Link href="/embedded-whatsapp" className="mt-7 inline-flex min-h-11 items-center gap-2 rounded-lg bg-[#c5f04a] px-4 text-sm font-semibold text-[#142b4b] transition duration-200 hover:-translate-y-0.5 hover:bg-[#d2f66e] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white active:translate-y-0"><Plus className="size-4" aria-hidden="true" /> Conectar otro número</Link>
+            <p className="mt-4 max-w-xl text-sm leading-6 text-[var(--ink-40)]">Conecta en Allok, decide dónde responderá y valida la entrega sin perder de vista credenciales ni estado.</p>
+            <Link href="/embedded-whatsapp" className="mt-7 inline-flex min-h-11 items-center gap-2 rounded-lg bg-[var(--assist)] px-4 text-sm font-semibold text-[var(--on-assist)] transition duration-200 hover:-translate-y-0.5 hover:bg-[var(--assist)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white active:translate-y-0"><Plus className="size-4" aria-hidden="true" /> Conectar otro número</Link>
           </div>
 
           <div className="rounded-xl border border-white/10 bg-white/[0.055] p-5 shadow-inner shadow-white/[0.03]">
             <div className="flex items-start justify-between gap-4">
-              <div><p className="text-xs font-medium text-[#aebbd0]">Salud del inventario</p><p className="mt-2 text-4xl font-semibold tracking-[-0.05em] tabular-nums">{operationalCount}<span className="ml-1 text-lg font-medium text-white/40">/{officialChannels.length}</span></p></div>
-              <span className={`inline-flex items-center gap-2 rounded-md px-2.5 py-1.5 text-[11px] font-semibold ${attentionCount ? "bg-[#fff0d8] text-[#7a511a]" : "bg-[#c5f04a] text-[#20300f]"}`}><span className={`size-1.5 rounded-full ${attentionCount ? "bg-[#c7842b]" : "bg-[#527526]"}`} />{attentionCount ? `${attentionCount} por revisar` : "Todo operativo"}</span>
+              <div><p className="text-xs font-medium text-[var(--ink-40)]">Salud del inventario</p><p className="mt-2 text-4xl font-semibold tracking-[-0.05em] tabular-nums">{operationalCount}<span className="ml-1 text-lg font-medium text-white/40">/{officialChannels.length}</span></p></div>
+              <span className={`inline-flex items-center gap-2 rounded-md px-2.5 py-1.5 text-[11px] font-semibold ${attentionCount ? "bg-[var(--warn-soft)] text-[var(--status-warn)]" : "bg-[var(--assist)] text-[var(--on-assist)]"}`}><span className={`size-1.5 rounded-full ${attentionCount ? "bg-[var(--warn-mid)]" : "bg-[var(--assist-soft)]"}`} />{attentionCount ? `${attentionCount} por revisar` : "Todo operativo"}</span>
             </div>
             <dl className="mt-6 grid grid-cols-3 border-t border-white/10 pt-5">
               <div><dt className="text-[10px] uppercase tracking-[0.12em] text-white/45">Oficiales</dt><dd className="mt-1.5 text-lg font-semibold tabular-nums">{officialChannels.length}</dd></div>
@@ -318,36 +318,36 @@ function ConnectionsPanel({ initialChannels, onChannelsChange }: { initialChanne
         </div>
       </section>
 
-      <section className="overflow-hidden rounded-2xl border border-[#dfe5eb] bg-white" aria-label="Proceso de onboarding">
-        <div className="border-b border-[#e8edf2] px-5 py-4 sm:px-7"><h3 className="text-sm font-semibold text-[#172238]">Proceso de onboarding</h3><p className="mt-1 text-xs text-[#708096]">El mismo recorrido para cada cliente, sin saltos ni secretos sueltos.</p></div>
+      <section className="overflow-hidden rounded-2xl border border-[var(--rule)] bg-white" aria-label="Proceso de onboarding">
+        <div className="border-b border-[var(--hairline)] px-5 py-4 sm:px-7"><h3 className="text-sm font-semibold text-[var(--ink)]">Proceso de onboarding</h3><p className="mt-1 text-xs text-[var(--ink-60)]">El mismo recorrido para cada cliente, sin saltos ni secretos sueltos.</p></div>
         <ol className="grid sm:grid-cols-2 xl:grid-cols-4">
           {[
             ["01", "Conectar", "Meta autoriza el número"],
             ["02", "Asignar", "Confirma cliente y token"],
             ["03", "Entregar", "Allok o CRM externo"],
             ["04", "Probar", "Valida un mensaje real"],
-          ].map(([number, title, detail], index) => <li key={number} className="group relative border-b border-[#e8edf2] px-5 py-4 last:border-b-0 sm:px-7 sm:[&:nth-child(odd)]:border-r xl:border-b-0 xl:border-r xl:last:border-r-0"><div className="flex items-start gap-3"><span className="font-mono text-[10px] font-semibold text-[#8cae2b]">{number}</span><div><p className="text-sm font-semibold text-[#263b54]">{title}</p><p className="mt-1 text-xs text-[#7a8797]">{detail}</p></div></div>{index < 3 && <ArrowRight className="absolute right-3 top-1/2 hidden size-3.5 -translate-y-1/2 text-[#b6c0cb] xl:block" />}</li>)}
+          ].map(([number, title, detail], index) => <li key={number} className="group relative border-b border-[var(--hairline)] px-5 py-4 last:border-b-0 sm:px-7 sm:[&:nth-child(odd)]:border-r xl:border-b-0 xl:border-r xl:last:border-r-0"><div className="flex items-start gap-3"><span className="font-mono text-[10px] font-semibold text-[var(--assist-ink)]">{number}</span><div><p className="text-sm font-semibold text-[var(--ink)]">{title}</p><p className="mt-1 text-xs text-[var(--ink-60)]">{detail}</p></div></div>{index < 3 && <ArrowRight className="absolute right-3 top-1/2 hidden size-3.5 -translate-y-1/2 text-[var(--ink-40)] xl:block" />}</li>)}
         </ol>
       </section>
 
-      <section className="rounded-2xl border border-[#dfe5eb] bg-white p-5 sm:p-7" aria-labelledby="inventory-heading">
+      <section className="rounded-2xl border border-[var(--rule)] bg-white p-5 sm:p-7" aria-labelledby="inventory-heading">
         <div className="mb-5 flex flex-wrap items-end justify-between gap-4">
-          <div><p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#8a96a5]">Inventario oficial</p><h3 id="inventory-heading" className="mt-2 text-xl font-semibold tracking-[-0.03em] text-[#172238]">Números y próximos pasos</h3><p className="mt-1.5 text-sm text-[#68778a]">Primero lo operativo; los IDs y credenciales quedan dentro de cada conexión.</p></div>
-          <span className="inline-flex items-center gap-2 rounded-md bg-[#f0f4f7] px-3 py-2 text-xs font-semibold text-[#526174]"><Smartphone className="size-3.5" /> {coexistenceChannels.length} {coexistenceChannels.length === 1 ? "número" : "números"}</span>
+          <div><p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--ink-40)]">Inventario oficial</p><h3 id="inventory-heading" className="mt-2 text-xl font-semibold tracking-[-0.03em] text-[var(--ink)]">Números y próximos pasos</h3><p className="mt-1.5 text-sm text-[var(--ink-60)]">Primero lo operativo; los IDs y credenciales quedan dentro de cada conexión.</p></div>
+          <span className="inline-flex items-center gap-2 rounded-md bg-[var(--ground-3)] px-3 py-2 text-xs font-semibold text-[var(--ink-60)]"><Smartphone className="size-3.5" /> {coexistenceChannels.length} {coexistenceChannels.length === 1 ? "número" : "números"}</span>
         </div>
 
         {coexistenceChannels.length === 0 ? (
-          <div className="rounded-xl border border-dashed border-[#ccd5df] bg-[#fafbfc] px-5 py-12 text-center"><span className="mx-auto flex size-11 items-center justify-center rounded-xl bg-[#eef2f5]"><Smartphone className="size-5 text-[#61748a]" /></span><p className="mt-4 text-sm font-semibold text-[#263b54]">Todavía no hay números conectados.</p><p className="mx-auto mt-1 max-w-sm text-xs leading-5 text-[#7a8797]">Conecta el primero y aquí verás su progreso, destino y siguiente acción.</p><Link href="/embedded-whatsapp" className="mt-5 inline-flex min-h-10 items-center gap-2 rounded-lg bg-[#172238] px-4 text-xs font-semibold text-white"><Plus className="size-4" /> Conectar número</Link></div>
+          <div className="rounded-xl border border-dashed border-[var(--rule)] bg-[var(--ground-2)] px-5 py-12 text-center"><span className="mx-auto flex size-11 items-center justify-center rounded-xl bg-[var(--ground-3)]"><Smartphone className="size-5 text-[var(--ink-60)]" /></span><p className="mt-4 text-sm font-semibold text-[var(--ink)]">Todavía no hay números conectados.</p><p className="mx-auto mt-1 max-w-sm text-xs leading-5 text-[var(--ink-60)]">Conecta el primero y aquí verás su progreso, destino y siguiente acción.</p><Link href="/embedded-whatsapp" className="on-ink mt-5 inline-flex min-h-10 items-center gap-2 rounded-lg bg-[var(--ink-fill)] px-4 text-xs font-semibold text-white"><Plus className="size-4" /> Conectar número</Link></div>
         ) : (
           <div className="space-y-4">{coexistenceChannels.map((channel) => <CoexistenceNumberCard key={channel.id} channel={channel} onChange={updateChannel} />)}</div>
         )}
 
-        {otherChannels.length > 0 && <div className="mt-8 border-t border-[#e7ebf0] pt-6"><div className="mb-3"><h3 className="text-sm font-semibold text-[#172238]">Otros canales</h3><p className="mt-1 text-xs text-[#7a8797]">Cloud API puro y sesiones secundarias.</p></div>{otherChannels.map((channel) => <ChannelConnectionRow key={channel.id} channel={channel} onChange={updateChannel} />)}</div>}
+        {otherChannels.length > 0 && <div className="mt-8 border-t border-[var(--hairline)] pt-6"><div className="mb-3"><h3 className="text-sm font-semibold text-[var(--ink)]">Otros canales</h3><p className="mt-1 text-xs text-[var(--ink-60)]">Cloud API puro y sesiones secundarias.</p></div>{otherChannels.map((channel) => <ChannelConnectionRow key={channel.id} channel={channel} onChange={updateChannel} />)}</div>}
       </section>
 
-      <details className="rounded-xl border border-[#e5dfc8] bg-[#fffdf5]">
-        <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between gap-3 px-4 text-sm font-semibold text-[#57451e]"><span className="flex items-center gap-3"><ShieldAlert className="size-4 text-[#8b6b28]" aria-hidden="true" /> Canal no oficial · WAHA</span><span className="text-[11px] font-medium text-[#8b7950]">Configuración avanzada</span></summary>
-        <div className="border-t border-[#eee7d2] p-4"><p className="text-xs leading-5 text-[#806b3b]">Úsalo sólo como canal secundario: puede implicar riesgo de bloqueo del número.</p><label className="mt-4 block text-xs text-[#68778a]">Nombre de sesión<input value={session} onChange={(event) => setSession(event.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "-"))} className="mt-2 min-h-11 w-full rounded-lg border border-[#ddd6bc] bg-white px-3 text-sm text-[#172238] outline-none focus:border-[#3f5f7b]" /></label><TapButton type="button" onClick={() => void createWahaSession()} disabled={creating || session.length < 2} className="mt-3 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg border border-[#b9c5d2] bg-white text-sm font-medium text-[#526174] transition hover:border-[#3f5f7b] hover:text-[#142b4b] disabled:opacity-50">{creating ? <Loader2 className="size-4 animate-spin" /> : <Plus className="size-4" />} {pairingSession ? "Reiniciar sesión" : "Crear sesión WAHA"}</TapButton>{pairingSession && <p className="mt-3 text-xs text-[#68778a]">Sesión <span className="font-medium text-[#172238]">{pairingSession}</span> · espera el QR.</p>}{qr && <div className="mt-4 rounded-lg border border-[#e5e9ee] bg-white p-3"><Image src={`data:${qr.mimetype};base64,${qr.data}`} alt="Código QR para conectar WhatsApp a WAHA" width={260} height={260} unoptimized className="mx-auto h-auto w-full max-w-[220px]" /></div>}{error && <p className="mt-4 rounded-lg border border-[#f2caca] bg-[#fff5f5] px-3 py-2.5 text-sm text-[#9f4141]" role="alert">{error}</p>}</div>
+      <details className="rounded-xl border border-[var(--warn-line)] bg-[var(--warn-soft)]">
+        <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between gap-3 px-4 text-sm font-semibold text-[var(--status-warn)]"><span className="flex items-center gap-3"><ShieldAlert className="size-4 text-[var(--status-warn)]" aria-hidden="true" /> Canal no oficial · WAHA</span><span className="text-[11px] font-medium text-[var(--status-warn)]">Configuración avanzada</span></summary>
+        <div className="border-t border-[var(--warn-line)] p-4"><p className="text-xs leading-5 text-[var(--status-warn)]">Úsalo sólo como canal secundario: puede implicar riesgo de bloqueo del número.</p><label className="mt-4 block text-xs text-[var(--ink-60)]">Nombre de sesión<input value={session} onChange={(event) => setSession(event.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "-"))} className="mt-2 min-h-11 w-full rounded-lg border border-[var(--warn-line)] bg-white px-3 text-sm text-[var(--ink)] outline-none focus:border-[var(--rule)]" /></label><TapButton type="button" onClick={() => void createWahaSession()} disabled={creating || session.length < 2} className="mt-3 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg border border-[var(--rule)] bg-white text-sm font-medium text-[var(--ink-60)] transition hover:border-[var(--rule)] hover:text-[var(--ink)] disabled:opacity-50">{creating ? <Loader2 className="size-4 animate-spin" /> : <Plus className="size-4" />} {pairingSession ? "Reiniciar sesión" : "Crear sesión WAHA"}</TapButton>{pairingSession && <p className="mt-3 text-xs text-[var(--ink-60)]">Sesión <span className="font-medium text-[var(--ink)]">{pairingSession}</span> · espera el QR.</p>}{qr && <div className="mt-4 rounded-lg border border-[var(--hairline)] bg-white p-3"><Image src={`data:${qr.mimetype};base64,${qr.data}`} alt="Código QR para conectar WhatsApp a WAHA" width={260} height={260} unoptimized className="mx-auto h-auto w-full max-w-[220px]" /></div>}{error && <p className="mt-4 rounded-lg border border-[var(--risk-line)] bg-[var(--risk-soft)] px-3 py-2.5 text-sm text-[var(--status-risk)]" role="alert">{error}</p>}</div>
       </details>
     </div>
   );
@@ -368,29 +368,29 @@ function CoexistenceNumberCard({ channel, onChange }: { channel: CrmChannel; onC
   ] as const;
 
   return (
-    <article className="overflow-hidden rounded-xl border border-[#d9e1e8] bg-white shadow-[0_12px_32px_rgba(20,43,75,0.06)] transition duration-200 hover:border-[#c4cfd9] hover:shadow-[0_16px_42px_rgba(20,43,75,0.09)]">
+    <article className="overflow-hidden rounded-xl border border-[var(--rule)] bg-white shadow-[var(--shadow-md)] transition duration-200 hover:border-[var(--rule)] hover:shadow-[var(--shadow-md)]">
       <div className="p-5 sm:p-6">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="flex min-w-0 items-center gap-3.5">
-            <span className="relative flex size-12 shrink-0 items-center justify-center rounded-xl bg-[#172238] text-white shadow-[0_8px_20px_rgba(23,34,56,0.18)]"><Smartphone className="size-5" /><span className={`absolute -bottom-1 -right-1 size-3.5 rounded-full border-2 border-white ${active ? "bg-[#a8d13f]" : "bg-[#d09a54]"}`} /></span>
-            <div className="min-w-0"><p className="truncate font-mono text-lg font-semibold tracking-[-0.02em] tabular-nums text-[#172238]">{channel.phone ?? "Número no disponible"}</p><p className="mt-1 truncate text-xs text-[#708096]">{channel.verifiedName ?? "Nombre comercial no disponible"} · {channel.workspace ?? "Sin cliente asignado"}</p></div>
+            <span className="on-ink relative flex size-12 shrink-0 items-center justify-center rounded-xl bg-[var(--ink-fill)] text-white shadow-[var(--shadow-md)]"><Smartphone className="size-5" /><span className={`absolute -bottom-1 -right-1 size-3.5 rounded-full border-2 border-white ${active ? "bg-[var(--assist)]" : "bg-[var(--warn-mid)]"}`} /></span>
+            <div className="min-w-0"><p className="truncate font-mono text-lg font-semibold tracking-[-0.02em] tabular-nums text-[var(--ink)]">{channel.phone ?? "Número no disponible"}</p><p className="mt-1 truncate text-xs text-[var(--ink-60)]">{channel.verifiedName ?? "Nombre comercial no disponible"} · {channel.workspace ?? "Sin cliente asignado"}</p></div>
           </div>
-          <span className={`inline-flex items-center gap-2 rounded-md px-2.5 py-1.5 text-[11px] font-semibold ${ready ? "bg-[#edf7df] text-[#527526]" : active ? "bg-[#edf2f6] text-[#526174]" : "bg-[#fff1df] text-[#86591f]"}`}><span className={`size-1.5 rounded-full ${ready ? "bg-[#83aa29]" : active ? "bg-[#7f91a6]" : "bg-[#c7842b]"}`} />{crmChannelStatusLabel(channel)}</span>
+          <span className={`inline-flex items-center gap-2 rounded-md px-2.5 py-1.5 text-[11px] font-semibold ${ready ? "bg-[var(--assist-soft)] text-[var(--assist-ink)]" : active ? "bg-[var(--ground-3)] text-[var(--ink-60)]" : "bg-[var(--warn-soft)] text-[var(--status-warn)]"}`}><span className={`size-1.5 rounded-full ${ready ? "bg-[var(--assist)]" : active ? "bg-[var(--ink-40)]" : "bg-[var(--warn-mid)]"}`} />{crmChannelStatusLabel(channel)}</span>
         </div>
 
         <div className="mt-6 grid gap-5 lg:grid-cols-[minmax(0,1.1fr)_minmax(200px,.7fr)] lg:items-end">
-          <div><p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#8a96a5]">Estado actual</p><p className="mt-2 text-base font-semibold text-[#263b54]">{nextStep.label}</p><p className="mt-1 max-w-lg text-xs leading-5 text-[#708096]">{nextStep.detail}</p></div>
-          <div><p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#8a96a5]">Responde desde</p><p className="mt-2 text-sm font-semibold text-[#263b54]">{channel.crmConnectedAt ? channel.crmOrganizationName ?? "CRM externo" : "Sin entregar"}</p><p className="mt-1 text-xs text-[#8a96a5]">{channel.crmConnectedAt ? "Webhook verificado" : "Elegí a qué CRM entregarlo"}</p></div>
+          <div><p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--ink-40)]">Estado actual</p><p className="mt-2 text-base font-semibold text-[var(--ink)]">{nextStep.label}</p><p className="mt-1 max-w-lg text-xs leading-5 text-[var(--ink-60)]">{nextStep.detail}</p></div>
+          <div><p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--ink-40)]">Responde desde</p><p className="mt-2 text-sm font-semibold text-[var(--ink)]">{channel.crmConnectedAt ? channel.crmOrganizationName ?? "CRM externo" : "Sin entregar"}</p><p className="mt-1 text-xs text-[var(--ink-40)]">{channel.crmConnectedAt ? "Webhook verificado" : "Elegí a qué CRM entregarlo"}</p></div>
         </div>
 
-        <ol className="mt-6 grid grid-cols-4 overflow-hidden rounded-lg border border-[#e3e8ed] bg-[#f8fafb]" aria-label="Progreso de la conexión">
-          {journey.map(([label, complete], index) => <li key={label} className="relative flex min-w-0 items-center gap-2 border-r border-[#e3e8ed] px-2.5 py-3 last:border-r-0 sm:px-3.5"><span className={`flex size-5 shrink-0 items-center justify-center rounded-full text-[9px] font-bold ${complete ? "bg-[#c5f04a] text-[#263710]" : "border border-[#cbd4dd] bg-white text-[#8a96a5]"}`}>{complete ? <CheckCircle2 className="size-3.5" /> : index + 1}</span><span className={`truncate text-[10px] font-semibold sm:text-[11px] ${complete ? "text-[#41512d]" : "text-[#8a96a5]"}`}>{label}</span></li>)}
+        <ol className="mt-6 grid grid-cols-4 overflow-hidden rounded-lg border border-[var(--hairline)] bg-[var(--info-soft)]" aria-label="Progreso de la conexión">
+          {journey.map(([label, complete], index) => <li key={label} className="relative flex min-w-0 items-center gap-2 border-r border-[var(--hairline)] px-2.5 py-3 last:border-r-0 sm:px-3.5"><span className={`flex size-5 shrink-0 items-center justify-center rounded-full text-[9px] font-bold ${complete ? "bg-[var(--assist)] text-[var(--on-assist)]" : "border border-[var(--rule)] bg-white text-[var(--ink-40)]"}`}>{complete ? <CheckCircle2 className="size-3.5" /> : index + 1}</span><span className={`truncate text-[10px] font-semibold sm:text-[11px] ${complete ? "text-[var(--on-assist)]" : "text-[var(--ink-40)]"}`}>{label}</span></li>)}
         </ol>
       </div>
 
-      <details className="group border-t border-[#edf0f3] bg-[#fafbfc]">
-        <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 px-5 text-xs font-semibold text-[#526174] sm:px-6"><span>Detalles técnicos</span><span className="flex items-center gap-1.5 text-[11px] font-medium text-[#8a96a5]">IDs, calidad y sincronización <ChevronDown className="size-3.5 transition group-open:rotate-180" /></span></summary>
-        <div className="grid gap-4 border-t border-[#edf0f3] px-5 py-4 text-xs sm:grid-cols-2 sm:px-6 lg:grid-cols-4">
+      <details className="group border-t border-[var(--hairline)] bg-[var(--ground-2)]">
+        <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 px-5 text-xs font-semibold text-[var(--ink-60)] sm:px-6"><span>Detalles técnicos</span><span className="flex items-center gap-1.5 text-[11px] font-medium text-[var(--ink-40)]">IDs, calidad y sincronización <ChevronDown className="size-3.5 transition group-open:rotate-180" /></span></summary>
+        <div className="grid gap-4 border-t border-[var(--hairline)] px-5 py-4 text-xs sm:grid-cols-2 sm:px-6 lg:grid-cols-4">
           <DataPoint label="Onboarding" value={channel.connectedAt ? formatConnectionDate(channel.connectedAt) : "No disponible"} />
           <DataPoint label="Calidad" value={crmQualityLabel(channel.qualityRating ?? null)} />
           <DataPoint label="Sincronización" value={channel.lastSyncedAt ? formatConnectionDate(channel.lastSyncedAt) : "No disponible"} />
@@ -403,31 +403,31 @@ function CoexistenceNumberCard({ channel, onChange }: { channel: CrmChannel; onC
 }
 
 function DataPoint({ label, value }: { label: string; value: string }) {
-  return <div className="min-w-0"><p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#8a96a5]">{label}</p><p className="mt-1.5 truncate text-sm font-semibold text-[#263b54]">{value}</p></div>;
+  return <div className="min-w-0"><p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--ink-40)]">{label}</p><p className="mt-1.5 truncate text-sm font-semibold text-[var(--ink)]">{value}</p></div>;
 }
 
 function ChannelConnectionRow({ channel, onChange }: { channel: CrmChannel; onChange: (channel: CrmChannel) => void }) {
   const content = (
     <>
       <div className="flex min-w-0 items-start gap-3">
-        <span className={`mt-1.5 size-2 shrink-0 rounded-full ${isCrmChannelActive(channel) ? "bg-[#c5f04a]" : "bg-[#aeb8c2]"}`} />
+        <span className={`mt-1.5 size-2 shrink-0 rounded-full ${isCrmChannelActive(channel) ? "bg-[var(--assist)]" : "bg-[var(--ink-40)]"}`} />
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
-            <p className="truncate text-sm font-semibold text-[#172238]">{channel.label}</p>
-            {channel.official && <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium ${channel.botConfigured ? "bg-[#edf7df] text-[#527526]" : "bg-[#f1f4f7] text-[#718096]"}`}><Bot className="size-3" /> {channel.botConfigured ? "Bot configurado" : "Bot pendiente"}</span>}
+            <p className="truncate text-sm font-semibold text-[var(--ink)]">{channel.label}</p>
+            {channel.official && <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium ${channel.botConfigured ? "bg-[var(--assist-soft)] text-[var(--assist-ink)]" : "bg-[var(--ground-3)] text-[var(--ink-60)]"}`}><Bot className="size-3" /> {channel.botConfigured ? "Bot configurado" : "Bot pendiente"}</span>}
           </div>
-          <p className="mt-1 text-xs text-[#7a8797]">{channel.detail} · {crmChannelStatusLabel(channel)}</p>
-          {channel.official && <p className="mt-2 text-[11px] text-[#68778a]">Cliente: {channel.workspace ?? "Sin asignar"} · Calidad: {crmQualityLabel(channel.qualityRating ?? null)}</p>}
-          {channel.official && <p className="mt-1 text-[11px] text-[#68778a]">Automatización: {channel.operatingMode === "automatic" ? "Automática" : channel.operatingMode === "approval" ? "Aprobación humana" : "Desactivada"}</p>}
-          <p className="mt-1 text-[11px] text-[#8a96a5]">Última sincronización: {channel.lastSyncedAt ? formatDate(channel.lastSyncedAt) : "No disponible"}</p>
+          <p className="mt-1 text-xs text-[var(--ink-60)]">{channel.detail} · {crmChannelStatusLabel(channel)}</p>
+          {channel.official && <p className="mt-2 text-[11px] text-[var(--ink-60)]">Cliente: {channel.workspace ?? "Sin asignar"} · Calidad: {crmQualityLabel(channel.qualityRating ?? null)}</p>}
+          {channel.official && <p className="mt-1 text-[11px] text-[var(--ink-60)]">Automatización: {channel.operatingMode === "automatic" ? "Automática" : channel.operatingMode === "approval" ? "Aprobación humana" : "Desactivada"}</p>}
+          <p className="mt-1 text-[11px] text-[var(--ink-40)]">Última sincronización: {channel.lastSyncedAt ? formatDate(channel.lastSyncedAt) : "No disponible"}</p>
         </div>
       </div>
-      <div className="flex shrink-0 items-center gap-3"><span className="font-mono text-[10px] text-[#526174]">{channel.phone || "sin número"}</span>{channel.official && <ArrowRight className="size-4 text-[#8a96a5]" />}</div>
+      <div className="flex shrink-0 items-center gap-3"><span className="font-mono text-[10px] text-[var(--ink-60)]">{channel.phone || "sin número"}</span>{channel.official && <ArrowRight className="size-4 text-[var(--ink-40)]" />}</div>
     </>
   );
 
   return (
-    <div className="border-b border-[#edf0f3] py-4 first:pt-0 last:border-b-0 last:pb-0">
+    <div className="border-b border-[var(--hairline)] py-4 first:pt-0 last:border-b-0 last:pb-0">
       <div className="flex flex-wrap items-start justify-between gap-3 rounded-lg px-2">{content}</div>
       {channel.official && <CrmHandoverForm channel={channel} onChange={onChange} compact />}
     </div>
@@ -559,28 +559,28 @@ function CrmHandoverForm({
 
   return (
     <details
-      className={`${compact ? "mt-3" : "border-t border-[#e6ebef]"} group bg-[#f7faf5]`}
+      className={`${compact ? "mt-3" : "border-t border-[var(--hairline)]"} group bg-[var(--assist-soft)]`}
       onToggle={(event) => { if (event.currentTarget.open && destinations === null) void loadDestinations(); }}
     >
-      <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between gap-4 px-4 text-sm font-semibold text-[#334b2b] sm:px-5">
+      <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between gap-4 px-4 text-sm font-semibold text-[var(--on-assist)] sm:px-5">
         <span className="flex items-center gap-2">
-          <Webhook className="size-4 text-[#6f9632]" aria-hidden="true" />
+          <Webhook className="size-4 text-[var(--assist-ink)]" aria-hidden="true" />
           {connected ? `Entregado${channel.crmOrganizationName ? ` · ${channel.crmOrganizationName}` : ""}` : "Entregar este número a una app"}
         </span>
-        <span className="text-[11px] font-medium text-[#708069]">{connected ? "Revisar o reentregar" : "Configurar"}</span>
+        <span className="text-[11px] font-medium text-[var(--ink-60)]">{connected ? "Revisar o reentregar" : "Configurar"}</span>
       </summary>
 
-      <form onSubmit={(event) => void connect(event)} className="border-t border-[#dde7d7] px-4 py-5 sm:px-5">
+      <form onSubmit={(event) => void connect(event)} className="border-t border-[var(--assist-line)] px-4 py-5 sm:px-5">
         <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(280px,.72fr)]">
           <div>
-            <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.12em] text-[#66775d]"><Building2 className="size-3.5" /> Destino</div>
+            <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.12em] text-[var(--ink-60)]"><Building2 className="size-3.5" /> Destino</div>
 
-            <label className="mt-3 block text-xs font-medium text-[#526174]" htmlFor={`dest-${channel.id}`}>App que recibe los mensajes</label>
+            <label className="mt-3 block text-xs font-medium text-[var(--ink-60)]" htmlFor={`dest-${channel.id}`}>App que recibe los mensajes</label>
             <select
               id={`dest-${channel.id}`}
               value={slug}
               onChange={(event) => { setSlug(event.target.value); setCredentialsConfirmed(false); setNotice(null); }}
-              className="mt-2 min-h-11 w-full rounded-lg border border-[#ccd8c6] bg-white px-3 text-sm text-[#172238] outline-none transition focus:border-[#789e45] focus:ring-2 focus:ring-[#c5f04a]/25"
+              className="mt-2 min-h-11 w-full rounded-lg border border-[var(--assist-line)] bg-white px-3 text-sm text-[var(--ink)] outline-none transition focus:border-[var(--assist-line)] focus:ring-2 focus:ring-[var(--assist-ink)]/25"
             >
               {destinations === null && <option value="">Cargando…</option>}
               {destinations?.length === 0 && <option value="">Todavía no hay destinos</option>}
@@ -589,15 +589,15 @@ function CrmHandoverForm({
               ))}
             </select>
 
-            {destinationError && <p className="mt-2 text-xs text-[#98453f]" role="alert">{destinationError}</p>}
+            {destinationError && <p className="mt-2 text-xs text-[var(--status-risk)]" role="alert">{destinationError}</p>}
 
             {selected && (
-              <p className="mt-2 break-all font-mono text-[11px] text-[#74806e]">{selected.webhookUrl}</p>
+              <p className="mt-2 break-all font-mono text-[11px] text-[var(--ink-60)]">{selected.webhookUrl}</p>
             )}
 
             {selected?.provisionUrl && (
               <>
-                <label className="mt-4 block text-xs font-medium text-[#526174]" htmlFor={`ref-${channel.id}`}>
+                <label className="mt-4 block text-xs font-medium text-[var(--ink-60)]" htmlFor={`ref-${channel.id}`}>
                   Referencia del cliente en {selected.label}
                 </label>
                 <input
@@ -607,24 +607,24 @@ function CrmHandoverForm({
                   autoComplete="off"
                   spellCheck={false}
                   placeholder="organization_id (sólo SaaS)"
-                  className="mt-2 min-h-11 w-full rounded-lg border border-[#ccd8c6] bg-white px-3 font-mono text-sm text-[#172238] outline-none transition focus:border-[#789e45] focus:ring-2 focus:ring-[#c5f04a]/25"
+                  className="mt-2 min-h-11 w-full rounded-lg border border-[var(--assist-line)] bg-white px-3 font-mono text-sm text-[var(--ink)] outline-none transition focus:border-[var(--assist-line)] focus:ring-2 focus:ring-[var(--assist-ink)]/25"
                 />
-                <p className="mt-2 text-[11px] leading-5 text-[#74806e]">Esta app recibe el token por HTTPS antes de que se mueva el webhook. En una instancia dedicada puede quedar vacío.</p>
+                <p className="mt-2 text-[11px] leading-5 text-[var(--ink-60)]">Esta app recibe el token por HTTPS antes de que se mueva el webhook. En una instancia dedicada puede quedar vacío.</p>
               </>
             )}
 
             {selected && !selected.provisionUrl && (
               selected.slug === "allok" ? (
-                <p className="mt-3 text-[11px] leading-5 text-[#74806e]">Devuelve la recepción de mensajes y la automatización a la bandeja de allok.</p>
+                <p className="mt-3 text-[11px] leading-5 text-[var(--ink-60)]">Devuelve la recepción de mensajes y la automatización a la bandeja de allok.</p>
               ) : (
-                <label className="mt-4 flex cursor-pointer items-start gap-3 rounded-lg bg-[#eef5e8] px-3 py-3 text-xs text-[#3f5238]">
+                <label className="mt-4 flex cursor-pointer items-start gap-3 rounded-lg bg-[var(--assist-soft)] px-3 py-3 text-xs text-[var(--on-assist)]">
                   <input
                     type="checkbox"
                     checked={credentialsConfirmed}
                     onChange={(event) => setCredentialsConfirmed(event.target.checked)}
-                    className="mt-0.5 size-4 accent-[#6f9632]"
+                    className="mt-0.5 size-4 accent-[var(--assist)]"
                   />
-                  <span><strong className="block font-semibold">Ya guardé WABA ID, Phone Number ID y token en {selected.label}</strong><span className="mt-1 block text-[11px] leading-5 text-[#687761]">Allok moverá el webhook sólo después de esta confirmación.</span></span>
+                  <span><strong className="block font-semibold">Ya guardé WABA ID, Phone Number ID y token en {selected.label}</strong><span className="mt-1 block text-[11px] leading-5 text-[var(--ink-60)]">Allok moverá el webhook sólo después de esta confirmación.</span></span>
                 </label>
               )
             )}
@@ -632,8 +632,8 @@ function CrmHandoverForm({
             <DestinationEditor onSaved={() => { void loadDestinations(); }} />
           </div>
 
-          <div className="rounded-lg border border-[#dbe5d5] bg-white p-4">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.13em] text-[#7b8975]">Datos de este número</p>
+          <div className="rounded-lg border border-[var(--assist-line)] bg-white p-4">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.13em] text-[var(--ink-60)]">Datos de este número</p>
             <dl className="mt-3 space-y-2.5 text-xs">
               <CrmPayloadFact label="client" value={channel.workspace ?? "Sin asignar"} />
               <CrmPayloadFact label="business_id" value={channel.businessId ?? "No disponible"} mono />
@@ -642,21 +642,21 @@ function CrmHandoverForm({
               <CrmPayloadFact label="business_token" value={channel.businessTokenStored ? "Cifrado · sólo servidor" : "No disponible"} icon={KeyRound} />
             </dl>
 
-            <div className="mt-4 border-t border-[#e6ede2] pt-3">
+            <div className="mt-4 border-t border-[var(--assist-line)] pt-3">
               {token ? (
                 <>
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.13em] text-[#7b8975]">Access token</p>
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.13em] text-[var(--ink-60)]">Access token</p>
                   <textarea
                     readOnly
                     value={token}
                     rows={3}
                     onFocus={(event) => event.currentTarget.select()}
-                    className="mt-2 w-full resize-none rounded-lg border border-[#ccd8c6] bg-[#fbfdf9] p-2 font-mono text-[11px] break-all text-[#172238]"
+                    className="mt-2 w-full resize-none rounded-lg border border-[var(--assist-line)] bg-[var(--assist-soft)] p-2 font-mono text-[11px] break-all text-[var(--ink)]"
                   />
-                  <p className="mt-2 text-[11px] leading-5 text-[#98453f]">Trátalo como contraseña: no queda en pantalla al recargar.</p>
+                  <p className="mt-2 text-[11px] leading-5 text-[var(--status-risk)]">Trátalo como contraseña: no queda en pantalla al recargar.</p>
                 </>
               ) : (
-                <TapButton type="button" onClick={() => void revealToken()} disabled={loadingToken || !channel.businessTokenStored} className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-[#ccd8c6] px-3 text-xs font-semibold text-[#3e5a1f] disabled:opacity-40">
+                <TapButton type="button" onClick={() => void revealToken()} disabled={loadingToken || !channel.businessTokenStored} className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-[var(--assist-line)] px-3 text-xs font-semibold text-[var(--assist-ink)] disabled:opacity-40">
                   {loadingToken ? <Loader2 className="size-3.5 animate-spin" /> : <KeyRound className="size-3.5" />}
                   {loadingToken ? "Leyendo…" : "Mostrar token para entregarlo"}
                 </TapButton>
@@ -665,12 +665,12 @@ function CrmHandoverForm({
           </div>
         </div>
 
-        {!available && <p className="mt-4 rounded-lg border border-[#ebc8c8] bg-[#fff6f5] px-3 py-2.5 text-xs text-[#98453f]" role="alert">No se puede entregar: falta un token válido almacenado. Repite el onboarding.</p>}
-        {notice && <p className={`mt-4 rounded-lg border px-3 py-2.5 text-sm ${notice.kind === "success" ? "border-[#cee2bc] bg-white text-[#4d6f2b]" : "border-[#ebc8c8] bg-[#fff6f5] text-[#98453f]"}`} role={notice.kind === "error" ? "alert" : "status"}>{notice.text}</p>}
+        {!available && <p className="mt-4 rounded-lg border border-[var(--risk-line)] bg-[var(--risk-soft)] px-3 py-2.5 text-xs text-[var(--status-risk)]" role="alert">No se puede entregar: falta un token válido almacenado. Repite el onboarding.</p>}
+        {notice && <p className={`mt-4 rounded-lg border px-3 py-2.5 text-sm ${notice.kind === "success" ? "border-[var(--assist-line)] bg-white text-[var(--assist-ink)]" : "border-[var(--risk-line)] bg-[var(--risk-soft)] text-[var(--status-risk)]"}`} role={notice.kind === "error" ? "alert" : "status"}>{notice.text}</p>}
 
-        <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-[#dfe8da] pt-4">
-          <p className="max-w-2xl text-[11px] leading-5 text-[#74806e]">El cambio es reversible: puedes devolver el número a allok desde este mismo selector.</p>
-          <button type="submit" disabled={saving || !available || !ready} className="inline-flex min-h-11 items-center gap-2 rounded-lg bg-[#172238] px-4 text-xs font-semibold text-white transition hover:bg-[#263b54] disabled:cursor-not-allowed disabled:opacity-40">
+        <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-[var(--assist-line)] pt-4">
+          <p className="max-w-2xl text-[11px] leading-5 text-[var(--ink-60)]">El cambio es reversible: puedes devolver el número a allok desde este mismo selector.</p>
+          <button type="submit" disabled={saving || !available || !ready} className="on-ink inline-flex min-h-11 items-center gap-2 rounded-lg bg-[var(--ink-fill)] px-4 text-xs font-semibold text-white transition hover:bg-[var(--ink-fill)] disabled:cursor-not-allowed disabled:opacity-40">
             {saving ? <Loader2 className="size-4 animate-spin" /> : <Webhook className="size-4" />}
             {saving ? "Moviendo…" : slug === "allok" ? "Devolver a allok" : connected ? "Reentregar" : "Entregar número"}
           </button>
@@ -710,14 +710,14 @@ function DestinationEditor({ onSaved }: { onSaved: () => void }) {
 
   if (!open) {
     return (
-      <TapButton type="button" onClick={() => setOpen(true)} className="mt-4 inline-flex min-h-9 items-center gap-1.5 text-xs font-semibold text-[#3e5a1f] underline underline-offset-4">
+      <TapButton type="button" onClick={() => setOpen(true)} className="mt-4 inline-flex min-h-9 items-center gap-1.5 text-xs font-semibold text-[var(--assist-ink)] underline underline-offset-4">
         <Plus className="size-3.5" /> Nuevo destino o rotar su verify token
       </TapButton>
     );
   }
 
   return (
-    <div className="mt-4 rounded-lg border border-[#dbe5d5] bg-white p-3">
+    <div className="mt-4 rounded-lg border border-[var(--assist-line)] bg-white p-3">
       <div className="grid gap-2 sm:grid-cols-2">
         <DestinationField label="Identificador" value={form.slug} onChange={(value) => setForm({ ...form, slug: value.toLowerCase() })} placeholder="vocero" mono />
         <DestinationField label="Nombre" value={form.label} onChange={(value) => setForm({ ...form, label: value })} placeholder="Vocero CRM" />
@@ -728,12 +728,12 @@ function DestinationEditor({ onSaved }: { onSaved: () => void }) {
       {form.provision_url && (
         <DestinationField label="Secreto de provisión" value={form.provision_secret} onChange={(value) => setForm({ ...form, provision_secret: value })} placeholder="Bearer que espera esa app" mono />
       )}
-      {error && <p className="mt-2 text-[11px] text-[#98453f]" role="alert">{error}</p>}
+      {error && <p className="mt-2 text-[11px] text-[var(--status-risk)]" role="alert">{error}</p>}
       <div className="mt-3 flex items-center gap-2">
-        <TapButton type="button" onClick={() => void save()} disabled={saving} className="inline-flex min-h-9 items-center gap-1.5 rounded-lg bg-[#172238] px-3 text-xs font-semibold text-white disabled:opacity-40">
+        <TapButton type="button" onClick={() => void save()} disabled={saving} className="on-ink inline-flex min-h-9 items-center gap-1.5 rounded-lg bg-[var(--ink-fill)] px-3 text-xs font-semibold text-white disabled:opacity-40">
           {saving ? <Loader2 className="size-3.5 animate-spin" /> : null} Guardar destino
         </TapButton>
-        <TapButton type="button" onClick={() => setOpen(false)} className="min-h-9 px-2 text-xs font-semibold text-[#74806e]">Cancelar</TapButton>
+        <TapButton type="button" onClick={() => setOpen(false)} className="min-h-9 px-2 text-xs font-semibold text-[var(--ink-60)]">Cancelar</TapButton>
       </div>
     </div>
   );
@@ -741,7 +741,7 @@ function DestinationEditor({ onSaved }: { onSaved: () => void }) {
 
 function DestinationField({ label, value, onChange, placeholder, mono = false }: { label: string; value: string; onChange: (value: string) => void; placeholder: string; mono?: boolean }) {
   return (
-    <label className="mt-2 block text-xs font-medium text-[#526174]">
+    <label className="mt-2 block text-xs font-medium text-[var(--ink-60)]">
       {label}
       <input
         value={value}
@@ -749,12 +749,12 @@ function DestinationField({ label, value, onChange, placeholder, mono = false }:
         autoComplete="off"
         spellCheck={false}
         placeholder={placeholder}
-        className={`mt-1 min-h-10 w-full rounded-lg border border-[#ccd8c6] bg-white px-3 text-sm text-[#172238] outline-none transition focus:border-[#789e45] focus:ring-2 focus:ring-[#c5f04a]/25 ${mono ? "font-mono text-xs" : ""}`}
+        className={`mt-1 min-h-10 w-full rounded-lg border border-[var(--assist-line)] bg-white px-3 text-sm text-[var(--ink)] outline-none transition focus:border-[var(--assist-line)] focus:ring-2 focus:ring-[var(--assist-ink)]/25 ${mono ? "font-mono text-xs" : ""}`}
       />
     </label>
   );
 }
 
 function CrmPayloadFact({ label, value, mono = false, icon: Icon }: { label: string; value: string; mono?: boolean; icon?: typeof KeyRound }) {
-  return <div className="flex items-start justify-between gap-3"><dt className="font-mono text-[10px] text-[#7c8976]">{label}</dt><dd className={`flex max-w-[210px] items-center gap-1.5 break-all text-right font-medium text-[#384a33] ${mono ? "font-mono text-[11px]" : ""}`}>{Icon && <Icon className="size-3.5 shrink-0 text-[#6f9632]" />}{value}</dd></div>;
+  return <div className="flex items-start justify-between gap-3"><dt className="font-mono text-[10px] text-[var(--ink-60)]">{label}</dt><dd className={`flex max-w-[210px] items-center gap-1.5 break-all text-right font-medium text-[var(--on-assist)] ${mono ? "font-mono text-[11px]" : ""}`}>{Icon && <Icon className="size-3.5 shrink-0 text-[var(--assist-ink)]" />}{value}</dd></div>;
 }

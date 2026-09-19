@@ -71,11 +71,11 @@ export default function ClientsClient({
   }
 
   return (
-    <main className="min-h-dvh bg-[#f3f6f8] pb-12 text-[#142b4b]">
-      <header className="border-b border-[#28415d] bg-[#10243d] text-white">
+    <main className="min-h-dvh bg-[var(--info-soft)] pb-12 text-[var(--ink)]">
+      <header className="on-ink border-b border-[var(--rule)] bg-[var(--ink-fill)] text-white">
         <div className="mx-auto flex max-w-[1380px] flex-wrap items-end justify-between gap-6 px-4 pb-14 pt-9 sm:px-7 lg:px-10 lg:pb-16 lg:pt-12">
           <div>
-            <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-[#c5f04a]">
+            <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--assist-ink)]">
               Operaciones · Meta inventory
             </p>
             <h1 className="mt-4 max-w-3xl text-4xl font-semibold tracking-[-0.05em] sm:text-5xl">
@@ -89,7 +89,7 @@ export default function ClientsClient({
           <button
             type="button"
             onClick={() => router.refresh()}
-            className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-white/15 bg-white/[0.06] px-4 text-xs font-semibold text-white transition hover:border-white/30 hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#c5f04a]"
+            className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-white/15 bg-white/[0.06] px-4 text-xs font-semibold text-white transition hover:border-white/30 hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--assist-line)]"
           >
             <RefreshCw className="size-4" aria-hidden="true" /> Actualizar datos
           </button>
@@ -98,7 +98,7 @@ export default function ClientsClient({
 
       <div className="mx-auto max-w-[1380px] px-4 sm:px-7 lg:px-10">
         <section
-          className="relative -mt-7 grid overflow-hidden rounded-xl border border-[#dce4ea] bg-white shadow-[0_16px_42px_rgba(16,36,61,0.08)] sm:grid-cols-2 xl:grid-cols-4"
+          className="relative -mt-7 grid overflow-hidden rounded-xl border border-[var(--rule)] bg-white shadow-[var(--shadow-md)] sm:grid-cols-2 xl:grid-cols-4"
           aria-label="Resumen de clientes onboardeados"
         >
           <SummaryMetric icon={Database} label="Onboardings" value={summary.onboardings} detail="filas guardadas" />
@@ -110,43 +110,43 @@ export default function ClientsClient({
         <section className="mt-8" aria-labelledby="inventory-title">
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div>
-              <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#7c8b9b]">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--ink-40)]">
                 Fuente: whatsapp_connections
               </p>
-              <h2 id="inventory-title" className="mt-2 text-2xl font-semibold tracking-[-0.04em] text-[#172238]">
+              <h2 id="inventory-title" className="mt-2 text-2xl font-semibold tracking-[-0.04em] text-[var(--ink)]">
                 Inventario de credenciales
               </h2>
             </div>
-            <label className="flex min-h-11 w-full max-w-[360px] items-center gap-2 rounded-lg border border-[#d7e0e7] bg-white px-3 text-sm shadow-sm">
-              <Search className="size-4 shrink-0 text-[#8391a0]" aria-hidden="true" />
+            <label className="flex min-h-11 w-full max-w-[360px] items-center gap-2 rounded-lg border border-[var(--rule)] bg-white px-3 text-sm shadow-sm">
+              <Search className="size-4 shrink-0 text-[var(--ink-40)]" aria-hidden="true" />
               <span className="sr-only">Buscar cliente o identificador</span>
               <input
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
                 placeholder="Buscar cliente, WABA o número…"
-                className="w-full bg-transparent text-[#172238] outline-none placeholder:text-[#9aa5b2]"
+                className="w-full bg-transparent text-[var(--ink)] outline-none placeholder:text-[var(--ink-40)]"
               />
             </label>
           </div>
 
           {loadError && (
-            <p className="mt-5 rounded-xl border border-[#efcccc] bg-[#fff6f5] px-4 py-3 text-sm text-[#963c37]" role="alert">
+            <p className="mt-5 rounded-xl border border-[var(--risk-line)] bg-[var(--risk-soft)] px-4 py-3 text-sm text-[var(--status-risk)]" role="alert">
               No se pudo cargar el inventario: {loadError}
             </p>
           )}
           {copyError && (
-            <p className="mt-5 rounded-xl border border-[#eadcb7] bg-[#fffaf0] px-4 py-3 text-sm text-[#795d1f]" role="status">
+            <p className="mt-5 rounded-xl border border-[var(--warn-line)] bg-[var(--warn-soft)] px-4 py-3 text-sm text-[var(--status-warn)]" role="status">
               {copyError}
             </p>
           )}
 
           {connections.length === 0 ? (
-            <div className="mt-5 rounded-xl border border-dashed border-[#ccd6df] bg-white px-6 py-16 text-center">
-              <Smartphone className="mx-auto size-7 text-[#8d9aa7]" aria-hidden="true" />
-              <p className="mt-4 text-sm font-semibold text-[#526174]">
+            <div className="mt-5 rounded-xl border border-dashed border-[var(--rule)] bg-white px-6 py-16 text-center">
+              <Smartphone className="mx-auto size-7 text-[var(--ink-40)]" aria-hidden="true" />
+              <p className="mt-4 text-sm font-semibold text-[var(--ink-60)]">
                 {initialConnections.length ? "Ningún onboarding coincide con la búsqueda." : "Todavía no hay clientes onboardeados."}
               </p>
-              <p className="mt-1 text-xs text-[#8a96a5]">
+              <p className="mt-1 text-xs text-[var(--ink-40)]">
                 Una conexión exitosa aparecerá aquí automáticamente.
               </p>
             </div>
@@ -181,13 +181,13 @@ function SummaryMetric({
   detail: string;
 }) {
   return (
-    <article className="border-b border-[#e5ebf0] p-5 last:border-b-0 sm:border-r sm:[&:nth-child(even)]:border-r-0 xl:border-b-0 xl:[&:nth-child(even)]:border-r xl:last:border-r-0">
+    <article className="border-b border-[var(--hairline)] p-5 last:border-b-0 sm:border-r sm:[&:nth-child(even)]:border-r-0 xl:border-b-0 xl:[&:nth-child(even)]:border-r xl:last:border-r-0">
       <div className="flex items-center justify-between gap-3">
-        <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#7a8797]">{label}</p>
-        <Icon className="size-4 text-[#4d6985]" aria-hidden="true" />
+        <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--ink-60)]">{label}</p>
+        <Icon className="size-4 text-[var(--ink-60)]" aria-hidden="true" />
       </div>
-      <p className="mt-3 text-3xl font-semibold tabular-nums tracking-[-0.04em] text-[#172238]">{value}</p>
-      <p className="mt-1 text-[11px] text-[#8a96a5]">{detail}</p>
+      <p className="mt-3 text-3xl font-semibold tabular-nums tracking-[-0.04em] text-[var(--ink)]">{value}</p>
+      <p className="mt-1 text-[11px] text-[var(--ink-40)]">{detail}</p>
     </article>
   );
 }
@@ -207,23 +207,23 @@ function ConnectionCard({
   const copyKey = (field: string) => `${connection.phoneNumberId}:${field}`;
 
   return (
-    <article className="overflow-hidden rounded-xl border border-[#dbe3e9] bg-white shadow-[0_7px_24px_rgba(20,43,75,0.045)]">
-      <div className="flex flex-wrap items-start justify-between gap-5 border-b border-[#e8edf1] px-5 py-5 sm:px-6">
+    <article className="overflow-hidden rounded-xl border border-[var(--rule)] bg-white shadow-[var(--shadow-md)]">
+      <div className="flex flex-wrap items-start justify-between gap-5 border-b border-[var(--hairline)] px-5 py-5 sm:px-6">
         <div className="flex min-w-0 items-start gap-4">
-          <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-[#10243d] font-mono text-[11px] font-semibold text-[#c5f04a]">
+          <span className="on-ink flex size-10 shrink-0 items-center justify-center rounded-lg bg-[var(--ink-fill)] font-mono text-[11px] font-semibold text-[var(--assist-ink)]">
             {String(index + 1).padStart(2, "0")}
           </span>
           <div className="min-w-0">
-            <h3 className="truncate text-lg font-semibold text-[#172238]">
+            <h3 className="truncate text-lg font-semibold text-[var(--ink)]">
               {connection.verifiedName ?? connection.client ?? "Cliente sin nombre"}
             </h3>
-            <p className="mt-1 font-mono text-xs text-[#758495]">
+            <p className="mt-1 font-mono text-xs text-[var(--ink-60)]">
               {connection.displayPhoneNumber ?? "Número visible no disponible"}
             </p>
           </div>
         </div>
-        <span className={`inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-[11px] font-semibold ${active ? "bg-[#edf7df] text-[#4e7123]" : "bg-[#fff3df] text-[#8a5d19]"}`}>
-          <span className={`size-1.5 rounded-full ${active ? "bg-[#89b72d]" : "bg-[#d49b42]"}`} aria-hidden="true" />
+        <span className={`inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-[11px] font-semibold ${active ? "bg-[var(--assist-soft)] text-[var(--assist-ink)]" : "bg-[var(--warn-soft)] text-[var(--status-warn)]"}`}>
+          <span className={`size-1.5 rounded-full ${active ? "bg-[var(--assist)]" : "bg-[var(--warn-mid)]"}`} aria-hidden="true" />
           {connectionStatusLabel(connection.status)}
         </span>
       </div>
@@ -253,23 +253,23 @@ function ConnectionCard({
           copied={copied}
           onCopy={onCopy}
         />
-        <div className="border-b border-[#e8edf1] bg-[#f8fafb] p-5 last:border-b-0 sm:border-r sm:[&:nth-child(even)]:border-r-0 xl:border-b-0 xl:[&:nth-child(even)]:border-r xl:last:border-r-0">
-          <dt className="font-mono text-[10px] font-semibold uppercase tracking-[0.13em] text-[#6f7f90]">
+        <div className="border-b border-[var(--hairline)] bg-[var(--info-soft)] p-5 last:border-b-0 sm:border-r sm:[&:nth-child(even)]:border-r-0 xl:border-b-0 xl:[&:nth-child(even)]:border-r xl:last:border-r-0">
+          <dt className="font-mono text-[10px] font-semibold uppercase tracking-[0.13em] text-[var(--ink-60)]">
             business_token
           </dt>
-          <dd className={`mt-3 flex items-center gap-2 text-sm font-semibold ${connection.businessTokenStored ? "text-[#3f682a]" : "text-[#9a493f]"}`}>
+          <dd className={`mt-3 flex items-center gap-2 text-sm font-semibold ${connection.businessTokenStored ? "text-[var(--assist-ink)]" : "text-[var(--status-risk)]"}`}>
             {connection.businessTokenStored ? <ShieldCheck className="size-4" aria-hidden="true" /> : <CircleAlert className="size-4" aria-hidden="true" />}
             {connection.businessTokenStored ? "Cifrado y disponible" : "No disponible"}
           </dd>
-          <p className="mt-2 text-[11px] leading-4 text-[#8a96a5]">
+          <p className="mt-2 text-[11px] leading-4 text-[var(--ink-40)]">
             {connection.businessTokenStored ? "Solo se descifra en el servidor" : "Requiere reconectar el número"}
           </p>
         </div>
       </dl>
 
-      <footer className="flex flex-wrap items-center justify-between gap-4 bg-[#fbfcfd] px-5 py-4 sm:px-6">
-        <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-[11px] text-[#7a8797]">
-          <span className="font-semibold text-[#526174]">
+      <footer className="flex flex-wrap items-center justify-between gap-4 bg-[var(--ground-2)] px-5 py-4 sm:px-6">
+        <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-[11px] text-[var(--ink-60)]">
+          <span className="font-semibold text-[var(--ink-60)]">
             {connection.connectionMode === "META_COEXISTENCE" ? "Coexistencia" : "Cloud API"}
           </span>
           <span>Onboarding {formatDate(connection.connectedAt)}</span>
@@ -277,7 +277,7 @@ function ConnectionCard({
         </div>
         <Link
           href="/ops/crm?view=connections"
-          className="inline-flex min-h-9 items-center rounded-lg border border-[#d6e0e7] bg-white px-3 text-xs font-semibold text-[#385875] transition hover:border-[#9aabba] hover:text-[#142b4b]"
+          className="inline-flex min-h-9 items-center rounded-lg border border-[var(--info-line)] bg-white px-3 text-xs font-semibold text-[var(--ink-60)] transition hover:border-[var(--rule)] hover:text-[var(--ink)]"
         >
           Ver conexiones
         </Link>
@@ -303,18 +303,18 @@ function CredentialField({
 }) {
   const wasCopied = copied === copyKey;
   return (
-    <div className="group relative border-b border-[#e8edf1] p-5 sm:border-r sm:[&:nth-child(even)]:border-r-0 xl:border-b-0 xl:[&:nth-child(even)]:border-r xl:last:border-r-0">
-      <dt className="font-mono text-[10px] font-semibold uppercase tracking-[0.13em] text-[#6f7f90]">{label}</dt>
-      <dd className="mt-3 break-all pr-8 font-mono text-[13px] font-semibold leading-5 text-[#20364f]">{value}</dd>
-      <p className="mt-2 text-[11px] text-[#8a96a5]">{description}</p>
+    <div className="group relative border-b border-[var(--hairline)] p-5 sm:border-r sm:[&:nth-child(even)]:border-r-0 xl:border-b-0 xl:[&:nth-child(even)]:border-r xl:last:border-r-0">
+      <dt className="font-mono text-[10px] font-semibold uppercase tracking-[0.13em] text-[var(--ink-60)]">{label}</dt>
+      <dd className="mt-3 break-all pr-8 font-mono text-[13px] font-semibold leading-5 text-[var(--ink)]">{value}</dd>
+      <p className="mt-2 text-[11px] text-[var(--ink-40)]">{description}</p>
       {onCopy && (
         <button
           type="button"
           onClick={() => void onCopy(copyKey, value)}
           aria-label={`Copiar ${label}`}
-          className="absolute right-3 top-3 flex size-8 items-center justify-center rounded-md text-[#7f8d9b] transition hover:bg-[#eef3f7] hover:text-[#20364f] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-[#385875]"
+          className="absolute right-3 top-3 flex size-8 items-center justify-center rounded-md text-[var(--ink-40)] transition hover:bg-[var(--ground-3)] hover:text-[var(--ink)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-[var(--rule)]"
         >
-          {wasCopied ? <Check className="size-3.5 text-[#61852a]" aria-hidden="true" /> : <Copy className="size-3.5" aria-hidden="true" />}
+          {wasCopied ? <Check className="size-3.5 text-[var(--assist-ink)]" aria-hidden="true" /> : <Copy className="size-3.5" aria-hidden="true" />}
         </button>
       )}
     </div>

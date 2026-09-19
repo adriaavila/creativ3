@@ -47,11 +47,11 @@ export default function OpsPortfolioClient({ projects, lastSyncedAt }: OpsPortfo
   }
 
   return (
-    <main className="min-h-dvh bg-[#08090a] pb-24 text-white md:pb-8">
+    <main className="on-ink min-h-dvh bg-[var(--ink-fill)] pb-24 text-white md:pb-8">
       <div className="mx-auto w-full max-w-[1500px] px-4 pb-10 pt-8 sm:px-6 lg:px-10 lg:pt-12">
         <header className="flex flex-wrap items-end justify-between gap-4">
           <div>
-            <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-[#c5f04a]">
+            <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--assist-ink)]">
               Sync portafolio
             </div>
             <h1 className={`mt-2 font-display text-4xl ${DISPLAY_TIGHT}`}>Portafolio</h1>
@@ -75,7 +75,7 @@ export default function OpsPortfolioClient({ projects, lastSyncedAt }: OpsPortfo
               type="button"
               disabled={globalState === "pending"}
               onClick={() => dispatch([], setGlobalState)}
-              className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-[#c5f04a] px-4 text-sm font-semibold text-[#0a0a0a] transition hover:bg-white disabled:opacity-50"
+              className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-[var(--assist)] px-4 text-sm font-semibold text-[var(--on-assist)] transition hover:bg-white disabled:opacity-50"
             >
               {globalState === "pending" ? (
                 <LoaderCircle className="size-4 animate-spin" />
@@ -88,7 +88,7 @@ export default function OpsPortfolioClient({ projects, lastSyncedAt }: OpsPortfo
         </header>
 
         {globalState === "ok" && (
-          <p className="mt-3 flex items-center gap-2 text-sm text-[#c5f04a]">
+          <p className="mt-3 flex items-center gap-2 text-sm text-[var(--assist-ink)]">
             <CheckCircle2 className="size-4" /> Disparado. La Action captura pantallas y hace commit
             sola — puede tardar unos minutos.
           </p>
@@ -151,7 +151,7 @@ export default function OpsPortfolioClient({ projects, lastSyncedAt }: OpsPortfo
                         {state === "pending" ? (
                           <LoaderCircle className="size-3.5 animate-spin" />
                         ) : state === "ok" ? (
-                          <CheckCircle2 className="size-3.5 text-[#c5f04a]" />
+                          <CheckCircle2 className="size-3.5 text-[var(--assist-ink)]" />
                         ) : (
                           <RefreshCw className="size-3.5" />
                         )}

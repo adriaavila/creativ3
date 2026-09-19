@@ -1,15 +1,38 @@
 # El sistema de diseño de allok.fun
 
-Actualizado 2026-09-15.
+Actualizado 2026-09-19.
 
-El sitio tiene **dos sistemas visuales**, a propósito, y no se mezclan:
+El sitio tiene **dos voces** y **tres superficies**, y ninguna se mezcla con
+otra dentro de la misma página:
 
-| | `.allok` | `.rig` |
-|---|---|---|
-| Dónde | `/`, `/rei`, `/vocero`, `/agencia` | `/portfolio`, `/work`, `/lab`, `/writing` |
-| Qué es | la cara comercial — lo que se contrata | el portafolio — la prueba de que funciona |
-| Voz | Comfortaa sobre Geist, esquinas de 22-30px | Archivo Black, reglas duras, nada redondeado |
-| Fondo | negro `#08090a` arriba, papel `#f5f4f0` abajo | papel, con el cielo sólo en el pie |
+| | `.allok` | `.allok-ops` | `.rig` |
+|---|---|---|---|
+| Dónde | `/`, `/rei`, `/vocero`, `/agencia` | `/ops/*`, `/ops-login` | `/portfolio`, `/work`, `/lab`, `/writing` |
+| Qué es | la cara comercial — lo que se contrata | la herramienta interna | el portafolio — la prueba de que funciona |
+| Voz | Geist por peso y tracking, esquinas de 22-30px | Geist, densidad de herramienta, esquinas de 8-20px | Archivo Black, reglas duras, nada redondeado |
+| Fondo | negro `#08090a` arriba, papel `#f5f4f0` abajo | papel, un escalón por debajo de las tarjetas | papel, con el cielo sólo en el pie |
+
+`.allok-ops` no es un sistema aparte: es `.allok` con los escalones de
+superficie y los estados que una herramienta de trabajo necesita y una landing
+no. Usa **los mismos nombres de token que la app del cliente**
+(`vocero-crm`, bloque `[data-saas="true"]`), a propósito: marketing, ops y
+producto tienen que poder copiarse una clase entre sí.
+
+Antes de esto, Ops tenía su propia paleta azul grisácea y, dentro de ella,
+dos: el panel de clientes en gris claro y el de conversaciones en negro. 823
+colores escritos a mano, 218 valores distintos para unos quince papeles. Hoy
+no queda ninguno.
+
+**Dos reglas que el compilador no hace cumplir:**
+
+- **`.allok-ops` no pinta.** Tailwind v4 mete sus utilidades en
+  `@layer utilities`, y una regla fuera de capa le gana a cualquier regla
+  dentro sin importar el orden del archivo. Un `background` en el ámbito
+  ganaría sobre el `bg-[…]` del mismo elemento y la página saldría del color
+  equivocado sin que nada fallara. El fondo lo pone quien usa el ámbito.
+- **`--assist` es relleno, nunca tinta sobre papel.** Da 1,20:1. Como texto va
+  `--assist-ink` (`#527526`, 4,85:1 medido). Y `--ink-60` da 4,24:1 sobre
+  `--ground-3`: texto secundario sobre superficie elevada va en `--ink`.
 
 Los dos comparten el **cielo**: el mismo degradado, los mismos anclajes de
 color. Es lo que hace que salte de una zona a otra sin que parezcan dos sitios.

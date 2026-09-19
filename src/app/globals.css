@@ -1115,3 +1115,150 @@ html:has(.rig) ::selection { background: var(--hazard); color: var(--paper); }
 .allok-void .allok-hair {
   border-color: var(--hair-void);
 }
+
+/* ─────────────────────────────────────────────────────────────────────────
+   allok · Ops — la superficie interna, en el mismo sistema
+
+   Ops tenía su propia paleta (azul grisácea) y, dentro de ella, dos: el panel
+   de clientes en gris claro y el de conversaciones en negro. Tres sistemas
+   visuales para una sola empresa. Esto lo deja en uno.
+
+   Los nombres son los mismos que usa la app del cliente en su bloque
+   `[data-saas="true"]` (vocero-crm/src/app/globals.css) a propósito: marketing,
+   ops y producto tienen que poder copiarse una clase entre sí.
+
+   El ámbito se basta solo — no necesita `.allok` al lado. Y NO PINTA: Tailwind
+   v4 pone sus utilidades en `@layer utilities`, y una regla fuera de capa le
+   gana a cualquier regla dentro sin importar el orden del archivo. Un
+   `background` aquí ganaría sobre el `bg-[...]` del mismo elemento y la página
+   saldría del color equivocado sin que nada fallara. El fondo lo pone quien
+   usa el ámbito.
+   ───────────────────────────────────────────────────────────────────────── */
+
+.allok-ops {
+  /* Escalones de superficie. La jerarquía la da el escalón, no el color. */
+  --ground: #f5f4f0;
+  --ground-2: #f1efeb;
+  --ground-3: #eae8e3;
+  --ground-4: #dedbd4;
+
+  /* Tres tintas, no cuatro: Dawn → Dusk no tiene una cuarta. */
+  --ink: #101112;
+  /* Un punto más oscura que en la web. La tinta secundaria de Dawn → Dusk
+     (#6b6d70) pasa AA sobre papel (4,72) pero no sobre las superficies
+     elevadas de una herramienta: 4,24 en `--ground-3` y 3,75 en `--ground-4`,
+     que es donde Ops la usa. Ésta pasa en las cuatro: 6,50 · 5,91 · 5,31 · 4,70. */
+  --ink-60: #5c5e61;
+  /* `--ink-40` NO pasa AA para texto pequeño (2,75 sobre blanco) y se queda
+     así a propósito: para llegar a 4,5 tendría que oscurecerse hasta #6f7176,
+     que es prácticamente `--ink-60`, y el sistema perdería una de sus tres
+     tintas. Es tinta de DECORACIÓN — separadores, números de orden, marcas de
+     agua. Una etiqueta que hay que leer va en `--ink-60`. */
+  --ink-40: #9a9c9f;
+
+  /* Tinta y relleno son cosas distintas aunque compartan el valor. Dentro de
+     `.on-ink` la tinta se aclara; el relleno no se mueve nunca, porque es lo
+     que crea el trozo oscuro. Pintar con `--ink` y luego voltearlo deja una
+     cabecera de papel con texto blanco encima. */
+  --ink-fill: #101112;
+
+  --hairline: rgba(16, 17, 18, 0.1);
+  --rule: rgba(10, 10, 10, 0.2);
+
+  /* El negro de portada y su tinta, para las pantallas que abren en oscuro. */
+  --void: #08090a;
+  --on-void: #f5f4f0;
+
+  /* El verde de asistencia. `--assist` es RELLENO, nunca tinta sobre papel:
+     da 1,20:1 y no se lee.
+     Como tinta va `--assist-ink`. El verde que Ops traía (#527526) pasaba
+     sobre papel (4,85) pero NO sobre `--ground-3` (4,36) — y ahí es donde se
+     usa media docena de veces. Éste pasa en los cuatro escalones:
+     papel 5,54 · ground-2 5,31 · ground-3 4,98 · blanco 6,09.
+     Sobre el relleno `--assist` no va ninguno de los dos: va `--on-assist`. */
+  --assist: #c5f04a;
+  --assist-ink: #4f6b14;
+  --assist-soft: #edf7df;
+  --assist-dim: rgba(197, 240, 74, 0.14);
+  --assist-line: rgba(197, 240, 74, 0.28);
+  --on-assist: #101112; /* 14,35:1 sobre el relleno */
+
+  /* Estado. Tinta sobre papel, relleno suave, y la línea que los separa.
+     Todos medidos sobre `--ground` (#f5f4f0), mínimo AA 4,5:1:
+     ok 6,38 · info 6,51 · warn 6,04 · risk 5,86 · lost 7,91.
+     `--warn-mid` es RELLENO sólido y lleva `--ink` encima (7,71:1). */
+  --status-ok: #14663a;
+  --status-info: #0b5f7a;
+  --status-warn: #7a5600;
+  --status-risk: #98453f;
+  --status-lost: #8f1f33;
+
+  --warn-soft: #fff3df;
+  --warn-line: #eadcb7;
+  --warn-mid: #d49b42;
+  --info-soft: #e4f3f8;
+  --info-line: #c9e4ee;
+  --risk-soft: #fdeceb;
+  --risk-line: #f2d3d1;
+
+  --radius-sm: 8px;
+  --radius: 12px;
+  --radius-lg: 16px;
+  --radius-card: 20px;
+  --radius-pill: 999px;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 1px 2px rgba(0, 0, 0, 0.04), 0 8px 24px rgba(0, 0, 0, 0.06);
+  --shadow-pop: 0 30px 80px -34px rgba(0, 0, 0, 0.45);
+
+  /* Velos. Un hex con el modificador de opacidad de Tailwind no sobrevive a
+     var(), porque Tailwind no puede calcular el alfa de una variable: el alfa
+     viaja dentro del token. */
+  --scrim: rgba(16, 17, 18, 0.2);
+  --scrim-void: rgba(8, 9, 10, 0.7);
+
+  color-scheme: light;
+  font-family: var(--font-grotesk), "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+/* Una nota que el compilador no puede hacer cumplir: `--ink-60` da 4,24:1
+   sobre `--ground-3`, por debajo de AA. Texto secundario sobre una superficie
+   elevada va en `--ink`, no en `--ink-60`. */
+
+/**
+ * Un trozo oscuro dentro de una página de papel.
+ *
+ * No repinta a mano cada hijo: redefine LOS MISMOS tokens, así que el hijo
+ * sigue escribiendo `text-[var(--ink-60)]` y sale bien en las dos superficies.
+ *
+ * Lo importante es la última línea. `--assist-ink` (#527526) está calculado
+ * para papel; sobre negro da 3,54:1 y no se lee — es justo el fallo que tuvo
+ * la primera conversión en la banda de indicadores. Dentro de un trozo oscuro,
+ * el verde vuelve a ser el relleno de marca, que da 14,35:1.
+ *
+ * Niveles medidos sobre `--ink` (#101112):
+ *   ink 17,18 · ink-60 7,04 · ink-40 4,65 · assist 14,35
+ */
+.allok-ops.on-ink,
+.allok-ops .on-ink {
+  --ground: #101112;
+  --ground-2: #16181a;
+  --ground-3: #1b1c1f;
+  --ground-4: #24262a;
+  --ink: #f5f4f0;
+  --ink-60: rgba(245, 244, 240, 0.62);
+  --ink-40: rgba(245, 244, 240, 0.48);
+  --hairline: rgba(245, 244, 240, 0.12);
+  --rule: rgba(245, 244, 240, 0.2);
+  --assist-ink: var(--assist);
+  --assist-soft: rgba(197, 240, 74, 0.14);
+  --status-warn: #f0c04a;
+  --status-risk: #f08a5a;
+  --status-ok: #7ee0a8;
+  --status-info: #6cc7e8;
+}
+
+.allok-ops ::selection {
+  background: var(--assist);
+  color: var(--on-assist);
+}

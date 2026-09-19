@@ -16,11 +16,11 @@ export const metadata = {
 export default async function OpsClientsPage() {
   if (!isOpsAuthConfigured()) {
     return (
-      <main className="flex min-h-dvh items-center justify-center bg-[#f7f8fa] p-6 text-[#142b4b]">
-        <div className="max-w-xl rounded-xl border border-[#e2e7ed] bg-white p-8">
-          <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#7a8797]">Setup requerido</div>
+      <main className="flex min-h-dvh items-center justify-center bg-[var(--ground-2)] p-6 text-[var(--ink)]">
+        <div className="max-w-xl rounded-xl border border-[var(--rule)] bg-white p-8">
+          <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--ink-60)]">Setup requerido</div>
           <h1 className="mt-4 text-3xl font-semibold tracking-[-0.04em]">Clientes onboardeados.</h1>
-          <p className="mt-4 text-sm leading-6 text-[#68778a]">
+          <p className="mt-4 text-sm leading-6 text-[var(--ink-60)]">
             Configura OPS_ACCESS_PASSWORD, OPS_SESSION_SECRET y DATABASE_URL para cargar el inventario.
           </p>
         </div>

@@ -19,7 +19,7 @@ export default async function OpsLoginPage({
       : "/ops";
 
   return (
-    <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#08090a] p-6 text-white">
+    <main className="on-ink allok-ops relative flex min-h-screen items-center justify-center overflow-hidden bg-[var(--void)] p-6 text-[var(--ink)]">
       {/* The mark at banner scale, dimmed to a texture. */}
       <Waveform
         className="pointer-events-none absolute inset-x-0 top-1/2 h-[420px] w-[160%] -translate-x-[15%] -translate-y-1/2 text-white/[0.06]"
@@ -29,7 +29,7 @@ export default async function OpsLoginPage({
 
       <div className="relative w-full max-w-md rounded-3xl border border-white/10 bg-white/[0.04] p-7 shadow-2xl shadow-black/40 sm:p-9">
         <AllokLogo variant="mark" className="h-11 w-11" />
-        <div className="mt-6 font-mono text-[9px] uppercase tracking-[0.2em] text-[#c5f04a]">
+        <div className="mt-6 font-mono text-[9px] uppercase tracking-[0.2em] text-[var(--assist-ink)]">
           allok · Operación privada
         </div>
         <h1 className="mt-3 font-display text-5xl leading-[0.9]">Entrar a Ops</h1>
@@ -57,11 +57,11 @@ export default async function OpsLoginPage({
             autoComplete="current-password"
             required
             autoFocus
-            className="mt-2 min-h-12 w-full rounded-xl border border-white/10 bg-black/30 px-4 text-white outline-none transition focus:border-[#c5f04a]/60"
+            className="mt-2 min-h-12 w-full rounded-xl border border-white/10 bg-black/30 px-4 text-white outline-none transition focus:border-[var(--assist-line)]"
           />
           <button
             type="submit"
-            className="mt-4 min-h-12 w-full rounded-full bg-[#c5f04a] px-5 text-sm font-semibold text-[#0a0a0a] transition hover:bg-white"
+            className="mt-4 min-h-12 w-full rounded-full bg-[var(--assist)] px-5 text-sm font-semibold text-[var(--on-assist)] transition hover:bg-white"
           >
             Continuar
           </button>

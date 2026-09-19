@@ -1,15 +1,28 @@
 /**
- * Todo lo que allok puede cobrar, en un solo sitio.
+ * Lo que se cobra DESDE ESTE SITIO: la agencia.
  *
- * Hay dos negocios con dos formas de cobrar, y conviven a propósito:
+ * allok cobra por dos caminos, en dos cuentas de Stripe distintas, y no se
+ * tocan:
  *
- * - **Suscripción** — el CRM. Precio mensual recurrente en Stripe, el cliente
- *   se da de alta solo y se administra desde el portal de facturación.
- * - **Pago único** — la agencia y los proyectos a medida. Un importe cerrado
- *   por entregable, a veces en euros, a veces con el nombre del cliente.
+ * | | Agencia | CRM |
+ * |---|---|---|
+ * | Qué | proyectos y entregables a medida | la suscripción de allok |
+ * | Cuánto | importe cerrado por entregable | US$49 · US$99 al mes |
+ * | Modo | `payment` (pago único) | `subscription` |
+ * | Dónde vive el código | este archivo, `/api/stripe/*` | `vocero-crm`, `src/server/saas/billing.ts` |
+ * | Qué cuenta de Stripe | la de agencia | la del SaaS |
  *
- * Los dos pasan por el mismo `POST /api/stripe/checkout`, que elige el `mode`
- * de Stripe según el `kind` de esta tabla. Nada más distingue los dos caminos.
+ * **Por qué separadas.** La suscripción del CRM tiene que crear el negocio
+ * ANTES de cobrar: el checkout vive dentro de la app, donde existe la
+ * organización. Cobrarla desde este sitio dejaba al cliente pagando sin que
+ * nadie le creara la cuenta — está contado en `docs/cobros.md`. Y en cuentas
+ * separadas porque los ingresos recurrentes del producto y los proyectos de
+ * agencia son dos negocios con dos contabilidades.
+ *
+ * Aquí ya no hay ninguna entrada `subscription` del CRM: las que había
+ * (`allok-starter`, `allok-growth`, `allok-pro`) apuntaban a variables que
+ * nunca existieron, así que eran botones que devolvían 500. `assertNotCrmPlan`
+ * existe para que no vuelvan por descuido.
  *
  * Los ids de precio viven en variables de entorno, nunca en el repo: el mismo
  * código corre contra la cuenta de prueba y la real cambiando el entorno.
@@ -26,26 +39,6 @@ type CatalogItem = {
 };
 
 export const billingCatalog = {
-  // ── El CRM. Mensual, sin implementación: el alta es automática. ──────────
-  "allok-starter": {
-    kind: "subscription",
-    productEnv: "STRIPE_PRODUCT_ALLOK",
-    prices: ["STRIPE_PRICE_ALLOK_STARTER_MONTHLY"],
-    defaultChannel: "cloud_api",
-  },
-  "allok-growth": {
-    kind: "subscription",
-    productEnv: "STRIPE_PRODUCT_ALLOK",
-    prices: ["STRIPE_PRICE_ALLOK_GROWTH_MONTHLY"],
-    defaultChannel: "cloud_api",
-  },
-  "allok-pro": {
-    kind: "subscription",
-    productEnv: "STRIPE_PRODUCT_ALLOK",
-    prices: ["STRIPE_PRICE_ALLOK_PRO_MONTHLY"],
-    defaultChannel: "cloud_api",
-  },
-
   // ── La agencia. Pago único por entregable. ───────────────────────────────
   "allok-launch": {
     kind: "one_time",
@@ -115,5 +108,20 @@ export function isConfigured(key: BillingKey): boolean {
     return true;
   } catch {
     return false;
+  }
+}
+
+/**
+ * La suscripción del CRM no se cobra desde acá. Si una clave con pinta de plan
+ * del producto llega a este checkout, es que alguien volvió a cablear el
+ * camino que ya falló una vez: mejor un error con nombre que un cobro en la
+ * cuenta equivocada.
+ */
+export function assertNotCrmPlan(key: string): void {
+  if (/^allok-(starter|growth|pro|basic|basico|esencial|completo)$/i.test(key)) {
+    throw new Error(
+      `${key} es un plan del CRM: se cobra en la app (whatsapp.allok.fun/register?plan=…), ` +
+        "no en el checkout de agencia. Ver docs/cobros.md.",
+    );
   }
 }

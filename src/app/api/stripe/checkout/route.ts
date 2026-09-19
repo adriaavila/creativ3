@@ -1,6 +1,7 @@
 import Stripe from "stripe";
 import { NextResponse, type NextRequest } from "next/server";
 import {
+  assertNotCrmPlan,
   getBillingItem,
   isBillingKey,
   isSellable,
@@ -29,6 +30,19 @@ export async function POST(request: NextRequest) {
     const key = body.item ?? body.plan;
     if (!key || (!isAdHoc(key) && !isBillingKey(key))) {
       return NextResponse.json({ error: "Invalid billing item." }, { status: 400 });
+    }
+    // Este checkout es el de agencia. La suscripción del CRM se cobra dentro
+    // de la app, que crea el negocio antes de cobrar (ver docs/cobros.md).
+    try {
+      assertNotCrmPlan(key);
+    } catch {
+      return NextResponse.json(
+        {
+          error: "That plan is billed inside the app.",
+          register_url: "https://whatsapp.allok.fun/register",
+        },
+        { status: 409 },
+      );
     }
     if (!isAdHoc(key) && isBillingKey(key) && !isSellable(key)) {
       return NextResponse.json({ error: "That plan is no longer sold." }, { status: 410 });

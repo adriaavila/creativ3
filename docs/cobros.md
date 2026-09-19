@@ -1,16 +1,33 @@
 # Cobros: la suscripción del CRM y los proyectos de agencia
 
-Actualizado 2026-09-15.
+Actualizado 2026-09-19.
 
-allok cobra de dos formas, y las dos van por Stripe sin estorbarse.
+allok cobra de dos formas, **en dos cuentas de Stripe distintas**, y no se
+tocan.
 
-| | Suscripción | Pago único |
+| | Suscripción del CRM | Pago único de agencia |
 |---|---|---|
-| Qué | el CRM: Starter / Growth / Pro | agencia, proyectos, depósitos |
-| Cuánto | US$29 · 59 · 99 al mes | importe cerrado por entregable |
-| Quién lo dispara | el cliente, solo, desde `/` o `/rei` | tú, mandando un link |
+| Qué | Esencial · Completo | proyectos, entregables, depósitos |
+| Cuánto | US$49 · US$99 al mes | importe cerrado por entregable |
+| Quién lo dispara | el cliente, solo | tú, mandando un enlace |
 | Modo de Stripe | `subscription` | `payment` |
+| Dónde vive el código | `vocero-crm/src/server/saas/billing.ts` | este repo, `/api/stripe/*` |
+| Dónde se contrata | `whatsapp.allok.fun/register?plan=…` | `allok.fun`, enlace directo |
 | Se administra en | el portal de facturación de Stripe | no hace falta: se paga una vez |
+
+**Por qué separadas, y no una sola cuenta.** Dos razones, y las dos importan:
+
+1. **La suscripción tiene que crear el negocio antes de cobrar.** El checkout
+   del CRM vive dentro de la app, que es donde existe la organización. Cobrarlo
+   desde el sitio de marketing dejaba al cliente pagando sin que nadie le
+   creara la cuenta — el agujero que este documento describía.
+2. **Son dos negocios con dos contabilidades.** Ingreso recurrente de producto
+   por un lado; proyectos por el otro. Mezclarlos en una cuenta convierte
+   cualquier pregunta sobre MRR en un ejercicio de filtrado.
+
+`assertNotCrmPlan` en `src/lib/billing/catalog.ts` hace cumplir la separación:
+una clave con pinta de plan del CRM que llegue al checkout de agencia responde
+409 con la URL de registro, en vez de cobrar en la cuenta equivocada.
 
 **Lo que allok nunca cobra son los mensajes.** La cuenta de WhatsApp queda a
 nombre del cliente y Meta le factura el consumo directo. No es una decisión
@@ -18,7 +35,15 @@ comercial sino estructural: centralizar el pago de los mensajes está reservado
 a los Solution Partners de Meta, y allok es Tech Provider. Ver
 [`src/lib/plans.ts`](../src/lib/plans.ts).
 
+### El tercer bloque de la web no es una suscripción de autoservicio
+
+**A tu medida, desde US$499 al mes**, corre en el servidor del propio cliente.
+No tiene checkout: el botón abre WhatsApp. El precio es un piso, no una tarifa
+— por eso la página escribe «desde». **Puesta en marcha, US$499 una vez**, se
+suma a cualquier plan y también se conversa.
+
 ---
+
 
 ## Estado real hoy
 

@@ -7,6 +7,11 @@ import SiteFooter from "@/components/allok/SiteFooter";
 import Conversation from "@/components/allok/Conversation";
 import Reveal from "@/components/allok/Reveal";
 import MetaCostCalculator from "@/components/rei/MetaCostCalculator";
+import { Suspense } from "react";
+import Switcher from "@/components/prototype/Switcher";
+import VariantB from "@/components/prototype/VariantB";
+import VariantC from "@/components/prototype/VariantC";
+import VariantD from "@/components/prototype/VariantD";
 
 const TITLE = "allok — el CRM de WhatsApp para negocios de servicios";
 const DESCRIPTION =
@@ -67,7 +72,8 @@ const SECTORS = [
   ["Ecommerce y tiendas", "¿Tienen esta talla y cuánto es el envío?"],
 ] as const;
 
-export default function Home() {
+/** PROTOTIPO · Variante A — la home tal como está hoy. El punto de partida. */
+function VariantA() {
   const fallback = whatsappUrl(DEMO);
 
   return (
@@ -292,5 +298,41 @@ export default function Home() {
       <div className="pt-24 sm:pt-32" />
       <SiteFooter />
     </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   PROTOTIPO — cuatro versiones de esta misma página, en `?variant=`.
+
+   Pregunta que contesta: ¿qué estructura vende mejor allok? A es lo que hay
+   hoy; B, C y D no discuten el color, discuten el orden y la jerarquía.
+   Se tira entero cuando haya una ganadora: ver specs/ y la rama del prototipo.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+const VARIANTS = [
+  { key: "a", name: "Actual" },
+  { key: "b", name: "Riel" },
+  { key: "c", name: "El hilo" },
+  { key: "d", name: "Consola" },
+];
+
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: Promise<{ variant?: string }>;
+}) {
+  const key = (await searchParams).variant?.toLowerCase() ?? "a";
+  const variant = VARIANTS.some((v) => v.key === key) ? key : "a";
+
+  return (
+    <>
+      {variant === "b" ? <VariantB /> : null}
+      {variant === "c" ? <VariantC /> : null}
+      {variant === "d" ? <VariantD /> : null}
+      {variant === "a" ? <VariantA /> : null}
+      <Suspense fallback={null}>
+        <Switcher variants={VARIANTS} current={variant} />
+      </Suspense>
+    </>
   );
 }

@@ -1,15 +1,16 @@
 <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="allok">
-  <!-- La misma onda y el mismo degradado que `AllokMark` en
-       src/components/allok/Marks.tsx. Si cambia uno, cambia el otro. -->
+  <!-- La misma A que `MARK_PATH` en src/lib/brand.ts. Si cambia una, cambia la
+       otra: el favicon no puede ser un parecido del logo. El punto es el estado
+       en reposo (activo); en la app lo pinta el runtime, aquí va fijo. -->
   <defs>
-    <linearGradient id="icon-sky" x1="7" y1="0" x2="57" y2="0" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#1B3F96"/>
-      <stop offset="0.42" stop-color="#67277D"/>
-      <stop offset="0.76" stop-color="#B41065"/>
-      <stop offset="1" stop-color="#FF9A3D"/>
+    <linearGradient id="icon-a" x1="10" y1="52" x2="54" y2="12" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#22C36E"/>
+      <stop offset="1" stop-color="#6FEFB2"/>
     </linearGradient>
   </defs>
-  <rect width="64" height="64" rx="16" fill="#08090a"/>
-  <path d="M7 32 Q9.1 30.4 11.2 32 Q13.3 40.9 15.3 32 Q17.4 14.2 19.5 32 Q21.6 55.2 23.7 32 Q25.8 10.6 27.8 32 Q29.9 44.6 32 32 Q34.1 19.5 36.2 32 Q38.3 53.4 40.3 32 Q42.4 8.8 44.5 32 Q46.6 49.8 48.7 32 Q50.8 23.1 52.8 32 Q54.9 33.7 57 32"
-    fill="none" stroke="url(#icon-sky)" stroke-width="2.8" stroke-linecap="round"/>
+  <rect width="64" height="64" rx="16" fill="#0e1011"/>
+  <g fill="none" stroke="url(#icon-a)" stroke-width="5.4" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M8 46 Q11 46 13 42 Q15 37 17 42 Q19 47 22 44 L32 13 L42 46 H55"/>
+    <path d="M24.5 40 H39.5"/>
+  </g>
 </svg>

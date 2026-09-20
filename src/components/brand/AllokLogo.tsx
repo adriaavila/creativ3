@@ -1,194 +1,121 @@
-import { wavePath } from "@/lib/waveform";
+import { ACCENT, ACCENT_LIT, MARK_BAR, MARK_PATH, MARK_STROKE, STATES, type SystemState } from "@/lib/brand";
 
 type Props = {
   className?: string;
   variant?: "mark" | "mark-bare" | "wordmark" | "lockup" | "lockup-bare";
   theme?: "light" | "dark" | "auto";
+  /**
+   * El punto detrás del logotipo ES el estado del sistema. Sin estado no hay
+   * punto: un punto verde decorativo mentiría la primera vez que algo se caiga.
+   */
+  state?: SystemState;
 };
 
-/*
- * The mark is an amplitude-modulated sine: six oscillations, envelope swelling
- * and waisting across the width. Six is the ceiling — seven still reads at 64px
- * but mushes into a grey smear at favicon size, and the mark has to survive 20px.
- *
- * Generated, not hand-drawn, so the wide `Waveform` banner is provably the same
- * curve at another scale rather than a lookalike.
- */
-const WAVE_INSET = 7;
-const WAVE_WIDTH = 64 - WAVE_INSET * 2;
-const MARK_PATH = wavePath({ cycles: 6, width: WAVE_WIDTH, amp: 15, midY: 32 });
+const WORDMARK_FONT = "var(--font-grotesk), var(--font-instrument-sans), Inter, sans-serif";
 
-const ACCENT = "#c5f04a";
-
-// One id per variant. Two logos of the same variant on a page resolve to the
-// first definition, which is byte-identical — same paint, no visual drift.
 function gradientId(variant: string) {
-  return `allok-stroke-${variant}`;
+  return `allok-a-${variant}`;
 }
 
-function StrokeGradient({ id }: { id: string }) {
+function MarkGradient({ id }: { id: string }) {
   return (
     <defs>
-      <linearGradient
-        id={id}
-        x1={WAVE_INSET}
-        y1="0"
-        x2={WAVE_INSET + WAVE_WIDTH}
-        y2="0"
-        gradientUnits="userSpaceOnUse"
-      >
-        <stop offset="0.5" stopColor="currentColor" />
-        <stop offset="1" stopColor={ACCENT} />
+      <linearGradient id={id} x1="10" y1="52" x2="54" y2="12" gradientUnits="userSpaceOnUse">
+        <stop offset="0" stopColor={ACCENT} />
+        <stop offset="1" stopColor={ACCENT_LIT} />
       </linearGradient>
     </defs>
   );
 }
 
-function Mark({ id, strokeWidth = 2.6 }: { id: string; strokeWidth?: number }) {
+function Mark({ paint, stroke = MARK_STROKE }: { paint: string; stroke?: number }) {
   return (
-    <path
-      d={MARK_PATH}
-      transform={`translate(${WAVE_INSET},0)`}
-      fill="none"
-      stroke={`url(#${id})`}
-      strokeWidth={strokeWidth}
-      strokeLinecap="round"
-    />
+    <g fill="none" stroke={paint} strokeWidth={stroke} strokeLinecap="round" strokeLinejoin="round">
+      <path d={MARK_PATH} />
+      <path d={MARK_BAR} />
+    </g>
   );
 }
 
-const WORDMARK_FONT =
-  "var(--font-grotesk), var(--font-instrument-sans), Inter, sans-serif";
+/** El punto de estado, a la altura de la línea base del logotipo. */
+function StateDot({ cx, cy, r, state }: { cx: number; cy: number; r: number; state: SystemState }) {
+  return <circle cx={cx} cy={cy} r={r} fill={STATES[state].dot} />;
+}
 
-export default function AllokLogo({
-  className,
-  variant = "lockup",
-  theme = "auto",
-}: Props) {
+export default function AllokLogo({ className, variant = "lockup", theme = "auto", state }: Props) {
   const isDark = theme === "dark";
-  const badgeBg = isDark ? "#111214" : "#08090a";
+  const badgeBg = isDark ? "#111214" : "#0e1011";
   const id = gradientId(variant);
+  const paint = `url(#${id})`;
 
   if (variant === "mark") {
     return (
-      <svg
-        viewBox="0 0 64 64"
-        xmlns="http://www.w3.org/2000/svg"
-        className={className}
-        role="img"
-        aria-label="allok"
-      >
+      <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" className={className} role="img" aria-label="allok">
         <rect width="64" height="64" rx="16" fill={badgeBg} />
-        <g className="text-white">
-          <StrokeGradient id={id} />
-          <Mark id={id} />
-        </g>
+        <MarkGradient id={id} />
+        <Mark paint={paint} />
       </svg>
     );
   }
 
   if (variant === "mark-bare") {
     return (
-      <svg
-        viewBox="0 0 64 64"
-        xmlns="http://www.w3.org/2000/svg"
-        className={className}
-        role="img"
-        aria-label="allok"
-      >
-        <StrokeGradient id={id} />
-        <Mark id={id} />
+      <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" className={className} role="img" aria-label="allok">
+        <MarkGradient id={id} />
+        <Mark paint={paint} />
       </svg>
     );
   }
 
   if (variant === "wordmark") {
     return (
-      <svg
-        viewBox="0 0 92 44"
-        xmlns="http://www.w3.org/2000/svg"
-        className={className}
-        role="img"
-        aria-label="allok"
-      >
+      <svg viewBox="0 0 104 44" xmlns="http://www.w3.org/2000/svg" className={className} role="img" aria-label="allok">
         <text
-          x="0"
-          y="33"
-          textLength="88"
-          lengthAdjust="spacingAndGlyphs"
-          fontFamily={WORDMARK_FONT}
-          fontSize="34"
-          fontWeight="600"
-          letterSpacing="-1.3"
+          x="0" y="33" textLength="88" lengthAdjust="spacingAndGlyphs"
+          fontFamily={WORDMARK_FONT} fontSize="34" fontWeight="700" letterSpacing="-1.5"
           fill="currentColor"
         >
-          <tspan>all</tspan>
-          <tspan>ok</tspan>
+          allok
         </text>
+        {state ? <StateDot cx={96} cy={28} r={5.5} state={state} /> : null}
       </svg>
     );
   }
 
   if (variant === "lockup-bare") {
     return (
-      <svg
-        viewBox="0 0 148 56"
-        xmlns="http://www.w3.org/2000/svg"
-        className={className}
-        role="img"
-        aria-label="allok"
-      >
-        <StrokeGradient id={id} />
-        <g transform="translate(-2,1) scale(0.85)">
-          <Mark id={id} strokeWidth={3.1} />
+      <svg viewBox="0 0 160 56" xmlns="http://www.w3.org/2000/svg" className={className} role="img" aria-label="allok">
+        <MarkGradient id={id} />
+        <g transform="translate(-4,2) scale(0.88)">
+          <Mark paint={paint} />
         </g>
         <text
-          x="54"
-          y="37"
-          textLength="88"
-          lengthAdjust="spacingAndGlyphs"
-          fontFamily={WORDMARK_FONT}
-          fontSize="33"
-          fontWeight="600"
-          letterSpacing="-1.4"
+          x="56" y="37" textLength="88" lengthAdjust="spacingAndGlyphs"
+          fontFamily={WORDMARK_FONT} fontSize="33" fontWeight="700" letterSpacing="-1.5"
           fill="currentColor"
         >
-          <tspan>all</tspan>
-          <tspan>ok</tspan>
+          allok
         </text>
+        {state ? <StateDot cx={152} cy={32} r={5.5} state={state} /> : null}
       </svg>
     );
   }
 
   return (
-    <svg
-      viewBox="0 0 154 56"
-      xmlns="http://www.w3.org/2000/svg"
-      className={className}
-      role="img"
-      aria-label="allok"
-    >
+    <svg viewBox="0 0 166 56" xmlns="http://www.w3.org/2000/svg" className={className} role="img" aria-label="allok">
       <rect width="48" height="48" y="4" rx="14" fill={badgeBg} />
-      <g className="text-white">
-        <StrokeGradient id={id} />
-        <g transform="translate(4,8) scale(0.625)">
-          <Mark id={id} strokeWidth={3.6} />
-        </g>
+      <MarkGradient id={id} />
+      <g transform="translate(4,8) scale(0.625)">
+        <Mark paint={paint} stroke={MARK_STROKE + 1.4} />
       </g>
       <text
-        x="60"
-        y="37"
-        textLength="88"
-        lengthAdjust="spacingAndGlyphs"
-        fontFamily={WORDMARK_FONT}
-        fontSize="33"
-        fontWeight="600"
-        letterSpacing="-1.4"
+        x="60" y="37" textLength="88" lengthAdjust="spacingAndGlyphs"
+        fontFamily={WORDMARK_FONT} fontSize="33" fontWeight="700" letterSpacing="-1.5"
         fill="currentColor"
       >
-        <tspan>all</tspan>
-        <tspan>ok</tspan>
+        allok
       </text>
+      {state ? <StateDot cx={158} cy={32} r={5.5} state={state} /> : null}
     </svg>
   );
 }

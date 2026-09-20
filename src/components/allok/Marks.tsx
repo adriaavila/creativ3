@@ -1,3 +1,4 @@
+import { ACCENT, ACCENT_LIT, MARK_BAR, MARK_PATH, MARK_STROKE, STATES, type SystemState } from "@/lib/brand";
 /**
  * Las tres marcas de la casa, dibujadas con el mismo trazo.
  *
@@ -10,10 +11,8 @@
  */
 
 const STOPS = [
-  { offset: "0", color: "#1B3F96" },
-  { offset: "0.42", color: "#67277D" },
-  { offset: "0.76", color: "#B41065" },
-  { offset: "1", color: "#FF9A3D" },
+  { offset: "0", color: ACCENT },
+  { offset: "1", color: ACCENT_LIT },
 ] as const;
 
 function SkyStroke({ id, x1, x2 }: { id: string; x1: number; x2: number }) {
@@ -26,21 +25,19 @@ function SkyStroke({ id, x1, x2 }: { id: string; x1: number; x2: number }) {
   );
 }
 
-/** La onda de allok: amplitud que crece y decae. Sin contenedor — es la casa. */
+/** allok: la señal que se pone de pie y se vuelve A. Misma geometría que
+ *  `AllokLogo` — las dos leen `MARK_PATH`, así que no pueden separarse. */
 export function AllokMark({ size = 32 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 64 64" role="img" aria-label="allok">
       <defs>
-        <SkyStroke id="mk-allok" x1={7} x2={57} />
+        <SkyStroke id="mk-allok" x1={10} x2={54} />
       </defs>
-      <rect width="64" height="64" rx="16" fill="#08090A" />
-      <path
-        d="M7 32 Q9.1 30.4 11.2 32 Q13.3 40.9 15.3 32 Q17.4 14.2 19.5 32 Q21.6 55.2 23.7 32 Q25.8 10.6 27.8 32 Q29.9 44.6 32 32 Q34.1 19.5 36.2 32 Q38.3 53.4 40.3 32 Q42.4 8.8 44.5 32 Q46.6 49.8 48.7 32 Q50.8 23.1 52.8 32 Q54.9 33.7 57 32"
-        fill="none"
-        stroke="url(#mk-allok)"
-        strokeWidth="2.8"
-        strokeLinecap="round"
-      />
+      <rect width="64" height="64" rx="16" fill="#0e1011" />
+      <g fill="none" stroke="url(#mk-allok)" strokeWidth={MARK_STROKE} strokeLinecap="round" strokeLinejoin="round">
+        <path d={MARK_PATH} />
+        <path d={MARK_BAR} />
+      </g>
     </svg>
   );
 }
@@ -52,17 +49,18 @@ export function ReiMark({ size = 32 }: { size?: number }) {
       <defs>
         <SkyStroke id="mk-rei" x1={12} x2={52} />
       </defs>
-      <rect x="4" y="4" width="56" height="48" rx="14" fill="#08090A" />
-      <path d="M16 50 L13 62 L31 50 Z" fill="#08090A" />
+      <rect x="4" y="4" width="56" height="48" rx="14" fill="#0e1011" />
+      <path d="M16 50 L13 62 L31 50 Z" fill="#0e1011" />
       <path
-        d="M12 28 Q14 23 16 28 Q18 37 20 28 Q22 15 24 28 Q26 42 28 28 Q30 13 32 28 Q34 39 36 28 Q38 24 40 28 L47 28"
+        d={MARK_PATH}
+        transform="translate(0,-6) scale(0.78) translate(6,6)"
         fill="none"
         stroke="url(#mk-rei)"
-        strokeWidth="3.2"
+        strokeWidth="4.4"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
-      <circle cx="50.5" cy="28" r="2.6" fill="#FF9A3D" />
+      <circle cx="50.5" cy="28" r="2.6" fill={STATES.activo.dot} />
     </svg>
   );
 }
@@ -74,7 +72,7 @@ export function VoceroMark({ size = 32 }: { size?: number }) {
       <defs>
         <SkyStroke id="mk-vocero" x1={20} x2={46} />
       </defs>
-      <rect width="64" height="64" rx="16" fill="#08090A" />
+      <rect width="64" height="64" rx="16" fill="#0e1011" />
       <path
         d="M17 18 H11 V46 H17 M47 18 H53 V46 H47"
         fill="none"
@@ -84,10 +82,11 @@ export function VoceroMark({ size = 32 }: { size?: number }) {
         strokeLinejoin="round"
       />
       <path
-        d="M20 32 Q22.5 27 25 32 Q27.5 42 30 32 Q32.5 16 35 32 Q37.5 45 40 32 Q42.5 28 45 32"
+        d={MARK_PATH}
+        transform="translate(10,2) scale(0.68)"
         fill="none"
         stroke="url(#mk-vocero)"
-        strokeWidth="3.2"
+        strokeWidth="5"
         strokeLinecap="round"
       />
     </svg>
@@ -108,10 +107,13 @@ export function Lockup({
   product,
   size = 30,
   onSky = true,
+  state,
 }: {
   product?: Product;
   size?: number;
   onSky?: boolean;
+  /** El punto detrás del nombre: el estado real, o nada. */
+  state?: SystemState;
 }) {
   const Mark = MARKS[product ?? "allok"];
   const dim = onSky ? "rgba(247,244,239,.6)" : "rgba(16,17,18,.45)";
@@ -130,7 +132,19 @@ export function Lockup({
             <span style={{ fontSize: size * 0.62, color: ink, fontWeight: 700 }}>{product}</span>
           </>
         ) : (
-          <span style={{ fontSize: size * 0.62, color: ink, fontWeight: 700 }}>allok</span>
+          <span className="inline-flex items-baseline" style={{ fontSize: size * 0.62, color: ink, fontWeight: 700 }}>
+            allok
+            {state ? (
+              <span
+                aria-label={STATES[state].label}
+                title={STATES[state].label}
+                style={{
+                  width: size * 0.19, height: size * 0.19, marginLeft: size * 0.07,
+                  borderRadius: 999, background: STATES[state].dot, display: "inline-block",
+                }}
+              />
+            ) : null}
+          </span>
         )}
       </span>
     </span>

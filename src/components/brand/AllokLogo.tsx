@@ -1,121 +1,101 @@
-import { ACCENT, ACCENT_LIT, MARK_BAR, MARK_PATH, MARK_STROKE, STATES, type SystemState } from "@/lib/brand";
+import { STATES, type SystemState } from "@/lib/brand";
+import OkDot from "./OkDot";
 
 type Props = {
   className?: string;
-  variant?: "mark" | "mark-bare" | "wordmark" | "lockup" | "lockup-bare";
-  theme?: "light" | "dark" | "auto";
+  variant?: "wordmark" | "lockup" | "mark";
+  /** Sobre Ink el logotipo va en Cloud; sobre Cloud, en Ink. */
+  on?: "cloud" | "ink";
   /**
-   * El punto detrás del logotipo ES el estado del sistema. Sin estado no hay
-   * punto: un punto verde decorativo mentiría la primera vez que algo se caiga.
+   * El estado del sistema. Es la `o` del logotipo, así que no hay valor por
+   * defecto: quien lo pinte tiene que saber si las cosas están bien.
    */
-  state?: SystemState;
+  state: SystemState;
+  /** Altura de la caja de texto en px. Todo lo demás sale de aquí. */
+  size?: number;
+  /** `true` anima el punto con el Lottie; `false` lo deja quieto. */
+  live?: boolean;
 };
 
-const WORDMARK_FONT = "var(--font-grotesk), var(--font-instrument-sans), Inter, sans-serif";
-
-function gradientId(variant: string) {
-  return `allok-a-${variant}`;
-}
-
-function MarkGradient({ id }: { id: string }) {
-  return (
-    <defs>
-      <linearGradient id={id} x1="10" y1="52" x2="54" y2="12" gradientUnits="userSpaceOnUse">
-        <stop offset="0" stopColor={ACCENT} />
-        <stop offset="1" stopColor={ACCENT_LIT} />
-      </linearGradient>
-    </defs>
-  );
-}
-
-function Mark({ paint, stroke = MARK_STROKE }: { paint: string; stroke?: number }) {
-  return (
-    <g fill="none" stroke={paint} strokeWidth={stroke} strokeLinecap="round" strokeLinejoin="round">
-      <path d={MARK_PATH} />
-      <path d={MARK_BAR} />
-    </g>
-  );
-}
-
-/** El punto de estado, a la altura de la línea base del logotipo. */
-function StateDot({ cx, cy, r, state }: { cx: number; cy: number; r: number; state: SystemState }) {
-  return <circle cx={cx} cy={cy} r={r} fill={STATES[state].dot} />;
-}
-
-export default function AllokLogo({ className, variant = "lockup", theme = "auto", state }: Props) {
-  const isDark = theme === "dark";
-  const badgeBg = isDark ? "#111214" : "#0e1011";
-  const id = gradientId(variant);
-  const paint = `url(#${id})`;
+/**
+ * `all ● k` — el logotipo con el estado dentro.
+ *
+ * El punto ocupa el sitio de la `o`, así que el logo no se puede pintar sin
+ * decir cómo está el sistema. En verde (`activo`) el logo literalmente se lee
+ * «all ok».
+ *
+ * Sobre un fondo verde el punto se invierte a Ink: verde sobre verde
+ * desaparece y el logotipo se lee «all k».
+ */
+export default function AllokLogo({
+  className = "",
+  variant = "wordmark",
+  on = "cloud",
+  state,
+  size = 30,
+  live = false,
+}: Props) {
+  const ink = on === "ink" ? "#F7F8F8" : "#0B0D0E";
+  const dotSize = Math.round(size * 0.6);
+  const def = STATES[state];
 
   if (variant === "mark") {
+    // El icono de app: el punto solo. Cuando la marca ya se reconoce, no hace
+    // falta nada más — y a 20px es lo único que sobrevive.
     return (
-      <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" className={className} role="img" aria-label="allok">
-        <rect width="64" height="64" rx="16" fill={badgeBg} />
-        <MarkGradient id={id} />
-        <Mark paint={paint} />
-      </svg>
+      <span
+        className={`grid shrink-0 place-items-center rounded-[26%] ${className}`}
+        style={{ width: size, height: size, background: "#0B0D0E" }}
+        role="img"
+        aria-label={`allok · ${def.label}`}
+      >
+        {live ? (
+          <OkDot state={state} size={Math.round(size * 0.44)} />
+        ) : (
+          <span
+            className="block rounded-full"
+            style={{ width: size * 0.44, height: size * 0.44, background: def.dot }}
+          />
+        )}
+      </span>
     );
   }
 
-  if (variant === "mark-bare") {
-    return (
-      <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" className={className} role="img" aria-label="allok">
-        <MarkGradient id={id} />
-        <Mark paint={paint} />
-      </svg>
-    );
-  }
+  const word = (
+    <span
+      className="inline-flex items-center font-display leading-none"
+      style={{ fontSize: size, fontWeight: 800, letterSpacing: "-0.055em", color: ink }}
+    >
+      all
+      {live ? (
+        <OkDot state={state} size={dotSize} className="mx-[0.02em]" />
+      ) : (
+        <span
+          className="mx-[0.02em] inline-block shrink-0 rounded-full"
+          style={{ width: dotSize, height: dotSize, background: def.dot }}
+        />
+      )}
+      <span style={{ marginLeft: size * 0.04 }}>k</span>
+    </span>
+  );
 
   if (variant === "wordmark") {
     return (
-      <svg viewBox="0 0 104 44" xmlns="http://www.w3.org/2000/svg" className={className} role="img" aria-label="allok">
-        <text
-          x="0" y="33" textLength="88" lengthAdjust="spacingAndGlyphs"
-          fontFamily={WORDMARK_FONT} fontSize="34" fontWeight="700" letterSpacing="-1.5"
-          fill="currentColor"
-        >
-          allok
-        </text>
-        {state ? <StateDot cx={96} cy={28} r={5.5} state={state} /> : null}
-      </svg>
-    );
-  }
-
-  if (variant === "lockup-bare") {
-    return (
-      <svg viewBox="0 0 160 56" xmlns="http://www.w3.org/2000/svg" className={className} role="img" aria-label="allok">
-        <MarkGradient id={id} />
-        <g transform="translate(-4,2) scale(0.88)">
-          <Mark paint={paint} />
-        </g>
-        <text
-          x="56" y="37" textLength="88" lengthAdjust="spacingAndGlyphs"
-          fontFamily={WORDMARK_FONT} fontSize="33" fontWeight="700" letterSpacing="-1.5"
-          fill="currentColor"
-        >
-          allok
-        </text>
-        {state ? <StateDot cx={152} cy={32} r={5.5} state={state} /> : null}
-      </svg>
+      <span className={`inline-flex ${className}`} aria-label={`allok · ${def.label}`} role="img">
+        {word}
+      </span>
     );
   }
 
   return (
-    <svg viewBox="0 0 166 56" xmlns="http://www.w3.org/2000/svg" className={className} role="img" aria-label="allok">
-      <rect width="48" height="48" y="4" rx="14" fill={badgeBg} />
-      <MarkGradient id={id} />
-      <g transform="translate(4,8) scale(0.625)">
-        <Mark paint={paint} stroke={MARK_STROKE + 1.4} />
-      </g>
-      <text
-        x="60" y="37" textLength="88" lengthAdjust="spacingAndGlyphs"
-        fontFamily={WORDMARK_FONT} fontSize="33" fontWeight="700" letterSpacing="-1.5"
-        fill="currentColor"
+    <span className={`inline-flex items-baseline gap-3 ${className}`} role="img" aria-label={`allok · ${def.label}`}>
+      {word}
+      <span
+        className="mono"
+        style={{ color: on === "ink" ? "rgba(247,248,248,.55)" : "rgba(11,13,14,.5)" }}
       >
-        allok
-      </text>
-      {state ? <StateDot cx={158} cy={32} r={5.5} state={state} /> : null}
-    </svg>
+        {def.label}
+      </span>
+    </span>
   );
 }

@@ -768,12 +768,12 @@ html:has(.rig) ::selection { background: var(--hazard); color: var(--paper); }
    que el portafolio y el producto no se pisen los tokens.
    ═══════════════════════════════════════════════════════════════════ */
 .allok {
-  --paper: #f5f4f0;
-  --paper-2: #f1efeb;
-  --ink: #101112;
-  --ink-60: #6b6d70;
-  --ink-40: #9a9c9f;
-  --line: rgba(16, 17, 18, 0.1);
+  --paper: #f7f8f8;
+  --paper-2: #f1f2f2;
+  --ink: #0b0d0e;
+  --ink-60: #5b6167;
+  --ink-40: #8a9097;
+  --line: rgba(11, 13, 14, 0.1);
   --dusk: #b41065;
   --lit-dawn: rgb(255 154 61);
   --lit-dusk: rgb(255 227 194);
@@ -845,15 +845,18 @@ html:has(.rig) ::selection { background: var(--hazard); color: var(--paper); }
   z-index: 1;
 }
 /* El mismo degradado escrito en el texto, para el correo del pie. */
+/* El único degradado de la marca, y sólo en el pie: de Signal Blue a OK Green.
+   Es «trabajando → resuelto» escrito en color, que es la misma historia que
+   cuenta el punto. El azul-violeta de antes no decía nada. */
 .allok-sky-text {
-  background-image: linear-gradient(96deg, rgb(27 63 150) 0%, #67277d 42%, rgb(180 16 101) 74%, var(--lit-dawn) 100%);
+  background-image: linear-gradient(96deg, var(--signal) 0%, #24a7c4 48%, var(--ok) 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
 }
 .allok-sky-rule {
   height: 2px;
-  background-image: linear-gradient(96deg, rgb(3 18 63) 0%, rgb(27 63 150) 26%, #67277d 58%, rgb(180 16 101) 82%, #8f4a58 100%);
+  background-image: linear-gradient(96deg, var(--signal) 0%, #24a7c4 52%, var(--ok) 100%);
 }
 
 /* Botones: el press da la única respuesta táctil; nada más se mueve. */
@@ -961,21 +964,21 @@ html:has(.rig) ::selection { background: var(--hazard); color: var(--paper); }
      El verde de WhatsApp (--wa-out) NO es un token de marca: 149° contra 142°
      se distinguen mal, así que se separan por uso. allok pinta estado; WhatsApp
      pinta burbujas. Nunca al revés. */
-  --accent: #22c36e;
-  --accent-lit: #6fefb2;
-  --on-accent: #08120c;
-  --accent-dim: rgba(34, 195, 110, 0.14);
-  --accent-line: rgba(34, 195, 110, 0.3);
+  --cloud: #f7f8f8;
+  --ok: #20e58d;
+  --ok-ink: #0a7a48;
+  --signal: #315cff;
+  --signal-ink: #2348cc;
 
-  --st-activo: #3fe38f;      --st-activo-ink: #0f7a45;      --st-activo-soft: #e3f8ed;
-  --st-atendiendo: #5bb0ff;  --st-atendiendo-ink: #0b5fa8;  --st-atendiendo-soft: #e4f1fd;
-  --st-atencion: #ffc043;    --st-atencion-ink: #7a5600;    --st-atencion-soft: #fdf1da;
-  --st-pausado: #8b9096;     --st-pausado-ink: #5c5e61;     --st-pausado-soft: #eceded;
+  --st-activo: #20e58d;      --st-activo-ink: #0a7a48;      --st-activo-soft: #e2f9ee;
+  --st-atendiendo: #5b8cff;  --st-atendiendo-ink: #2348cc;  --st-atendiendo-soft: #e7edff;
+  --st-atencion: #ffb020;    --st-atencion-ink: #7a5600;    --st-atencion-soft: #fdf0db;
+  --st-pausado: #8a9097;     --st-pausado-ink: #5a6066;     --st-pausado-soft: #ededee;
 
   --wa-out: #25d366;
 
-  --void: #08090a;
-  --void-2: #101214;
+  --void: #0b0d0e;
+  --void-2: #101315;
   --on-void: #f5f4f0;
   --on-void-60: rgba(245, 244, 240, 0.62);
   --on-void-40: rgba(245, 244, 240, 0.38);
@@ -1064,6 +1067,26 @@ html:has(.rig) ::selection { background: var(--hazard); color: var(--paper); }
     }
   }
 }
+/* Bloques que suben al entrar. Mismo principio que `.allok-reveal`: visibles
+   por defecto, y la animación sólo se enchufa donde hay línea de tiempo de
+   scroll y nadie pidió menos movimiento. Un bloque invisible esperando a que
+   corra JavaScript es contenido que puede no llegar nunca. */
+.allok .allok-rise { display: contents; }
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .allok .allok-rise {
+      display: block;
+      animation: allok-rise linear both;
+      animation-timeline: view();
+      animation-range: cover var(--rise-from, 6%) cover 34%;
+    }
+  }
+}
+@keyframes allok-rise {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: none; }
+}
+
 /* El apagado vive en el fotograma, no en la regla: si la línea de tiempo no
    está activa, la palabra se queda en tinta plena en vez de gris. */
 @keyframes allok-reveal-word {
@@ -1077,38 +1100,77 @@ html:has(.rig) ::selection { background: var(--hazard); color: var(--paper); }
   text-wrap: pretty;
 }
 
-/* Un teléfono de verdad, no una caja con bordes redondeados. El bisel es
-   oscuro sobre el contenido para que la pantalla parezca encendida. */
+/* El teléfono. Un aparato, no una caja con bordes redondeados.
+   Tres cosas lo hacen leer como hardware y no como un `div`:
+   · el riel en bandas — el titanio no es un degradado suave, son franjas de
+     luz y sombra que cambian donde la superficie se dobla;
+   · los radios concéntricos — el interior es el exterior menos el grosor del
+     marco (54 − 11 = 43), que es como se fabrica de verdad;
+   · la sombra de contacto corta y dura debajo del cristal, aparte de la
+     ambiental larga. Una sola sombra difusa lo deja flotando como una pegatina. */
 .allok-device {
   position: relative;
   width: 100%;
   max-width: 340px;
-  border-radius: 46px;
-  padding: 10px;
-  background: linear-gradient(170deg, #2b2e33 0%, #121417 38%, #1e2126 100%);
+  border-radius: 54px;
+  padding: 11px;
+  background: linear-gradient(
+    148deg,
+    #52565e 0%, #23272c 11%, #767c86 24%, #1a1d21 38%,
+    #3a3e45 54%, #16191c 68%, #7d838d 84%, #1d2024 100%
+  );
   box-shadow:
-    0 0 0 1px rgb(255 255 255 / 0.08),
-    0 44px 90px -30px rgb(0 0 0 / 0.75),
-    0 8px 22px -10px rgb(0 0 0 / 0.6);
+    inset 0 0 0 1px rgb(255 255 255 / 0.16),
+    inset 0 1.5px 1px rgb(255 255 255 / 0.34),
+    inset 0 -1.5px 1px rgb(255 255 255 / 0.14),
+    0 1px 2px rgb(0 0 0 / 0.5),
+    0 26px 44px -18px rgb(0 0 0 / 0.7),
+    0 70px 130px -48px rgb(0 0 0 / 0.65);
+}
+/* Botones laterales: volumen a la izquierda, encendido a la derecha. Del mismo
+   material que el riel, un pelo más oscuros porque están en sombra. */
+.allok-device::before,
+.allok-device::after {
+  content: "";
+  position: absolute;
+  border-radius: 2px;
+  background: linear-gradient(180deg, #3c4047, #1b1e22);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.18);
+}
+.allok-device::before {
+  left: -2px;
+  top: 118px;
+  width: 3px;
+  height: 116px;
+}
+.allok-device::after {
+  right: -2px;
+  top: 150px;
+  width: 3px;
+  height: 78px;
 }
 .allok-device-screen {
   position: relative;
   overflow: hidden;
-  border-radius: 37px;
+  border-radius: 43px;
   background: #ece5dd;
+  box-shadow:
+    inset 0 0 0 1px rgb(0 0 0 / 0.55),
+    inset 0 2px 5px rgb(0 0 0 / 0.35);
 }
-/* La isla, del mismo color que el bisel para que se lea como hardware. */
+/* La isla, del mismo negro que el cristal apagado. */
 .allok-device-screen::before {
   content: "";
   position: absolute;
-  top: 9px;
+  top: 10px;
   left: 50%;
   z-index: 3;
-  width: 84px;
-  height: 22px;
+  width: 86px;
+  height: 24px;
   transform: translateX(-50%);
   border-radius: 999px;
-  background: #0b0d0f;
+  background: #07090a;
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.06);
 }
 
 /* Las burbujas entran en secuencia una sola vez. Es la única animación por

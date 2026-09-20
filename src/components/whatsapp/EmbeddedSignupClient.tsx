@@ -362,7 +362,7 @@ export default function EmbeddedSignupClient({
       <header className="border-b border-[#e5e9ed] bg-white">
         <div className="mx-auto flex max-w-[1180px] items-center justify-between gap-4 px-5 py-4 sm:px-8">
           <div className="flex items-center gap-3">
-            <AllokLogo variant="mark" theme="light" className="size-9" />
+            <AllokLogo variant="mark" className="size-9"  state="activo"/>
             <div>
               <p className="font-display text-[17px] font-semibold tracking-[-0.04em] text-[#142b4b]">
                 allok<span className="text-[#97c51e]">.</span>

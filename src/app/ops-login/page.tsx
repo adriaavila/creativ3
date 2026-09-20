@@ -28,7 +28,7 @@ export default async function OpsLoginPage({
       />
 
       <div className="relative w-full max-w-md rounded-3xl border border-white/10 bg-white/[0.04] p-7 shadow-2xl shadow-black/40 sm:p-9">
-        <AllokLogo variant="mark" className="h-11 w-11" />
+        <AllokLogo variant="mark" state="activo" size={44} live />
         <div className="mt-6 font-mono text-[9px] uppercase tracking-[0.2em] text-[var(--assist-ink)]">
           allok · Operación privada
         </div>

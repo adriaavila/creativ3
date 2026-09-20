@@ -58,9 +58,27 @@ export default function Conversation({
   return (
     <div className="allok-device">
       <div className="allok-device-screen">
+        {/* La barra de estado del teléfono. Es lo que separa «captura de
+            pantalla» de «dibujo de una pantalla». */}
+        <div className="absolute inset-x-0 top-0 z-[2] flex items-center justify-between px-6 pt-[11px] text-[11px] font-semibold text-white">
+          <span className="tabular-nums">3:15</span>
+          <span className="flex items-center gap-1" aria-hidden="true">
+            <svg viewBox="0 0 18 12" className="h-[10px] w-[15px]" fill="currentColor">
+              <rect x="0" y="8" width="3" height="4" rx=".6" /><rect x="4.5" y="5.5" width="3" height="6.5" rx=".6" />
+              <rect x="9" y="3" width="3" height="9" rx=".6" /><rect x="13.5" y="0" width="3" height="12" rx=".6" />
+            </svg>
+            <svg viewBox="0 0 16 12" className="h-[10px] w-[13px]" fill="currentColor">
+              <path d="M8 11.2 5.6 8.6a3.4 3.4 0 0 1 4.8 0L8 11.2Zm0-5.1a6 6 0 0 0-4.2 1.7L2.1 6.1a8.4 8.4 0 0 1 11.8 0l-1.7 1.7A6 6 0 0 0 8 6.1Z" />
+            </svg>
+            <span className="ml-0.5 inline-flex h-[11px] w-[22px] items-center rounded-[3px] border border-white/55 p-[1.5px]">
+              <span className="h-full w-[72%] rounded-[1px] bg-white" />
+            </span>
+          </span>
+        </div>
+
         {/* La barra del chat, en el verde de WhatsApp — es el único lugar del
             sitio donde aparece, porque aquí no es decoración: es dónde vive
-            el producto. */}
+            el producto. El verde de allok nunca pinta esto. */}
         <div className="flex items-center gap-2.5 bg-[#008069] px-3.5 pb-2.5 pt-[38px] text-white">
           <div className="grid size-8 shrink-0 place-items-center rounded-full bg-[rgba(255,255,255,.22)] text-[13px] font-semibold">
             {business.slice(0, 1)}

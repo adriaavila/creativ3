@@ -101,7 +101,7 @@ export default function OpsNav({ global = false }: OpsNavProps) {
       onClick={() => setMobileMenuOpen(false)}
       className={`flex items-center gap-3 rounded-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--rule)] ${mobile ? "min-h-11" : ""}`}
     >
-      <AllokLogo variant="mark" theme="light" className="size-9 shrink-0" />
+      <AllokLogo variant="mark" state="activo" size={36} className="shrink-0" />
       <span className="min-w-0">
         <span className="block font-display text-[19px] font-semibold tracking-[-0.04em] text-[var(--ink)]">
           allok<span className="text-[var(--assist-ink)]">.</span>

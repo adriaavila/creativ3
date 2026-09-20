@@ -58,7 +58,7 @@ export default function ProjectCheckout({
     <main className="min-h-screen bg-[var(--surface-0)] px-5 py-6 text-[var(--text-primary)] sm:px-8 sm:py-10">
       <div className="mx-auto flex min-h-[calc(100vh-3rem)] max-w-5xl flex-col border border-[var(--line)] bg-[var(--surface-1)] shadow-[var(--shadow-3)] sm:min-h-[calc(100vh-5rem)]">
         <header className="flex items-center justify-between border-b border-[var(--line)] px-6 py-5 sm:px-10">
-          <AllokLogo variant="lockup-bare" theme="dark" className="h-8 w-auto" />
+          <AllokLogo variant="wordmark" state="activo" className="h-8 w-auto" />
           <span className="inline-flex items-center gap-2 text-xs font-medium text-[var(--text-secondary)]">
             <LockKeyhole className="size-3.5" aria-hidden /> Pago seguro
           </span>

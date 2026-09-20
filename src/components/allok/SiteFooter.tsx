@@ -37,7 +37,7 @@ const COLUMNS = [
 
 export default function SiteFooter() {
   return (
-    <footer className="bg-[#101112] px-5 py-12 text-[#f5f4f0] sm:px-10 sm:py-16">
+    <footer className="bg-[var(--ink)] px-5 py-12 text-[#f5f4f0] sm:px-10 sm:py-16">
       <div className="mx-auto grid max-w-[1200px] gap-11 lg:grid-cols-[1.25fr_1.75fr]">
         <div>
           <Lockup size={34} />

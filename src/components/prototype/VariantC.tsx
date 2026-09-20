@@ -106,7 +106,8 @@ export default function VariantC() {
       <section className="mx-auto max-w-[1240px] px-5 pb-16 pt-16 sm:px-10 sm:pb-20 sm:pt-24">
         <p className="mono text-[var(--ink-40)]">El CRM de WhatsApp para negocios de servicios</p>
         <h1 className="hero mt-6 max-w-[15ch] !text-[clamp(2.5rem,6vw,5rem)]">
-          Así se ve una venta que ocurrió sola.
+          Así se ve una venta que{" "}
+          <span className="text-[var(--dusk)]">ocurrió sola</span>.
         </h1>
         <p className="lede mt-7 max-w-[56ch] text-[var(--ink-60)]">
           Esto es un hilo de WhatsApp de madrugada. A la izquierda, lo que vio el
@@ -185,7 +186,7 @@ export default function VariantC() {
       </section>
 
       {/* ── Para quién: la pregunta, en su burbuja ───────────────────────── */}
-      <section id="rubros" className="mx-auto max-w-[1240px] px-5 pt-24 sm:px-10 sm:pt-32">
+      <section id="rubros" className="mx-auto max-w-[1240px] px-5 pt-[clamp(72px,10vw,140px)] sm:px-10">
         <h2 className="statement max-w-[17ch]">
           Si tu negocio vive de una pregunta que se repite, ya está hecho.
         </h2>
@@ -202,7 +203,7 @@ export default function VariantC() {
       </section>
 
       {/* ── Precios: una tabla, no tres tarjetas ─────────────────────────── */}
-      <section id="precios" className="mx-auto max-w-[1240px] px-5 pt-24 sm:px-10 sm:pt-32">
+      <section id="precios" className="mx-auto max-w-[1240px] px-5 pt-[clamp(72px,10vw,140px)] sm:px-10">
         <div className="grid items-end gap-6 md:grid-cols-[minmax(0,1fr)_minmax(0,.8fr)]">
           <h2 className="statement max-w-[14ch]">Precio fijo. Mensajes al costo.</h2>
           <p className="text-[15.5px] leading-relaxed text-[var(--ink-60)] text-pretty">
@@ -292,7 +293,7 @@ export default function VariantC() {
       </section>
 
       {/* ── Cierre en papel: una línea y un botón ────────────────────────── */}
-      <section className="mx-auto max-w-[1240px] px-5 pt-28 sm:px-10 sm:pt-40">
+      <section className="mx-auto max-w-[1240px] px-5 pt-[clamp(72px,10vw,140px)] sm:px-10">
         <div className="allok-hair grid items-center gap-6 pt-12 md:grid-cols-[minmax(0,1fr)_auto]">
           <h2 className="statement max-w-[16ch] !text-[clamp(1.8rem,3.6vw,3rem)]">
             Pruébalo con tu propia pregunta.
@@ -303,7 +304,7 @@ export default function VariantC() {
         </div>
       </section>
 
-      <div className="pt-24 sm:pt-32" />
+      <div className="pt-[clamp(72px,10vw,140px)]" />
       <SiteFooter />
     </div>
   );

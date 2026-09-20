@@ -149,7 +149,7 @@ export default function VariantD() {
         <SiteHeader nav={NAV} cta={{ href: fallback, label: "Probar el agente" }} />
 
         {/* Portada: el titular corto, y el tablero a ancho completo */}
-        <section id="tablero" className="mx-auto max-w-[1320px] px-5 pt-12 sm:px-10 sm:pt-16">
+        <section id="tablero" className="mx-auto max-w-[1320px] px-5 pt-8 sm:px-10 sm:pt-10">
           <div className="grid items-end gap-8 md:grid-cols-[minmax(0,1.1fr)_minmax(0,.9fr)]">
             <div>
               <p className="mono text-[var(--on-void-60)]">El CRM de WhatsApp para negocios de servicios</p>
@@ -172,7 +172,7 @@ export default function VariantD() {
             </div>
           </div>
 
-          <div className="mt-14 sm:mt-20">
+          <div className="mt-10">
             <Console />
           </div>
 
@@ -187,7 +187,7 @@ export default function VariantD() {
         </section>
 
         {/* Capacidades como especificación */}
-        <section id="capacidades" className="mx-auto max-w-[1320px] px-5 pt-28 sm:px-10 sm:pt-36">
+        <section id="capacidades" className="mx-auto max-w-[1320px] px-5 pt-[clamp(72px,10vw,140px)] sm:px-10">
           <div className="grid items-end gap-6 md:grid-cols-[minmax(0,1fr)_minmax(0,.7fr)]">
             <h2 className="statement max-w-[15ch]">Qué hace, sin adjetivos.</h2>
             <p className="text-[15.5px] leading-relaxed text-[var(--on-void-60)] text-pretty">
@@ -208,7 +208,7 @@ export default function VariantD() {
         </section>
 
         {/* Precios, en negro */}
-        <section id="precios" className="mx-auto max-w-[1320px] px-5 pt-28 sm:px-10 sm:pt-36">
+        <section id="precios" className="mx-auto max-w-[1320px] px-5 pt-[clamp(72px,10vw,140px)] sm:px-10">
           <div className="grid items-end gap-6 md:grid-cols-[minmax(0,1fr)_minmax(0,.7fr)]">
             <h2 className="statement max-w-[14ch]">Precio fijo. Mensajes al costo.</h2>
             <p className="text-[15.5px] leading-relaxed text-[var(--on-void-60)] text-pretty">
@@ -274,11 +274,11 @@ export default function VariantD() {
           </div>
         </section>
 
-        <div className="pb-28 sm:pb-36" />
+        <div className="pb-[clamp(72px,10vw,140px)]" />
       </div>
 
       {/* ── La única banda de papel: el relevo de contraste ──────────────── */}
-      <section className="mx-auto max-w-[1320px] px-5 py-24 sm:px-10 sm:py-32">
+      <section className="mx-auto max-w-[1320px] px-5 py-[clamp(72px,10vw,140px)] sm:px-10">
         <h2 className="statement max-w-[17ch]">
           Si tu negocio vive de una pregunta que se repite, ya está hecho.
         </h2>
@@ -298,7 +298,7 @@ export default function VariantD() {
           <Link href="/vocero" className="text-[var(--ink)] underline underline-offset-4">allok a tu medida</Link>.
         </p>
 
-        <div className="allok-sky mt-20 grid items-center gap-8 rounded-[30px] px-7 py-16 sm:px-14 sm:py-20 md:grid-cols-[minmax(0,1fr)_auto]">
+        <div className="allok-sky mt-[clamp(72px,10vw,140px)] grid items-center gap-8 rounded-[30px] px-7 py-16 sm:px-14 sm:py-20 md:grid-cols-[minmax(0,1fr)_auto]">
           <div>
             <h2 className="hero !text-[clamp(2rem,4.4vw,3.6rem)]">Pruébalo con tu propia pregunta.</h2>
             <p className="lede mt-5 max-w-[46ch] opacity-85">

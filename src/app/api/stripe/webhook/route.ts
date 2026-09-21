@@ -13,6 +13,7 @@ const id = (value: string | Stripe.Customer | Stripe.DeletedCustomer | null) =>
   typeof value === "string" ? value : value?.id ?? null;
 
 const PROJECT_LABELS: Record<string, string> = {
+  juanete: "Juanete",
   nodria: "Nodria",
   ainetworking: "AiNetworking",
   "allok-launch": "Launch",

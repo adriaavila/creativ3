@@ -22,7 +22,7 @@ export const metadata: Metadata = {
 export default function JuanetePaymentPage() {
   return (
     <ProjectCheckout
-      item="project-deposit"
+      item="project-juanete"
       client="juanete"
       eyebrow="Juanete"
       title="El grupo de comedia musical."
@@ -34,10 +34,10 @@ export default function JuanetePaymentPage() {
       ]}
       priceLabel="Proyecto Juanete"
       currencySymbol="$"
-      amount="200"
+      amount="100"
       currencyCode="USD"
       note="Pago único. Se confirma al instante y recibes tu comprobante por correo."
-      cta="Pagar $200 de forma segura"
+      cta="Pagar $100 de forma segura"
     />
   );
 }

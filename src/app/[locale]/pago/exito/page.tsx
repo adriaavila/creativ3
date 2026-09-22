@@ -26,7 +26,9 @@ async function isProjectPayment(sessionId?: string) {
     const item = session.metadata?.item;
     return (
       session.payment_status === "paid" &&
-      (item === "project-deposit" || item === "project-continuation")
+      (item === "project-deposit" ||
+        item === "project-juanete" ||
+        item === "project-continuation")
     );
   } catch {
     return false;

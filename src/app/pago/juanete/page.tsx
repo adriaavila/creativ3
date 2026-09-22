@@ -1,4 +1,23 @@
+import type { Metadata } from "next";
 import ProjectCheckout from "@/components/billing/ProjectCheckout";
+
+const TITLE = "Juanete × allok — que empiece la función";
+const DESCRIPTION =
+  "El proyecto de Juanete, el grupo de comedia musical, sigue en marcha con allok. Confirma tu pago en un minuto y seguimos construyendo.";
+
+export const metadata: Metadata = {
+  title: { absolute: TITLE },
+  description: DESCRIPTION,
+  openGraph: {
+    title: TITLE,
+    description: DESCRIPTION,
+    url: "https://allok.fun/pago/juanete",
+    siteName: "allok",
+    locale: "es",
+    type: "website",
+  },
+  twitter: { card: "summary_large_image", title: TITLE, description: DESCRIPTION },
+};
 
 export default function JuanetePaymentPage() {
   return (

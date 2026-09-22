@@ -14,6 +14,7 @@ const id = (value: string | Stripe.Customer | Stripe.DeletedCustomer | null) =>
 
 const PROJECT_LABELS: Record<string, string> = {
   juanete: "Juanete",
+  "project-juanete": "Juanete",
   nodria: "Nodria",
   ainetworking: "AiNetworking",
   "allok-launch": "Launch",

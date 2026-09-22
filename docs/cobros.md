@@ -164,11 +164,13 @@ revocación. Los demás aguantan.
 
 Los pagos de proyecto siguen igual y no tienen por qué moverse:
 
-- Los importes ad-hoc (`project-deposit`, `nodria`, `project-continuation`)
+- Los importes ad-hoc (`project-deposit`, `project-juanete`, `nodria`,
+  `project-continuation`)
   viven en línea dentro de `src/app/api/stripe/checkout/route.ts` y se crean
   con `price_data` sobre la marcha. Está bien para importes que cambian por
   cliente.
-- Las páginas de cobro son `/pago`, `/pago/ainetworking`, `/pago/nodria`.
+- Las páginas de cobro son `/pago`, `/pago/ainetworking`, `/pago/nodria`,
+  `/pago/juanete`.
 - El webhook manda el comprobante por Resend **antes** de persistir, a
   propósito: la base puede estar caída y el cliente igual recibe su recibo.
 

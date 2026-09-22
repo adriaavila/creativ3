@@ -12,6 +12,7 @@ import { isLocale, type Locale } from "@/lib/i18n";
 // ponytail: ad-hoc prices inline; move to Stripe dashboard prices if they need editing without a deploy
 const AD_HOC = {
   "project-deposit": { currency: "usd", unit_amount: 20_000, name: "Depósito de proyecto allok" },
+  juanete: { currency: "usd", unit_amount: 10_000, name: "Proyecto Juanete" },
   nodria: { currency: "eur", unit_amount: 20_000, name: "Nodria" },
   "project-continuation": { currency: "eur", unit_amount: 20_000, name: "Continuación de proyecto allok" },
 } as const;

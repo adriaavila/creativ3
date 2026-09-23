@@ -844,9 +844,15 @@ html:has(.rig) ::selection { background: var(--hazard); color: var(--paper); }
   position: relative;
   z-index: 1;
 }
-/* Resplandor crema más bajo para tarjetas con texto chico y regular encima
-   (la calculadora de /rei): al .5 la palabra «Meta» quedaba en 4,2:1. Va fuera
-   de capa porque `.allok-sky::after` también lo está. */
+/* Resplandores más bajos para tarjetas con texto chico y regular encima
+   (la calculadora de /rei). Se posicionan en % de la caja, así que caen sobre
+   otras palabras según el ancho: con el crema al .5 «Meta» quedaba en 4,2:1 a
+   1440; con el naranja al .7 la línea bajaba a 3,9:1 a 768, cuando la tarjeta
+   ocupa todo el ancho. Peor píxel medido de 320 a 1440: 4,8:1. Va fuera de
+   capa porque `.allok-sky::before/::after` también lo están. */
+.allok-sky-quiet::before {
+  opacity: 0.5;
+}
 .allok-sky-quiet::after {
   opacity: 0.38;
 }

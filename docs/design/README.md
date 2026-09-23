@@ -77,6 +77,15 @@ Encima, dos `radial-gradient` con `filter: blur(42px)`: `--lit-dawn`
 (`rgb(255 227 194)`, crema, a la derecha, opacidad .5). El desenfoque es lo que
 lo separa de un degradado de plantilla — sin él se ve plano.
 
+**Texto chico sobre el cielo.** Los resplandores se posicionan en porcentajes
+de la caja, así que caen sobre otras palabras según el ancho: la calculadora de
+`/rei` pasaba a 375 y 1440 y bajaba a 3,9:1 a 768, cuando la tarjeta ocupa todo
+el ancho y la línea de 13,5 px queda debajo del naranja. Una tarjeta de cielo
+con texto chico y regular encima lleva `.allok-sky-quiet` (naranja a .5, crema a
+.38), y se mide en píxeles reales (el peor píxel de cada palabra, con el texto
+transparente) en toda la barrida: 320, 360, 375, 390, 412, 430, 768, 820, 1024,
+1280 y 1440.
+
 Los mismos anclajes están en `src/lib/sky.ts` y en `.sky-plate` del sistema
 `.rig`. **Si cambias uno, cambia los tres.**
 
@@ -85,6 +94,7 @@ Los mismos anclajes están en `src/lib/sky.ts` y en `.sky-plate` del sistema
 | Clase | Qué hace |
 |---|---|
 | `.allok-sky` | el degradado + los dos resplandores. Pone `color: var(--on-sky)` y sube sus hijos a `z-index: 1` |
+| `.allok-sky-quiet` | se suma a `.allok-sky` en tarjetas con texto chico y regular encima: baja el naranja a .5 y el crema a .38 para que ese texto quede sobre 4,5:1 en cualquier ancho. Va fuera de capa, como `.allok-sky::before/::after` |
 | `.allok-sky-text` | el mismo degradado recortado al texto (`background-clip: text`) — sólo para el correo del pie |
 | `.allok-sky-rule` | una regla de 2px con el degradado, para cerrar el pie |
 | `.allok-btn-sky` | el degradado como fondo de botón |

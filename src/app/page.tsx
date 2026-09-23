@@ -136,7 +136,7 @@ export default function Home() {
                   <span className="mt-[7px] size-2.5 shrink-0 rounded-full" style={{ background: STATES[k].dot }} />
                   <span>
                     <span className="block text-[15px] font-semibold">{STATES[k].label}</span>
-                    <span className="mono mt-1 block text-white/40">
+                    <span className="mono mt-1 block text-[var(--on-void-60)]">
                       {{ activo: "Atendido solo", atendiendo: "Hay conversación viva", atencion: "Te toca a ti", pausado: "Apagado a propósito" }[k]}
                     </span>
                   </span>
@@ -228,21 +228,21 @@ export default function Home() {
             <div
               key={plan.key}
               className={`grid content-start p-8 ${
-                plan.featured ? "bg-[var(--ink)] text-[var(--cloud)]" : "bg-white"
+                plan.featured ? "allok-on-ink bg-[var(--ink)] text-[var(--cloud)]" : "bg-white"
               }`}
             >
               <div className="flex items-baseline justify-between gap-4">
                 <h3 className="display-sm text-[19px]">{plan.name}</h3>
                 {plan.featured ? <span className="mono text-[var(--ok)]">Más elegido</span> : null}
               </div>
-              <p className="mono mt-1.5 opacity-55">{plan.kicker}</p>
+              <p className="mono mt-1.5 opacity-65">{plan.kicker}</p>
 
               <p className="display mt-6 text-[56px] leading-none tabular-nums">
-                {plan.from ? <span className="mono mr-2 align-middle opacity-55">desde</span> : null}
+                {plan.from ? <span className="mono mr-2 align-middle opacity-65">desde</span> : null}
                 <span className="align-super text-[22px]">$</span>
                 {plan.price}
               </p>
-              <p className="mono mt-2.5 opacity-55">{priceLabel(plan).unit}</p>
+              <p className="mono mt-2.5 opacity-65">{priceLabel(plan).unit}</p>
               <p className="mt-4 mb-7 text-[15px] leading-snug opacity-70">{plan.line}</p>
 
               <a
@@ -256,7 +256,7 @@ export default function Home() {
                 {plan.appPlan ? "Conectar mi WhatsApp" : "Hablemos"}
               </a>
               {plan.trialDays ? (
-                <p className="mono mt-3 text-center opacity-55">{plan.trialDays} días de prueba</p>
+                <p className="mono mt-3 text-center opacity-65">{plan.trialDays} días de prueba</p>
               ) : null}
 
               <ul className={`allok-hair mt-7 grid gap-3 pt-6 ${plan.featured ? "border-white/12" : ""}`}>
@@ -297,7 +297,7 @@ export default function Home() {
       {/* ── Cierre: la marca cerrando la frase ──────────────────────────── */}
       <section className="mx-auto max-w-[1240px] px-5 pb-[clamp(72px,10vw,140px)] sm:px-10">
         <Rise>
-          <div className="grid items-center gap-10 rounded-[30px] bg-[var(--ink)] px-7 py-16 text-[var(--cloud)] sm:px-14 sm:py-20 md:grid-cols-[minmax(0,1fr)_auto]">
+          <div className="allok-on-ink grid items-center gap-10 rounded-[30px] bg-[var(--ink)] px-7 py-16 text-[var(--cloud)] sm:px-14 sm:py-20 md:grid-cols-[minmax(0,1fr)_auto]">
             <div>
               <h2 className="hero !text-[clamp(2rem,4.4vw,3.6rem)]">{BRAND.promise}</h2>
               <p className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-2 text-[15.5px] text-white/55">

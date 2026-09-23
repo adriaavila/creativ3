@@ -108,7 +108,7 @@ export default function VoceroPage() {
              enseña la conversación, que es donde vive. ── */}
       <div className="relative z-[3] -mt-[150px] px-5 sm:px-10">
         <div className="mx-auto max-w-[620px] rounded-[20px] border border-[rgba(16,17,18,.08)] bg-white p-4 shadow-[0_30px_80px_-34px_rgba(0,0,0,.45)] sm:p-6">
-          <p className="mono mb-4 text-[var(--ink-40)]">Consulta desde un anuncio · respuesta en 4 s</p>
+          <p className="mono mb-4 text-[var(--ink-60)]">Consulta desde un anuncio · respuesta en 4 s</p>
           <div className="grid gap-2.5">
             {THREAD.map((m) => (
               <div
@@ -145,7 +145,7 @@ export default function VoceroPage() {
               key={col.head}
               className={`rounded-[22px] border p-7 ${
                 col.accent
-                  ? "border-transparent bg-[#101112] text-[#f5f4f0]"
+                  ? "allok-on-ink border-transparent bg-[#101112] text-[#f5f4f0]"
                   : "border-[var(--line)] bg-white"
               }`}
             >
@@ -164,7 +164,7 @@ export default function VoceroPage() {
                 ))}
               </ul>
               {col.accent ? null : (
-                <Link href="/" className="mono mt-6 inline-block text-[var(--dusk)] underline underline-offset-4">
+                <Link href="/" className="mono mt-3 inline-flex min-h-11 items-center text-[var(--dusk)] underline underline-offset-4">
                   Ver allok ↗
                 </Link>
               )}

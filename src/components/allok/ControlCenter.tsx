@@ -33,15 +33,15 @@ export default function ControlCenter() {
         <span className="flex items-center gap-3">
           <OkDot state="activo" size={12} />
           <span className="font-display text-[21px] font-bold tracking-[-0.03em]">all ok</span>
-          <span className="mono text-white/40">+58 412 ··· ····</span>
+          <span className="mono text-[var(--on-void-60)]">+58 412 ··· ····</span>
         </span>
-        <span className="mono text-white/40">Academia Norte · hoy</span>
+        <span className="mono text-[var(--on-void-60)]">Academia Norte · hoy</span>
       </div>
 
       <dl className="grid gap-px bg-white/10 sm:grid-cols-4">
         {KPIS.map(([label, value, state]) => (
           <div key={label} className="bg-[#101315] px-6 py-6">
-            <dt className="mono text-white/40">{label}</dt>
+            <dt className="mono text-[var(--on-void-60)]">{label}</dt>
             <dd className="font-display mt-2 flex items-baseline gap-2 text-[40px] font-bold leading-none tracking-[-0.04em] tabular-nums">
               {value}
               {state ? <Dot state={state} /> : null}
@@ -52,11 +52,11 @@ export default function ControlCenter() {
 
       <div className="grid gap-px bg-white/10">
         {FEED.map(([who, what, state, at]) => (
-          <div key={who} className="flex flex-wrap items-center gap-x-4 gap-y-1 bg-[#101315] px-6 py-4">
+          <div key={who} className="flex min-w-0 flex-wrap items-center gap-x-4 gap-y-1 bg-[#101315] px-6 py-4">
             <Dot state={state} />
             <span className="text-[15px] font-medium">{who}</span>
             <span className="min-w-0 flex-1 truncate text-[14px] text-white/55">{what}</span>
-            <span className="mono text-white/35">{at}</span>
+            <span className="mono text-[var(--on-void-60)]">{at}</span>
           </div>
         ))}
       </div>

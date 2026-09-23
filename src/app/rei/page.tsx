@@ -113,7 +113,7 @@ export default function ReiPage() {
             <div
               key={plan.key}
               className={`rounded-[22px] border border-[var(--line)] p-7 ${
-                plan.featured ? "bg-[#101112] text-[#f5f4f0]" : "bg-white"
+                plan.featured ? "allok-on-ink bg-[#101112] text-[#f5f4f0]" : "bg-white"
               }`}
             >
               <div className="flex items-center justify-between">
@@ -122,7 +122,7 @@ export default function ReiPage() {
               </div>
               <p className="display mt-4 text-[48px]">
                 ${plan.price}
-                <span className="align-baseline text-[15px] font-normal tracking-normal opacity-55">
+                <span className="align-baseline text-[15px] font-normal tracking-normal opacity-65">
                   {plan.period ? " /mes" : " una vez"}
                 </span>
               </p>

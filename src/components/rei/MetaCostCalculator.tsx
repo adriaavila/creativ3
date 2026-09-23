@@ -47,13 +47,15 @@ export default function MetaCostCalculator() {
         />
       </div>
 
-      <div className="allok-sky min-w-[260px] rounded-[18px] p-7">
+      <div className="allok-sky allok-sky-quiet rounded-[18px] p-7 sm:min-w-[260px]">
         <div>
-          <p className="mono opacity-75">Costo Meta</p>
+          <p className="mono">Costo Meta</p>
           <p className="display mt-2.5 text-[52px]">{usd(r.cost)}</p>
-          <p className="text-[13.5px] opacity-80">al mes, facturado por Meta</p>
+          <p className="text-[13.5px]">al mes, facturado por Meta</p>
 
-          <dl className="mt-4.5 grid gap-1.5 border-t border-[rgba(247,244,239,.26)] pt-3.5 text-[13.5px]">
+          {/* Los números caen sobre el resplandor crema del cielo (4,2:1).
+              `.allok-sky-panel` los sube a más de 6:1. */}
+          <dl className="allok-sky-panel -mx-3 mt-4.5 grid gap-1.5 rounded-[10px] border-t border-[rgba(247,244,239,.26)] px-3 pt-3.5 pb-2.5 text-[13.5px]">
             <Row k="Respuestas cobrables" v={r.billable.toLocaleString("es")} />
             <Row k="Evitado por anuncios" v={usd(r.avoided)} accent />
           </dl>
@@ -66,7 +68,7 @@ export default function MetaCostCalculator() {
 function Row({ k, v, accent }: { k: string; v: string; accent?: boolean }) {
   return (
     <div className="flex justify-between gap-3">
-      <dt className="opacity-80">{k}</dt>
+      <dt>{k}</dt>
       <dd className={`font-semibold ${accent ? "text-[var(--lit-dusk)]" : ""}`}>{v}</dd>
     </div>
   );
@@ -91,8 +93,8 @@ function Slider({
 }) {
   const id = useId();
   return (
-    <div className="mb-5 max-w-lg">
-      <label htmlFor={id} className="mb-2 flex justify-between text-sm text-[var(--ink-60)]">
+    <div className="mb-2 max-w-lg">
+      <label htmlFor={id} className="flex justify-between text-sm text-[var(--ink-60)]">
         {label}
         <strong className="font-semibold text-[var(--ink)]">
           {value.toLocaleString("es")}

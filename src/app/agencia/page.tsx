@@ -235,7 +235,7 @@ export default function AgenciaPage() {
               </ul>
               <a
                 href={whatsappUrl(service.message)}
-                className="mono mt-6 inline-block text-[var(--dusk)] underline underline-offset-4"
+                className="mono mt-3 inline-flex min-h-11 items-center text-[var(--dusk)] underline underline-offset-4"
               >
                 {service.action} ↗
               </a>
@@ -307,17 +307,17 @@ export default function AgenciaPage() {
           {PLANS.map((plan) => (
             <div
               key={plan.name}
-              className={`grid content-start rounded-[22px] border p-7 ${
+              className={`grid min-w-0 content-start rounded-[22px] border p-7 ${
                 plan.featured
-                  ? "border-transparent bg-[#101112] text-[#f5f4f0]"
+                  ? "allok-on-ink border-transparent bg-[#101112] text-[#f5f4f0]"
                   : "border-[var(--line)] bg-white"
               }`}
             >
-              <div className="flex items-center justify-between">
+              <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
                 <h3 className="display-sm text-xl">{plan.name}</h3>
                 <span
                   className={`mono ${
-                    plan.featured ? "text-[var(--lit-dawn)]" : "text-[var(--ink-40)]"
+                    plan.featured ? "text-[var(--lit-dawn)]" : "text-[var(--ink-60)]"
                   }`}
                 >
                   {plan.badge}
@@ -325,12 +325,12 @@ export default function AgenciaPage() {
               </div>
               <p className="display mt-4 text-[48px]">
                 ${plan.price}
-                <span className="align-baseline text-[15px] font-normal tracking-normal opacity-55">
+                <span className="align-baseline text-[15px] font-normal tracking-normal opacity-65">
                   {" "}
                   USD · {plan.note}
                 </span>
               </p>
-              <p className="mono mt-2 text-[var(--dusk)]">{plan.eta}</p>
+              <p className={`mono mt-2 ${plan.featured ? "text-[var(--lit-dawn)]" : "text-[var(--dusk)]"}`}>{plan.eta}</p>
               <p className="mt-3 mb-5 text-[14.5px] leading-relaxed opacity-70">{plan.line}</p>
 
               <a
@@ -395,9 +395,9 @@ export default function AgenciaPage() {
       </section>
 
       <section className="mx-auto max-w-[1200px] px-5 pt-20 sm:px-10 sm:pt-28">
-        <div className="allok-sky rounded-[26px] px-7 py-14 text-center sm:px-14 sm:py-20">
+        <div className="allok-sky allok-sky-hush rounded-[26px] px-7 py-14 text-center sm:px-14 sm:py-20">
           <h2 className="hero !text-[clamp(2rem,4.6vw,3.75rem)]">Dinos qué está frenando el crecimiento.</h2>
-          <p className="mx-auto mt-5 max-w-[620px] text-[17px] leading-relaxed opacity-85 text-pretty">
+          <p className="mx-auto mt-5 max-w-[620px] text-[17px] leading-relaxed text-pretty">
             Te respondemos el mismo día con la primera pieza que
             construiríamos, el alcance y el precio. Sin formularios largos ni
             llamadas de descubrimiento eternas.

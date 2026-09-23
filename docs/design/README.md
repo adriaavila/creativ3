@@ -381,6 +381,21 @@ Cómo se cobra cada una, con su estado real en Stripe, está en
   cuando no cabe) y la tarjeta con `min-w-0`. En `/` y `/rei` la fila cabe hoy;
   un nombre de plan más largo pide lo mismo. Se barre de 320 a 1440 de 4 en
   4 px buscando texto fuera de su tarjeta.
+- Un hijo de `grid` o `flex` no baja del ancho de su contenido
+  (`min-width: auto`). Dos casos que ya pasaron: en el centro de control de
+  `/`, cada fila de actividad lleva un texto `truncate` y, sin `min-w-0`, la
+  pista medía 318 px dentro de una tarjeta de 278 a 320: la tarjeta es
+  `overflow-hidden` y cortaba las horas («3:» por «3:16») hasta 332. En la
+  calculadora de `/rei`, la tarjeta de cielo tenía `min-w-[260px]` fijo y a
+  320-324 empujaba los deslizantes 5 px fuera de la tarjeta blanca; ahora es
+  `sm:min-w-[260px]`. La barrida cuenta también las tarjetas con
+  `overflow-hidden`, donde lo que sobra no se ve fuera: se corta. Sólo el texto
+  cortado por su propia caja con elipsis (`truncate`) no cuenta.
+- Un aviso de error que aparece debajo de un botón se trae a la vista al
+  aparecer: en `/pago/juanete` a 320x640 el botón termina en 631 px y el aviso
+  nacía en 647-687, fuera de pantalla. `ProjectCheckout` lo lleva con
+  `scrollIntoView({ block: "nearest" })` y `scroll-mb-4`. Se prueba con la API
+  de pago interceptada, no contra Stripe.
 - Un dato inventado en una página de producto es un error, no un marcador de
   posición. El tablero de `/rei` y el hilo de `/vocero` van rotulados como
   ilustración, y el número de sistemas sale de `PORTFOLIO_PROJECTS.length`, no

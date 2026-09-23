@@ -52,7 +52,7 @@ export default function ControlCenter() {
 
       <div className="grid gap-px bg-white/10">
         {FEED.map(([who, what, state, at]) => (
-          <div key={who} className="flex flex-wrap items-center gap-x-4 gap-y-1 bg-[#101315] px-6 py-4">
+          <div key={who} className="flex min-w-0 flex-wrap items-center gap-x-4 gap-y-1 bg-[#101315] px-6 py-4">
             <Dot state={state} />
             <span className="text-[15px] font-medium">{who}</span>
             <span className="min-w-0 flex-1 truncate text-[14px] text-white/55">{what}</span>

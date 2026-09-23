@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Check, LoaderCircle, LockKeyhole, ShieldCheck } from "lucide-react";
 import AllokLogo from "@/components/brand/AllokLogo";
 
@@ -35,6 +35,14 @@ export default function ProjectCheckout({
 }: ProjectCheckoutProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const alertRef = useRef<HTMLParagraphElement>(null);
+
+  // El aviso sale debajo del botón. A 320x640 el botón termina casi en el
+  // borde de la pantalla, así que el aviso se trae a la vista al aparecer,
+  // con 16 px de aire debajo (`scroll-mb-4`).
+  useEffect(() => {
+    if (error) alertRef.current?.scrollIntoView({ block: "nearest" });
+  }, [error]);
 
   const startCheckout = async () => {
     setLoading(true);
@@ -108,7 +116,7 @@ export default function ProjectCheckout({
               {loading ? "Abriendo pago seguro…" : cta}
             </button>
             {error ? (
-              <p role="alert" className="mt-4 text-sm text-[var(--status-lost)]">
+              <p ref={alertRef} role="alert" className="mt-4 scroll-mb-4 text-sm text-[var(--status-lost)]">
                 {error}
               </p>
             ) : null}

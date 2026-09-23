@@ -113,7 +113,7 @@ export default function ReiPage() {
             <div
               key={plan.key}
               className={`rounded-[22px] border border-[var(--line)] p-7 ${
-                plan.featured ? "bg-[#101112] text-[#f5f4f0]" : "bg-white"
+                plan.featured ? "allok-on-ink bg-[#101112] text-[#f5f4f0]" : "bg-white"
               }`}
             >
               <div className="flex items-center justify-between">

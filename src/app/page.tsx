@@ -228,7 +228,7 @@ export default function Home() {
             <div
               key={plan.key}
               className={`grid content-start p-8 ${
-                plan.featured ? "bg-[var(--ink)] text-[var(--cloud)]" : "bg-white"
+                plan.featured ? "allok-on-ink bg-[var(--ink)] text-[var(--cloud)]" : "bg-white"
               }`}
             >
               <div className="flex items-baseline justify-between gap-4">
@@ -297,7 +297,7 @@ export default function Home() {
       {/* ── Cierre: la marca cerrando la frase ──────────────────────────── */}
       <section className="mx-auto max-w-[1240px] px-5 pb-[clamp(72px,10vw,140px)] sm:px-10">
         <Rise>
-          <div className="grid items-center gap-10 rounded-[30px] bg-[var(--ink)] px-7 py-16 text-[var(--cloud)] sm:px-14 sm:py-20 md:grid-cols-[minmax(0,1fr)_auto]">
+          <div className="allok-on-ink grid items-center gap-10 rounded-[30px] bg-[var(--ink)] px-7 py-16 text-[var(--cloud)] sm:px-14 sm:py-20 md:grid-cols-[minmax(0,1fr)_auto]">
             <div>
               <h2 className="hero !text-[clamp(2rem,4.4vw,3.6rem)]">{BRAND.promise}</h2>
               <p className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-2 text-[15.5px] text-white/55">

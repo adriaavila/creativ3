@@ -111,6 +111,7 @@ Los mismos anclajes están en `src/lib/sky.ts`, en `.sky-plate` del sistema
 | `.allok-sky-rule` | una regla de 2px con el degradado, para cerrar el pie |
 | `.allok-btn-sky` | el degradado como fondo de botón |
 | `.allok-void` | el negro de las portadas, con sus tokens `--on-void*` |
+| `.allok-on-ink` | marca una tarjeta negra dentro de una página de papel: el plan destacado de `/`, `/rei` y `/agencia`, el cierre de `/` y la columna oscura de `/vocero`. Sólo cambia el anillo de foco a `--on-void` (ver «Foco»); el fondo y el texto los pone la tarjeta |
 | `.allok-bloom` | **el resplandor detrás del producto** — se coloca respecto al objeto que ilumina, nunca respecto a la sección, para que no dependa de cuánto contenido haya arriba |
 
 `.allok-sky` no es sólo para la portada: la sección final de `/agencia` lo usa
@@ -167,8 +168,9 @@ aparece en más de un puñado de sitios por pantalla, deja de leerse como acento
 
 | Superficie | Regla | Color | Medido |
 |---|---|---|---|
-| papel y blanco | `.allok :focus-visible` | `--signal` | 5,12:1 blanco, 4,81:1 Cloud, 3,81:1 sobre `--ink` |
+| papel y blanco | `.allok :focus-visible` | `--signal` | 5,12:1 blanco, 4,81:1 Cloud |
 | portada negra | `.allok .allok-void :focus-visible` | `--on-void` | la navegación va a .85: 12,79:1 (en `--signal` era 3,04:1) |
+| tarjeta negra sobre papel | `.allok .allok-on-ink :focus-visible` | `--on-void` | 17,70:1 sobre `--ink`, 17,18:1 sobre `#101112` (en `--signal` era 3,81 y 3,70:1, pegado al botón de cielo) |
 | cielo | `.allok .allok-sky :focus-visible` | `--on-sky` | 5,8 a 16:1 sobre los anclajes (`--signal` da 1,25-1,9:1) |
 | pie | `.allok footer :focus-visible` | `--on-void` | los enlaces van a .7: 8,83:1 (en `--signal` era 2,40:1) |
 | deslizante | `.allok input[type="range"]:focus-visible` | sin outline; el anillo va en el pulgar, `--dusk` a 2 px | 6,56:1 sobre blanco |
@@ -177,6 +179,9 @@ Tres reglas:
 
 - **El anillo se mide con la opacidad heredada.** Un enlace a .7 pinta su anillo
   a .7. Por eso el pie y las portadas negras llevan `--on-void` y no el azul.
+- **Toda superficie oscura lleva su clase.** Una tarjeta negra nueva dentro de
+  una página de papel se marca con `.allok-on-ink`; si no, su anillo sale azul
+  a 3,7:1, justo al lado del botón de cielo, que también es azul.
 - **Un control, un anillo.** Si el anillo va en un pseudo-elemento (el pulgar
   del deslizante), el control lleva `outline: none` en `:focus-visible`. Si no,
   salen dos, y el del control de 44 px cruza la etiqueta de arriba.
@@ -368,6 +373,14 @@ Cómo se cobra cada una, con su estado real en Stripe, está en
 - `pnpm exec tsc --noEmit`, `pnpm lint`, `pnpm test`, `pnpm build`.
 - Móvil a 375px: sin scroll horizontal, la navegación del encabezado
   desaparece por debajo de `md` y queda logo + acción.
+- Tres columnas desde `md` dejan 163 px de contenido por tarjeta a 768. Una
+  fila nombre + etiqueta sin `flex-wrap` no se parte, y como la tarjeta es un
+  `grid`, estira todo lo demás hasta su ancho: en `/agencia` «Más elegido», el
+  botón y dos viñetas se salían de la tarjeta negra entre 768 y 796. Ahí la
+  fila va con `flex-wrap gap-x-3 gap-y-1` (la etiqueta baja debajo del nombre
+  cuando no cabe) y la tarjeta con `min-w-0`. En `/` y `/rei` la fila cabe hoy;
+  un nombre de plan más largo pide lo mismo. Se barre de 320 a 1440 de 4 en
+  4 px buscando texto fuera de su tarjeta.
 - Un dato inventado en una página de producto es un error, no un marcador de
   posición. El tablero de `/rei` y el hilo de `/vocero` van rotulados como
   ilustración, y el número de sistemas sale de `PORTFOLIO_PROJECTS.length`, no

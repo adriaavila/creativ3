@@ -307,13 +307,13 @@ export default function AgenciaPage() {
           {PLANS.map((plan) => (
             <div
               key={plan.name}
-              className={`grid content-start rounded-[22px] border p-7 ${
+              className={`grid min-w-0 content-start rounded-[22px] border p-7 ${
                 plan.featured
-                  ? "border-transparent bg-[#101112] text-[#f5f4f0]"
+                  ? "allok-on-ink border-transparent bg-[#101112] text-[#f5f4f0]"
                   : "border-[var(--line)] bg-white"
               }`}
             >
-              <div className="flex items-center justify-between">
+              <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
                 <h3 className="display-sm text-xl">{plan.name}</h3>
                 <span
                   className={`mono ${

@@ -989,9 +989,12 @@ html:has(.rig) ::selection { background: var(--hazard); color: var(--paper); }
    En el pie los enlaces van a opacidad .7 y el anillo la hereda: el azul cae a
    2,40:1 sobre Ink. Ahí va en --on-void, que a .7 sigue en 8,8:1. Lo mismo en
    las portadas negras (`.allok-void`): la navegación va a .85 y el azul queda
-   en 3,04:1, apenas sobre el mínimo. */
+   en 3,04:1, apenas sobre el mínimo. Y en las tarjetas negras sobre papel
+   (`.allok-on-ink`: plan destacado, cierre de /): el azul da 3,70-3,81:1 y se
+   pierde junto al botón de cielo; --on-void da 17,7:1. */
 .allok :focus-visible { outline-color: var(--signal); }
 .allok .allok-void :focus-visible { outline-color: var(--on-void); }
+.allok .allok-on-ink :focus-visible { outline-color: var(--on-void); }
 .allok .allok-sky :focus-visible { outline-color: var(--on-sky); }
 .allok footer :focus-visible { outline-color: var(--on-void); }
 

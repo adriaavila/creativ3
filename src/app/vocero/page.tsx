@@ -145,7 +145,7 @@ export default function VoceroPage() {
               key={col.head}
               className={`rounded-[22px] border p-7 ${
                 col.accent
-                  ? "border-transparent bg-[#101112] text-[#f5f4f0]"
+                  ? "allok-on-ink border-transparent bg-[#101112] text-[#f5f4f0]"
                   : "border-[var(--line)] bg-white"
               }`}
             >

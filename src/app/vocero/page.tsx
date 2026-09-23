@@ -164,7 +164,7 @@ export default function VoceroPage() {
                 ))}
               </ul>
               {col.accent ? null : (
-                <Link href="/" className="mono mt-6 inline-block text-[var(--dusk)] underline underline-offset-4">
+                <Link href="/" className="mono mt-3 inline-flex min-h-11 items-center text-[var(--dusk)] underline underline-offset-4">
                   Ver allok ↗
                 </Link>
               )}

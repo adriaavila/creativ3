@@ -950,9 +950,12 @@ html:has(.rig) ::selection { background: var(--hazard); color: var(--paper); }
 /* El anillo de foco global es lima: 1,24:1 sobre Cloud y 1,32:1 sobre blanco.
    En allok va en Signal Blue (4,81:1 sobre Cloud, 5,12:1 sobre blanco, 3,81:1
    sobre Ink). Sobre el cielo el azul se pierde, así que ahí va en --on-sky,
-   el mismo tono que su texto. Mismo patrón que `.rig` con --hazard. */
+   el mismo tono que su texto. Mismo patrón que `.rig` con --hazard.
+   En el pie los enlaces van a opacidad .7 y el anillo la hereda: el azul cae a
+   2,40:1 sobre Ink. Ahí va en --on-void, que a .7 sigue en 8,8:1. */
 .allok :focus-visible { outline-color: var(--signal); }
 .allok .allok-sky :focus-visible { outline-color: var(--on-sky); }
+.allok footer :focus-visible { outline-color: var(--on-void); }
 
 /* ─────────────────────────────────────────────────────────────────────────
    allok · superficie de producto

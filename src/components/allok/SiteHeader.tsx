@@ -24,14 +24,14 @@ export default function SiteHeader({
 
   return (
     <header className="flex items-center justify-between px-5 py-5 sm:px-10">
-      <Link href="/" aria-label={product ? `allok × ${product}` : "allok"}>
+      <Link href="/" aria-label={product ? `allok × ${product}` : "allok"} className="inline-flex min-h-11 min-w-11 items-center">
         <Lockup product={product} onSky={!onCloud} live={!product} />
       </Link>
 
       <div className="flex items-center gap-5">
         <nav aria-label="Principal" className={`hidden gap-6 text-sm md:flex ${onCloud ? "text-[var(--ink-60)]" : "opacity-85"}`}>
           {nav.map((item) => (
-            <Link key={item.href} href={item.href} className="transition-opacity hover:opacity-100">
+            <Link key={item.href} href={item.href} className="py-3 transition-opacity hover:opacity-100">
               {item.label}
             </Link>
           ))}

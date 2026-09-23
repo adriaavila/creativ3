@@ -47,7 +47,7 @@ export default function MetaCostCalculator() {
         />
       </div>
 
-      <div className="allok-sky min-w-[260px] rounded-[18px] p-7">
+      <div className="allok-sky allok-sky-quiet min-w-[260px] rounded-[18px] p-7">
         <div>
           <p className="mono">Costo Meta</p>
           <p className="display mt-2.5 text-[52px]">{usd(r.cost)}</p>

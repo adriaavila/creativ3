@@ -235,7 +235,7 @@ export default function AgenciaPage() {
               </ul>
               <a
                 href={whatsappUrl(service.message)}
-                className="mono mt-6 inline-block text-[var(--dusk)] underline underline-offset-4"
+                className="mono mt-3 inline-flex min-h-11 items-center text-[var(--dusk)] underline underline-offset-4"
               >
                 {service.action} ↗
               </a>

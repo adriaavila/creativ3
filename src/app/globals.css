@@ -844,6 +844,12 @@ html:has(.rig) ::selection { background: var(--hazard); color: var(--paper); }
   position: relative;
   z-index: 1;
 }
+/* Resplandor crema más bajo para tarjetas con texto chico y regular encima
+   (la calculadora de /rei): al .5 la palabra «Meta» quedaba en 4,2:1. Va fuera
+   de capa porque `.allok-sky::after` también lo está. */
+.allok-sky-quiet::after {
+  opacity: 0.38;
+}
 /* El mismo degradado escrito en el texto, para el correo del pie. */
 /* El único degradado de la marca, y sólo en el pie: de Signal Blue a OK Green.
    Es «trabajando → resuelto» escrito en color, que es la misma historia que

@@ -774,6 +774,7 @@ html:has(.rig) ::selection { background: var(--hazard); color: var(--paper); }
   --ink-60: #5b6167;
   --ink-40: #8a9097;
   --line: rgba(11, 13, 14, 0.1);
+  --sky-night: rgb(3 18 63);
   --dusk: #b41065;
   --lit-dawn: rgb(255 154 61);
   --lit-dusk: rgb(255 227 194);
@@ -844,17 +845,36 @@ html:has(.rig) ::selection { background: var(--hazard); color: var(--paper); }
   position: relative;
   z-index: 1;
 }
-/* Resplandores más bajos para tarjetas con texto chico y regular encima
-   (la calculadora de /rei). Se posicionan en % de la caja, así que caen sobre
-   otras palabras según el ancho: con el crema al .5 «Meta» quedaba en 4,2:1 a
-   1440; con el naranja al .7 la línea bajaba a 3,9:1 a 768, cuando la tarjeta
-   ocupa todo el ancho. Peor píxel medido de 320 a 1440: 4,8:1. Va fuera de
-   capa porque `.allok-sky::before/::after` también lo están. */
+/* Resplandores más bajos para tarjetas de cielo con texto chico y regular
+   encima. Se posicionan en % de la caja, así que caen sobre otras palabras
+   según el ancho y el tamaño de la tarjeta: cada tarjeta se mide por su cuenta
+   en toda la barrida, y sus valores no sirven para otra sin medirla.
+   Van fuera de capa porque `.allok-sky::before/::after` también lo están.
+
+   quiet: la calculadora de /rei (13,5px). Con el crema al .5 «Meta» quedaba en
+   4,2:1 a 1440; con el naranja al .7 la línea bajaba a 3,9:1 a 768. Peor píxel
+   de 320 a 1440: 4,8:1. */
 .allok-sky-quiet::before {
   opacity: 0.5;
 }
 .allok-sky-quiet::after {
   opacity: 0.38;
+}
+/* hush: el cierre de /agencia, un párrafo de 17px en una tarjeta ancha. Con el
+   crema al .38 el párrafo quedaba en 3,9:1 a 768-1024; al .25, peor píxel de
+   320 a 1440: 4,6:1. */
+.allok-sky-hush::before {
+  opacity: 0.5;
+}
+.allok-sky-hush::after {
+  opacity: 0.25;
+}
+/* La noche del cielo (su primer anclaje) al 30%, detrás de filas de texto
+   chico que caen sobre un resplandor: los valores de la calculadora de /rei
+   pasan de 4,2:1 a más de 6:1. Sólo pinta; el borde y el aire los pone quien
+   la usa. */
+.allok-sky-panel {
+  background-color: color-mix(in srgb, var(--sky-night) 30%, transparent);
 }
 /* El mismo degradado escrito en el texto, para el correo del pie. */
 /* El único degradado de la marca, y sólo en el pie: de Signal Blue a OK Green.
@@ -956,6 +976,9 @@ html:has(.rig) ::selection { background: var(--hazard); color: var(--paper); }
   background: var(--paper);
   box-shadow: 0 1px 2px rgb(8 9 10 / 0.35), 0 0 0 1px rgb(8 9 10 / 0.12);
 }
+/* Un solo anillo: el del pulgar (--dusk, 6,6:1 sobre blanco). El control mide
+   44px, así que su propio outline cruzaba la etiqueta de encima. */
+.allok input[type="range"]:focus-visible { outline: none; }
 .allok input[type="range"]:focus-visible::-webkit-slider-thumb { outline: 2px solid var(--dusk); outline-offset: 2px; }
 .allok input[type="range"]:focus-visible::-moz-range-thumb { outline: 2px solid var(--dusk); outline-offset: 2px; }
 
@@ -964,8 +987,11 @@ html:has(.rig) ::selection { background: var(--hazard); color: var(--paper); }
    sobre Ink). Sobre el cielo el azul se pierde, así que ahí va en --on-sky,
    el mismo tono que su texto. Mismo patrón que `.rig` con --hazard.
    En el pie los enlaces van a opacidad .7 y el anillo la hereda: el azul cae a
-   2,40:1 sobre Ink. Ahí va en --on-void, que a .7 sigue en 8,8:1. */
+   2,40:1 sobre Ink. Ahí va en --on-void, que a .7 sigue en 8,8:1. Lo mismo en
+   las portadas negras (`.allok-void`): la navegación va a .85 y el azul queda
+   en 3,04:1, apenas sobre el mínimo. */
 .allok :focus-visible { outline-color: var(--signal); }
+.allok .allok-void :focus-visible { outline-color: var(--on-void); }
 .allok .allok-sky :focus-visible { outline-color: var(--on-sky); }
 .allok footer :focus-visible { outline-color: var(--on-void); }
 

@@ -317,7 +317,7 @@ export default function AgenciaPage() {
                 <h3 className="display-sm text-xl">{plan.name}</h3>
                 <span
                   className={`mono ${
-                    plan.featured ? "text-[var(--lit-dawn)]" : "text-[var(--ink-40)]"
+                    plan.featured ? "text-[var(--lit-dawn)]" : "text-[var(--ink-60)]"
                   }`}
                 >
                   {plan.badge}
@@ -325,12 +325,12 @@ export default function AgenciaPage() {
               </div>
               <p className="display mt-4 text-[48px]">
                 ${plan.price}
-                <span className="align-baseline text-[15px] font-normal tracking-normal opacity-55">
+                <span className="align-baseline text-[15px] font-normal tracking-normal opacity-65">
                   {" "}
                   USD · {plan.note}
                 </span>
               </p>
-              <p className="mono mt-2 text-[var(--dusk)]">{plan.eta}</p>
+              <p className={`mono mt-2 ${plan.featured ? "text-[var(--lit-dawn)]" : "text-[var(--dusk)]"}`}>{plan.eta}</p>
               <p className="mt-3 mb-5 text-[14.5px] leading-relaxed opacity-70">{plan.line}</p>
 
               <a
@@ -395,9 +395,9 @@ export default function AgenciaPage() {
       </section>
 
       <section className="mx-auto max-w-[1200px] px-5 pt-20 sm:px-10 sm:pt-28">
-        <div className="allok-sky rounded-[26px] px-7 py-14 text-center sm:px-14 sm:py-20">
+        <div className="allok-sky allok-sky-hush rounded-[26px] px-7 py-14 text-center sm:px-14 sm:py-20">
           <h2 className="hero !text-[clamp(2rem,4.6vw,3.75rem)]">Dinos qué está frenando el crecimiento.</h2>
-          <p className="mx-auto mt-5 max-w-[620px] text-[17px] leading-relaxed opacity-85 text-pretty">
+          <p className="mx-auto mt-5 max-w-[620px] text-[17px] leading-relaxed text-pretty">
             Te respondemos el mismo día con la primera pieza que
             construiríamos, el alcance y el precio. Sin formularios largos ni
             llamadas de descubrimiento eternas.

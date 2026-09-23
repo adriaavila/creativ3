@@ -58,7 +58,7 @@ export default function SiteFooter() {
         <div className="mono grid grid-cols-2 gap-x-7 gap-y-9 sm:grid-cols-3">
           {COLUMNS.map((col) => (
             <div key={col.title} className="grid content-start opacity-70">
-              <span className="text-[var(--lit-dusk)] opacity-80">{col.title}</span>
+              <span className="mb-1 text-[var(--lit-dusk)] opacity-80">{col.title}</span>
               {col.links.map((link) => (
                 <Link key={link.href} href={link.href} className="py-3.5 transition-opacity hover:opacity-100">
                   {link.label} ↗
@@ -71,7 +71,7 @@ export default function SiteFooter() {
 
       <div className="allok-sky-rule mx-auto mt-10 max-w-[1200px]" />
 
-      <div className="mono mx-auto mt-2 flex max-w-[1200px] flex-wrap items-center justify-between gap-x-3 opacity-70">
+      <div className="mono mx-auto mt-2 flex max-w-[1200px] flex-wrap items-center justify-between gap-x-3 gap-y-1 opacity-70">
         <span>© {new Date().getFullYear()} allok</span>
         <span className="flex flex-wrap gap-x-5">
           <a href="https://github.com/adriaavila" className="inline-flex min-h-11 items-center">GitHub ↗</a>

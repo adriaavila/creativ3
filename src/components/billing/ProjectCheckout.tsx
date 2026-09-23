@@ -65,8 +65,9 @@ export default function ProjectCheckout({
         </header>
 
         {/* Bajo lg la intro se disuelve en la grilla: el monto y el botón quedan
-            justo debajo del título, dentro de la primera pantalla. */}
-        <section className="grid flex-1 content-center items-center gap-x-12 px-6 py-14 sm:px-10 lg:grid-cols-[1.2fr_0.8fr] lg:px-16">
+            justo debajo del título, dentro de la primera pantalla. Bajo sm el
+            aire vertical se recorta para que a 320x640 el botón entre entero. */}
+        <section className="grid flex-1 content-center items-center gap-x-12 px-6 py-14 max-sm:py-8 sm:px-10 lg:grid-cols-[1.2fr_0.8fr] lg:px-16">
           <div className="max-w-xl max-lg:contents">
             <p className="mb-5 font-mono text-xs uppercase tracking-[0.18em] text-[var(--text-secondary)]">
               {eyebrow}
@@ -101,7 +102,7 @@ export default function ProjectCheckout({
               type="button"
               onClick={startCheckout}
               disabled={loading}
-              className="mt-9 flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-[var(--lima)] px-5 text-sm font-semibold text-[var(--lima-ink)] transition disabled:cursor-wait disabled:opacity-70"
+              className="mt-9 max-sm:mt-7 flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-[var(--lima)] px-5 text-sm font-semibold text-[var(--lima-ink)] transition disabled:cursor-wait disabled:opacity-70"
             >
               {loading ? <LoaderCircle className="size-4 animate-spin" aria-hidden /> : null}
               {loading ? "Abriendo pago seguro…" : cta}

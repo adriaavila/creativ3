@@ -1,6 +1,6 @@
 # El sistema de diseño de allok.fun
 
-Actualizado 2026-09-19.
+Actualizado 2026-09-23.
 
 El sitio tiene **dos voces** y **tres superficies**, y ninguna se mezcla con
 otra dentro de la misma página:
@@ -78,23 +78,35 @@ Encima, dos `radial-gradient` con `filter: blur(42px)`: `--lit-dawn`
 lo separa de un degradado de plantilla — sin él se ve plano.
 
 **Texto chico sobre el cielo.** Los resplandores se posicionan en porcentajes
-de la caja, así que caen sobre otras palabras según el ancho: la calculadora de
-`/rei` pasaba a 375 y 1440 y bajaba a 3,9:1 a 768, cuando la tarjeta ocupa todo
-el ancho y la línea de 13,5 px queda debajo del naranja. Una tarjeta de cielo
-con texto chico y regular encima lleva `.allok-sky-quiet` (naranja a .5, crema a
-.38), y se mide en píxeles reales (el peor píxel de cada palabra, con el texto
-transparente) en toda la barrida: 320, 360, 375, 390, 412, 430, 768, 820, 1024,
-1280 y 1440.
+de la caja, así que caen sobre otras palabras según el ancho y el tamaño de la
+tarjeta: la calculadora de `/rei` pasaba a 375 y 1440 y bajaba a 3,9:1 a 768,
+cuando la tarjeta ocupa todo el ancho y la línea de 13,5 px queda debajo del
+naranja. Por eso **cada tarjeta de cielo con texto chico se mide por su cuenta**,
+en píxeles reales (el peor píxel de cada palabra, con el texto transparente) y
+en toda la barrida: 320, 360, 375, 390, 412, 430, 768, 820, 1024, 1280 y 1440.
+Los valores que salen de esa medida son de esa tarjeta; no se copian a otra sin
+medirla.
 
-Los mismos anclajes están en `src/lib/sky.ts` y en `.sky-plate` del sistema
-`.rig`. **Si cambias uno, cambia los tres.**
+Hoy hay dos:
+
+- La calculadora de `/rei` lleva `.allok-sky-quiet` (naranja a .5, crema a .38)
+  y `.allok-sky-panel` detrás de las filas de valores. Peor píxel: 4,8:1.
+- El cierre de `/agencia` lleva `.allok-sky-hush` (naranja a .5, crema a .25):
+  un párrafo de 17 px en una tarjeta ancha pide menos crema que la calculadora.
+  Peor píxel: 4,6:1.
+
+Los mismos anclajes están en `src/lib/sky.ts`, en `.sky-plate` del sistema
+`.rig` y, sueltos, en los tokens `--sky-night`, `--dusk`, `--lit-dawn` y
+`--lit-dusk` de `.allok`. **Si cambias uno, cambia todos.**
 
 ### Piezas
 
 | Clase | Qué hace |
 |---|---|
 | `.allok-sky` | el degradado + los dos resplandores. Pone `color: var(--on-sky)` y sube sus hijos a `z-index: 1` |
-| `.allok-sky-quiet` | se suma a `.allok-sky` en tarjetas con texto chico y regular encima: baja el naranja a .5 y el crema a .38 para que ese texto quede sobre 4,5:1 en cualquier ancho. Va fuera de capa, como `.allok-sky::before/::after` |
+| `.allok-sky-quiet` | se suma a `.allok-sky`: naranja a .5, crema a .38. Valores medidos en la calculadora de `/rei`; otra tarjeta se mide por su cuenta antes de usarla. Va fuera de capa, como `.allok-sky::before/::after` |
+| `.allok-sky-hush` | se suma a `.allok-sky`: naranja a .5, crema a .25. Valores medidos en el cierre de `/agencia` (párrafo de 17 px). Fuera de capa, igual que `quiet` |
+| `.allok-sky-panel` | una capa en la noche del cielo (`--sky-night`) al 30%, detrás de filas de texto chico que caen sobre un resplandor. Sólo pinta: el borde, el radio y el aire los pone quien la usa. En la calculadora de `/rei` sube los valores de 4,2:1 a más de 6:1 |
 | `.allok-sky-text` | el mismo degradado recortado al texto (`background-clip: text`) — sólo para el correo del pie |
 | `.allok-sky-rule` | una regla de 2px con el degradado, para cerrar el pie |
 | `.allok-btn-sky` | el degradado como fondo de botón |
@@ -109,23 +121,80 @@ resplandores se posicionan en porcentajes.
 
 ## Tokens
 
-Definidos en `.allok`:
+Definidos en `.allok` (`src/app/globals.css`). Los contrastes son sobre blanco
+salvo que se diga otra cosa.
 
 | Token | Valor | Para qué |
 |---|---|---|
-| `--paper` | `#f5f4f0` | el fondo de todo lo que no es cielo |
-| `--paper-2` | `#f1efeb` | un escalón más hondo — columnas del tablero |
-| `--ink` | `#101112` | texto, y el fondo de las tarjetas destacadas |
-| `--ink-60` | `#6b6d70` | texto de apoyo. **Es el color de casi todo el cuerpo** |
-| `--ink-40` | `#9a9c9f` | etiquetas, metadatos |
-| `--line` | `rgba(16,17,18,.1)` | bordes y separadores |
-| `--dusk` | `#b41065` | el acento. Numeración, viñetas, enlaces dentro de texto |
-| `--lit-dawn` | `rgb(255 154 61)` | el acento **sobre fondo oscuro** (`--dusk` no contrasta ahí) |
-| `--lit-dusk` | `rgb(255 227 194)` | títulos de columna del pie |
+| `--paper` | `#f7f8f8` | el fondo de todo lo que no es cielo |
+| `--paper-2` | `#f1f2f2` | un escalón más hondo — columnas del tablero |
+| `--ink` | `#0b0d0e` | texto, y el fondo de las tarjetas destacadas |
+| `--ink-60` | `#5b6167` | texto de apoyo y etiquetas chicas (6,27:1). **Es el color de casi todo el cuerpo** |
+| `--ink-40` | `#8a9097` | relleno, texto grande y el gris de partida de la frase que se enciende. **No es tinta de texto chico**: 3,22:1 |
+| `--line` | `rgba(11,13,14,.1)` | bordes y separadores |
+| `--sky-night` | `rgb(3 18 63)` | el primer anclaje del cielo («noche»). Base de `.allok-sky-panel` |
+| `--dusk` | `#b41065` | el acento. Numeración, viñetas, enlaces dentro de texto (6,56:1). Sobre fondo oscuro no: 2,88:1 sobre `#101112` |
+| `--lit-dawn` | `rgb(255 154 61)` | el acento **sobre fondo oscuro** (8,95:1 sobre `#101112`) |
+| `--lit-dusk` | `rgb(255 227 194)` | títulos de columna del pie, y el valor destacado sobre el cielo |
 | `--on-sky` | `rgb(247 244 239)` | texto sobre el cielo |
+
+Y en el bloque de marca (el segundo `.allok`, espejo de `src/lib/brand.ts`):
+
+| Token | Valor | Para qué |
+|---|---|---|
+| `--cloud` | `#f7f8f8` | el papel de `/`, y su texto sobre `--ink` |
+| `--signal` | `#315cff` | «trabajando». El anillo de foco sobre papel (5,12:1 sobre blanco, 4,81:1 sobre Cloud) |
+| `--signal-ink` | `#2348cc` | el mismo estado como texto sobre papel |
+| `--ok` / `--ok-ink` | `#20e58d` / `#0a7a48` | «resuelto». `--ok` pinta y se lee sobre negro; como texto sobre papel va `--ok-ink` |
+| `--st-*` | ver `brand.ts` | los cuatro estados, cada uno con `dot`, `ink` y `soft` |
+| `--wa-out` | `#25d366` | las burbujas de WhatsApp. **No es un token de marca** |
+| `--void` / `--void-2` | `#0b0d0e` / `#101315` | el negro de las portadas |
+| `--on-void` | `#f5f4f0` | texto sobre negro, y el anillo de foco en las portadas y el pie |
+| `--on-void-60` | `rgba(245,244,240,.62)` | texto de apoyo sobre negro (7,10:1) |
+| `--on-void-40` | `rgba(245,244,240,.38)` | sólo relleno o texto grande sobre negro |
+| `--hair-void` | `rgba(245,244,240,.12)` | bordes sobre negro |
 
 Regla de reparto: ~80% papel y tinta, ~15% cielo, ~5% `--dusk`. Si el magenta
 aparece en más de un puñado de sitios por pantalla, deja de leerse como acento.
+
+---
+
+## Foco y áreas táctiles
+
+**El anillo.** 2 px, separado 3 px de la caja (la regla global
+`:focus-visible`). Dentro de `.allok` cambia sólo el color, según la superficie
+(`src/app/globals.css`, junto al deslizante):
+
+| Superficie | Regla | Color | Medido |
+|---|---|---|---|
+| papel y blanco | `.allok :focus-visible` | `--signal` | 5,12:1 blanco, 4,81:1 Cloud, 3,81:1 sobre `--ink` |
+| portada negra | `.allok .allok-void :focus-visible` | `--on-void` | la navegación va a .85: 12,79:1 (en `--signal` era 3,04:1) |
+| cielo | `.allok .allok-sky :focus-visible` | `--on-sky` | 5,8 a 16:1 sobre los anclajes (`--signal` da 1,25-1,9:1) |
+| pie | `.allok footer :focus-visible` | `--on-void` | los enlaces van a .7: 8,83:1 (en `--signal` era 2,40:1) |
+| deslizante | `.allok input[type="range"]:focus-visible` | sin outline; el anillo va en el pulgar, `--dusk` a 2 px | 6,56:1 sobre blanco |
+
+Tres reglas:
+
+- **El anillo se mide con la opacidad heredada.** Un enlace a .7 pinta su anillo
+  a .7. Por eso el pie y las portadas negras llevan `--on-void` y no el azul.
+- **Un control, un anillo.** Si el anillo va en un pseudo-elemento (el pulgar
+  del deslizante), el control lleva `outline: none` en `:focus-visible`. Si no,
+  salen dos, y el del control de 44 px cruza la etiqueta de arriba.
+- **El anillo no pisa texto vecino.** Ocupa 5 px fuera de la caja (separación
+  más grosor). En una pila de enlaces deja al menos 4 px entre la caja y el
+  texto de al lado: el título de columna del pie lleva `mb-1` y la fila legal
+  `gap-y-1`, que sólo se nota cuando se parte en dos líneas.
+
+**Áreas táctiles de 44 px.** Un enlace dentro de una frase no cuenta; todo lo
+demás mide al menos 44 px de alto:
+
+| Patrón | Cómo | Dónde |
+|---|---|---|
+| enlace de texto suelto | `inline-flex min-h-11 items-center`, y se recorta el margen de arriba (`mt-6` → `mt-3`) para que el texto no se mueva | WhatsApp y fila legal del pie, «Ver allok» en `/vocero`, acciones de las tarjetas de `/agencia` |
+| enlaces apilados | `py-3.5` en cada enlace y sin `gap`: 44,5 px cada uno, parejos | columnas del pie |
+| cabecera | logo `inline-flex min-h-11 min-w-11 items-center`, navegación `py-3`, acción `!py-3` (46 px) | `SiteHeader` |
+| deslizante | el `input[type="range"]` mide 44 px de alto; la pista pinta 6 px | calculadora de `/rei` |
+| botón | `.allok-btn` ya pasa de 44 px con su relleno | todo el sitio |
 
 ---
 

@@ -53,9 +53,9 @@ export default function MetaCostCalculator() {
           <p className="display mt-2.5 text-[52px]">{usd(r.cost)}</p>
           <p className="text-[13.5px]">al mes, facturado por Meta</p>
 
-          {/* Los números caen sobre el resplandor crema del cielo (4,2:1). La
-              capa es la noche del cielo al 30%: los sube a más de 6:1. */}
-          <dl className="-mx-3 mt-4.5 grid gap-1.5 rounded-[10px] border-t border-[rgba(247,244,239,.26)] bg-[rgba(3,18,63,.3)] px-3 pt-3.5 pb-2.5 text-[13.5px]">
+          {/* Los números caen sobre el resplandor crema del cielo (4,2:1).
+              `.allok-sky-panel` los sube a más de 6:1. */}
+          <dl className="allok-sky-panel -mx-3 mt-4.5 grid gap-1.5 rounded-[10px] border-t border-[rgba(247,244,239,.26)] px-3 pt-3.5 pb-2.5 text-[13.5px]">
             <Row k="Respuestas cobrables" v={r.billable.toLocaleString("es")} />
             <Row k="Evitado por anuncios" v={usd(r.avoided)} accent />
           </dl>

@@ -58,22 +58,24 @@ export default function ProjectCheckout({
     <main className="min-h-screen bg-[var(--surface-0)] px-5 py-6 text-[var(--text-primary)] sm:px-8 sm:py-10">
       <div className="mx-auto flex min-h-[calc(100vh-3rem)] max-w-5xl flex-col border border-[var(--line)] bg-[var(--surface-1)] shadow-[var(--shadow-3)] sm:min-h-[calc(100vh-5rem)]">
         <header className="flex items-center justify-between border-b border-[var(--line)] px-6 py-5 sm:px-10">
-          <AllokLogo variant="wordmark" state="activo" className="h-8 w-auto" />
+          <AllokLogo variant="wordmark" state="activo" on="ink" className="h-8 w-auto" />
           <span className="inline-flex items-center gap-2 text-xs font-medium text-[var(--text-secondary)]">
             <LockKeyhole className="size-3.5" aria-hidden /> Pago seguro
           </span>
         </header>
 
-        <section className="grid flex-1 items-center gap-12 px-6 py-14 sm:px-10 lg:grid-cols-[1.2fr_0.8fr] lg:px-16">
-          <div className="max-w-xl">
-            <p className="mb-5 font-mono text-xs uppercase tracking-[0.18em] text-[var(--text-tertiary)]">
+        {/* Bajo lg la intro se disuelve en la grilla: el monto y el botón quedan
+            justo debajo del título, dentro de la primera pantalla. */}
+        <section className="grid flex-1 content-center items-center gap-x-12 px-6 py-14 sm:px-10 lg:grid-cols-[1.2fr_0.8fr] lg:px-16">
+          <div className="max-w-xl max-lg:contents">
+            <p className="mb-5 font-mono text-xs uppercase tracking-[0.18em] text-[var(--text-secondary)]">
               {eyebrow}
             </p>
-            <h1 className="text-5xl font-medium tracking-[-0.04em] text-[var(--text-primary)] sm:text-7xl">
+            <h1 className="text-4xl font-medium tracking-[-0.04em] text-[var(--text-primary)] sm:text-7xl">
               {title}
             </h1>
-            <p className="mt-7 max-w-md text-lg leading-relaxed text-[var(--text-secondary)]">{lead}</p>
-            <ul className="mt-10 space-y-4 border-t border-[var(--line)] pt-7 text-sm">
+            <p className="mt-7 max-w-md text-lg leading-relaxed text-[var(--text-secondary)] max-lg:order-2">{lead}</p>
+            <ul className="mt-10 space-y-4 border-t border-[var(--line)] pt-7 text-sm max-lg:order-2">
               {included.map((entry) => (
                 <li key={entry} className="flex items-center gap-3 text-[var(--text-secondary)]">
                   <Check className="size-4 text-[var(--lima)]" aria-hidden />
@@ -83,8 +85,8 @@ export default function ProjectCheckout({
             </ul>
           </div>
 
-          <div className="border-y border-[var(--line)] py-8 lg:border-x lg:px-10">
-            <p className="font-mono text-xs uppercase tracking-[0.16em] text-[var(--text-tertiary)]">
+          <div className="border-y border-[var(--line)] py-8 max-lg:order-1 max-lg:mt-10 lg:border-x lg:px-10">
+            <p className="font-mono text-xs uppercase tracking-[0.16em] text-[var(--text-secondary)]">
               {priceLabel}
             </p>
             <div className="mt-4 flex items-start gap-1">
@@ -92,7 +94,7 @@ export default function ProjectCheckout({
               <strong className="text-7xl font-medium tracking-[-0.05em] text-[var(--text-primary)]">
                 {amount}
               </strong>
-              <span className="mt-8 text-sm text-[var(--text-tertiary)]">{currencyCode}</span>
+              <span className="mt-8 text-sm text-[var(--text-secondary)]">{currencyCode}</span>
             </div>
             <p className="mt-5 text-sm leading-6 text-[var(--text-secondary)]">{note}</p>
             <button
@@ -109,7 +111,7 @@ export default function ProjectCheckout({
                 {error}
               </p>
             ) : null}
-            <div className="mt-8 flex gap-3 border-t border-[var(--line)] pt-6 text-xs leading-5 text-[var(--text-tertiary)]">
+            <div className="mt-8 flex gap-3 border-t border-[var(--line)] pt-6 text-xs leading-5 text-[var(--text-secondary)]">
               <ShieldCheck className="mt-0.5 size-4 shrink-0 text-[var(--lima)]" aria-hidden />
               <p>El pago se procesa en la página protegida de Stripe. Allok no ve ni guarda los datos de tu tarjeta.</p>
             </div>

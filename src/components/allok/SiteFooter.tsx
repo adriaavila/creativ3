@@ -43,13 +43,13 @@ export default function SiteFooter() {
           <Lockup size={34} />
           <a
             href={`mailto:${CONTACT_EMAIL}`}
-            className="allok-sky-text display mt-5 block text-[clamp(28px,3.4vw,44px)]"
+            className="allok-sky-text display mt-3 block py-2 text-[clamp(28px,3.4vw,44px)]"
           >
             {CONTACT_EMAIL}
           </a>
           <a
             href={whatsappUrl()}
-            className="mono mt-4 inline-block opacity-70 transition-opacity hover:opacity-100"
+            className="mono inline-flex min-h-11 items-center opacity-70 transition-opacity hover:opacity-100"
           >
             WhatsApp ↗
           </a>
@@ -57,10 +57,10 @@ export default function SiteFooter() {
 
         <div className="mono grid grid-cols-2 gap-x-7 gap-y-9 sm:grid-cols-3">
           {COLUMNS.map((col) => (
-            <div key={col.title} className="grid content-start gap-2.5 opacity-70">
+            <div key={col.title} className="grid content-start opacity-70">
               <span className="text-[var(--lit-dusk)] opacity-80">{col.title}</span>
               {col.links.map((link) => (
-                <Link key={link.href} href={link.href} className="transition-opacity hover:opacity-100">
+                <Link key={link.href} href={link.href} className="py-3.5 transition-opacity hover:opacity-100">
                   {link.label} ↗
                 </Link>
               ))}
@@ -71,13 +71,13 @@ export default function SiteFooter() {
 
       <div className="allok-sky-rule mx-auto mt-10 max-w-[1200px]" />
 
-      <div className="mono mx-auto mt-5 flex max-w-[1200px] flex-wrap items-center justify-between gap-3 opacity-45">
+      <div className="mono mx-auto mt-2 flex max-w-[1200px] flex-wrap items-center justify-between gap-x-3 opacity-70">
         <span>© {new Date().getFullYear()} allok</span>
-        <span className="flex flex-wrap gap-5">
-          <a href="https://github.com/adriaavila">GitHub ↗</a>
-          <Link href="/es/privacidad">Privacidad</Link>
-          <Link href="/es/terminos">Términos</Link>
-          <Link href="/eliminacion-de-datos">Eliminación de datos</Link>
+        <span className="flex flex-wrap gap-x-5">
+          <a href="https://github.com/adriaavila" className="inline-flex min-h-11 items-center">GitHub ↗</a>
+          <Link href="/es/privacidad" className="inline-flex min-h-11 items-center">Privacidad</Link>
+          <Link href="/es/terminos" className="inline-flex min-h-11 items-center">Términos</Link>
+          <Link href="/eliminacion-de-datos" className="inline-flex min-h-11 items-center">Eliminación de datos</Link>
         </span>
       </div>
     </footer>

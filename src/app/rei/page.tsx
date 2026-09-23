@@ -122,7 +122,7 @@ export default function ReiPage() {
               </div>
               <p className="display mt-4 text-[48px]">
                 ${plan.price}
-                <span className="align-baseline text-[15px] font-normal tracking-normal opacity-55">
+                <span className="align-baseline text-[15px] font-normal tracking-normal opacity-65">
                   {plan.period ? " /mes" : " una vez"}
                 </span>
               </p>

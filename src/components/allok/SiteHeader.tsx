@@ -39,14 +39,14 @@ export default function SiteHeader({
         {external ? (
           <a
             href={cta.href}
-            className={`allok-btn !rounded-full !px-4 !py-2.5 !text-sm ${onCloud ? "border border-[rgba(11,13,14,.2)] text-[var(--ink)]" : "allok-btn-outline backdrop-blur-sm"}`}
+            className={`allok-btn !rounded-full !px-4 !py-3 !text-sm ${onCloud ? "border border-[rgba(11,13,14,.2)] text-[var(--ink)]" : "allok-btn-outline backdrop-blur-sm"}`}
           >
             {cta.label}
           </a>
         ) : (
           <Link
             href={cta.href}
-            className={`allok-btn !rounded-full !px-4 !py-2.5 !text-sm ${onCloud ? "border border-[rgba(11,13,14,.2)] text-[var(--ink)]" : "allok-btn-outline backdrop-blur-sm"}`}
+            className={`allok-btn !rounded-full !px-4 !py-3 !text-sm ${onCloud ? "border border-[rgba(11,13,14,.2)] text-[var(--ink)]" : "allok-btn-outline backdrop-blur-sm"}`}
           >
             {cta.label}
           </Link>

@@ -901,10 +901,11 @@ html:has(.rig) ::selection { background: var(--hazard); color: var(--paper); }
   .allok-btn-sky:hover { opacity: 0.92; }
 }
 
-/* La barra es el cielo: mismo degradado que cierra cada página. */
+/* La barra es el cielo: mismo degradado que cierra cada página. La pista
+   pinta 6px, pero el control mide 44px de alto: es el área que toca el dedo. */
 .allok input[type="range"] {
   appearance: none;
-  height: 22px;
+  height: 44px;
   width: 100%;
   background: transparent;
   cursor: pointer;
@@ -945,6 +946,13 @@ html:has(.rig) ::selection { background: var(--hazard); color: var(--paper); }
 }
 .allok input[type="range"]:focus-visible::-webkit-slider-thumb { outline: 2px solid var(--dusk); outline-offset: 2px; }
 .allok input[type="range"]:focus-visible::-moz-range-thumb { outline: 2px solid var(--dusk); outline-offset: 2px; }
+
+/* El anillo de foco global es lima: 1,24:1 sobre Cloud y 1,32:1 sobre blanco.
+   En allok va en Signal Blue (4,81:1 sobre Cloud, 5,12:1 sobre blanco, 3,81:1
+   sobre Ink). Sobre el cielo el azul se pierde, así que ahí va en --on-sky,
+   el mismo tono que su texto. Mismo patrón que `.rig` con --hazard. */
+.allok :focus-visible { outline-color: var(--signal); }
+.allok .allok-sky :focus-visible { outline-color: var(--on-sky); }
 
 /* ─────────────────────────────────────────────────────────────────────────
    allok · superficie de producto

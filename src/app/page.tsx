@@ -136,7 +136,7 @@ export default function Home() {
                   <span className="mt-[7px] size-2.5 shrink-0 rounded-full" style={{ background: STATES[k].dot }} />
                   <span>
                     <span className="block text-[15px] font-semibold">{STATES[k].label}</span>
-                    <span className="mono mt-1 block text-white/40">
+                    <span className="mono mt-1 block text-[var(--on-void-60)]">
                       {{ activo: "Atendido solo", atendiendo: "Hay conversación viva", atencion: "Te toca a ti", pausado: "Apagado a propósito" }[k]}
                     </span>
                   </span>
@@ -235,14 +235,14 @@ export default function Home() {
                 <h3 className="display-sm text-[19px]">{plan.name}</h3>
                 {plan.featured ? <span className="mono text-[var(--ok)]">Más elegido</span> : null}
               </div>
-              <p className="mono mt-1.5 opacity-55">{plan.kicker}</p>
+              <p className="mono mt-1.5 opacity-65">{plan.kicker}</p>
 
               <p className="display mt-6 text-[56px] leading-none tabular-nums">
-                {plan.from ? <span className="mono mr-2 align-middle opacity-55">desde</span> : null}
+                {plan.from ? <span className="mono mr-2 align-middle opacity-65">desde</span> : null}
                 <span className="align-super text-[22px]">$</span>
                 {plan.price}
               </p>
-              <p className="mono mt-2.5 opacity-55">{priceLabel(plan).unit}</p>
+              <p className="mono mt-2.5 opacity-65">{priceLabel(plan).unit}</p>
               <p className="mt-4 mb-7 text-[15px] leading-snug opacity-70">{plan.line}</p>
 
               <a
@@ -256,7 +256,7 @@ export default function Home() {
                 {plan.appPlan ? "Conectar mi WhatsApp" : "Hablemos"}
               </a>
               {plan.trialDays ? (
-                <p className="mono mt-3 text-center opacity-55">{plan.trialDays} días de prueba</p>
+                <p className="mono mt-3 text-center opacity-65">{plan.trialDays} días de prueba</p>
               ) : null}
 
               <ul className={`allok-hair mt-7 grid gap-3 pt-6 ${plan.featured ? "border-white/12" : ""}`}>

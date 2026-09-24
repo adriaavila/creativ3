@@ -265,6 +265,50 @@ Poco, y siempre con una señal estática al lado — nunca el movimiento como
   en `:root`; el ángulo lo pone quien lo usa). Reemplazaron al lima del diseño
   anterior.
 
+### Los gráficos que se mueven (`/`)
+
+La regla de los 300ms es para la interfaz: lo que responde a un toque. Los
+gráficos de fondo son otra cosa y tienen sus propias reglas.
+
+**Una gramática.** Todo sale del anillo y el punto: un círculo abierto es
+alguien esperando; el punto que lo cierra es la respuesta. **Ámbar llega, verde
+sale.** Nada de ilustraciones, robots ni íconos de catálogo: cada pieza es la
+marca a otra escala, o el producto mismo en marcha.
+
+**Un objeto que se mueve por sección**, y el movimiento cuenta algo del
+producto:
+
+| Sección | Pieza | Qué cuenta |
+|---|---|---|
+| portada | `Conversation.tsx` | el WhatsApp del negocio, en bucle: Carla escribe («escribiendo…» en la barra), su pregunta entra, allok redacta en la caja de texto (etiqueta azul «allok»), manda, y los vistos pasan de ✓ a ✓✓ azul |
+| portada | `NightOrbit.tsx`, detrás del teléfono | los mensajes de la noche: suben ámbar por la izquierda, pasan por detrás del aparato y bajan verdes por la derecha. El color cambia siempre tapado: es el teléfono el que contesta |
+| `#control`, arriba | `NightTicker` | «Mientras dormías»: dos filas de preguntas con su hora, que se cruzan con el scroll |
+| `#control` | `ControlCenter.tsx` | el tablero en vivo: alguien llega (azul, escribiendo), se resuelve (verde) o te lo pasa (ámbar), y los contadores suben. Corre el guion una vez y se queda |
+| cómo funciona | `StepGlyph` | acción a la izquierda (teléfono, globo, interruptor), resultado a la derecha: el anillo que se cierra |
+| para quién | `CloseMark` | la viñeta de cada sector se cierra cuando la fila sube por la pantalla |
+| cierre | `NightSky` | estrellas que se encienden ámbar y quedan verdes, y el amanecer que sube con el scroll |
+
+Reglas:
+
+- **El estado final vive en la regla base.** Sin JS, sin línea de tiempo de
+  scroll o con `prefers-reduced-motion: reduce`, cada pieza sale completa y
+  quieta: el hilo entero, el tablero lleno, los anillos cerrados.
+- **Lo que corre con un reloj se para fuera de pantalla** (`IntersectionObserver`
+  en la órbita, el hilo y el tablero). Lo que corre con el scroll sólo se
+  mueve si quien lee se mueve.
+- **Nunca un punto vivo junto a texto chico.** La órbita desvanece su punta
+  izquierda donde empieza la columna del texto; las estrellas del cierre bajan
+  al 25% donde va el texto, que además es gris opaco (`#919292`, el
+  `white/55` de antes ya mezclado): uno translúcido deja ver la estrella a
+  través de la letra.
+- **El teléfono tiene las proporciones de uno real** (`aspect-ratio: 71.6 /
+  146.6`, 320 px de ancho). El hilo se apoya abajo y lo nuevo asoma por
+  detrás de la caja de texto. Las órbitas miden menos que medio teléfono de
+  alto (ry < 327) para que arriba y abajo queden siempre detrás.
+- **El papel tapiz del chat es de noche**: luna, visto, destello y globo al
+  4,5%. El símbolo no va de garabato: sigue la regla de «donde no cabe una
+  palabra».
+
 ---
 
 ## El gesto que estructura las páginas
@@ -275,12 +319,14 @@ ilustración:
 
 | Página | Objeto |
 |---|---|
-| `/` | un teléfono con la conversación completa: la pregunta entra a las 3:14 y la respuesta sale con el cupo, la fecha y el precio |
+| `/` | el WhatsApp del negocio a las 3:14, contándose en bucle: la pregunta entra y allok escribe la respuesta con el cupo, la fecha y el precio. Alrededor, las órbitas de la noche |
 | `/rei` | el tablero de etapas de una corredora |
 | `/vocero` | un hilo con tres consultas al sistema del cliente dentro de una sola respuesta |
 | `/agencia` | las tres tarjetas de servicio |
 
-En `/` el objeto va dentro de un `.allok-bloom`, sobre negro. En las demás
+En `/` el objeto va sobre Cloud, centrado en su columna y dentro de sus
+órbitas (`NightOrbit`); la portada lleva `overflow-x-clip` para que las
+órbitas no abran scroll horizontal. En las demás
 todavía rompe el borde inferior de la portada:
 
 ```tsx

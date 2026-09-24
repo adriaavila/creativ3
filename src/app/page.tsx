@@ -10,6 +10,8 @@ import ControlCenter from "@/components/allok/ControlCenter";
 import Rise from "@/components/allok/Rise";
 import AllokLogo from "@/components/brand/AllokLogo";
 import OkDot from "@/components/brand/OkDot";
+import NightOrbit from "@/components/allok/NightOrbit";
+import { CloseMark, NightSky, NightTicker, StepGlyph } from "@/components/allok/Ambient";
 
 const TITLE = "allok — tu negocio sigue funcionando";
 const DESCRIPTION =
@@ -71,7 +73,7 @@ export default function Home() {
     <div className="allok">
       {/* ── Portada en Cloud. El logotipo a tamaño de cartel, y el punto vivo:
              la marca es lo primero que se ve y ya está diciendo el estado. ── */}
-      <div className="bg-[var(--cloud)]">
+      <div className="overflow-x-clip bg-[var(--cloud)]">
         <SiteHeader nav={NAV} cta={{ href: connect, label: "Quiero mi agente" }} onCloud />
 
         <div className="mx-auto grid max-w-[1240px] items-center gap-12 px-5 pb-14 pt-6 sm:px-10 lg:grid-cols-[minmax(0,1.02fr)_minmax(0,.98fr)] lg:gap-8 lg:pb-20 lg:pt-10">
@@ -107,14 +109,25 @@ export default function Home() {
             </div>
           </div>
 
-          <Rise delay={1} className="flex justify-center lg:justify-end">
-            <Conversation />
-          </Rise>
+          {/* Los mensajes de la noche orbitan el teléfono: entran ámbar, salen verdes. */}
+          <div className="relative flex justify-center">
+            <NightOrbit className="absolute left-1/2 top-1/2 hidden w-[640px] max-w-none xl:w-[740px] -translate-x-1/2 -translate-y-1/2 sm:block" />
+            <Rise delay={1} className="relative w-full max-w-[320px]">
+              <Conversation />
+            </Rise>
+          </div>
         </div>
       </div>
 
       {/* ── El sistema es la estética. Nada de ilustraciones. ─────────────── */}
       <section id="control" className="bg-[var(--ink)] text-[var(--cloud)]">
+        {/* La noche que pasó: las preguntas llegaron igual. */}
+        <div className="pt-[clamp(56px,7vw,96px)]" aria-hidden="true">
+          <p className="mono mx-auto max-w-[1240px] px-5 text-[var(--on-void-60)] sm:px-10">Mientras dormías</p>
+          <div className="mt-5">
+            <NightTicker />
+          </div>
+        </div>
         <div className="mx-auto max-w-[1240px] px-5 py-[clamp(72px,10vw,140px)] sm:px-10">
           <Rise>
             <div className="grid items-end gap-6 md:grid-cols-[minmax(0,1fr)_minmax(0,.66fr)]">
@@ -164,7 +177,10 @@ export default function Home() {
           {STEPS.map((s, i) => (
             <Rise key={s.n} delay={(i as 0 | 1 | 2)} className="grid bg-white">
               <li className="grid content-start p-8">
-                <span className="mono tabular-nums text-[var(--ok-ink)]">{s.n}</span>
+                <div className="flex items-start justify-between gap-4">
+                  <span className="mono tabular-nums text-[var(--ok-ink)]">{s.n}</span>
+                  <StepGlyph step={(i + 1) as 1 | 2 | 3} className="-mt-1 h-14 w-auto" />
+                </div>
                 <h3 className="display-sm mt-4 text-[clamp(1.25rem,1.8vw,1.55rem)]">{s.title}</h3>
                 <p className="mt-3 text-[15.5px] leading-relaxed text-[var(--ink-60)] text-pretty">{s.body}</p>
                 <p className="mono mt-6 text-[var(--ink-60)]">{s.aside}</p>
@@ -194,9 +210,12 @@ export default function Home() {
           {SECTORS.map(([sector, question]) => (
             <div
               key={sector}
-              className="allok-hair grid items-baseline gap-x-10 gap-y-1 py-5 last:border-b last:border-[var(--line)] sm:grid-cols-[minmax(0,.4fr)_minmax(0,.6fr)]"
+              className="allok-hair allok-close-row grid items-baseline gap-x-10 gap-y-1 py-5 last:border-b last:border-[var(--line)] sm:grid-cols-[minmax(0,.4fr)_minmax(0,.6fr)]"
             >
-              <dt className="display-sm text-[17px]">{sector}</dt>
+              <dt className="display-sm text-[17px]">
+                <CloseMark className="mr-3 inline-block size-[18px] align-[-3px] text-[var(--ink-40)]" />
+                {sector}
+              </dt>
               <dd className="text-[15.5px] leading-relaxed text-[var(--ink-60)]">«{question}»</dd>
             </div>
           ))}
@@ -298,10 +317,15 @@ export default function Home() {
       {/* ── Cierre: la marca cerrando la frase ──────────────────────────── */}
       <section className="mx-auto max-w-[1240px] px-5 pb-[clamp(72px,10vw,140px)] sm:px-10">
         <Rise>
-          <div className="allok-on-ink grid items-center gap-10 rounded-[30px] bg-[var(--ink)] px-7 py-16 text-[var(--cloud)] sm:px-14 sm:py-20 md:grid-cols-[minmax(0,1fr)_auto]">
-            <div>
+          <div className="allok-on-ink allok-dawn-host relative isolate grid items-center gap-10 overflow-hidden rounded-[30px] bg-[var(--ink)] px-7 py-16 text-[var(--cloud)] sm:px-14 sm:py-20 md:grid-cols-[minmax(0,1fr)_auto]">
+            <NightSky />
+            {/* Sobre las estrellas el texto va en gris opaco (el white/55 de
+                antes, ya mezclado sobre --ink, 6,3:1): uno translúcido deja
+                ver la estrella a través de la letra. Por lo mismo el botón
+                de borde lleva fondo. */}
+            <div className="relative">
               <h2 className="hero !text-[clamp(2rem,4.4vw,3.6rem)]">{BRAND.promise}</h2>
-              <p className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-2 text-[15.5px] text-white/55">
+              <p className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-2 text-[15.5px] text-[#919292]">
                 {BRAND.voice.map((line) => (
                   <span key={line} className="flex items-center gap-2">
                     <span className="size-1.5 rounded-full" style={{ background: STATES.activo.dot }} aria-hidden="true" />
@@ -309,16 +333,16 @@ export default function Home() {
                   </span>
                 ))}
               </p>
-              <p className="lede mt-6 max-w-[44ch] text-white/55">
+              <p className="lede mt-6 max-w-[44ch] text-[#919292]">
                 Desde US${FROM_PRICE} al mes. Pruébalo primero escribiéndole tú, como
                 si fueras un cliente tuyo.
               </p>
             </div>
-            <div className="grid gap-3 md:justify-self-end">
+            <div className="relative grid gap-3 md:justify-self-end">
               <a href={connect} className="allok-btn bg-[var(--ok)] font-semibold text-[var(--ink)]">
                 Quiero mi agente
               </a>
-              <a href={fallback} className="allok-btn border border-white/25 text-[var(--cloud)]">
+              <a href={fallback} className="allok-btn border border-white/25 bg-[var(--ink)] text-[var(--cloud)]">
                 Probarlo como cliente
               </a>
             </div>

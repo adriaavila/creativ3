@@ -1164,8 +1164,12 @@ html:has(.rig) ::selection { background: var(--hazard); color: var(--paper); }
      ambiental larga. Una sola sombra difusa lo deja flotando como una pegatina. */
 .allok-device {
   position: relative;
+  /* Las proporciones de un iPhone de verdad (71,6 × 146,6 mm). Sin esto la
+     altura la ponía el hilo y salía un teléfono rechoncho de 0,67. */
+  display: flex;
+  aspect-ratio: 71.6 / 146.6;
   width: 100%;
-  max-width: 340px;
+  max-width: 320px;
   border-radius: 54px;
   padding: 11px;
   background: linear-gradient(
@@ -1205,9 +1209,16 @@ html:has(.rig) ::selection { background: var(--hazard); color: var(--paper); }
 }
 .allok-device-screen {
   position: relative;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
   overflow: hidden;
   border-radius: 43px;
-  background: #ece5dd;
+  /* El papel tapiz de WhatsApp lleva garabatos; éstos son de noche, porque
+     son las 3:14: una luna, un visto, un destello y un globo, apenas
+     visibles, en diagonal para que no se lea como cuadrícula. */
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='88' height='88' fill='none' stroke='%23111b21' stroke-opacity='.045' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M25.66 14.34A8 8 0 1 0 25.66 25.66A6 6 0 0 1 25.66 14.34Z'/%3E%3Cpath d='M56 22l3 3 6-6'/%3E%3Cpath d='M22 58v8M18 62h8'/%3E%3Cpath d='M56 52h14a3 3 0 0 1 3 3v6a3 3 0 0 1-3 3h-9l-4 3v-3h-1a3 3 0 0 1-3-3v-6a3 3 0 0 1 3-3z'/%3E%3C/svg%3E")
+    0 0 / 88px 88px #ece5dd;
   box-shadow:
     inset 0 0 0 1px rgb(0 0 0 / 0.55),
     inset 0 2px 5px rgb(0 0 0 / 0.35);
@@ -1247,6 +1258,315 @@ html:has(.rig) ::selection { background: var(--hazard); color: var(--paper); }
   .allok-bubble {
     animation: none;
   }
+}
+
+/* El hilo en vivo (Conversation.tsx). La fila crece de 0 a su alto y empuja
+   las de arriba, como un chat de verdad; la burbuja entra desde su cola: la
+   de Carla desde abajo a la izquierda, la nuestra sube desde la caja de
+   texto. */
+.allok-msg {
+  display: grid;
+  grid-template-rows: 1fr;
+}
+.allok-msg > * { min-height: 0; }
+.allok-caret {
+  display: inline-block;
+  width: 1.5px;
+  height: 1.05em;
+  margin-left: 1px;
+  vertical-align: -0.15em;
+  background: #008069;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .allok-msg { animation: allok-msg-grow 360ms cubic-bezier(0.23, 1, 0.32, 1) both; }
+  .allok-msg-pop {
+    transform-origin: bottom left;
+    animation: allok-msg-pop 420ms cubic-bezier(0.23, 1, 0.32, 1) both;
+  }
+  .allok-msg-send {
+    transform-origin: bottom right;
+    animation: allok-msg-send 460ms cubic-bezier(0.23, 1, 0.32, 1) both;
+  }
+  .allok-caret { animation: allok-glyph-caret 1s steps(1, end) infinite; }
+  .allok-breathe { animation: allok-breathe 1.2s ease-in-out infinite; }
+  .allok-press { animation: allok-press 260ms cubic-bezier(0.23, 1, 0.32, 1); }
+}
+@keyframes allok-msg-grow {
+  from { grid-template-rows: 0fr; }
+}
+@keyframes allok-msg-pop {
+  from { opacity: 0; transform: translateY(8px) scale(0.9); }
+}
+@keyframes allok-msg-send {
+  from { opacity: 0; transform: translateY(26px) scale(0.92); }
+}
+@keyframes allok-breathe {
+  50% { transform: scale(1.5); opacity: 0.55; }
+}
+@keyframes allok-press {
+  40% { transform: scale(0.86); }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   allok · los gráficos que se mueven (Ambient.tsx, NightOrbit.tsx,
+   ControlCenter.tsx). Una gramática: el anillo abierto es alguien esperando,
+   el punto que lo cierra es la respuesta. Ámbar llega, verde sale.
+   La regla base es el estado final y completo; el movimiento se enchufa sólo
+   bajo `no-preference` (y lo que va con el scroll, sólo donde hay `view()`).
+   ───────────────────────────────────────────────────────────────────────── */
+
+/* Las órbitas de la portada. La punta izquierda se desvanece: ahí empieza
+   la columna del texto, y un punto moviéndose junto a una frase la ensucia.
+   Entra con la página, una vez. */
+.allok-orbit {
+  mask-image: linear-gradient(90deg, transparent 1%, #000 17%);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .allok-orbit {
+    animation: allok-fade-in 1.2s cubic-bezier(0.23, 1, 0.32, 1) 0.25s both;
+  }
+}
+@keyframes allok-fade-in {
+  from { opacity: 0; }
+}
+
+/* La banda de la noche: dos filas que se cruzan con el scroll. */
+.allok-ticker {
+  overflow: clip;
+  mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
+}
+.allok-ticker-row[data-dir="1"] { transform: translateX(-9%); }
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .allok-ticker { view-timeline-name: --allok-ticker; }
+    .allok-ticker-row,
+    .allok-ticker-row[data-dir="1"] {
+      animation: allok-ticker linear both;
+      animation-timeline: --allok-ticker;
+      animation-range: cover 0% cover 100%;
+    }
+    .allok-ticker-row[data-dir="1"] { animation-direction: reverse; }
+  }
+}
+@keyframes allok-ticker {
+  from { transform: translateX(0); }
+  to { transform: translateX(-18%); }
+}
+
+/* Los glifos de los tres pasos. Estado base: la acción hecha y el anillo
+   cerrado. En bucle: acción → el anillo se dibuja → el punto lo cierra. */
+.allok-glyph * { transform-box: fill-box; transform-origin: center; }
+.allok-glyph-ring { stroke-dasharray: 1 1.05; stroke-dashoffset: 0; }
+.allok-glyph-ping { opacity: 0; }
+@media (prefers-reduced-motion: no-preference) {
+  .allok-glyph-wire { animation: allok-glyph-wire 0.9s linear infinite; }
+  .allok-glyph-pulse { animation: allok-glyph-pulse 3.6s cubic-bezier(0.45, 0, 0.2, 1) infinite both; }
+  [data-step="1"] .allok-glyph-dot { animation: allok-glyph-arrive 3.6s cubic-bezier(0.23, 1, 0.32, 1) infinite both; }
+  [data-step="1"] .allok-glyph-ping { animation: allok-glyph-ping-1 3.6s ease-out infinite both; }
+
+  .allok-glyph-line {
+    animation: allok-glyph-write 5s cubic-bezier(0.45, 0, 0.2, 1) infinite both;
+    animation-delay: calc(var(--i) * 0.45s);
+  }
+  .allok-glyph-caret { animation: allok-glyph-caret 1s steps(1, end) infinite; }
+
+  .allok-glyph-late .allok-glyph-ring { animation: allok-glyph-draw 5s cubic-bezier(0.45, 0, 0.2, 1) infinite both; }
+  .allok-glyph-late .allok-glyph-dot { animation: allok-glyph-close 5s cubic-bezier(0.23, 1, 0.32, 1) infinite both; }
+  .allok-glyph-late .allok-glyph-ping { animation: allok-glyph-ping-late 5s ease-out infinite both; }
+
+  .allok-glyph-knob { animation: allok-glyph-knob 5s cubic-bezier(0.23, 1, 0.32, 1) infinite both; }
+  .allok-glyph-track { animation: allok-glyph-track 5s cubic-bezier(0.23, 1, 0.32, 1) infinite both; }
+}
+@keyframes allok-glyph-wire { to { stroke-dashoffset: -14; } }
+@keyframes allok-glyph-pulse {
+  0% { transform: translateX(0); opacity: 0; }
+  8% { opacity: 1; }
+  44% { transform: translateX(40px); opacity: 1; }
+  50%, 100% { transform: translateX(40px); opacity: 0; }
+}
+@keyframes allok-glyph-arrive {
+  0%, 44% { opacity: 0; transform: scale(0.4); }
+  50% { opacity: 1; transform: scale(1.3); }
+  58%, 88% { opacity: 1; transform: scale(1); }
+  96%, 100% { opacity: 0; transform: scale(0.4); }
+}
+@keyframes allok-glyph-ping-1 {
+  0%, 46% { opacity: 0; transform: scale(1); }
+  48% { opacity: 0.8; transform: scale(1); }
+  72%, 100% { opacity: 0; transform: scale(2.4); }
+}
+@keyframes allok-glyph-write {
+  0% { stroke-dasharray: 1 1.05; stroke-dashoffset: 1.05; opacity: 0.45; }
+  16%, 78% { stroke-dasharray: 1 1.05; stroke-dashoffset: 0; opacity: 0.45; }
+  88%, 100% { stroke-dasharray: 1 1.05; stroke-dashoffset: 0; opacity: 0; }
+}
+@keyframes allok-glyph-caret {
+  0% { opacity: 1; }
+  50% { opacity: 0; }
+}
+@keyframes allok-glyph-draw {
+  0%, 36% { stroke-dashoffset: 1.05; opacity: 1; }
+  54%, 86% { stroke-dashoffset: 0; opacity: 1; }
+  94% { stroke-dashoffset: 0; opacity: 0; }
+  100% { stroke-dashoffset: 1.05; opacity: 0; }
+}
+@keyframes allok-glyph-close {
+  0%, 54% { opacity: 0; transform: scale(0.4); }
+  59% { opacity: 1; transform: scale(1.3); }
+  66%, 86% { opacity: 1; transform: scale(1); }
+  94%, 100% { opacity: 0; transform: scale(0.4); }
+}
+@keyframes allok-glyph-ping-late {
+  0%, 56% { opacity: 0; transform: scale(1); }
+  58% { opacity: 0.8; transform: scale(1); }
+  80%, 100% { opacity: 0; transform: scale(2.4); }
+}
+@keyframes allok-glyph-knob {
+  0%, 6% { transform: translateX(-20px); }
+  20%, 90% { transform: none; }
+  98%, 100% { transform: translateX(-20px); }
+}
+@keyframes allok-glyph-track {
+  0%, 8% { opacity: 0; }
+  20%, 90% { opacity: 1; }
+  98%, 100% { opacity: 0; }
+}
+
+/* La viñeta de los sectores: se cierra cuando la fila sube. */
+.allok-close * { transform-box: fill-box; transform-origin: center; }
+.allok-close-ring { stroke-dasharray: 1 1.05; stroke-dashoffset: 0; }
+.allok-close-dot { fill: var(--st-activo); }
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .allok-close-row { view-timeline-name: --allok-row; }
+    .allok-close-ring,
+    .allok-close-dot {
+      animation: allok-close-ring linear both;
+      animation-timeline: --allok-row;
+      animation-range: entry 60% cover 45%;
+    }
+    .allok-close-dot { animation-name: allok-close-dot; }
+  }
+}
+@keyframes allok-close-ring {
+  from { stroke-dashoffset: 1.05; }
+  70%, to { stroke-dashoffset: 0; }
+}
+@keyframes allok-close-dot {
+  0%, 72% { fill: var(--st-atencion); transform: scale(0.7); }
+  74% { fill: var(--st-activo); transform: scale(1.35); }
+  90%, 100% { fill: var(--st-activo); transform: scale(1); }
+}
+
+/* El cielo del cierre: estrellas que llegan ámbar y quedan verdes. Donde va
+   el texto se apagan al 25%: un punto vivo entre dos letras se lee como una
+   errata. En una columna el texto va arriba; desde md, a la izquierda. */
+.allok-stars {
+  mask-image: linear-gradient(180deg, #000 0 8%, rgb(0 0 0 / 0.25) 15% 58%, #000 70%);
+}
+@media (min-width: 768px) {
+  .allok-stars {
+    mask-image: linear-gradient(90deg, rgb(0 0 0 / 0.25) 0 56%, #000 68%);
+  }
+}
+.allok-star {
+  fill: var(--st-activo);
+  opacity: 0.4;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .allok-star { animation: allok-star var(--period) linear var(--delay) infinite both; }
+}
+@keyframes allok-star {
+  0% { opacity: 0; fill: var(--st-atencion); transform: scale(0.5); }
+  12% { opacity: 0.95; transform: scale(1); }
+  42% { opacity: 0.95; fill: var(--st-atencion); transform: scale(1); }
+  46% { fill: var(--st-activo); transform: scale(1.8); }
+  54% { transform: scale(1); }
+  82% { opacity: 0.7; fill: var(--st-activo); }
+  100% { opacity: 0; fill: var(--st-activo); transform: scale(1); }
+}
+/* El amanecer sube desde la esquina de los botones, lejos del texto chico. */
+.allok-dawn {
+  position: absolute;
+  left: 34%;
+  right: -22%;
+  bottom: -62%;
+  height: 110%;
+  border-radius: 50%;
+  background: radial-gradient(
+    closest-side,
+    rgb(255 154 61 / 0.5),
+    rgb(180 16 101 / 0.34) 45%,
+    rgb(27 63 150 / 0.2) 72%,
+    transparent
+  );
+  filter: blur(34px);
+}
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .allok-dawn-host { view-timeline-name: --allok-dawn; }
+    .allok-dawn {
+      animation: allok-dawn linear both;
+      animation-timeline: --allok-dawn;
+      animation-range: cover 0% cover 50%;
+    }
+  }
+}
+@keyframes allok-dawn {
+  from { transform: translateY(40%); opacity: 0.25; }
+  to { transform: none; opacity: 1; }
+}
+
+/* El centro de control, vivo: filas que entran, puntos que aterrizan,
+   contadores que suben, y quien está escribiendo. */
+.allok-typing {
+  display: inline-flex;
+  gap: 3px;
+  margin-left: 7px;
+  vertical-align: middle;
+}
+.allok-typing i {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.4;
+}
+.allok-land { position: relative; }
+@media (prefers-reduced-motion: no-preference) {
+  .allok-typing i { animation: allok-typing 1.2s ease-in-out infinite; }
+  .allok-typing i:nth-child(2) { animation-delay: 0.15s; }
+  .allok-typing i:nth-child(3) { animation-delay: 0.3s; }
+  .allok-row-in { animation: allok-row-in 480ms cubic-bezier(0.23, 1, 0.32, 1) both; }
+  .allok-text-in { animation: allok-text-in 300ms cubic-bezier(0.23, 1, 0.32, 1) both; }
+  .allok-tick { animation: allok-tick 360ms cubic-bezier(0.23, 1, 0.32, 1) both; }
+  .allok-land::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 1.5px solid currentColor;
+    animation: allok-land 700ms ease-out both;
+  }
+}
+@keyframes allok-typing {
+  0%, 60%, 100% { opacity: 0.4; transform: none; }
+  30% { opacity: 1; transform: translateY(-2px); }
+}
+@keyframes allok-row-in {
+  from { opacity: 0; transform: translateY(-8px); background-color: rgb(91 140 255 / 0.14); }
+}
+@keyframes allok-text-in {
+  from { opacity: 0; transform: translateY(4px); }
+}
+@keyframes allok-tick {
+  from { opacity: 0; transform: translateY(0.3em); }
+}
+@keyframes allok-land {
+  from { opacity: 0.9; transform: scale(1); }
+  to { opacity: 0; transform: scale(3.2); }
 }
 
 /* Una rejilla de pelo, para las tablas de especificaciones. */

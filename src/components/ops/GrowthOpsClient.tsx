@@ -195,7 +195,7 @@ export default function GrowthOpsClient({
               type="button"
               disabled={running}
               onClick={() => void startRun()}
-              className="inline-flex min-h-11 items-center gap-2 rounded-lg bg-[var(--assist)] px-4 text-sm font-semibold text-[var(--on-assist)] transition hover:-translate-y-0.5 hover:bg-[var(--assist)] active:translate-y-0 disabled:opacity-50"
+              className="inline-flex min-h-11 items-center gap-2 rounded-lg bg-[var(--assist)] px-4 text-sm font-semibold text-[var(--on-assist)] transition hover:bg-[var(--assist-hover)] disabled:opacity-50"
             >
               {running ? <LoaderCircle className="size-4 animate-spin" /> : <Play className="size-4" />}
               Ejecutar ahora
@@ -204,7 +204,6 @@ export default function GrowthOpsClient({
         </header>
 
         <section className="on-ink relative mt-7 overflow-hidden rounded-2xl bg-[var(--ink-fill)] text-white shadow-[var(--shadow-pop)]">
-          <div className="pointer-events-none absolute -right-16 -top-24 size-64 rounded-full bg-[var(--assist-dim)] blur-3xl" />
           <div className="relative grid sm:grid-cols-2 xl:grid-cols-4">
           {[
             ["Acciones de hoy", buckets.contactarHoy.length + buckets.followUp.length + buckets.enviarPropuesta.length],
@@ -310,7 +309,7 @@ export default function GrowthOpsClient({
                     <span className="flex size-11 items-center justify-center rounded-xl bg-[var(--assist-soft)] font-display text-xl font-semibold text-[var(--assist-ink)]">{lead.leadScore}</span>
                   </div>
                   <p className="mt-5 text-sm leading-6 text-[var(--ink-60)]">{lead.problemDetected}</p>
-                  <div className="mt-4 rounded-lg bg-[var(--assist-soft)] p-4 text-sm leading-6 text-[var(--on-assist)]">{lead.offerAngle}</div>
+                  <div className="mt-4 rounded-lg bg-[var(--assist-soft)] p-4 text-sm leading-6 text-[var(--ink)]">{lead.offerAngle}</div>
                   <p className="mt-4 text-xs leading-5 text-[var(--ink-60)]">Evidencia: {lead.evidence}</p>
 
                   <div className="mt-5 grid grid-cols-2 gap-2 lg:grid-cols-4">
@@ -473,7 +472,7 @@ function MetricChip({ metric }: { metric: PostizMetric }) {
       <div className="font-mono text-[9px] uppercase tracking-[0.12em] text-[var(--ink-60)]">{metric.label}</div>
       <div className="mt-1 flex items-baseline gap-2">
         <span className="font-display text-xl font-semibold text-[var(--ink)]">{compact.format(metric.value)}</span>
-        <span className={`inline-flex items-center gap-0.5 text-[10px] font-semibold ${up ? "text-[var(--assist-ink)]" : "text-[var(--status-risk)]"}`}>
+        <span className={`inline-flex items-center gap-0.5 text-[10px] font-semibold ${up ? "text-[var(--st-activo-ink)]" : "text-[var(--status-risk)]"}`}>
           {up ? <TrendingUp className="size-3" /> : <TrendingDown className="size-3" />}
           {Math.abs(metric.percentageChange).toFixed(0)}%
         </span>
@@ -539,7 +538,7 @@ function MarketingPanel({ snapshot }: { snapshot: MarketingSnapshot }) {
       <div className="grid gap-5">
         <ChannelRuntimePanel postizConfigured={false} />
         <div className="rounded-xl border border-[var(--rule)] bg-white p-8">
-          <div className="font-mono text-[9px] font-semibold uppercase tracking-[0.18em] text-[var(--assist-ink)]">Setup requerido</div>
+          <div className="font-mono text-[9px] font-semibold uppercase tracking-[0.18em] text-[var(--st-atencion-ink)]">Setup requerido</div>
           <h2 className="mt-3 font-display text-3xl font-semibold text-[var(--ink)]">Conecta Postiz para medir marketing.</h2>
           <p className="mt-4 max-w-xl text-sm leading-6 text-[var(--ink-60)]">
             Agrega <code className="rounded bg-[var(--ground-3)] px-1.5 py-0.5 text-[var(--ink-60)]">POSTIZ_API_KEY</code> en las variables de entorno
@@ -658,7 +657,7 @@ function ChannelRuntimePanel({ postizConfigured }: { postizConfigured: boolean }
             <h2 className="font-display text-2xl font-semibold text-[var(--ink)]">Postiz</h2>
             <p className="mt-1 text-xs leading-5 text-[var(--ink-60)]">LinkedIn, Instagram y otros canales con calendario y métricas.</p>
           </div>
-          <span className={`rounded-md px-3 py-1.5 text-xs font-semibold ${postizConfigured ? "bg-[var(--assist-soft)] text-[var(--assist-ink)]" : "bg-[var(--ground-3)] text-[var(--ink-60)]"}`}>
+          <span className={`rounded-md px-3 py-1.5 text-xs font-semibold ${postizConfigured ? "bg-[var(--st-activo-soft)] text-[var(--st-activo-ink)]" : "bg-[var(--ground-3)] text-[var(--ink-60)]"}`}>
             {postizConfigured ? "Conectado" : "Sin configurar"}
           </span>
         </div>

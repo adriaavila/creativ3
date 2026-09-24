@@ -1005,8 +1005,10 @@ html:has(.rig) ::selection { background: var(--hazard); color: var(--paper); }
    es el producto, no el degradado.
    ───────────────────────────────────────────────────────────────────────── */
 
-.allok {
+.allok,
+.allok-ops {
   /* ── Marca allok · el color ES el estado ───────────────────────────────
+     Ops también lo lee: sus estados son estos mismos, no una paleta aparte.
      El verde no decora: dice que la operación está bien. Los cuatro estados
      viven en src/lib/brand.ts y esto es su espejo en CSS, para lo que no pasa
      por React. Dos valores por estado a propósito: `dot` pinta y se lee sobre
@@ -1275,68 +1277,66 @@ html:has(.rig) ::selection { background: var(--hazard); color: var(--paper); }
    ───────────────────────────────────────────────────────────────────────── */
 
 .allok-ops {
-  /* Escalones de superficie. La jerarquía la da el escalón, no el color. */
-  --ground: #f5f4f0;
-  --ground-2: #f1efeb;
-  --ground-3: #eae8e3;
-  --ground-4: #dedbd4;
+  /* La marca allok, en densidad de herramienta: Cloud y tinta, y el color
+     que queda es estado (`--st-*`, del bloque de marca). Los mismos valores
+     que el CRM (`vocero-crm`, bloque `[data-saas="true"]`).
+     Escalones de superficie. La jerarquía la da el escalón, no el color. */
+  --ground: #f7f8f8;
+  --ground-2: #f1f2f2;
+  --ground-3: #e9ebec;
+  --ground-4: #dfe2e4;
 
-  /* Tres tintas, no cuatro: Dawn → Dusk no tiene una cuarta. */
-  --ink: #101112;
-  /* Un punto más oscura que en la web. La tinta secundaria de Dawn → Dusk
-     (#6b6d70) pasa AA sobre papel (4,72) pero no sobre las superficies
-     elevadas de una herramienta: 4,24 en `--ground-3` y 3,75 en `--ground-4`,
-     que es donde Ops la usa. Ésta pasa en las cuatro: 6,50 · 5,91 · 5,31 · 4,70. */
-  --ink-60: #5c5e61;
-  /* `--ink-40` NO pasa AA para texto pequeño (2,75 sobre blanco) y se queda
-     así a propósito: para llegar a 4,5 tendría que oscurecerse hasta #6f7176,
-     que es prácticamente `--ink-60`, y el sistema perdería una de sus tres
-     tintas. Es tinta de DECORACIÓN — separadores, números de orden, marcas de
-     agua. Una etiqueta que hay que leer va en `--ink-60`. */
-  --ink-40: #9a9c9f;
+  --ink: #0b0d0e;
+  /* Pasa AA en los cuatro escalones: 5,89 · 5,59 · 5,24 · 4,82. */
+  --ink-60: #5b6167;
+  /* `--ink-40` NO pasa AA para texto pequeño (3,22 sobre blanco). Es tinta de
+     DECORACIÓN — separadores, números de orden, marcas de agua. Una etiqueta
+     que hay que leer va en `--ink-60`. */
+  --ink-40: #8a9097;
 
   /* Tinta y relleno son cosas distintas aunque compartan el valor. Dentro de
      `.on-ink` la tinta se aclara; el relleno no se mueve nunca, porque es lo
      que crea el trozo oscuro. Pintar con `--ink` y luego voltearlo deja una
      cabecera de papel con texto blanco encima. */
-  --ink-fill: #101112;
+  --ink-fill: #0b0d0e;
 
-  --hairline: rgba(16, 17, 18, 0.1);
-  --rule: rgba(10, 10, 10, 0.2);
+  --hairline: rgba(11, 13, 14, 0.09);
+  --rule: rgba(11, 13, 14, 0.15);
 
   /* El negro de portada y su tinta, para las pantallas que abren en oscuro. */
-  --void: #08090a;
-  --on-void: #f5f4f0;
+  --void: #0b0d0e;
+  --on-void: #f7f8f8;
 
-  /* El verde de asistencia. `--assist` es RELLENO, nunca tinta sobre papel:
-     da 1,20:1 y no se lee.
-     Como tinta va `--assist-ink`. El verde que Ops traía (#527526) pasaba
-     sobre papel (4,85) pero NO sobre `--ground-3` (4,36) — y ahí es donde se
-     usa media docena de veces. Éste pasa en los cuatro escalones:
-     papel 5,54 · ground-2 5,31 · ground-3 4,98 · blanco 6,09.
-     Sobre el relleno `--assist` no va ninguno de los dos: va `--on-assist`. */
-  --assist: #c5f04a;
-  --assist-ink: #4f6b14;
-  --assist-soft: #edf7df;
-  --assist-dim: rgba(197, 240, 74, 0.14);
-  --assist-line: rgba(197, 240, 74, 0.28);
-  --on-assist: #101112; /* 14,35:1 sobre el relleno */
+  /* La acción principal, en tinta sobre Cloud (y en Cloud dentro de
+     `.on-ink`), como en el CRM y en allok.fun. Ya no es un verde: en allok el
+     verde dice «todo bien» y un botón no es un estado. Lo que sí es estado
+     (en línea, listo, habilitado) va en `--st-activo*`.
+     `--assist-ink` es el acento como texto; `--assist-soft` y `--assist-line`,
+     el fondo y el borde de lo destacado. Todos neutros. */
+  --assist: #0b0d0e;
+  --assist-hover: #25292c;
+  --on-assist: #f7f8f8; /* 18,31:1 */
+  --assist-ink: #0b0d0e;
+  --assist-soft: #eceeef;
+  --assist-line: rgba(11, 13, 14, 0.2);
 
   /* Estado. Tinta sobre papel, relleno suave, y la línea que los separa.
-     Todos medidos sobre `--ground` (#f5f4f0), mínimo AA 4,5:1:
-     ok 6,38 · info 6,51 · warn 6,04 · risk 5,86 · lost 7,91.
-     `--warn-mid` es RELLENO sólido y lleva `--ink` encima (7,71:1). */
-  --status-ok: #14663a;
-  --status-info: #0b5f7a;
-  --status-warn: #7a5600;
+     ok, info y warn son los estados de la marca (activo, atendiendo,
+     atención); risk y lost son fallos, que en allok no son un estado.
+     Medidos sobre `--ground` (#f7f8f8), mínimo AA 4,5:1:
+     ok 5,07 · info 6,88 · warn 6,25 · risk 6,06 · lost 8,18.
+     `--warn-mid` es RELLENO sólido y lleva `--ink` encima (10,65:1). */
+  --status-ok: var(--st-activo-ink);
+  --status-info: var(--st-atendiendo-ink);
+  --status-warn: var(--st-atencion-ink);
   --status-risk: #98453f;
   --status-lost: #8f1f33;
 
-  --warn-soft: #fff3df;
-  --warn-line: #eadcb7;
-  --warn-mid: #d49b42;
-  --info-soft: #e4f3f8;
-  --info-line: #c9e4ee;
+  --warn-soft: var(--st-atencion-soft);
+  --warn-line: #efdcb6;
+  --warn-mid: var(--st-atencion);
+  --info-soft: var(--st-atendiendo-soft);
+  --info-line: #cfdbff;
   --risk-soft: #fdeceb;
   --risk-line: #f2d3d1;
 
@@ -1353,16 +1353,12 @@ html:has(.rig) ::selection { background: var(--hazard); color: var(--paper); }
   /* Velos. Un hex con el modificador de opacidad de Tailwind no sobrevive a
      var(), porque Tailwind no puede calcular el alfa de una variable: el alfa
      viaja dentro del token. */
-  --scrim: rgba(16, 17, 18, 0.2);
-  --scrim-void: rgba(8, 9, 10, 0.7);
+  --scrim: rgba(11, 13, 14, 0.2);
+  --scrim-void: rgba(11, 13, 14, 0.7);
 
   color-scheme: light;
   font-family: var(--font-grotesk), "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
-
-/* Una nota que el compilador no puede hacer cumplir: `--ink-60` da 4,24:1
-   sobre `--ground-3`, por debajo de AA. Texto secundario sobre una superficie
-   elevada va en `--ink`, no en `--ink-60`. */
 
 /**
  * Un trozo oscuro dentro de una página de papel.
@@ -1370,31 +1366,40 @@ html:has(.rig) ::selection { background: var(--hazard); color: var(--paper); }
  * No repinta a mano cada hijo: redefine LOS MISMOS tokens, así que el hijo
  * sigue escribiendo `text-[var(--ink-60)]` y sale bien en las dos superficies.
  *
- * Lo importante es la última línea. `--assist-ink` (#527526) está calculado
- * para papel; sobre negro da 3,54:1 y no se lee — es justo el fallo que tuvo
- * la primera conversión en la banda de indicadores. Dentro de un trozo oscuro,
- * el verde vuelve a ser el relleno de marca, que da 14,35:1.
+ * Lo importante: el acento se invierte (Cloud con letra en tinta) y cada
+ * estado pasa a su punto, que es el que se lee sobre tinta.
  *
- * Niveles medidos sobre `--ink` (#101112):
- *   ink 17,18 · ink-60 7,04 · ink-40 4,65 · assist 14,35
+ * Niveles medidos sobre `--ground` oscuro (#111416):
+ *   ink 18,3 · ink-60 8,16 · ink-40 5,44 · st-activo 11,14 · st-atencion 10,11
  */
 .allok-ops.on-ink,
 .allok-ops .on-ink {
-  --ground: #101112;
-  --ground-2: #16181a;
-  --ground-3: #1b1c1f;
-  --ground-4: #24262a;
-  --ink: #f5f4f0;
-  --ink-60: rgba(245, 244, 240, 0.62);
-  --ink-40: rgba(245, 244, 240, 0.48);
-  --hairline: rgba(245, 244, 240, 0.12);
-  --rule: rgba(245, 244, 240, 0.2);
-  --assist-ink: var(--assist);
-  --assist-soft: rgba(197, 240, 74, 0.14);
-  --status-warn: #f0c04a;
+  --ground: #111416;
+  --ground-2: #16191b;
+  --ground-3: #1c2023;
+  --ground-4: #262a2d;
+  --ink: #f7f8f8;
+  --ink-60: #a7adb2;
+  --ink-40: #868c92;
+  --hairline: rgba(247, 248, 248, 0.09);
+  --rule: rgba(247, 248, 248, 0.15);
+  --assist: #f7f8f8;
+  --assist-hover: #ffffff;
+  --on-assist: #0b0d0e;
+  --assist-ink: #f7f8f8;
+  --assist-soft: rgba(247, 248, 248, 0.08);
+  --assist-line: rgba(247, 248, 248, 0.25);
+  --st-activo-ink: var(--st-activo);
+  --st-activo-soft: rgba(32, 229, 141, 0.14);
+  --st-atencion-ink: var(--st-atencion);
+  --st-atencion-soft: rgba(255, 176, 32, 0.14);
+  /* Se redeclaran: un var() se resuelve donde se declara, y heredado traería
+     la versión de papel. */
+  --status-ok: var(--st-activo);
+  --status-warn: var(--st-atencion);
+  --status-info: var(--st-atendiendo);
   --status-risk: #f08a5a;
-  --status-ok: #7ee0a8;
-  --status-info: #6cc7e8;
+  --warn-soft: var(--st-atencion-soft);
 }
 
 .allok-ops ::selection {

@@ -198,11 +198,11 @@ export default function OnboardingLinkGenerator({
 
       {url ? (
         <div className="mt-5 flex flex-wrap items-center gap-3 rounded-lg border border-[var(--assist-line)] bg-[var(--assist-soft)] p-4">
-          <code className="min-w-0 flex-1 break-all font-mono text-xs text-[var(--on-assist)]">{url}</code>
+          <code className="min-w-0 flex-1 break-all font-mono text-xs text-[var(--ink)]">{url}</code>
           <button
             type="button"
             onClick={copy}
-            className="inline-flex min-h-10 shrink-0 items-center gap-2 rounded-lg bg-[var(--assist)] px-4 text-sm font-semibold text-[var(--on-assist)] transition hover:bg-[var(--assist)]"
+            className="inline-flex min-h-10 shrink-0 items-center gap-2 rounded-lg bg-[var(--assist)] px-4 text-sm font-semibold text-[var(--on-assist)] transition hover:bg-[var(--assist-hover)]"
           >
             {copied ? <Check className="size-4" /> : <Copy className="size-4" />}
             {copied ? "Copiado" : "Copiar"}

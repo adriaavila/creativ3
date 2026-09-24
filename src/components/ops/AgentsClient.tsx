@@ -51,8 +51,8 @@ function SetupState() {
 
 function Status({ ok, yes = "Listo", no = "Pendiente" }: { ok: boolean; yes?: string; no?: string }) {
   return (
-    <span className={`inline-flex items-center gap-1.5 text-xs font-medium ${ok ? "text-[var(--assist-ink)]" : "text-[var(--status-warn)]"}`}>
-      <span className={`size-1.5 rounded-full ${ok ? "bg-[var(--assist)]" : "bg-[var(--warn-mid)]"}`} aria-hidden="true" />
+    <span className={`inline-flex items-center gap-1.5 text-xs font-medium ${ok ? "text-[var(--st-activo-ink)]" : "text-[var(--status-warn)]"}`}>
+      <span className={`size-1.5 rounded-full ${ok ? "bg-[var(--st-activo)]" : "bg-[var(--warn-mid)]"}`} aria-hidden="true" />
       {ok ? yes : no}
     </span>
   );
@@ -96,7 +96,7 @@ export default function AgentsClient({ catalog }: AgentsClientProps) {
             <p className="px-3 pb-3 pt-2 text-[10px] font-semibold uppercase tracking-[0.15em] text-[var(--ink-40)]">Agentes configurados</p>
             <div className="rounded-xl border border-[var(--rule)] bg-[var(--ground-3)] p-3">
               <div className="flex items-center gap-3"><span className="flex size-10 items-center justify-center rounded-xl bg-[var(--ink-40)] text-white"><Sparkles className="size-5" /></span><div className="min-w-0"><p className="truncate text-sm font-semibold text-[var(--ink)]">{catalog.agent.name}</p><p className="mt-0.5 text-[11px] text-[var(--ink-60)]">{catalog.agent.packageVersion ? `v${catalog.agent.packageVersion}` : "Versión no declarada"}</p></div></div>
-              <div className="mt-3 flex items-center gap-1.5 text-[11px] text-[var(--assist-ink)]"><span className="size-1.5 rounded-full bg-[var(--assist)]" /> Descubierto desde archivos</div>
+              <div className="mt-3 flex items-center gap-1.5 text-[11px] text-[var(--st-activo-ink)]"><span className="size-1.5 rounded-full bg-[var(--st-activo)]" /> Descubierto desde archivos</div>
             </div>
             <div className="mt-5 border-t border-[var(--hairline)] pt-4">
               <Link href="#crear-agente" className="flex items-center justify-between rounded-lg px-3 py-2.5 text-xs font-medium text-[var(--ink-60)] transition hover:bg-[var(--ground-3)] hover:text-[var(--ink)]">Crear un agente <ChevronRight className="size-4" /></Link>
@@ -108,7 +108,7 @@ export default function AgentsClient({ catalog }: AgentsClientProps) {
             <article className="rounded-2xl border border-[var(--rule)] bg-white p-5 shadow-[var(--shadow-md)] sm:p-6">
               <div className="flex flex-wrap items-start justify-between gap-4">
                 <div className="flex items-start gap-3"><span className="flex size-11 items-center justify-center rounded-xl bg-[var(--ground-3)] text-[var(--ink-60)]"><Bot className="size-5" /></span><div><div className="flex flex-wrap items-center gap-2"><h2 className="text-xl font-semibold tracking-[-0.03em]">{catalog.agent.name}</h2><span className="rounded-full bg-[var(--ground-3)] px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--ink-60)]">Eve</span></div><p className="mt-1 text-sm text-[var(--ink-60)]">{catalog.agent.description}</p></div></div>
-                <div className="flex items-center gap-2 rounded-full border border-[var(--assist-line)] bg-[var(--assist-soft)] px-3 py-1.5 text-xs font-medium text-[var(--assist-ink)]"><span className="size-1.5 rounded-full bg-[var(--assist)]" /> Catálogo sincronizado</div>
+                <div className="flex items-center gap-2 rounded-full border border-[var(--st-activo-soft)] bg-[var(--st-activo-soft)] px-3 py-1.5 text-xs font-medium text-[var(--st-activo-ink)]"><span className="size-1.5 rounded-full bg-[var(--st-activo)]" /> Catálogo sincronizado</div>
               </div>
               <div className="mt-6 grid gap-3 sm:grid-cols-3">
                 <div className="rounded-xl border border-[var(--hairline)] bg-[var(--ground-2)] p-3"><p className="text-[10px] uppercase tracking-[0.12em] text-[var(--ink-40)]">Runtime</p><p className="mt-2 text-sm font-semibold text-[var(--ink)]">{catalog.runtime.packageVersion ? `Eve ${catalog.runtime.packageVersion}` : "Eve detectado"}</p><Status ok={Boolean(catalog.runtime.packageVersion)} /></div>
@@ -137,7 +137,7 @@ export default function AgentsClient({ catalog }: AgentsClientProps) {
             </article>
 
             <div className="grid gap-5 lg:grid-cols-2">
-              <article className="rounded-2xl border border-[var(--rule)] bg-white p-5 shadow-[var(--shadow-md)]"><SectionTitle icon={Wrench} eyebrow="Capacidades" title={`Herramientas · ${catalog.tools.length}`} /><div className="mt-4 space-y-2">{catalog.tools.map((tool) => <div key={tool.sourcePath} className="flex items-start justify-between gap-3 rounded-lg border border-[var(--hairline)] px-3 py-2.5"><div className="min-w-0"><p className="truncate text-xs font-semibold text-[var(--ink)]">{tool.label}</p><p className="mt-1 line-clamp-2 text-[11px] leading-4 text-[var(--ink-60)]">{tool.description}</p></div>{tool.status === "disabled" ? <XCircle className="size-4 shrink-0 text-[var(--status-risk)]" aria-label="Deshabilitada" /> : <CheckCircle2 className="size-4 shrink-0 text-[var(--assist-ink)]" aria-label="Habilitada" />}</div>)}</div></article>
+              <article className="rounded-2xl border border-[var(--rule)] bg-white p-5 shadow-[var(--shadow-md)]"><SectionTitle icon={Wrench} eyebrow="Capacidades" title={`Herramientas · ${catalog.tools.length}`} /><div className="mt-4 space-y-2">{catalog.tools.map((tool) => <div key={tool.sourcePath} className="flex items-start justify-between gap-3 rounded-lg border border-[var(--hairline)] px-3 py-2.5"><div className="min-w-0"><p className="truncate text-xs font-semibold text-[var(--ink)]">{tool.label}</p><p className="mt-1 line-clamp-2 text-[11px] leading-4 text-[var(--ink-60)]">{tool.description}</p></div>{tool.status === "disabled" ? <XCircle className="size-4 shrink-0 text-[var(--status-risk)]" aria-label="Deshabilitada" /> : <CheckCircle2 className="size-4 shrink-0 text-[var(--st-activo-ink)]" aria-label="Habilitada" />}</div>)}</div></article>
               <article className="rounded-2xl border border-[var(--rule)] bg-white p-5 shadow-[var(--shadow-md)]"><SectionTitle icon={MessageSquareText} eyebrow="Orquestación" title={`Subagentes · ${catalog.subagents.length}`} /><div className="mt-4 space-y-3">{catalog.subagents.map((subagent) => <div key={subagent.sourcePath} className="rounded-xl border border-[var(--hairline)] bg-[var(--ground-2)] p-3"><div className="flex items-center justify-between gap-3"><p className="text-sm font-semibold text-[var(--ink)]">{subagent.label}</p><span className="rounded-full bg-[var(--ground-3)] px-2 py-1 text-[10px] font-medium text-[var(--ink-60)]">{subagent.toolCount} herramientas</span></div><p className="mt-2 text-xs leading-5 text-[var(--ink-60)]">{subagent.description}</p><p className="mt-2 text-[10px] text-[var(--ink-40)]">{subagent.hasInstructions ? "Tiene instrucciones propias" : "Usa configuración mínima"}</p></div>)}</div></article>
             </div>
 

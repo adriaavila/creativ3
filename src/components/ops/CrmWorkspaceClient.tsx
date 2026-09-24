@@ -116,7 +116,7 @@ export default function CrmWorkspaceClient({
             <p className="mt-2 max-w-2xl text-sm leading-6 text-[var(--ink-60)]">{view === "connections" ? "Conecta, entrega y supervisa cada número desde un solo lugar." : "Organiza oportunidades, próximos pasos y resultados comerciales."}</p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            {view === "workspace" && <Link href="/ops/growth?tab=leads" className="inline-flex min-h-10 items-center gap-2 rounded-lg bg-[var(--assist)] px-3 text-xs font-semibold text-[var(--on-assist)] transition hover:bg-[var(--assist)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--rule)]"><Sparkles className="size-4" aria-hidden="true" /> Gestionar en Growth</Link>}
+            {view === "workspace" && <Link href="/ops/growth?tab=leads" className="inline-flex min-h-10 items-center gap-2 rounded-lg bg-[var(--assist)] px-3 text-xs font-semibold text-[var(--on-assist)] transition hover:bg-[var(--assist-hover)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--rule)]"><Sparkles className="size-4" aria-hidden="true" /> Gestionar en Growth</Link>}
             <button type="button" onClick={() => setView(view === "connections" ? "workspace" : "connections")} className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-[var(--rule)] bg-white px-3 text-xs font-medium text-[var(--ink-60)] transition hover:border-[var(--rule)] hover:text-[var(--ink)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--rule)]">
               <Network className="size-4" aria-hidden="true" /> {view === "connections" ? "Volver al pipeline" : "Conexiones"}
             </button>
@@ -295,19 +295,18 @@ function ConnectionsPanel({ initialChannels, onChannelsChange }: { initialChanne
   return (
     <div className="space-y-5">
       <section className="on-ink relative overflow-hidden rounded-2xl bg-[var(--ink-fill)] text-white shadow-[var(--shadow-pop)]" aria-labelledby="connections-heading">
-        <div className="pointer-events-none absolute -right-20 -top-24 size-72 rounded-full bg-[var(--assist-dim)] blur-3xl" />
         <div className="relative grid gap-8 p-6 sm:p-8 lg:grid-cols-[minmax(0,1.35fr)_minmax(310px,.65fr)] lg:p-9">
           <div className="flex flex-col items-start">
-            <span className="inline-flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--assist-ink)]"><span className="size-1.5 rounded-full bg-[var(--assist)]" /> Control operativo</span>
+            <span className="inline-flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--assist-ink)]"><span className="size-1.5 rounded-full bg-[var(--st-activo)]" /> Control operativo</span>
             <h2 id="connections-heading" className="mt-5 max-w-xl text-3xl font-semibold leading-[1.05] tracking-[-0.045em] text-balance sm:text-4xl">Cada número, listo para su próximo paso.</h2>
             <p className="mt-4 max-w-xl text-sm leading-6 text-[var(--ink-40)]">Conecta en Allok, decide dónde responderá y valida la entrega sin perder de vista credenciales ni estado.</p>
-            <Link href="/embedded-whatsapp" className="mt-7 inline-flex min-h-11 items-center gap-2 rounded-lg bg-[var(--assist)] px-4 text-sm font-semibold text-[var(--on-assist)] transition duration-200 hover:-translate-y-0.5 hover:bg-[var(--assist)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white active:translate-y-0"><Plus className="size-4" aria-hidden="true" /> Conectar otro número</Link>
+            <Link href="/embedded-whatsapp" className="mt-7 inline-flex min-h-11 items-center gap-2 rounded-lg bg-[var(--assist)] px-4 text-sm font-semibold text-[var(--on-assist)] transition duration-200 hover:bg-[var(--assist-hover)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white active:translate-y-0"><Plus className="size-4" aria-hidden="true" /> Conectar otro número</Link>
           </div>
 
           <div className="rounded-xl border border-white/10 bg-white/[0.055] p-5 shadow-inner shadow-white/[0.03]">
             <div className="flex items-start justify-between gap-4">
               <div><p className="text-xs font-medium text-[var(--ink-40)]">Salud del inventario</p><p className="mt-2 text-4xl font-semibold tracking-[-0.05em] tabular-nums">{operationalCount}<span className="ml-1 text-lg font-medium text-white/40">/{officialChannels.length}</span></p></div>
-              <span className={`inline-flex items-center gap-2 rounded-md px-2.5 py-1.5 text-[11px] font-semibold ${attentionCount ? "bg-[var(--warn-soft)] text-[var(--status-warn)]" : "bg-[var(--assist)] text-[var(--on-assist)]"}`}><span className={`size-1.5 rounded-full ${attentionCount ? "bg-[var(--warn-mid)]" : "bg-[var(--assist-soft)]"}`} />{attentionCount ? `${attentionCount} por revisar` : "Todo operativo"}</span>
+              <span className={`inline-flex items-center gap-2 rounded-md px-2.5 py-1.5 text-[11px] font-semibold ${attentionCount ? "bg-[var(--warn-soft)] text-[var(--status-warn)]" : "bg-[var(--st-activo-soft)] text-[var(--st-activo-ink)]"}`}><span className={`size-1.5 rounded-full ${attentionCount ? "bg-[var(--warn-mid)]" : "bg-[var(--st-activo)]"}`} />{attentionCount ? `${attentionCount} por revisar` : "Todo operativo"}</span>
             </div>
             <dl className="mt-6 grid grid-cols-3 border-t border-white/10 pt-5">
               <div><dt className="text-[10px] uppercase tracking-[0.12em] text-white/45">Oficiales</dt><dd className="mt-1.5 text-lg font-semibold tabular-nums">{officialChannels.length}</dd></div>
@@ -372,10 +371,10 @@ function CoexistenceNumberCard({ channel, onChange }: { channel: CrmChannel; onC
       <div className="p-5 sm:p-6">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="flex min-w-0 items-center gap-3.5">
-            <span className="on-ink relative flex size-12 shrink-0 items-center justify-center rounded-xl bg-[var(--ink-fill)] text-white shadow-[var(--shadow-md)]"><Smartphone className="size-5" /><span className={`absolute -bottom-1 -right-1 size-3.5 rounded-full border-2 border-white ${active ? "bg-[var(--assist)]" : "bg-[var(--warn-mid)]"}`} /></span>
+            <span className="on-ink relative flex size-12 shrink-0 items-center justify-center rounded-xl bg-[var(--ink-fill)] text-white shadow-[var(--shadow-md)]"><Smartphone className="size-5" /><span className={`absolute -bottom-1 -right-1 size-3.5 rounded-full border-2 border-white ${active ? "bg-[var(--st-activo)]" : "bg-[var(--warn-mid)]"}`} /></span>
             <div className="min-w-0"><p className="truncate font-mono text-lg font-semibold tracking-[-0.02em] tabular-nums text-[var(--ink)]">{channel.phone ?? "Número no disponible"}</p><p className="mt-1 truncate text-xs text-[var(--ink-60)]">{channel.verifiedName ?? "Nombre comercial no disponible"} · {channel.workspace ?? "Sin cliente asignado"}</p></div>
           </div>
-          <span className={`inline-flex items-center gap-2 rounded-md px-2.5 py-1.5 text-[11px] font-semibold ${ready ? "bg-[var(--assist-soft)] text-[var(--assist-ink)]" : active ? "bg-[var(--ground-3)] text-[var(--ink-60)]" : "bg-[var(--warn-soft)] text-[var(--status-warn)]"}`}><span className={`size-1.5 rounded-full ${ready ? "bg-[var(--assist)]" : active ? "bg-[var(--ink-40)]" : "bg-[var(--warn-mid)]"}`} />{crmChannelStatusLabel(channel)}</span>
+          <span className={`inline-flex items-center gap-2 rounded-md px-2.5 py-1.5 text-[11px] font-semibold ${ready ? "bg-[var(--st-activo-soft)] text-[var(--st-activo-ink)]" : active ? "bg-[var(--ground-3)] text-[var(--ink-60)]" : "bg-[var(--warn-soft)] text-[var(--status-warn)]"}`}><span className={`size-1.5 rounded-full ${ready ? "bg-[var(--st-activo)]" : active ? "bg-[var(--ink-40)]" : "bg-[var(--warn-mid)]"}`} />{crmChannelStatusLabel(channel)}</span>
         </div>
 
         <div className="mt-6 grid gap-5 lg:grid-cols-[minmax(0,1.1fr)_minmax(200px,.7fr)] lg:items-end">
@@ -384,7 +383,7 @@ function CoexistenceNumberCard({ channel, onChange }: { channel: CrmChannel; onC
         </div>
 
         <ol className="mt-6 grid grid-cols-4 overflow-hidden rounded-lg border border-[var(--hairline)] bg-[var(--info-soft)]" aria-label="Progreso de la conexión">
-          {journey.map(([label, complete], index) => <li key={label} className="relative flex min-w-0 items-center gap-2 border-r border-[var(--hairline)] px-2.5 py-3 last:border-r-0 sm:px-3.5"><span className={`flex size-5 shrink-0 items-center justify-center rounded-full text-[9px] font-bold ${complete ? "bg-[var(--assist)] text-[var(--on-assist)]" : "border border-[var(--rule)] bg-white text-[var(--ink-40)]"}`}>{complete ? <CheckCircle2 className="size-3.5" /> : index + 1}</span><span className={`truncate text-[10px] font-semibold sm:text-[11px] ${complete ? "text-[var(--on-assist)]" : "text-[var(--ink-40)]"}`}>{label}</span></li>)}
+          {journey.map(([label, complete], index) => <li key={label} className="relative flex min-w-0 items-center gap-2 border-r border-[var(--hairline)] px-2.5 py-3 last:border-r-0 sm:px-3.5"><span className={`flex size-5 shrink-0 items-center justify-center rounded-full text-[9px] font-bold ${complete ? "bg-[var(--assist)] text-[var(--on-assist)]" : "border border-[var(--rule)] bg-white text-[var(--ink-40)]"}`}>{complete ? <CheckCircle2 className="size-3.5" /> : index + 1}</span><span className={`truncate text-[10px] font-semibold sm:text-[11px] ${complete ? "text-[var(--ink)]" : "text-[var(--ink-60)]"}`}>{label}</span></li>)}
         </ol>
       </div>
 
@@ -410,11 +409,11 @@ function ChannelConnectionRow({ channel, onChange }: { channel: CrmChannel; onCh
   const content = (
     <>
       <div className="flex min-w-0 items-start gap-3">
-        <span className={`mt-1.5 size-2 shrink-0 rounded-full ${isCrmChannelActive(channel) ? "bg-[var(--assist)]" : "bg-[var(--ink-40)]"}`} />
+        <span className={`mt-1.5 size-2 shrink-0 rounded-full ${isCrmChannelActive(channel) ? "bg-[var(--st-activo)]" : "bg-[var(--ink-40)]"}`} />
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
             <p className="truncate text-sm font-semibold text-[var(--ink)]">{channel.label}</p>
-            {channel.official && <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium ${channel.botConfigured ? "bg-[var(--assist-soft)] text-[var(--assist-ink)]" : "bg-[var(--ground-3)] text-[var(--ink-60)]"}`}><Bot className="size-3" /> {channel.botConfigured ? "Bot configurado" : "Bot pendiente"}</span>}
+            {channel.official && <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium ${channel.botConfigured ? "bg-[var(--st-activo-soft)] text-[var(--st-activo-ink)]" : "bg-[var(--ground-3)] text-[var(--ink-60)]"}`}><Bot className="size-3" /> {channel.botConfigured ? "Bot configurado" : "Bot pendiente"}</span>}
           </div>
           <p className="mt-1 text-xs text-[var(--ink-60)]">{channel.detail} · {crmChannelStatusLabel(channel)}</p>
           {channel.official && <p className="mt-2 text-[11px] text-[var(--ink-60)]">Cliente: {channel.workspace ?? "Sin asignar"} · Calidad: {crmQualityLabel(channel.qualityRating ?? null)}</p>}
@@ -562,7 +561,7 @@ function CrmHandoverForm({
       className={`${compact ? "mt-3" : "border-t border-[var(--hairline)]"} group bg-[var(--assist-soft)]`}
       onToggle={(event) => { if (event.currentTarget.open && destinations === null) void loadDestinations(); }}
     >
-      <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between gap-4 px-4 text-sm font-semibold text-[var(--on-assist)] sm:px-5">
+      <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between gap-4 px-4 text-sm font-semibold text-[var(--ink)] sm:px-5">
         <span className="flex items-center gap-2">
           <Webhook className="size-4 text-[var(--assist-ink)]" aria-hidden="true" />
           {connected ? `Entregado${channel.crmOrganizationName ? ` · ${channel.crmOrganizationName}` : ""}` : "Entregar este número a una app"}
@@ -617,7 +616,7 @@ function CrmHandoverForm({
               selected.slug === "allok" ? (
                 <p className="mt-3 text-[11px] leading-5 text-[var(--ink-60)]">Devuelve la recepción de mensajes y la automatización a la bandeja de allok.</p>
               ) : (
-                <label className="mt-4 flex cursor-pointer items-start gap-3 rounded-lg bg-[var(--assist-soft)] px-3 py-3 text-xs text-[var(--on-assist)]">
+                <label className="mt-4 flex cursor-pointer items-start gap-3 rounded-lg bg-[var(--assist-soft)] px-3 py-3 text-xs text-[var(--ink)]">
                   <input
                     type="checkbox"
                     checked={credentialsConfirmed}
@@ -666,7 +665,7 @@ function CrmHandoverForm({
         </div>
 
         {!available && <p className="mt-4 rounded-lg border border-[var(--risk-line)] bg-[var(--risk-soft)] px-3 py-2.5 text-xs text-[var(--status-risk)]" role="alert">No se puede entregar: falta un token válido almacenado. Repite el onboarding.</p>}
-        {notice && <p className={`mt-4 rounded-lg border px-3 py-2.5 text-sm ${notice.kind === "success" ? "border-[var(--assist-line)] bg-white text-[var(--assist-ink)]" : "border-[var(--risk-line)] bg-[var(--risk-soft)] text-[var(--status-risk)]"}`} role={notice.kind === "error" ? "alert" : "status"}>{notice.text}</p>}
+        {notice && <p className={`mt-4 rounded-lg border px-3 py-2.5 text-sm ${notice.kind === "success" ? "border-[var(--st-activo-soft)] bg-[var(--st-activo-soft)] text-[var(--st-activo-ink)]" : "border-[var(--risk-line)] bg-[var(--risk-soft)] text-[var(--status-risk)]"}`} role={notice.kind === "error" ? "alert" : "status"}>{notice.text}</p>}
 
         <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-[var(--assist-line)] pt-4">
           <p className="max-w-2xl text-[11px] leading-5 text-[var(--ink-60)]">El cambio es reversible: puedes devolver el número a allok desde este mismo selector.</p>
@@ -756,5 +755,5 @@ function DestinationField({ label, value, onChange, placeholder, mono = false }:
 }
 
 function CrmPayloadFact({ label, value, mono = false, icon: Icon }: { label: string; value: string; mono?: boolean; icon?: typeof KeyRound }) {
-  return <div className="flex items-start justify-between gap-3"><dt className="font-mono text-[10px] text-[var(--ink-60)]">{label}</dt><dd className={`flex max-w-[210px] items-center gap-1.5 break-all text-right font-medium text-[var(--on-assist)] ${mono ? "font-mono text-[11px]" : ""}`}>{Icon && <Icon className="size-3.5 shrink-0 text-[var(--assist-ink)]" />}{value}</dd></div>;
+  return <div className="flex items-start justify-between gap-3"><dt className="font-mono text-[10px] text-[var(--ink-60)]">{label}</dt><dd className={`flex max-w-[210px] items-center gap-1.5 break-all text-right font-medium text-[var(--ink)] ${mono ? "font-mono text-[11px]" : ""}`}>{Icon && <Icon className="size-3.5 shrink-0 text-[var(--assist-ink)]" />}{value}</dd></div>;
 }

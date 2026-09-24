@@ -222,8 +222,8 @@ function ConnectionCard({
             </p>
           </div>
         </div>
-        <span className={`inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-[11px] font-semibold ${active ? "bg-[var(--assist-soft)] text-[var(--assist-ink)]" : "bg-[var(--warn-soft)] text-[var(--status-warn)]"}`}>
-          <span className={`size-1.5 rounded-full ${active ? "bg-[var(--assist)]" : "bg-[var(--warn-mid)]"}`} aria-hidden="true" />
+        <span className={`inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-[11px] font-semibold ${active ? "bg-[var(--st-activo-soft)] text-[var(--st-activo-ink)]" : "bg-[var(--warn-soft)] text-[var(--status-warn)]"}`}>
+          <span className={`size-1.5 rounded-full ${active ? "bg-[var(--st-activo)]" : "bg-[var(--warn-mid)]"}`} aria-hidden="true" />
           {connectionStatusLabel(connection.status)}
         </span>
       </div>
@@ -257,7 +257,7 @@ function ConnectionCard({
           <dt className="font-mono text-[10px] font-semibold uppercase tracking-[0.13em] text-[var(--ink-60)]">
             business_token
           </dt>
-          <dd className={`mt-3 flex items-center gap-2 text-sm font-semibold ${connection.businessTokenStored ? "text-[var(--assist-ink)]" : "text-[var(--status-risk)]"}`}>
+          <dd className={`mt-3 flex items-center gap-2 text-sm font-semibold ${connection.businessTokenStored ? "text-[var(--st-activo-ink)]" : "text-[var(--status-risk)]"}`}>
             {connection.businessTokenStored ? <ShieldCheck className="size-4" aria-hidden="true" /> : <CircleAlert className="size-4" aria-hidden="true" />}
             {connection.businessTokenStored ? "Cifrado y disponible" : "No disponible"}
           </dd>
@@ -314,7 +314,7 @@ function CredentialField({
           aria-label={`Copiar ${label}`}
           className="absolute right-3 top-3 flex size-8 items-center justify-center rounded-md text-[var(--ink-40)] transition hover:bg-[var(--ground-3)] hover:text-[var(--ink)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-[var(--rule)]"
         >
-          {wasCopied ? <Check className="size-3.5 text-[var(--assist-ink)]" aria-hidden="true" /> : <Copy className="size-3.5" aria-hidden="true" />}
+          {wasCopied ? <Check className="size-3.5 text-[var(--st-activo-ink)]" aria-hidden="true" /> : <Copy className="size-3.5" aria-hidden="true" />}
         </button>
       )}
     </div>

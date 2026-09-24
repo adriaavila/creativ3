@@ -26,7 +26,7 @@ export default async function GrowthOpsPage({
     return (
       <main className="flex min-h-dvh items-center justify-center bg-[var(--ground-2)] p-6 text-[var(--ink)]">
         <div className="max-w-xl rounded-2xl border border-[var(--rule)] bg-white p-8 shadow-[var(--shadow-md)]">
-          <div className="font-mono text-[9px] font-semibold uppercase tracking-[0.18em] text-[var(--assist-ink)]">Setup requerido</div>
+          <div className="font-mono text-[9px] font-semibold uppercase tracking-[0.18em] text-[var(--st-atencion-ink)]">Setup requerido</div>
           <h1 className="mt-4 font-display text-4xl font-semibold leading-[0.95] tracking-[-0.04em]">Growth está listo para conectarse.</h1>
           <p className="mt-5 text-sm leading-6 text-[var(--ink-60)]">
             Configura OPS_ACCESS_PASSWORD, OPS_SESSION_SECRET y DATABASE_URL, ejecuta las migraciones y vuelve a cargar esta ruta.

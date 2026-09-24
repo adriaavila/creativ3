@@ -10,13 +10,18 @@ otra dentro de la misma página:
 | Dónde | `/`, `/rei`, `/vocero`, `/agencia` | `/ops/*`, `/ops-login` | `/portfolio`, `/work`, `/lab`, `/writing` |
 | Qué es | la cara comercial — lo que se contrata | la herramienta interna | el portafolio — la prueba de que funciona |
 | Voz | Geist por peso y tracking, esquinas de 22-30px | Geist, densidad de herramienta, esquinas de 8-20px | Archivo Black, reglas duras, nada redondeado |
-| Fondo | negro `#08090a` arriba, papel `#f5f4f0` abajo | papel, un escalón por debajo de las tarjetas | papel, con el cielo sólo en el pie |
+| Fondo | negro `#08090a` arriba, papel `#f5f4f0` abajo | Cloud `#f7f8f8`, un escalón por debajo de las tarjetas | papel, con el cielo sólo en el pie |
 
 `.allok-ops` no es un sistema aparte: es `.allok` con los escalones de
 superficie y los estados que una herramienta de trabajo necesita y una landing
 no. Usa **los mismos nombres de token que la app del cliente**
 (`vocero-crm`, bloque `[data-saas="true"]`), a propósito: marketing, ops y
 producto tienen que poder copiarse una clase entre sí.
+
+Desde el 2026-09-24 Ops también tiene **los mismos valores** que el CRM: Cloud
+y tinta, la acción principal en tinta (en Cloud dentro de `.on-ink`) y el color
+sólo para estado, con los `--st-*` del bloque de marca. El lima de antes se
+fue: en allok el verde dice «todo bien», y un botón no es un estado.
 
 Antes de esto, Ops tenía su propia paleta azul grisácea y, dentro de ella,
 dos: el panel de clientes en gris claro y el de conversaciones en negro. 823
@@ -30,9 +35,11 @@ no queda ninguno.
   dentro sin importar el orden del archivo. Un `background` en el ámbito
   ganaría sobre el `bg-[…]` del mismo elemento y la página saldría del color
   equivocado sin que nada fallara. El fondo lo pone quien usa el ámbito.
-- **`--assist` es relleno, nunca tinta sobre papel.** Da 1,20:1. Como texto va
-  `--assist-ink` (`#527526`, 4,85:1 medido). Y `--ink-60` da 4,24:1 sobre
-  `--ground-3`: texto secundario sobre superficie elevada va en `--ink`.
+- **`--assist` es la acción, no un estado.** Es tinta (Cloud en `.on-ink`) y
+  pinta botones y lo destacado. Lo que dice cómo está algo (en línea, listo,
+  habilitado, hecho) va en `--st-activo*`; lo que espera por una persona, en
+  `--st-atencion*`. `--ink-60` pasa AA en los cuatro escalones (4,82 en el más
+  hondo).
 
 Los dos comparten el **cielo**: el mismo degradado, los mismos anclajes de
 color. Es lo que hace que salte de una zona a otra sin que parezcan dos sitios.

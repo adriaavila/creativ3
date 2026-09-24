@@ -104,7 +104,7 @@ export default function OpsNav({ global = false }: OpsNavProps) {
       <AllokLogo variant="mark" state="activo" size={36} className="shrink-0" />
       <span className="min-w-0">
         <span className="block font-display text-[19px] font-semibold tracking-[-0.04em] text-[var(--ink)]">
-          allok<span className="text-[var(--assist-ink)]">.</span>
+          allok
         </span>
         <span className="block whitespace-nowrap text-[11px] leading-4 text-[var(--ink-60)]">Agencia · Growth</span>
       </span>
@@ -116,7 +116,7 @@ export default function OpsNav({ global = false }: OpsNavProps) {
       <div className="flex items-center gap-3 px-1">
         <span className="on-ink relative flex size-9 shrink-0 items-center justify-center rounded-full bg-[var(--ink-fill)] text-xs font-semibold text-white">
           AO
-          <span className="absolute bottom-0 right-0 size-2.5 rounded-full border-2 border-white bg-[var(--assist)]" aria-label="En línea" />
+          <span className="absolute bottom-0 right-0 size-2.5 rounded-full border-2 border-white bg-[var(--st-activo)]" aria-label="En línea" />
         </span>
         <span className="min-w-0">
           <span className="block truncate text-[13px] font-semibold text-[var(--ink)]">Operador</span>

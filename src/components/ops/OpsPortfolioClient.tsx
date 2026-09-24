@@ -88,7 +88,7 @@ export default function OpsPortfolioClient({ projects, lastSyncedAt }: OpsPortfo
         </header>
 
         {globalState === "ok" && (
-          <p className="mt-3 flex items-center gap-2 text-sm text-[var(--assist-ink)]">
+          <p className="mt-3 flex items-center gap-2 text-sm text-[var(--st-activo-ink)]">
             <CheckCircle2 className="size-4" /> Disparado. La Action captura pantallas y hace commit
             sola — puede tardar unos minutos.
           </p>
@@ -151,7 +151,7 @@ export default function OpsPortfolioClient({ projects, lastSyncedAt }: OpsPortfo
                         {state === "pending" ? (
                           <LoaderCircle className="size-3.5 animate-spin" />
                         ) : state === "ok" ? (
-                          <CheckCircle2 className="size-3.5 text-[var(--assist-ink)]" />
+                          <CheckCircle2 className="size-3.5 text-[var(--st-activo-ink)]" />
                         ) : (
                           <RefreshCw className="size-3.5" />
                         )}

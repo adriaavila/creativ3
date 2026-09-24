@@ -12,6 +12,13 @@
  * cambia de color. Un punto verde decorativo miente la primera vez que algo
  * falle, así que `state` no tiene valor por defecto.
  *
+ * El símbolo es el mismo punto con su contexto: **un círculo que el punto
+ * cierra.** El círculo es la conversación (y el «all»: todo); abierto, es un
+ * cliente esperando respuesta. El punto es la respuesta que lo cierra (el
+ * «ok»), en el color del estado. Va a 130° (abajo a la derecha, donde sale
+ * la cola de un mensaje enviado), y es el mismo hueco que viaja en el tramo
+ * «procesando» del Lottie, ya aterrizado. Geometría: `MARK`, abajo.
+ *
  * Dos reglas medidas, no opinadas:
  *
  * 1. **El verde es relleno, nunca texto sobre Cloud** (1,56:1). Cada estado
@@ -63,6 +70,18 @@ export const STATES: Record<SystemState, StateDef> = {
   atencion:   { label: "Requiere atención", dot: "#FFB020", ink: "#7A5600", soft: "#fdf0db", motion: "esperando" },
   pausado:    { label: "Pausado",           dot: "#8A9097", ink: "#5A6066", soft: "#ededee", motion: "esperando" },
 };
+
+/**
+ * El símbolo, en una caja de 64. Anillo r16, trazo 6,5 con puntas redondas;
+ * punto r6,5 sobre el anillo a 130°, con 2,5 de aire a cada lado.
+ * `src/app/icon.svg` y `public/logo.svg` copian estos números: si cambia uno,
+ * cambian los tres.
+ */
+export const MARK = {
+  ring: "M33.39 47.94A16 16 0 1 1 47.94 30.6",
+  stroke: 6.5,
+  dot: { cx: 44.26, cy: 42.28, r: 6.5 },
+} as const;
 
 /** Los tramos del Lottie, en fotogramas. Espejo de scripts/ok-dot-lottie.mjs. */
 export const DOT_SEGMENTS: Record<StateDef["motion"], [number, number]> = {

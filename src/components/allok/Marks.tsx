@@ -4,9 +4,10 @@ import type { SystemState } from "@/lib/brand";
 /**
  * La firma de la casa.
  *
- * Ya no hay símbolo: el logotipo ES la marca, y el estado vive dentro de él.
- * La «A» abstracta que había aquí decía lo mismo que dice el logo de cualquier
- * SaaS de IA; `all ● k` sólo lo puede decir allok.
+ * La firma es el logotipo, y el estado vive dentro de él: `all ● k` sólo lo
+ * puede decir allok. El símbolo (el círculo que el punto cierra,
+ * `AllokLogo variant="mark"`) va donde no cabe una palabra: favicon, avatar,
+ * ícono de app. Nunca los dos juntos: serían dos puntos de estado.
  *
  * Con un producto delante —`allok × rei`— la casa baja de peso y manda el
  * producto: quien compra REI le compra a allok, pero en esa página habla REI.

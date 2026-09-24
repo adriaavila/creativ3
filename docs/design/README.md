@@ -300,24 +300,43 @@ de `.display`.
 
 ## Las marcas
 
-`src/components/allok/Marks.tsx`. Las tres son **el mismo trazo**: la onda de
-voz de allok, con el degradado del cielo.
+Dos piezas, un solo punto. El punto es el estado del sistema (`STATES` en
+`src/lib/brand.ts`): verde cuando todo está bien, azul atendiendo, ámbar pide
+atención, gris en pausa. Por eso ninguna de las dos se pinta sin `state`.
 
-- `AllokMark` — la onda sola, sin contenedor. La casa.
-- `ReiMark` — la onda dentro de un globo de conversación, que decae hasta una
-  línea recta y termina en un punto. Ruido que se resuelve en respuesta.
-- `VoceroMark` — la onda entre corchetes. La misma voz, recortada a la medida
-  de un negocio.
+- **El logotipo, `all ● k`** (`AllokLogo variant="wordmark"`). El punto ocupa
+  el sitio de la `o`; en verde se lee «all ok».
+- **El símbolo: un círculo que el punto cierra** (`AllokLogo variant="mark"`,
+  geometría en `MARK`). El círculo es la conversación, y es «all»: todo.
+  Abierto, es un cliente esperando. El punto es la respuesta que lo cierra, el
+  «ok». Va a 130°, abajo a la derecha, donde sale la cola de un mensaje
+  enviado. Es el hueco que viaja en el tramo «procesando» del Lottie, ya
+  aterrizado. Anillo r16, trazo 6,5 con puntas redondas, punto r6,5, 2,5 de
+  aire a cada lado, en una caja de 64 con esquina 17.
 
-`<Lockup>` es la firma. Sin `product` dice sólo **allok** — así va la portada.
-Con `product` dice **allok × rei**, con la casa en peso bajo y el producto
-mandando. Es la regla de toda marca con submarcas: quien compra REI compra a
-allok, pero en esa página quien habla es REI.
+Reglas:
 
-El favicon del sitio es `src/app/icon.svg`, que Next resuelve solo.
-`public/logo.svg` (la misma onda, en blanco → lima `#c5f04a`) es la versión
-anterior de la marca; ninguna página la usa y se queda sólo para contextos
-fuera del sitio.
+- El símbolo va donde no cabe una palabra: favicon, avatar de WhatsApp,
+  ícono de app, barra lateral plegada. **Nunca junto al logotipo**: serían dos
+  puntos de estado diciendo lo mismo.
+- El anillo es Cloud sobre Ink. El color es sólo del punto.
+- El verde nunca pinta un globo de conversación: es el territorio de WhatsApp.
+- Al ángulo se le dice 130°, no «4:20».
+
+`<Lockup>` (`src/components/allok/Marks.tsx`) es la firma. Sin `product` dice
+sólo **allok**; así va la portada. Con `product` dice **allok × rei**, con la
+casa en peso bajo y el producto mandando: quien compra REI le compra a allok,
+pero en esa página quien habla es REI.
+
+El favicon es `src/app/icon.svg`, que Next resuelve solo, y `public/logo.svg`
+es el mismo ícono para usos fuera del sitio. Los dos copian `MARK`.
+
+**El brief del símbolo**, en inglés para generadores de imagen:
+
+> Design a logo for allok with a symbolic mark that represents a business that
+> never leaves a customer on read: every WhatsApp conversation answered, day or
+> night, and one light that tells the owner all is ok. Keep it simple enough to
+> be recognized at a glance, but meaningful enough to tell a story.
 
 ---
 

@@ -1,4 +1,4 @@
-import { STATES, type SystemState } from "@/lib/brand";
+import { MARK, STATES, type SystemState } from "@/lib/brand";
 import OkDot from "./OkDot";
 
 type Props = {
@@ -40,22 +40,28 @@ export default function AllokLogo({
   const def = STATES[state];
 
   if (variant === "mark") {
-    // El icono de app: el punto solo. Cuando la marca ya se reconoce, no hace
-    // falta nada más — y a 20px es lo único que sobrevive.
+    // El icono de app: el círculo que el punto cierra (ver `MARK`). El punto
+    // es el mismo del logotipo, así que lleva el estado igual que la `o`.
+    const d = MARK.dot;
     return (
       <span
-        className={`grid shrink-0 place-items-center rounded-[26%] ${className}`}
-        style={{ width: size, height: size, background: "#0B0D0E" }}
+        className={`relative block shrink-0 ${className}`}
+        style={{ width: size, height: size }}
         role="img"
         aria-label={`allok · ${def.label}`}
       >
-        {live ? (
-          <OkDot state={state} size={Math.round(size * 0.44)} />
-        ) : (
+        <svg viewBox="0 0 64 64" className="block size-full" aria-hidden="true">
+          <rect width="64" height="64" rx="17" fill="#0B0D0E" />
+          <path d={MARK.ring} fill="none" stroke="#F7F8F8" strokeWidth={MARK.stroke} strokeLinecap="round" />
+          {!live && <circle cx={d.cx} cy={d.cy} r={d.r} fill={def.dot} />}
+        </svg>
+        {live && (
           <span
-            className="block rounded-full"
-            style={{ width: size * 0.44, height: size * 0.44, background: def.dot }}
-          />
+            className="absolute grid -translate-x-1/2 -translate-y-1/2"
+            style={{ left: `${(d.cx / 64) * 100}%`, top: `${(d.cy / 64) * 100}%` }}
+          >
+            <OkDot state={state} size={(size * d.r * 2) / 64} />
+          </span>
         )}
       </span>
     );

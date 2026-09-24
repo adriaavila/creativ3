@@ -10,6 +10,7 @@ const schema = z.object({
   nextActionAt: z.iso.date().nullable().optional(),
   closeProbability: z.number().int().min(0).max(100).nullable().optional(),
   potentialValue: z.number().int().min(0).max(1_000_000).nullable().optional(),
+  businessPhone: z.string().trim().max(40).nullable().optional(),
 });
 
 export async function PATCH(
@@ -22,12 +23,13 @@ export async function PATCH(
   const { id } = await context.params;
 
   if (input.status) await updateLeadStatus(id, input.status);
-  if ("nextAction" in input || "nextActionAt" in input || "closeProbability" in input || "potentialValue" in input) {
+  if ("nextAction" in input || "nextActionAt" in input || "closeProbability" in input || "potentialValue" in input || "businessPhone" in input) {
     await updateLeadFields(id, {
       nextAction: input.nextAction,
       nextActionAt: input.nextActionAt,
       closeProbability: input.closeProbability,
       potentialValue: input.potentialValue,
+      businessPhone: input.businessPhone,
     });
   }
   return Response.json({ ok: true });

@@ -267,6 +267,47 @@ export async function updateLeadStatus(id: string, status: LeadStatus) {
   `;
 }
 
+/**
+ * Un lead que Adrian carga a mano desde `/ops`. El `id` lo genera el cliente:
+ * un doble toque o un reintento no duplica la fila.
+ */
+export async function createManualLead(input: {
+  id: string;
+  businessName: string;
+  businessPhone: string | null;
+  source: string;
+  offer: string;
+  note: string;
+  today: string;
+}) {
+  const sql = getSql();
+  if (!sql) throw new Error("DATABASE_URL is not configured");
+  await sql`
+    INSERT INTO leads (id, business_name, vertical, evidence, problem_detected, offer_angle, lead_score,
+      status, business_phone, next_action, next_action_at)
+    VALUES (${input.id}, ${input.businessName}, 'Manual', ${`Fuente: ${input.source}`}, ${input.note}, ${input.offer}, 5,
+      'new', ${input.businessPhone}, 'Primer contacto', ${input.today}::date)
+    ON CONFLICT (id) DO NOTHING
+  `;
+}
+
+/** «Qué pasó»: estado, próximo paso y último contacto en una sola escritura. */
+export async function logLeadOutcome(
+  id: string,
+  patch: { status: LeadStatus; nextAction: string | null; nextActionAt: string | null },
+) {
+  const sql = getSql();
+  if (!sql) throw new Error("DATABASE_URL is not configured");
+  const rows = await sql`
+    UPDATE leads
+    SET status = ${patch.status}, next_action = ${patch.nextAction}, next_action_at = ${patch.nextActionAt}::date,
+        last_contacted_at = now(), updated_at = now()
+    WHERE id = ${id}
+    RETURNING last_contacted_at
+  `;
+  return rows[0] ? new Date(String(rows[0].last_contacted_at)).toISOString() : null;
+}
+
 export async function updateLeadFields(
   id: string,
   input: {

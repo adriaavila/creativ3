@@ -1,12 +1,17 @@
 import { z } from "zod";
 import { createManualLead } from "@/lib/growth-db";
 import { authorizeOps } from "@/lib/ops-auth";
-import { localDate } from "@/lib/sales-queue";
+import { localDate, waDigits } from "@/lib/sales-queue";
 
 const schema = z.object({
   id: z.uuid(),
   businessName: z.string().trim().min(1).max(120),
-  businessPhone: z.string().trim().max(40).nullable(),
+  businessPhone: z
+    .string()
+    .trim()
+    .max(40)
+    .nullable()
+    .refine((phone) => !phone || waDigits(phone) !== null),
   source: z.enum(["aliado", "referido", "reunión", "growth", "otro"]),
   offer: z.enum(["vocero", "rei", "agencia"]),
   note: z.string().trim().max(400).default(""),

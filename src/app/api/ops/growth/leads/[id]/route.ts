@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { updateLeadFields, updateLeadStatus } from "@/lib/growth-db";
 import { authorizeOps } from "@/lib/ops-auth";
+import { waDigits } from "@/lib/sales-queue";
 
 const schema = z.object({
   status: z
@@ -10,7 +11,13 @@ const schema = z.object({
   nextActionAt: z.iso.date().nullable().optional(),
   closeProbability: z.number().int().min(0).max(100).nullable().optional(),
   potentialValue: z.number().int().min(0).max(1_000_000).nullable().optional(),
-  businessPhone: z.string().trim().max(40).nullable().optional(),
+  businessPhone: z
+    .string()
+    .trim()
+    .max(40)
+    .nullable()
+    .optional()
+    .refine((phone) => !phone || waDigits(phone) !== null, "Teléfono no válido."),
 });
 
 export async function PATCH(

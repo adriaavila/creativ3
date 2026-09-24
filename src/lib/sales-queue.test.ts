@@ -99,3 +99,21 @@ test("el pedido de pago sale de la hoja de precios y sin rayas largas", () => {
   assert.match(text, /US\$499/);
   for (const stage of ["first", "interested", "asked"] as const) assert.doesNotMatch(messageFor(stage, lead({})), /—/);
 });
+
+test("un pago pedido no se des-pide: hablar después lo deja pedido, y un no conserva la marca", () => {
+  const talked = outcomePatch("talked", "2026-09-24", undefined, true);
+  assert.equal(stageOf({ status: talked.status, nextAction: talked.nextAction }), "asked");
+  const no = outcomePatch("not_now", "2026-09-24", "caro", true);
+  assert.equal(no.status, "lost");
+  const stats = weekStats([lead({ status: no.status, nextAction: no.nextAction, lastContactedAt: "2026-09-24T15:00:00Z" })], "2026-09-24");
+  assert.deepEqual(stats, { conversations: 1, asked: 1, paid: 0 });
+});
+
+test("REI y agencia no heredan el precio de Vocero", () => {
+  for (const offerAngle of ["rei", "agencia"]) {
+    for (const stage of ["first", "interested"] as const) {
+      assert.doesNotMatch(messageFor(stage, lead({ offerAngle })), /US\$/);
+    }
+  }
+  assert.match(messageFor("first", lead({ offerAngle: "rei" })), /inmobiliarias/);
+});

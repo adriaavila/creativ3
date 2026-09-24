@@ -102,6 +102,16 @@ yours to approve. Without it, phase 1 works off the `leads` columns
 (`last_contacted_at`, `next_action`), but the counter measures leads touched
 per week, and a second conversation with the same person doesn't count.
 
+### Known limits of phase 1 (until `sales_touches`)
+
+- "Pago pedido" is a prefix on `next_action`. Editing the next step or
+  status from Growth or Pipeline erases it, and Pipeline shows those leads as
+  "Cita" (`meeting_booked`).
+- "Pagos" only counts wins logged from Hoy: marking a lead won elsewhere
+  doesn't touch `last_contacted_at`.
+- Growth's "Hoy" tab still uses the UTC day and its own rules. Two lists with
+  the same name: retire that tab once this one proves itself.
+
 ## Verification
 
 - Node tests for the queue order and the "Qué pasó" transitions (next date,

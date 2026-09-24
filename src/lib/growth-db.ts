@@ -269,7 +269,8 @@ export async function updateLeadStatus(id: string, status: LeadStatus) {
 
 /**
  * Un lead que Adrian carga a mano desde `/ops`. El `id` lo genera el cliente:
- * un doble toque o un reintento no duplica la fila.
+ * un doble toque o un reintento no duplica la fila, y un reintento con un dato
+ * corregido lo corrige (sólo mientras el lead manual siga sin tocar).
  */
 export async function createManualLead(input: {
   id: string;
@@ -287,7 +288,11 @@ export async function createManualLead(input: {
       status, business_phone, next_action, next_action_at)
     VALUES (${input.id}, ${input.businessName}, 'Manual', ${`Fuente: ${input.source}`}, ${input.note}, ${input.offer}, 5,
       'new', ${input.businessPhone}, 'Primer contacto', ${input.today}::date)
-    ON CONFLICT (id) DO NOTHING
+    ON CONFLICT (id) DO UPDATE
+      SET business_name = EXCLUDED.business_name, business_phone = EXCLUDED.business_phone,
+          evidence = EXCLUDED.evidence, offer_angle = EXCLUDED.offer_angle,
+          problem_detected = EXCLUDED.problem_detected, updated_at = now()
+      WHERE leads.vertical = 'Manual' AND leads.status = 'new'
   `;
 }
 

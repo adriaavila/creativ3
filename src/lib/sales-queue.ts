@@ -30,9 +30,11 @@ const CLOSED: LeadStatus[] = ["won", "lost"];
 
 /** `YYYY-MM-DD` del instante en la zona dada. */
 export function localDate(at: Date | string, tz = SALES_TZ): string {
-  return new Intl.DateTimeFormat("en-CA", { timeZone: tz, year: "numeric", month: "2-digit", day: "2-digit" }).format(
-    typeof at === "string" ? new Date(at) : at,
-  );
+  // Por partes y no con `format()`: el orden de una locale lo puede cambiar el navegador.
+  const parts = new Intl.DateTimeFormat("en-US", { timeZone: tz, year: "numeric", month: "2-digit", day: "2-digit" })
+    .formatToParts(typeof at === "string" ? new Date(at) : at);
+  const part = (type: string) => parts.find((p) => p.type === type)!.value;
+  return `${part("year")}-${part("month")}-${part("day")}`;
 }
 
 export function addDays(ymd: string, days: number): string {
@@ -81,26 +83,34 @@ export function weekStats(leads: GrowthLead[], today: string) {
   const touched = leads.filter((lead) => lead.lastContactedAt && localDate(lead.lastContactedAt) >= from);
   return {
     conversations: touched.length,
-    asked: touched.filter((lead) => stageOf(lead) === "asked" || lead.status === "won").length,
+    asked: touched.filter((lead) => lead.nextAction?.startsWith(ASKED_PREFIX) || lead.status === "won").length,
     paid: touched.filter((lead) => lead.status === "won").length,
   };
 }
 
-/** Lo que escribe cada botón de «Qué pasó». Siempre toca `last_contacted_at`. */
+/**
+ * Lo que escribe cada botón de «Qué pasó». Siempre toca `last_contacted_at`.
+ * Un pago pedido no se des-pide: si ya se pidió, «Hablamos» lo deja en «pago
+ * pedido» y «No por ahora» conserva la marca, para que la semana no lo reste.
+ */
 export function outcomePatch(
   outcome: Outcome,
   today: string,
   reason?: string,
+  wasAsked = false,
 ): { status: LeadStatus; nextAction: string | null; nextActionAt: string | null } {
+  const asked = { status: "meeting_booked" as const, nextAction: `${ASKED_PREFIX}: confirmar`, nextActionAt: addDays(today, 2) };
   switch (outcome) {
     case "talked":
-      return { status: "replied", nextAction: "Pedir el pago", nextActionAt: addDays(today, 2) };
+      return wasAsked ? asked : { status: "replied", nextAction: "Pedir el pago", nextActionAt: addDays(today, 2) };
     case "asked":
-      return { status: "meeting_booked", nextAction: `${ASKED_PREFIX}: confirmar`, nextActionAt: addDays(today, 2) };
+      return asked;
     case "paid":
       return { status: "won", nextAction: null, nextActionAt: null };
-    case "not_now":
-      return { status: "lost", nextAction: `No por ahora: ${reason?.trim() || "sin motivo"}`, nextActionAt: null };
+    case "not_now": {
+      const why = `No por ahora: ${reason?.trim() || "sin motivo"}`;
+      return { status: "lost", nextAction: wasAsked ? `${ASKED_PREFIX} · ${why}` : why, nextActionAt: null };
+    }
   }
 }
 
@@ -118,16 +128,30 @@ export function waDigits(phone: string | null | undefined): string | null {
 
 const esencial = PLANS.find((plan) => plan.key === "esencial")!;
 
-/** El borrador que abre WhatsApp. Adrian lo lee y lo manda desde su teléfono. */
+/**
+ * El borrador que abre WhatsApp. Adrian lo lee y lo manda desde su teléfono.
+ * Sólo Vocero lleva precio: es el único con hoja de precios (`plans.ts`). REI
+ * y agencia piden el pago sin cifra hasta tener la suya.
+ */
 export function messageFor(stage: Stage, lead: Pick<GrowthLead, "businessName" | "offerAngle">): string {
-  if (stage === "first") {
-    return `Hola, soy Adrian de allok. Armamos un agente que contesta el WhatsApp de ${lead.businessName} a cualquier hora y deja cada cliente anotado. ¿Te muestro en 15 minutos cómo quedaría con tu negocio?`;
-  }
   if (stage === "asked") {
     return "¿Pudiste ver lo del pago? Si lo confirmas hoy, esta semana lo dejamos andando.";
   }
-  if (lead.offerAngle === "agencia") {
+  const offer = lead.offerAngle;
+  if (stage === "first") {
+    if (offer === "rei") {
+      return "Hola, soy Adrian de allok. Armamos un CRM de WhatsApp para inmobiliarias: cada interesado queda anotado con su inmueble y su próximo paso. ¿Te lo muestro en 15 minutos?";
+    }
+    if (offer === "agencia") {
+      return "Hola, soy Adrian de allok. Hacemos webs y automatizaciones para negocios que venden por WhatsApp. ¿Te cuento en 15 minutos qué haría con el tuyo?";
+    }
+    return `Hola, soy Adrian de allok. Armamos un agente que contesta el WhatsApp de ${lead.businessName} a cualquier hora y deja cada cliente anotado. ¿Te muestro en 15 minutos cómo quedaría con tu negocio?`;
+  }
+  if (offer === "agencia") {
     return "¿Arrancamos esta semana? Te paso la propuesta con el precio cerrado y el link de pago.";
+  }
+  if (offer === "rei") {
+    return "¿Arrancamos esta semana? Te paso el plan y el link de pago.";
   }
   return `Para dejarlo andando: el plan ${esencial.name} es US$${esencial.price} al mes y la ${SETUP_SERVICE.name.toLowerCase()} US$${SETUP_SERVICE.price}, que la hacemos nosotros. ¿Arrancamos esta semana? Te paso el link de pago.`;
 }

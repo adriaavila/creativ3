@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { whatsappUrl } from "@/lib/contact";
 import { BRAND, STATES } from "@/lib/brand";
-import { FROM_PRICE, PLANS, SETUP_SERVICE, priceLabel, registerUrl } from "@/lib/plans";
+import { FROM_PRICE, PLANS, SETUP_SERVICE, planCta, priceLabel } from "@/lib/plans";
 import SiteHeader from "@/components/allok/SiteHeader";
 import SiteFooter from "@/components/allok/SiteFooter";
 import Conversation from "@/components/allok/Conversation";
@@ -24,6 +24,7 @@ export const metadata: Metadata = {
 };
 
 const DEMO = "Hola, vengo de allok.fun. Quiero probar el agente en mi WhatsApp.";
+const START = "Hola, vengo de allok.fun. Quiero un agente de WhatsApp para mi negocio.";
 
 const NAV = [
   { href: "#control", label: "El sistema" },
@@ -35,15 +36,15 @@ const NAV = [
 const STEPS = [
   {
     n: "01",
-    title: "Conecta tu WhatsApp",
-    body: "Tu número de siempre, en un par de minutos. La cuenta queda a nombre de tu empresa: es tuya, no nuestra.",
-    aside: "Sin cambiar de número",
+    title: "Hablamos 15 minutos",
+    body: "Por WhatsApp. Nos cuentas qué vendes, a qué hora atiendes y qué no debe contestar, y te decimos qué plan te sirve.",
+    aside: "Sin compromiso",
   },
   {
     n: "02",
-    title: "Cuéntale a qué te dedicas",
-    body: "Qué vendes, a qué hora atiendes y qué no debe contestar. En tus palabras — no hay nada que programar.",
-    aside: "Cuatro preguntas",
+    title: "Lo dejamos andando",
+    body: "Conectamos tu número de siempre y cargamos tu agente con tus precios y servicios. La cuenta queda a nombre de tu empresa: es tuya, no nuestra.",
+    aside: "Sin cambiar de número",
   },
   {
     n: "03",
@@ -64,14 +65,14 @@ const SECTORS = [
 
 export default function Home() {
   const fallback = whatsappUrl(DEMO);
-  const connect = registerUrl("pro");
+  const connect = whatsappUrl(START);
 
   return (
     <div className="allok">
       {/* ── Portada en Cloud. El logotipo a tamaño de cartel, y el punto vivo:
              la marca es lo primero que se ve y ya está diciendo el estado. ── */}
       <div className="bg-[var(--cloud)]">
-        <SiteHeader nav={NAV} cta={{ href: connect, label: "Conectar mi WhatsApp" }} onCloud />
+        <SiteHeader nav={NAV} cta={{ href: connect, label: "Quiero mi agente" }} onCloud />
 
         <div className="mx-auto grid max-w-[1240px] items-center gap-12 px-5 pb-14 pt-6 sm:px-10 lg:grid-cols-[minmax(0,1.02fr)_minmax(0,.98fr)] lg:gap-8 lg:pb-20 lg:pt-10">
           <div>
@@ -95,7 +96,7 @@ export default function Home() {
 
             <div className="mt-9 flex flex-wrap gap-3">
               <a href={connect} className="allok-btn bg-[var(--ink)] font-semibold text-[var(--cloud)]">
-                Conectar mi WhatsApp
+                Quiero mi agente
               </a>
               <a
                 href={fallback}
@@ -153,8 +154,8 @@ export default function Home() {
           <div className="grid items-end gap-6 md:grid-cols-[minmax(0,1fr)_minmax(0,.7fr)]">
             <h2 className="statement max-w-[13ch]">Tres pasos y queda andando.</h2>
             <p className="text-[15.5px] leading-relaxed text-[var(--ink-60)] text-pretty">
-              No hay nada que instalar, ni que integrar, ni que programar. Si sabes
-              explicarle tu negocio a un empleado nuevo, sabes configurar allok.
+              No instalas nada ni programas nada. Nos explicas tu negocio como a un
+              empleado nuevo y nosotros hacemos el resto.
             </p>
           </div>
         </Rise>
@@ -174,10 +175,10 @@ export default function Home() {
 
         <div className="mt-8 flex flex-wrap items-center gap-4">
           <a href={connect} className="allok-btn bg-[var(--ink)] font-semibold text-[var(--cloud)]">
-            Conectar mi WhatsApp
+            Quiero mi agente
           </a>
           <p className="text-[14.5px] text-[var(--ink-60)]">
-            7 días de prueba en Completo. Sin tarjeta para probarlo como cliente.
+            Antes, si quieres, pruébalo como cliente. No pide tarjeta.
           </p>
         </div>
       </section>
@@ -246,14 +247,14 @@ export default function Home() {
               <p className="mt-4 mb-7 text-[15px] leading-snug opacity-70">{plan.line}</p>
 
               <a
-                href={plan.appPlan ? registerUrl(plan.appPlan) : whatsappUrl(plan.talkTo ?? DEMO)}
+                href={planCta(plan).href}
                 className={`allok-btn w-full !py-3.5 !text-[15px] font-semibold ${
                   plan.featured
                     ? "bg-[var(--ok)] text-[var(--ink)]"
                     : "border border-[rgba(11,13,14,.2)] font-medium text-[var(--ink)]"
                 }`}
               >
-                {plan.appPlan ? "Conectar mi WhatsApp" : "Hablemos"}
+                {planCta(plan).label}
               </a>
               {plan.trialDays ? (
                 <p className="mono mt-3 text-center opacity-65">{plan.trialDays} días de prueba</p>
@@ -315,7 +316,7 @@ export default function Home() {
             </div>
             <div className="grid gap-3 md:justify-self-end">
               <a href={connect} className="allok-btn bg-[var(--ok)] font-semibold text-[var(--ink)]">
-                Conectar mi WhatsApp
+                Quiero mi agente
               </a>
               <a href={fallback} className="allok-btn border border-white/25 text-[var(--cloud)]">
                 Probarlo como cliente

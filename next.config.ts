@@ -18,6 +18,9 @@ const nextConfig: NextConfig = {
       // La home es la página del producto; ésta se queda por los enlaces vivos.
       { source: "/crm", destination: "/", permanent: true },
       { source: "/cotizar", destination: "/", permanent: true },
+      // allok Desk fue el producto anterior; /desk daba 404 y /es/desk seguía vivo.
+      { source: "/desk", destination: "/", permanent: true },
+      { source: "/:locale(es|en)/desk", destination: "/", permanent: true },
     ];
   },
   outputFileTracingIncludes: {

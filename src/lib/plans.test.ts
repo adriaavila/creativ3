@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { FROM_PRICE, PLANS, metaMonthlyCost, priceLabel, usd } from "./plans";
+import { FROM_PRICE, PLANS, SELF_SERVE, metaMonthlyCost, planCta, priceLabel, usd } from "./plans";
 
 test("el tramo gratis de Meta deja el costo en cero", () => {
   // 200 consultas × 5 respuestas = 1.000 mensajes, justo el límite gratis.
@@ -52,4 +52,16 @@ test("FROM_PRICE ignora lo que no se contrata solo", () => {
   // barato que un plan, la frase «desde» mentiría.
   assert.equal(FROM_PRICE, 49);
   assert.ok(PLANS.every((p) => (p.appPlan === null) === (p.talkTo !== undefined)));
+});
+
+test("sin autoservicio, cada plan termina en una conversación que activa al agente", () => {
+  assert.equal(SELF_SERVE, false);
+  for (const plan of PLANS) {
+    const { href, label } = planCta(plan);
+    assert.ok(href.startsWith("https://wa.me/"), `${plan.key} no va a WhatsApp: ${href}`);
+    const text = decodeURIComponent(new URL(href).searchParams.get("text") ?? "");
+    assert.ok(text.includes("vengo de allok.fun"), `${plan.key}: ${text}`);
+    assert.ok(!text.trimEnd().endsWith(":"), `${plan.key} deja la frase a medias: ${text}`);
+    assert.equal(label, "Hablemos");
+  }
 });

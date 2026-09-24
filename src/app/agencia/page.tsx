@@ -24,7 +24,7 @@ const NAV = [
 ];
 
 const QUOTE_MESSAGE =
-  "Hola, vengo de allok.fun. Quiero cotizar un proyecto. Mi negocio es:";
+  "Hola, vengo de allok.fun. Quiero cotizar un proyecto.";
 
 /**
  * Los tres servicios, rescatados del sitio de agencia de 2026-08. El WhatsApp
@@ -42,7 +42,7 @@ const SERVICES = [
       "Captura de leads directa a WhatsApp",
       "SEO técnico y velocidad real",
     ],
-    message: "Hola, quiero una web que venda. Mi negocio necesita:",
+    message: "Hola, vengo de allok.fun. Quiero una web que venda.",
     action: "Quiero una web que venda",
   },
   {
@@ -55,7 +55,7 @@ const SERVICES = [
       "Leads clasificados y enrutados",
       "Reportes automáticos al equipo",
     ],
-    message: "Hola, quiero automatizar un proceso. Hoy mi equipo hace esto manualmente:",
+    message: "Hola, vengo de allok.fun. Quiero automatizar un proceso.",
     action: "Automatizar un proceso",
   },
   {
@@ -68,7 +68,7 @@ const SERVICES = [
       "Panel de administración",
       "Listo para producción",
     ],
-    message: "Hola, quiero construir un producto digital. La idea que necesito validar es:",
+    message: "Hola, vengo de allok.fun. Quiero construir un producto digital.",
     action: "Construir mi producto",
   },
 ] as const;
@@ -96,7 +96,7 @@ const PLANS = [
       "Captura de leads directa por WhatsApp",
     ],
     action: "Pedir landing page",
-    message: "Hola, quiero una landing page. La campaña o la oferta es:",
+    message: "Hola, vengo de allok.fun. Quiero una landing page.",
     featured: false,
   },
   {
@@ -113,7 +113,7 @@ const PLANS = [
       "Documentación y pruebas",
     ],
     action: "Cotizar automatización",
-    message: "Hola, quiero cotizar una automatización. El proceso manual que quiero cortar es:",
+    message: "Hola, vengo de allok.fun. Quiero cotizar una automatización.",
     featured: true,
   },
   {
@@ -130,7 +130,7 @@ const PLANS = [
       "Lanzamiento listo para producción",
     ],
     action: "Cotizar web o producto",
-    message: "Hola, quiero cotizar una web o producto. La idea es:",
+    message: "Hola, vengo de allok.fun. Quiero cotizar una web o producto.",
     featured: false,
   },
 ] as const;

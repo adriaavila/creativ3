@@ -1,6 +1,5 @@
 import Link from "next/link";
 import AllokLogo from "@/components/brand/AllokLogo";
-import Waveform from "@/components/brand/Waveform";
 
 export const metadata = {
   title: "Acceso Ops",
@@ -20,13 +19,6 @@ export default async function OpsLoginPage({
 
   return (
     <main className="on-ink allok-ops relative flex min-h-screen items-center justify-center overflow-hidden bg-[var(--void)] p-6 text-[var(--ink)]">
-      {/* The mark at banner scale, dimmed to a texture. */}
-      <Waveform
-        className="pointer-events-none absolute inset-x-0 top-1/2 h-[420px] w-[160%] -translate-x-[15%] -translate-y-1/2 text-white/[0.06]"
-        cycles={26}
-        weight={2}
-      />
-
       <div className="relative w-full max-w-md rounded-3xl border border-white/10 bg-white/[0.04] p-7 shadow-2xl shadow-black/40 sm:p-9">
         <AllokLogo variant="mark" state="activo" size={44} live />
         <div className="mt-6 font-mono text-[9px] uppercase tracking-[0.2em] text-[var(--assist-ink)]">

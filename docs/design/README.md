@@ -331,6 +331,11 @@ pero en esa página quien habla es REI.
 El favicon es `src/app/icon.svg`, que Next resuelve solo, y `public/logo.svg`
 es el mismo ícono para usos fuera del sitio. Los dos copian `MARK`.
 
+**El CRM también lo copia.** `vocero-crm` (app.allok.fun, crm.allok.fun y cada
+negocio) lo tiene en `ALLOK_MARK` (`src/lib/favicon.ts`), con `icon.svg`, el
+`apple-icon` y los PNG de la app instalable. Si cambia `MARK`, se cambian allá
+en el mismo día; la lista está en `vocero-crm/design/SOURCE.md`.
+
 **El brief del símbolo**, en inglés para generadores de imagen:
 
 > Design a logo for allok with a symbolic mark that represents a business that

@@ -17,7 +17,7 @@ export const metadata: Metadata = {
 };
 
 const QUOTE_MESSAGE =
-  "Hola, vengo de allok.fun. Quiero cotizar un Vocero a medida — te cuento la operación.";
+  "Hola, vengo de allok.fun. Quiero cotizar un Vocero a medida.";
 
 const NAV = [
   { href: "#cuando", label: "¿Es para ti?" },

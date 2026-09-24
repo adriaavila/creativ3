@@ -29,6 +29,8 @@
  */
 
 /** La app del CRM: ahí se registra el negocio y ahí se cobra. */
+
+import { whatsappUrl } from "@/lib/contact";
 export const CRM_APP_URL = "https://whatsapp.allok.fun";
 
 export type Plan = {
@@ -58,6 +60,29 @@ export type Plan = {
   /** Adónde va el botón cuando no hay autoservicio. */
   talkTo?: string;
 };
+
+/**
+ * Autoservicio apagado (decisión de Adrian, 2026-09-24: "all in en sistemas a
+ * medida"). Cada plan se vende en una conversación y la puesta en marcha la hace
+ * allok; nadie se registra solo desde la web. Volver a `true` reactiva los
+ * botones de registro sin tocar las páginas.
+ */
+export const SELF_SERVE = false;
+
+/**
+ * El botón de un plan: registro si hay autoservicio, WhatsApp si no. El texto
+ * del WhatsApp es una frase completa porque el agente de allok solo arranca
+ * cuando el mensaje coincide exacto con una frase de activación.
+ */
+export function planCta(plan: Plan): { href: string; label: string } {
+  if (SELF_SERVE && plan.appPlan) {
+    return { href: registerUrl(plan.appPlan), label: "Conectar mi WhatsApp" };
+  }
+  return {
+    href: whatsappUrl(plan.talkTo ?? `Hola, vengo de allok.fun. Quiero el plan ${plan.name}.`),
+    label: "Hablemos",
+  };
+}
 
 /** A dónde manda el botón de un plan de suscripción. */
 export function registerUrl(appPlan: "basic" | "pro"): string {

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { whatsappUrl } from "@/lib/contact";
-import { FROM_PRICE, PLANS, registerUrl } from "@/lib/plans";
+import { FROM_PRICE, PLANS, SELF_SERVE, planCta } from "@/lib/plans";
 import SiteHeader from "@/components/allok/SiteHeader";
 import SiteFooter from "@/components/allok/SiteFooter";
 import MetaCostCalculator from "@/components/rei/MetaCostCalculator";
@@ -131,7 +131,10 @@ export default function ReiPage() {
               <a
                 href={
                   plan.appPlan
-                    ? registerUrl(plan.appPlan)
+                    ? planCta({
+                        ...plan,
+                        talkTo: `Hola, vengo de allok.fun. Quiero el plan ${plan.name} para mi inmobiliaria.`,
+                      }).href
                     : whatsappUrl(
                         `Hola, vengo de allok.fun. Quiero la implementación de allok (US$${plan.price}) para mi inmobiliaria.`,
                       )
@@ -142,7 +145,7 @@ export default function ReiPage() {
                     : "border border-[rgba(16,17,18,.22)] text-[var(--ink)]"
                 }`}
               >
-                {plan.appPlan ? `Empezar con ${plan.name}` : "Hablemos"}
+                {plan.appPlan && SELF_SERVE ? `Empezar con ${plan.name}` : "Hablemos"}
               </a>
 
               <ul

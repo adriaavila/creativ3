@@ -1,7 +1,7 @@
 <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="allok">
-  <!-- El punto solo. A 16px el logotipo `all ● k` no se lee, y lo único que
-       tiene que sobrevivir es el estado: verde sobre Ink significa que todo
-       está bien. Mismo verde que PALETTE.ok en src/lib/brand.ts. -->
+  <!-- El símbolo: un círculo que el punto cierra. Misma geometría que `MARK`
+       en src/lib/brand.ts; el punto va en verde (activo), el estado en reposo. -->
   <rect width="64" height="64" rx="17" fill="#0B0D0E"/>
-  <circle cx="32" cy="32" r="14" fill="#20E58D"/>
+  <path d="M33.39 47.94A16 16 0 1 1 47.94 30.6" fill="none" stroke="#F7F8F8" stroke-width="6.5" stroke-linecap="round"/>
+  <circle cx="44.26" cy="42.28" r="6.5" fill="#20E58D"/>
 </svg>

@@ -1356,6 +1356,13 @@ html:has(.rig) ::selection { background: var(--hazard); color: var(--paper); }
   --scrim: rgba(11, 13, 14, 0.2);
   --scrim-void: rgba(11, 13, 14, 0.7);
 
+  /* Los estados, los mismos de `.allok` y de `STATES` en src/lib/brand.ts.
+     La cola de ventas de `/ops` los usa como etiqueta: color + palabra. */
+  --st-activo-ink: #0a7a48;      --st-activo-soft: #e2f9ee;
+  --st-atendiendo-ink: #2348cc;  --st-atendiendo-soft: #e7edff;
+  --st-atencion-ink: #7a5600;    --st-atencion-soft: #fdf0db;
+  --st-pausado-ink: #5a6066;     --st-pausado-soft: #ededee;
+
   color-scheme: light;
   font-family: var(--font-grotesk), "Helvetica Neue", Helvetica, Arial, sans-serif;
 }

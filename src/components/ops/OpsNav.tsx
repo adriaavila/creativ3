@@ -6,6 +6,7 @@ import { useState } from "react";
 import {
   Bot,
   FlaskConical,
+  Handshake,
   KanbanSquare,
   Link2,
   LogOut,
@@ -18,17 +19,19 @@ import AllokLogo from "@/components/brand/AllokLogo";
 
 type NavItem = { href: string; label: string; icon: LucideIcon };
 
-const agencyItems: NavItem[] = [
-  { href: "/ops/growth", label: "Growth", icon: TrendingUp },
+const salesItems: NavItem[] = [
+  { href: "/ops", label: "Hoy", icon: Handshake },
   { href: "/ops/crm", label: "Pipeline", icon: KanbanSquare },
 ] as const;
 
-const eveItems: NavItem[] = [
+const moreItems: NavItem[] = [
+  { href: "/ops/growth", label: "Growth", icon: TrendingUp },
   { href: "/ops/agents", label: "Eve Agents", icon: Bot },
   { href: "/ops/lab", label: "Observabilidad", icon: FlaskConical },
 ] as const;
 
 function isItemActive(pathname: string, href: string, connectionsActive: boolean) {
+  if (href === "/ops") return pathname === href;
   if (href === "/ops/crm") return pathname.startsWith(href) && !connectionsActive;
   return pathname === href || pathname.startsWith(`${href}/`);
 }
@@ -69,16 +72,14 @@ export default function OpsNav({ global = false }: OpsNavProps) {
 
   const renderNavigation = () => (
     <>
-      <p className="px-3 pb-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--ink-40)]">Agencia</p>
-      <div className="space-y-1">{agencyItems.map(renderItem)}</div>
-      <div className="my-5 border-t border-[var(--hairline)]" />
-      <p className="px-3 pb-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--ink-40)]">Eve</p>
-      <div className="space-y-1">{eveItems.map(renderItem)}</div>
-      <div className="my-5 border-t border-[var(--hairline)]" />
-      <p className="px-3 pb-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--ink-40)]">WhatsApp</p>
+      <p className="px-3 pb-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--ink-60)]">Ventas</p>
       <div className="space-y-1">
+        {salesItems.map(renderItem)}
         <Link href="/ops/crm?view=connections" aria-current={connectionsActive ? "page" : undefined} onClick={() => setMobileMenuOpen(false)} className={`flex min-h-11 items-center gap-3 rounded-[10px] px-3 text-[14px] font-medium transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--rule)] ${connectionsActive ? "bg-[var(--ground-3)] text-[var(--ink)]" : "text-[var(--ink-60)] hover:bg-[var(--ground-3)] hover:text-[var(--ink)]"}`}><Link2 className={`size-[18px] shrink-0 ${connectionsActive ? "text-[var(--ink-60)]" : "text-[var(--ink-60)]"}`} strokeWidth={1.8} /> Conexiones</Link>
       </div>
+      <div className="my-5 border-t border-[var(--hairline)]" />
+      <p className="px-3 pb-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--ink-60)]">Más</p>
+      <div className="space-y-1">{moreItems.map(renderItem)}</div>
     </>
   );
 
@@ -96,8 +97,8 @@ export default function OpsNav({ global = false }: OpsNavProps) {
 
   const renderBrand = (mobile = false) => (
     <Link
-      href="/ops/growth"
-      aria-label="allok Ops, ir a Growth"
+      href="/ops"
+      aria-label="allok Ops, ir a Hoy"
       onClick={() => setMobileMenuOpen(false)}
       className={`flex items-center gap-3 rounded-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--rule)] ${mobile ? "min-h-11" : ""}`}
     >
@@ -106,7 +107,7 @@ export default function OpsNav({ global = false }: OpsNavProps) {
         <span className="block font-display text-[19px] font-semibold tracking-[-0.04em] text-[var(--ink)]">
           allok
         </span>
-        <span className="block whitespace-nowrap text-[11px] leading-4 text-[var(--ink-60)]">Agencia · Growth</span>
+        <span className="block whitespace-nowrap text-[11px] leading-4 text-[var(--ink-60)]">Ventas · Hoy</span>
       </span>
     </Link>
   );

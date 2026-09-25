@@ -134,7 +134,9 @@ export default function NightOrbit({ className = "" }: { className?: string }) {
         />
       ))}
       {DOTS.map((d, i) => {
-        const [x, y] = at(d, d.t0);
+        // Redondeado: cos/sin pueden diferir en el último decimal entre Node y
+        // el navegador, y eso rompería la hidratación.
+        const [x, y] = at(d, d.t0).map((v) => v.toFixed(1));
         return (
           <g key={i} data-dot="" style={{ color: answered(d.t0) ? DONE : WAITING }}>
             <path d={trail(d, d.t0)} fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" opacity={0.4} />

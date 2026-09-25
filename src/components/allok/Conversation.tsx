@@ -73,19 +73,19 @@ function Bubble({ turn, delay, ticks, live }: { turn: Turn; delay: number; ticks
   return (
     // En vivo, la fila crece desde cero y empuja el hilo hacia arriba, como en el teléfono.
     <div className={live ? "allok-msg" : "allok-bubble"} style={live ? undefined : { animationDelay: `${delay}ms` }}>
-     <div className={`flex items-start ${ours ? "justify-end" : "justify-start"}`}>
-      <div
-        className={`relative max-w-[86%] rounded-[13px] px-2.5 pb-4 pt-2 text-[13.5px] leading-[1.4] shadow-[0_1px_1px_rgba(0,0,0,.12)] ${
-          ours ? "bg-[#d9fdd3] text-[#111b21]" : "bg-white text-[#111b21]"
-        } ${live ? (ours ? "allok-msg-send" : "allok-msg-pop") : ""}`}
-      >
-        {turn.text}
-        <span className="absolute bottom-1 right-2.5 text-[10px] text-[rgba(17,27,33,.45)]">
-          {turn.at}
-          {ours ? <Ticks n={ticks} /> : null}
-        </span>
+      <div className={`flex items-start ${ours ? "justify-end" : "justify-start"}`}>
+        <div
+          className={`relative max-w-[86%] rounded-[13px] px-2.5 pb-4 pt-2 text-[13.5px] leading-[1.4] shadow-[0_1px_1px_rgba(0,0,0,.12)] ${
+            ours ? "bg-[#d9fdd3] text-[#111b21]" : "bg-white text-[#111b21]"
+          } ${live ? (ours ? "allok-msg-send" : "allok-msg-pop") : ""}`}
+        >
+          {turn.text}
+          <span className="absolute bottom-1 right-2.5 text-[10px] text-[rgba(17,27,33,.45)]">
+            {turn.at}
+            {ours ? <Ticks n={ticks} /> : null}
+          </span>
+        </div>
       </div>
-     </div>
     </div>
   );
 }

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { whatsappUrl } from "@/lib/contact";
 import { BRAND, STATES } from "@/lib/brand";
-import { FROM_PRICE, PLANS, SETUP_SERVICE, planCta, priceLabel } from "@/lib/plans";
+import { CRM_APP_URL, FROM_PRICE, PLANS, SETUP_SERVICE, planCta, priceLabel } from "@/lib/plans";
 import SiteHeader from "@/components/allok/SiteHeader";
 import SiteFooter from "@/components/allok/SiteFooter";
 import Conversation from "@/components/allok/Conversation";
@@ -74,7 +74,7 @@ export default function Home() {
       {/* ── Portada en Cloud. El logotipo a tamaño de cartel, y el punto vivo:
              la marca es lo primero que se ve y ya está diciendo el estado. ── */}
       <div className="overflow-x-clip bg-[var(--cloud)]">
-        <SiteHeader nav={NAV} cta={{ href: connect, label: "Quiero mi agente" }} onCloud />
+        <SiteHeader nav={NAV} cta={{ href: `${CRM_APP_URL}/login`, label: "Entrar" }} onCloud />
 
         <div className="mx-auto grid max-w-[1240px] items-center gap-12 px-5 pb-14 pt-6 sm:px-10 lg:grid-cols-[minmax(0,1.02fr)_minmax(0,.98fr)] lg:gap-8 lg:pb-20 lg:pt-10">
           <div>
@@ -190,11 +190,11 @@ export default function Home() {
         </ol>
 
         <div className="mt-8 flex flex-wrap items-center gap-4">
-          <a href={connect} className="allok-btn bg-[var(--ink)] font-semibold text-[var(--cloud)]">
-            Quiero mi agente
+          <a href={fallback} className="allok-btn border border-[rgba(11,13,14,.2)] text-[var(--ink)]">
+            Probarlo como cliente
           </a>
           <p className="text-[14.5px] text-[var(--ink-60)]">
-            Antes, si quieres, pruébalo como cliente. No pide tarjeta.
+            Escríbele tú primero y mira cómo contesta. No pide tarjeta.
           </p>
         </div>
       </section>
@@ -334,16 +334,13 @@ export default function Home() {
                 ))}
               </p>
               <p className="lede mt-6 max-w-[44ch] text-[#919292]">
-                Desde US${FROM_PRICE} al mes. Pruébalo primero escribiéndole tú, como
-                si fueras un cliente tuyo.
+                Desde US${FROM_PRICE} al mes. Nos cuentas tu negocio por WhatsApp y
+                nosotros lo dejamos andando.
               </p>
             </div>
             <div className="relative grid gap-3 md:justify-self-end">
               <a href={connect} className="allok-btn bg-[var(--ok)] font-semibold text-[var(--ink)]">
                 Quiero mi agente
-              </a>
-              <a href={fallback} className="allok-btn border border-white/25 bg-[var(--ink)] text-[var(--cloud)]">
-                Probarlo como cliente
               </a>
             </div>
           </div>

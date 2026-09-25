@@ -1330,15 +1330,27 @@ html:has(.rig) ::selection { background: var(--hazard); color: var(--paper); }
   from { opacity: 0; }
 }
 
-/* La banda de la noche: dos filas que se cruzan con el scroll. */
-.allok-ticker {
-  overflow: clip;
-  mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
-}
-.allok-ticker-row[data-dir="1"] { transform: translateX(-9%); }
+/* La banda de la noche: dos filas que se cruzan con el scroll. Quieta (menos
+   movimiento, o sin línea de tiempo), una sola fila que se parte en renglones:
+   una banda recortada y congelada esconde casi todas las preguntas. */
+.allok-ticker-row { width: auto; flex-wrap: wrap; }
+.allok-ticker-row > li { max-width: 100%; }
+.allok-ticker-row > li > span { white-space: normal; }
+.allok-ticker-row[data-dir="1"],
+.allok-ticker-row > [data-dup],
+.allok-ticker-row > li:nth-child(n + 7) { display: none; }
 @supports (animation-timeline: view()) {
   @media (prefers-reduced-motion: no-preference) {
-    .allok-ticker { view-timeline-name: --allok-ticker; }
+    .allok-ticker {
+      overflow: clip;
+      mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
+      view-timeline-name: --allok-ticker;
+    }
+    .allok-ticker-row { width: max-content; flex-wrap: nowrap; }
+    .allok-ticker-row > li > span { white-space: nowrap; }
+    .allok-ticker-row[data-dir="1"] { display: flex; }
+    .allok-ticker-row > [data-dup],
+    .allok-ticker-row > li:nth-child(n + 7) { display: flex; }
     .allok-ticker-row,
     .allok-ticker-row[data-dir="1"] {
       animation: allok-ticker linear both;
@@ -1459,14 +1471,14 @@ html:has(.rig) ::selection { background: var(--hazard); color: var(--paper); }
 }
 
 /* El cielo del cierre: estrellas que llegan ámbar y quedan verdes. Donde va
-   el texto se apagan al 25%: un punto vivo entre dos letras se lee como una
+   el texto no hay: un punto vivo entre dos letras se lee como una
    errata. En una columna el texto va arriba; desde md, a la izquierda. */
 .allok-stars {
-  mask-image: linear-gradient(180deg, #000 0 8%, rgb(0 0 0 / 0.25) 15% 58%, #000 70%);
+  mask-image: linear-gradient(180deg, #000 0 8%, transparent 15% 58%, #000 70%);
 }
 @media (min-width: 768px) {
   .allok-stars {
-    mask-image: linear-gradient(90deg, rgb(0 0 0 / 0.25) 0 56%, #000 68%);
+    mask-image: linear-gradient(90deg, transparent 0 56%, #000 68%);
   }
 }
 .allok-star {
@@ -1487,7 +1499,8 @@ html:has(.rig) ::selection { background: var(--hazard); color: var(--paper); }
   82% { opacity: 0.7; fill: var(--st-activo); }
   100% { opacity: 0; fill: var(--st-activo); transform: scale(1); }
 }
-/* El amanecer sube desde la esquina de los botones, lejos del texto chico. */
+/* El amanecer sube desde la esquina de los botones, lejos del texto chico, en
+   los colores de la marca: el verde de «todo ok» que se abre al azul Signal. */
 .allok-dawn {
   position: absolute;
   left: 34%;
@@ -1497,9 +1510,9 @@ html:has(.rig) ::selection { background: var(--hazard); color: var(--paper); }
   border-radius: 50%;
   background: radial-gradient(
     closest-side,
-    rgb(255 154 61 / 0.5),
-    rgb(180 16 101 / 0.34) 45%,
-    rgb(27 63 150 / 0.2) 72%,
+    rgb(32 229 141 / 0.4),
+    rgb(36 167 196 / 0.3) 45%,
+    rgb(49 92 255 / 0.22) 72%,
     transparent
   );
   filter: blur(34px);

@@ -29,7 +29,7 @@ const NAV = [
 /** Un hilo de ejemplo. Ilustra el producto — no es la conversación de nadie. */
 const THREAD = [
   { from: "them", text: "Hola, ¿tienen el modelo X en talla 42? Lo vi en Instagram" },
-  { from: "us", text: "Sí — quedan 3 pares en la sucursal de Las Mercedes y 1 en Chacao. ¿Te reservo uno?" },
+  { from: "us", text: "Sí, quedan 3 pares en la sucursal de Las Mercedes y 1 en Chacao. ¿Te reservo uno?" },
   { from: "them", text: "El de Chacao. ¿Hasta qué hora abren?" },
   { from: "us", text: "Hasta las 7. Reservado a tu nombre hasta mañana 12:00, con el código 4471. Te aviso si alguien más lo pide." },
 ] as const;

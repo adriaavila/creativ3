@@ -1499,7 +1499,8 @@ html:has(.rig) ::selection { background: var(--hazard); color: var(--paper); }
   82% { opacity: 0.7; fill: var(--st-activo); }
   100% { opacity: 0; fill: var(--st-activo); transform: scale(1); }
 }
-/* El amanecer sube desde la esquina de los botones, lejos del texto chico. */
+/* El amanecer sube desde la esquina de los botones, lejos del texto chico, en
+   los colores de la marca: el verde de «todo ok» que se abre al azul Signal. */
 .allok-dawn {
   position: absolute;
   left: 34%;
@@ -1509,9 +1510,9 @@ html:has(.rig) ::selection { background: var(--hazard); color: var(--paper); }
   border-radius: 50%;
   background: radial-gradient(
     closest-side,
-    rgb(255 154 61 / 0.5),
-    rgb(180 16 101 / 0.34) 45%,
-    rgb(27 63 150 / 0.2) 72%,
+    rgb(32 229 141 / 0.4),
+    rgb(36 167 196 / 0.3) 45%,
+    rgb(49 92 255 / 0.22) 72%,
     transparent
   );
   filter: blur(34px);

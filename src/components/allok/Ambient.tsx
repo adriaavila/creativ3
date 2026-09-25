@@ -32,9 +32,9 @@ const NIGHT: [string, string, SystemState][] = [
   ["6:40", "¿Abren hoy temprano?", "activo"],
 ];
 
-function Question({ at, q, state }: { at: string; q: string; state: SystemState }) {
+function Question({ at, q, state, dup }: { at: string; q: string; state: SystemState; dup: boolean }) {
   return (
-    <li className="flex shrink-0 items-center gap-3 rounded-[14px] border border-[var(--hair-void)] bg-white/[.035] px-4 py-3">
+    <li data-dup={dup || undefined} className="flex shrink-0 items-center gap-3 rounded-[14px] border border-[var(--hair-void)] bg-white/[.035] px-4 py-3">
       <span className="mono tabular-nums text-[var(--on-void-60)]">{at}</span>
       <span className="whitespace-nowrap text-[14.5px] text-white/80">{q}</span>
       <span className="size-2 shrink-0 rounded-full" style={{ background: STATES[state].dot }} />
@@ -49,7 +49,7 @@ export function NightTicker() {
       {rows.map((row, r) => (
         <ul key={r} className="allok-ticker-row flex w-max gap-3" data-dir={r}>
           {[...row, ...row].map(([at, q, state], i) => (
-            <Question key={i} at={at} q={q} state={state} />
+            <Question key={i} at={at} q={q} state={state} dup={i >= row.length} />
           ))}
         </ul>
       ))}

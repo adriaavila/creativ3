@@ -13,7 +13,7 @@ import { STATES } from "@/lib/brand";
  * demuestra.
  *
  * El servidor pinta la conversación completa. Con JS y movimiento, la deja
- * leer unos segundos y la vuelve a contar en bucle, sólo mientras se ve. Con
+ * leer unos segundos y la vuelve a contar dos veces, sólo mientras se ve. Con
  * menos movimiento se queda quieta y completa.
  *
  * Los mensajes son un ejemplo, no la conversación de ningún cliente.
@@ -80,7 +80,7 @@ function Bubble({ turn, delay, ticks, live }: { turn: Turn; delay: number; ticks
           } ${live ? (ours ? "allok-msg-send" : "allok-msg-pop") : ""}`}
         >
           {turn.text}
-          <span className="absolute bottom-1 right-2.5 text-[10px] text-[rgba(17,27,33,.45)]">
+          <span className="absolute bottom-1 right-2.5 text-[10px] text-[rgba(17,27,33,.62)]">
             {turn.at}
             {ours ? <Ticks n={ticks} /> : null}
           </span>
@@ -132,7 +132,8 @@ export default function Conversation({
     (async () => {
       await gate();
       await sleep(4800); // la cascada del servidor, y tiempo para leerla
-      while (alive) {
+      // Dos pasadas y queda completa: un bucle sin fin no se puede pausar (WCAG 2.2.2).
+      for (let pass = 0; pass < 2 && alive; pass++) {
         await gate();
         set(() => ({ fading: true }));
         await sleep(420);
@@ -162,7 +163,7 @@ export default function Conversation({
             await sleep(1000);
           }
         }
-        await sleep(5200);
+        if (pass === 0) await sleep(5200);
       }
     })();
 
@@ -218,7 +219,7 @@ export default function Conversation({
             fading ? "opacity-0" : ""
           }`}
         >
-          <p className="mx-auto mb-1 rounded-md bg-[rgba(255,255,255,.75)] px-2 py-0.5 text-[10.5px] font-medium text-[rgba(17,27,33,.5)]">
+          <p className="mx-auto mb-1 rounded-md bg-[rgba(255,255,255,.75)] px-2 py-0.5 text-[10.5px] font-medium text-[rgba(17,27,33,.62)]">
             HOY
           </p>
           {thread.slice(0, shown).map((turn, i) => (
@@ -236,7 +237,7 @@ export default function Conversation({
                   allok
                 </span>
                 {/* En rtl, lo que no cabe se corta por la izquierda: se ve lo último que se escribió. */}
-                <span className="block min-w-0 flex-1 overflow-hidden whitespace-nowrap text-left text-[#111b21] [direction:rtl]">
+                <span className="block min-w-0 flex-1 overflow-hidden whitespace-nowrap text-left text-[#111b21] [direction:rtl] [mask-image:linear-gradient(90deg,transparent,#000_14px)]">
                   <bdi dir="ltr">
                     {draft}
                     <span className="allok-caret" />
@@ -244,7 +245,7 @@ export default function Conversation({
                 </span>
               </>
             ) : (
-              <span className="block text-[rgba(17,27,33,.38)]">Escribe un mensaje</span>
+              <span className="block text-[rgba(17,27,33,.62)]">Escribe un mensaje</span>
             )}
           </div>
           <div

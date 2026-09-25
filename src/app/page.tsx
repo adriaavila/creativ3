@@ -13,7 +13,7 @@ import OkDot from "@/components/brand/OkDot";
 import NightOrbit from "@/components/allok/NightOrbit";
 import { CloseMark, NightSky, NightTicker, StepGlyph } from "@/components/allok/Ambient";
 
-const TITLE = "allok — tu negocio sigue funcionando";
+const TITLE = "allok · tu negocio sigue funcionando";
 const DESCRIPTION =
   "allok conecta tu WhatsApp con agentes que contestan, califican y agendan por ti. Mensualidad fija desde US$49: la cuenta es de tu empresa y Meta te cobra los mensajes al costo.";
 

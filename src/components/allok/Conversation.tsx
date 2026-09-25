@@ -25,7 +25,7 @@ export const DEFAULT_THREAD: Turn[] = [
   { from: "them", text: "Hola, ¿tienen cupo para el curso de los sábados?", at: "3:14" },
   {
     from: "us",
-    text: "Sí — quedan 4 cupos en el de 9:00 y 2 en el de 11:30. Son 8 clases, empiezan el 4 de octubre.",
+    text: "Sí, quedan 4 cupos en el de 9:00 y 2 en el de 11:30. Son 8 clases, empiezan el 4 de octubre.",
     at: "3:14",
   },
   { from: "them", text: "El de 9. ¿Cómo hago para reservar?", at: "3:15" },
@@ -108,13 +108,15 @@ export default function Conversation({
     let visible = false;
     let wake: (() => void) | null = null;
     const timers = new Set<number>();
-    const sleep = (ms: number) =>
-      new Promise<void>((res) => {
+    // Fuera de pantalla el guion espera en el paso donde iba.
+    const gate = () => (visible ? Promise.resolve() : new Promise<void>((res) => (wake = res)));
+    const sleep = async (ms: number) => {
+      await gate();
+      await new Promise<void>((res) => {
         const id = window.setTimeout(() => (timers.delete(id), res()), ms);
         timers.add(id);
       });
-    // Fuera de pantalla el guion espera en el paso donde iba.
-    const gate = () => (visible ? Promise.resolve() : new Promise<void>((res) => (wake = res)));
+    };
     const set = (patch: (s: Scene) => Partial<Scene>) => alive && setScene((s) => ({ ...s, ...patch(s) }));
     const tick = (i: number, n: number) => set((s) => ({ ticks: s.ticks.map((v, j) => (j === i ? n : v)) }));
 

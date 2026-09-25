@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { STATES, type SystemState } from "@/lib/brand";
 import OkDot from "@/components/brand/OkDot";
 
@@ -13,8 +13,8 @@ import OkDot from "@/components/brand/OkDot";
  *
  * Y está encendido: mientras se ve, llega alguien (azul, escribiendo), allok
  * lo resuelve (verde) o te lo pasa (ámbar), y los contadores suben. Corre el
- * guion una vez y se queda quieto; con menos movimiento no corre, y el
- * servidor pinta el primer fotograma, que es el tablero completo.
+ * guion una vez y se queda quieto. Con menos movimiento no corre: salta al
+ * final del guion, ya resuelto.
  */
 const KPIS = [
   ["Conversaciones", null],
@@ -64,45 +64,72 @@ const bumped = (b: Board, idx: number[]) => ({
   ticks: b.ticks.map((v, i) => (idx.includes(i) ? v + 1 : v)),
 });
 
+type Run = { board: Board; step: number; minute: number };
+const RUN0: Run = { board: FIRST, step: 0, minute: 3 * 60 + 16 };
+
+// Un paso: si alguien está escribiendo, se resuelve; si no, llega el siguiente. null: se acabó el guion.
+function advance({ board, step, minute }: Run): Run | null {
+  const writing = board.feed.find((r) => r.next);
+  if (writing) {
+    const done = writing.next!;
+    return {
+      step,
+      minute,
+      board: {
+        feed: board.feed.map((r) =>
+          r === writing ? { ...r, ...done, next: undefined, fresh: false, landed: true } : { ...r, fresh: false },
+        ),
+        ...bumped(board, done.bump),
+      },
+    };
+  }
+  if (step >= SCRIPT.length) return null;
+  const [who, gap, next] = SCRIPT[step];
+  const at = `${Math.floor((minute + gap) / 60)}:${String((minute + gap) % 60).padStart(2, "0")}`;
+  return {
+    step: step + 1,
+    minute: minute + gap,
+    board: {
+      feed: [
+        { id: 101 + step, who, what: "Escribiendo", state: "atendiendo", at, next, fresh: true },
+        ...board.feed.slice(0, 3).map((r) => ({ ...r, landed: false })),
+      ],
+      ...bumped(board, [0]),
+    },
+  };
+}
+
+// El guion ya corrido y quieto: lo que queda con menos movimiento, sin nadie «escribiendo» para siempre.
+const FINAL: Board = (() => {
+  let run = RUN0;
+  for (let n = advance(run); n; n = advance(run)) run = n;
+  return { ...run.board, feed: run.board.feed.map((r) => ({ ...r, fresh: false, landed: false })), ticks: [0, 0, 0, 0] };
+})();
+
+const REDUCE = "(prefers-reduced-motion: reduce)";
+const onReduceChange = (cb: () => void) => {
+  const mq = matchMedia(REDUCE);
+  mq.addEventListener("change", cb);
+  return () => mq.removeEventListener("change", cb);
+};
+
 export default function ControlCenter() {
   const host = useRef<HTMLDivElement>(null);
-  const [{ feed, kpis, ticks }, setBoard] = useState(FIRST);
+  const [live, setBoard] = useState(FIRST);
+  const still = useSyncExternalStore(onReduceChange, () => matchMedia(REDUCE).matches, () => false);
+  const { feed, kpis, ticks } = still ? FINAL : live;
 
   useEffect(() => {
     const el = host.current;
-    if (!el || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (!el || still) return;
 
-    let board = FIRST;
-    let step = 0;
-    let minute = 3 * 60 + 16;
+    let run = RUN0;
     let timer = 0;
-
-    // Un paso: si alguien está escribiendo, se resuelve; si no, llega el siguiente.
     const tick = () => {
-      const writing = board.feed.find((r) => r.next);
-      if (writing) {
-        const done = writing.next!;
-        board = {
-          feed: board.feed.map((r) =>
-            r === writing ? { ...r, ...done, next: undefined, fresh: false, landed: true } : { ...r, fresh: false },
-          ),
-          ...bumped(board, done.bump),
-        };
-      } else if (step < SCRIPT.length) {
-        const [who, gap, next] = SCRIPT[step++];
-        minute += gap;
-        const at = `${Math.floor(minute / 60)}:${String(minute % 60).padStart(2, "0")}`;
-        board = {
-          feed: [
-            { id: 100 + step, who, what: "Escribiendo", state: "atendiendo", at, next, fresh: true },
-            ...board.feed.slice(0, 3).map((r) => ({ ...r, landed: false })),
-          ],
-          ...bumped(board, [0]),
-        };
-      } else {
-        return clearInterval(timer);
-      }
-      setBoard(board);
+      const n = advance(run);
+      if (!n) return clearInterval(timer);
+      run = n;
+      setBoard(run.board);
     };
 
     // Sólo avanza mientras se ve; fuera de pantalla espera donde quedó.
@@ -115,7 +142,7 @@ export default function ControlCenter() {
       io.disconnect();
       clearInterval(timer);
     };
-  }, []);
+  }, [still]);
 
   return (
     <div ref={host} className="overflow-hidden rounded-[24px] border border-white/10 bg-[#101315] shadow-[0_60px_120px_-50px_rgba(0,0,0,.9)]">

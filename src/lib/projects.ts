@@ -643,7 +643,7 @@ const RAW_PORTFOLIO_PROJECTS: PortfolioProject[] = [
     status: "launched",
     stack: ["Next.js", "TypeScript", "Radix UI", "Framer Motion"],
     year: "2026",
-    liveUrl: "https://v0-katachi-roan-sigma.vercel.app",
+    liveUrl: "https://dream-drop-ruddy.vercel.app",
     githubPushedAt: "2026-06-09T00:00:00Z",
     githubUpdatedLabel: "9 jun 2026",
     images: [],

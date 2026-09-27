@@ -8,6 +8,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "typecheck": "tsc --noEmit",
     "test": "node --import tsx --test \"src/lib/**/*.test.ts\"",
     "check:billing": "tsx scripts/check-billing-catalog.ts && tsx scripts/check-project-payment-email.ts",
     "check:meta-provider": "tsx scripts/check-meta-provider.ts",

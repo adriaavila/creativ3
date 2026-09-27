@@ -4,7 +4,7 @@ import { authorizeOps } from "@/lib/ops-auth";
 import { ASKED_PREFIX, localDate, outcomePatch } from "@/lib/sales-queue";
 
 const schema = z.object({
-  outcome: z.enum(["talked", "asked", "paid", "not_now", "no_show"]),
+  outcome: z.enum(["talked", "asked", "paid", "not_now", "no_show", "installed"]),
   reason: z.string().max(200).optional(),
 });
 

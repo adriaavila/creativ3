@@ -153,11 +153,17 @@ test("los mensajes salen de lo que sabe el agente, sin huecos ni rayas largas", 
   const call = messageFor("call", captured({}, { booking: { at: "2026-09-29T19:00:00Z", status: "agendada", meetLink: "https://meet.google.com/uvz" } }));
   assert.equal(call, "Hola Nurbelys, te confirmo la llamada de hoy a las 15:00. El enlace es https://meet.google.com/uvz ¿Seguimos?");
   assert.match(messageFor("after_call", lead), /US\$499 una vez y el plan Esencial US\$49 al mes\. Se paga aquí: https:\/\/buy\.stripe\.com\//);
+  assert.match(messageFor("after_call", lead), /buy\.stripe\.com\/\S+\?client_reference_id=x /, "el link lleva el id del lead");
+  for (const stage of ["asked", "interested"] as const) {
+    assert.match(messageFor(stage, lead), /\?client_reference_id=x$/, `${stage}: link con el id del lead`);
+  }
+  assert.match(priced, /\?client_reference_id=x /);
+  assert.match(messageFor("onboard", lead), /^Hola Nurbelys, recibí tu pago, gracias\./);
   assert.equal(messageFor("replied", lead), "");
   const longName = messageFor("handoff", captured({}, { name: "Clínica Odontológica del Este C.A." }));
   assert.match(longName, /^Hola, soy Adrian/, "un nombre de negocio largo no va en el saludo");
 
-  const stages = ["handoff", "call", "after_call", "no_show", "followup", "asked", "interested", "first"] as const;
+  const stages = ["handoff", "call", "after_call", "onboard", "no_show", "followup", "asked", "interested", "first"] as const;
   for (const stage of stages) {
     const text = messageFor(stage, lead);
     assert.doesNotMatch(text, /[—–]/, `${stage}: sin rayas largas`);

@@ -5,6 +5,7 @@ import {
   recordStripePurchase,
   upsertStripeSubscription,
 } from "@/lib/stripe-purchases-db";
+import { markLeadPaid } from "@/lib/growth-db";
 import { projectPaymentEmail } from "@/lib/project-payment-email";
 
 export const runtime = "nodejs";
@@ -50,6 +51,26 @@ async function sendProjectPaymentEmail(session: Stripe.Checkout.Session) {
     { idempotencyKey: `project-payment/${session.id}` },
   );
   if (error) throw new Error("Project payment email was rejected.");
+}
+
+/** Aviso a Adrian de que alguien pagó. Sin `OPS_ALERT_EMAIL` no hace nada. */
+async function alertPaid(session: Stripe.Checkout.Session, businessName: string | null) {
+  const apiKey = process.env.RESEND_API_KEY;
+  const from = process.env.RESEND_FROM_EMAIL;
+  const to = process.env.OPS_ALERT_EMAIL;
+  if (!apiKey || !from || !to) return;
+  const total = session.amount_total != null ? `${(session.amount_total / 100).toFixed(2)} ${session.currency?.toUpperCase() ?? ""}` : "";
+  const who = businessName ?? session.customer_details?.name ?? "Alguien";
+  const { error } = await new Resend(apiKey).emails.send(
+    {
+      from,
+      to,
+      subject: `Pagó: ${who} · ${total}`.trim(),
+      text: businessName ? `${who} pagó ${total}. En /ops Hoy queda como «Instalar».` : `${who} pagó ${total}.`,
+    },
+    { idempotencyKey: `lead-paid/${session.id}` },
+  );
+  if (error) throw new Error("Paid alert was rejected.");
 }
 
 export async function POST(request: NextRequest) {
@@ -99,9 +120,23 @@ export async function POST(request: NextRequest) {
       });
 
       if (session.payment_status === "paid") {
-        // El recibo no bloquea el registro: si Resend lo rechaza, el pago ya quedó guardado.
+        // Sólo la puesta en marcha cierra un lead: el del link (client_reference_id) o el del
+        // mismo teléfono. Un error de base cae al 500 y Stripe reintenta; markLeadPaid es idempotente.
+        const lead =
+          itemOf(session) === "puesta-en-marcha" || session.client_reference_id
+            ? await markLeadPaid({
+                leadId: session.client_reference_id ?? null,
+                phone: session.customer_details?.phone ?? null,
+                amountUsd:
+                  session.currency === "usd" && session.amount_total != null ? Math.round(session.amount_total / 100) : null,
+              })
+            : null;
+        // El recibo y el aviso no bloquean el registro: si Resend los rechaza, el pago ya quedó guardado.
         await sendProjectPaymentEmail(session).catch((error) =>
           console.error("Payment receipt not sent", session.id, error instanceof Error ? error.message : error),
+        );
+        await alertPaid(session, lead?.businessName ?? null).catch((error) =>
+          console.error("Paid alert not sent", session.id, error instanceof Error ? error.message : error),
         );
       }
     }

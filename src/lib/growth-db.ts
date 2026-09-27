@@ -9,7 +9,7 @@ import type {
 } from "@/lib/growth-types";
 import { type AgentState, type CaptureStage, type CapturedRow, followupFor } from "@/lib/ops-capture";
 import { capturedLeadId } from "@/lib/ops-capture-server";
-import { addDays, waDigits } from "@/lib/sales-queue";
+import { addDays, localDate, ONBOARD_ACTION, waDigits } from "@/lib/sales-queue";
 export { DAILY_INVITE_CAP } from "@/lib/sales-queue";
 
 let sqlClient: NeonQueryFunction<false, false> | null = null;
@@ -502,6 +502,35 @@ export async function upsertCapturedLead(row: CapturedRow, now = new Date()) {
     ON CONFLICT (id) DO NOTHING
   `;
   return { id, created: true };
+}
+
+/**
+ * Stripe cobró: el lead del `client_reference_id` (o, si no vino, el del mismo
+ * teléfono) pasa a ganado con «Instalar» para hoy. Idempotente: un lead ya
+ * ganado no se toca, así que los reintentos de Stripe no mueven nada.
+ */
+export async function markLeadPaid(input: { leadId: string | null; phone: string | null; amountUsd: number | null }) {
+  const sql = getSql();
+  if (!sql) return null;
+  const leadId = input.leadId && /^[0-9a-f-]{36}$/i.test(input.leadId) ? input.leadId : "";
+  const digits = (input.phone ?? "").replace(/\D/g, "");
+  // Con menos de 10 dígitos no se busca por teléfono: una cola corta puede coincidir con otro lead.
+  const tail = digits.length >= 10 ? digits.slice(-10) : "";
+  if (!leadId && !tail) return null;
+  const rows = await sql`
+    UPDATE leads
+    SET status = 'won', next_action = ${ONBOARD_ACTION}, next_action_at = ${localDate(new Date())}::date,
+        last_contacted_at = now(), potential_value = coalesce(${input.amountUsd}, potential_value), updated_at = now()
+    WHERE id = (
+      SELECT id FROM leads
+      WHERE id::text = ${leadId}
+         OR (${tail} <> '' AND right(regexp_replace(coalesce(business_phone, ''), '\\D', '', 'g'), 10) = ${tail})
+      ORDER BY (id::text = ${leadId}) DESC, created_at DESC
+      LIMIT 1
+    ) AND status <> 'won'
+    RETURNING id, business_name
+  `;
+  return rows[0] ? { id: String(rows[0].id), businessName: String(rows[0].business_name) } : null;
 }
 
 /** Invitaciones y seguimientos de Growth anotados hoy (día de Caracas). */

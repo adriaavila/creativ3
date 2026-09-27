@@ -7,6 +7,7 @@ import {
 } from "@/lib/stripe-purchases-db";
 import { markLeadPaid } from "@/lib/growth-db";
 import { projectPaymentEmail } from "@/lib/project-payment-email";
+import { verifiedEvent, webhookSecrets } from "@/lib/stripe-webhook";
 
 export const runtime = "nodejs";
 
@@ -75,25 +76,16 @@ async function alertPaid(session: Stripe.Checkout.Session, businessName: string 
 
 export async function POST(request: NextRequest) {
   const secret = process.env.STRIPE_SECRET_KEY;
-  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+  const secrets = webhookSecrets(process.env.STRIPE_WEBHOOK_SECRET);
   const signature = request.headers.get("stripe-signature");
-  if (!secret || !webhookSecret || !signature) {
+  if (!secret || secrets.length === 0 || !signature) {
     return NextResponse.json({ error: "Stripe webhook is not configured." }, { status: 503 });
   }
 
   const stripe = new Stripe(secret, { apiVersion: "2026-04-22.dahlia" });
-  let event: Stripe.Event;
-  try {
-    event = stripe.webhooks.constructEvent(
-      await request.text(),
-      signature,
-      webhookSecret,
-    );
-  } catch (error) {
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Invalid signature." },
-      { status: 400 },
-    );
+  const event = verifiedEvent(stripe, await request.text(), signature, secrets);
+  if (!event) {
+    return NextResponse.json({ error: "Invalid signature." }, { status: 400 });
   }
 
   try {

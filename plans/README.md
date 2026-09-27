@@ -35,7 +35,7 @@ Status values: TODO | IN PROGRESS | DONE | BLOCKED (with one-line reason) | REJE
 ## Human steps these plans surface (Adrian)
 
 - 005: deactivate n8n workflow `Yf3mR8qK2vL7sN5p` on the VPS (commands in the plan).
-- 008: **checked 2026-09-27: it does not.** The setup Payment Link lives in allok LLC (`acct_1UDsQA…`), which has no webhook endpoint; allok.fun's endpoint is in `acct_1SDQGc…`. Create an endpoint in allok LLC live for `https://allok.fun/api/stripe/webhook` (`checkout.session.completed`), append its secret to `STRIPE_WEBHOOK_SECRET` in Vercel (#26 accepts comma-separated secrets), optionally set `OPS_ALERT_EMAIL`, redeploy. Approve the three drafts quoted in #26.
+- 008: **the setup Payment Link is not in the webhook's Stripe account (checked 2026-09-27).** It lives in allok LLC (`acct_1UDsQA…`), which has no webhook endpoint; allok.fun's endpoint is in `acct_1SDQGc…`. Create an endpoint in allok LLC live for `https://allok.fun/api/stripe/webhook` (`checkout.session.completed`), append its secret to `STRIPE_WEBHOOK_SECRET` in Vercel (#26 accepts comma-separated secrets), optionally set `OPS_ALERT_EMAIL`, redeploy. Approve the three drafts quoted in #26.
 - 007: approve the price follow-up copy.
 - 012: apply migration 022; confirm `OPS_SESSION_SECRET` is ≥ 32 chars.
 

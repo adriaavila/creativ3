@@ -14,6 +14,9 @@ import { PLANS, SETUP_SERVICE } from "./plans";
 
 export const SALES_TZ = "America/Caracas";
 
+/** Tope de mensajes en frío por día desde el número de allok (invitaciones y seguimientos de Growth): cuida al …3684 de un bloqueo. */
+export const DAILY_INVITE_CAP = 10;
+
 /**
  * «Pedí el pago» se guarda como prefijo de `next_action`, porque el `CHECK` de
  * `leads.status` no tiene un estado para eso.
@@ -67,10 +70,13 @@ export function weekStart(ymd: string): string {
 }
 
 export function stageOf(
-  lead: Pick<GrowthLead, "status" | "nextAction"> & Partial<Pick<GrowthLead, "agentState" | "lastContactedAt">>,
+  lead: Pick<GrowthLead, "status" | "nextAction"> & Partial<Pick<GrowthLead, "agentState" | "lastContactedAt" | "runId">>,
   now = new Date(),
 ): Stage | null {
   if (CLOSED.includes(lead.status)) return null;
+  // Lo que investigó el Growth Agent vive en Growth (invitación y seguimientos)
+  // hasta que el negocio le escribe al agente y pasa su filtro.
+  if (lead.runId && !lead.agentState) return null;
   if (lead.nextAction?.startsWith(ASKED_PREFIX)) return "asked";
   if (lead.nextAction === NO_SHOW_ACTION) return "no_show";
   if (lead.nextAction === "Pedir el pago") return "interested";

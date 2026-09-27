@@ -43,7 +43,7 @@ export default function PaymentResult({
         <div className="mt-9 flex flex-col justify-center gap-3 sm:flex-row">
           {projectPayment ? (
             <a
-              href={whatsappUrl("Hola Allok, ya realicé el pago de mi servicio a medida.")}
+              href={whatsappUrl("Hola, vengo de allok.fun. Ya realicé el pago de mi servicio a medida.")}
               target="_blank"
               rel="noopener noreferrer"
               className="rounded-full bg-[var(--lima)] px-7 py-3 text-sm font-semibold text-[var(--lima-ink)] transition-colors duration-200"

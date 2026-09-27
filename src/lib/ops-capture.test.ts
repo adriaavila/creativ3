@@ -218,3 +218,11 @@ test("si el lead contesta, la secuencia de seguimientos vuelve a empezar", () =>
   assert.deepEqual([patch.stage, patch.step], ["followup", 1]);
   assert.equal(patch.nextAction, "Seguimiento 2");
 });
+
+test("un lead investigado por Growth no entra a Hoy hasta que vuelve por el agente", () => {
+  const researched = captured({ runId: "run-1", agentState: null, status: "contacted", nextAction: "Seguimiento 1 de la invitación" });
+  assert.equal(stageOf(researched, NOW), null);
+  assert.deepEqual(salesQueue([researched], "2026-09-26"), []);
+  const back = captured({ runId: "run-1" }, { source: "invitacion", stage: "followup" });
+  assert.equal(stageOf(back, NOW), "followup");
+});

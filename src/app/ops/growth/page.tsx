@@ -1,5 +1,6 @@
 import GrowthOpsClient from "@/components/ops/GrowthOpsClient";
 import {
+  countInvitesToday,
   getGrowthLeads,
   getGrowthRuns,
   getOutreachDraftById,
@@ -42,12 +43,13 @@ export default async function GrowthOpsPage({
   const params = searchParams ? await searchParams : {};
   const rawDraftId = typeof params.draft === "string" ? params.draft : "";
   const requestedDraftId = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(rawDraftId) ? rawDraftId : null;
-  const [runs, leads, listedDrafts, marketing, requestedDraft] = await Promise.all([
+  const [runs, leads, listedDrafts, marketing, requestedDraft, invitesToday] = await Promise.all([
     getGrowthRuns(),
     getGrowthLeads(),
     getOutreachDrafts(),
     getMarketingSnapshot(),
     requestedDraftId ? getOutreachDraftById(requestedDraftId).catch(() => null) : null,
+    countInvitesToday().catch(() => 0),
   ]);
   const drafts = requestedDraft && !listedDrafts.some(({ id }) => id === requestedDraft.id)
     ? [requestedDraft, ...listedDrafts]
@@ -58,5 +60,5 @@ export default async function GrowthOpsPage({
     : params.tab === "runs" || params.tab === "leads" || params.tab === "marketing"
       ? params.tab
       : "hoy";
-  return <GrowthOpsClient key={`${initialTab}:${initialDraftId ?? "none"}`} initialRuns={runs} initialLeads={leads} initialDrafts={drafts} initialTab={initialTab} initialDraftId={initialDraftId} marketing={marketing} />;
+  return <GrowthOpsClient key={`${initialTab}:${initialDraftId ?? "none"}`} initialRuns={runs} initialLeads={leads} initialDrafts={drafts} initialTab={initialTab} initialDraftId={initialDraftId} initialInvitesToday={invitesToday} marketing={marketing} />;
 }

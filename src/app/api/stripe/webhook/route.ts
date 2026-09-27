@@ -22,7 +22,13 @@ const PROJECT_LABELS: Record<string, string> = {
   desk: "Desk",
   "desk-cohort": "Desk Cohort",
   "desk-scale": "Desk Scale",
+  "puesta-en-marcha": "Puesta en marcha",
 };
+
+// ponytail: el único Payment Link que se usa para vender es el de la puesta en marcha (plans.ts);
+// si aparece otro, ponerle `metadata.item` en Stripe en vez de adivinar aquí.
+const itemOf = (session: Stripe.Checkout.Session) =>
+  session.metadata?.item ?? session.metadata?.plan ?? (session.payment_link ? "puesta-en-marcha" : "");
 
 async function sendProjectPaymentEmail(session: Stripe.Checkout.Session) {
   const apiKey = process.env.RESEND_API_KEY;
@@ -30,14 +36,14 @@ async function sendProjectPaymentEmail(session: Stripe.Checkout.Session) {
   const to = session.customer_details?.email;
   if (!apiKey || !from || !to) return;
 
-  const item = session.metadata?.item ?? session.metadata?.plan ?? "";
+  const item = itemOf(session);
   const client = session.metadata?.client ?? "";
   const email = projectPaymentEmail({
     name: session.customer_details?.name ?? null,
     amount: session.amount_total,
     currency: session.currency,
     project: PROJECT_LABELS[client] ?? PROJECT_LABELS[item] ?? null,
-    kind: item === "project-continuation" ? "continuation" : "deposit",
+    kind: item === "project-continuation" ? "continuation" : item === "puesta-en-marcha" ? "setup" : "deposit",
   });
   const { error } = await new Resend(apiKey).emails.send(
     { from, to, subject: email.subject, html: email.html, text: email.text },
@@ -78,7 +84,7 @@ export async function POST(request: NextRequest) {
       // por session.id, así que un reintento de Stripe no manda dos correos.
       await recordStripePurchase({
         stripeSessionId: session.id,
-        plan: session.metadata?.item ?? session.metadata?.plan ?? "unknown",
+        plan: itemOf(session) || "unknown",
         channel: session.metadata?.channel === "cloud_api" ? "cloud_api" : "waha",
         client: session.metadata?.client || null,
         amountTotal: session.amount_total,

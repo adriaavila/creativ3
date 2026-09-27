@@ -1,6 +1,7 @@
 import { timingSafeEqual } from "node:crypto";
 import { NextResponse } from "next/server";
 import { issueOpsSessionToken, OPS_COOKIE_NAME } from "@/lib/ops-auth";
+import { ipHash, loginBlocked, recentFailures, recordFailure } from "@/lib/ops-login-throttle";
 
 export const runtime = "nodejs";
 
@@ -24,7 +25,16 @@ export async function POST(request: Request) {
     return Response.json({ error: "Ops access is not configured." }, { status: 503 });
   }
 
+  const hash = ipHash(request, sessionSecret);
+  if (loginBlocked(await recentFailures(hash))) {
+    const waitUrl = new URL("/ops-login", request.url);
+    waitUrl.searchParams.set("error", "wait");
+    waitUrl.searchParams.set("next", nextPath);
+    return NextResponse.redirect(waitUrl, 303);
+  }
+
   if (!matches(password, configuredPassword)) {
+    await recordFailure(hash);
     const retryUrl = new URL("/ops-login", request.url);
     retryUrl.searchParams.set("error", "1");
     retryUrl.searchParams.set("next", nextPath);

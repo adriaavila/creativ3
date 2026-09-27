@@ -2,9 +2,10 @@
 
 import Link from "next/link";
 import { useMemo, useState, type FormEvent } from "react";
-import { Check, LoaderCircle, MessageCircle, Plus } from "lucide-react";
+import { Check, ExternalLink, LoaderCircle, MessageCircle, Plus } from "lucide-react";
 import { DISPLAY_TIGHT, TapButton } from "@/components/ops/apple";
 import type { GrowthLead } from "@/lib/growth-types";
+import { type AgentState, callLabel, handedOff } from "@/lib/ops-capture";
 import {
   localDate,
   messageFor,
@@ -26,13 +27,41 @@ const STAGE_UI: Record<Stage, { label: string; className: string }> = {
   asked: { label: "Pago pedido", className: "bg-[var(--st-atencion-soft)] text-[var(--st-atencion-ink)]" },
   interested: { label: "Interesado", className: "bg-[var(--st-atendiendo-soft)] text-[var(--st-atendiendo-ink)]" },
   first: { label: "Primer contacto", className: "bg-[var(--st-pausado-soft)] text-[var(--st-pausado-ink)]" },
+  handoff: { label: "Te pasó el agente", className: "bg-[var(--st-atencion-soft)] text-[var(--st-atencion-ink)]" },
+  replied: { label: "Te respondió", className: "bg-[var(--st-atencion-soft)] text-[var(--st-atencion-ink)]" },
+  call: { label: "Llamada hoy", className: "bg-[var(--st-atendiendo-soft)] text-[var(--st-atendiendo-ink)]" },
+  after_call: { label: "Después de la llamada", className: "bg-[var(--st-atendiendo-soft)] text-[var(--st-atendiendo-ink)]" },
+  no_show: { label: "No vino", className: "bg-[var(--st-atencion-soft)] text-[var(--st-atencion-ink)]" },
+  followup: { label: "Seguimiento", className: "bg-[var(--st-atendiendo-soft)] text-[var(--st-atendiendo-ink)]" },
+  close: { label: "Sin respuesta", className: "bg-[var(--st-pausado-soft)] text-[var(--st-pausado-ink)]" },
 };
+
+const SOURCE_UI: Record<AgentState["source"], string> = {
+  anuncio: "Anuncio",
+  web: "Web",
+  invitacion: "Invitación",
+  whatsapp: "WhatsApp",
+};
+
+/** «Anuncio: Responde, califica y agenda · bufete · calificado · llamada jue 15:00». */
+function agentLine(state: AgentState): string {
+  const source = state.source === "anuncio" && state.adHeadline ? `Anuncio: ${state.adHeadline}` : SOURCE_UI[state.source];
+  const facts = [
+    state.rubro?.trim(),
+    handedOff(state) ? "pidió hablar contigo" : null,
+    state.calificado ? "calificado" : null,
+    state.askedPrice ? "preguntó el precio" : null,
+    state.booking && state.booking.status === "agendada" ? `llamada ${callLabel(state.booking.at)}` : null,
+  ].filter(Boolean);
+  return [source, ...facts].join(" · ");
+}
 
 const OUTCOMES: { id: Outcome; label: string; done: string }[] = [
   { id: "talked", label: "Hablamos", done: "Hablaron" },
   { id: "asked", label: "Pedí el pago", done: "Pago pedido" },
   { id: "paid", label: "Pagó", done: "Pagó" },
   { id: "not_now", label: "No por ahora", done: "No por ahora" },
+  { id: "no_show", label: "No vino", done: "No vino, se reprograma" },
 ];
 
 const SOURCES = ["aliado", "referido", "reunión", "growth", "otro"] as const;
@@ -79,6 +108,11 @@ export default function HoyClient({ initialLeads, today }: { initialLeads: Growt
   const stats = weekStats(leads, today);
   const upcoming = upcomingCount(leads, today);
   const pending = queue.length - Object.keys(done).length;
+  const fromAgent = useMemo(() => {
+    const from = weekStart(today);
+    const captured = leads.filter((lead) => lead.agentState && localDate(lead.createdAt) >= from);
+    return { leads: captured.length, calls: captured.filter((lead) => lead.agentState?.booking).length };
+  }, [leads, today]);
 
   const patchLead = (id: string, patch: Partial<GrowthLead>) =>
     setLeads((items) => items.map((item) => (item.id === id ? { ...item, ...patch } : item)));
@@ -141,6 +175,8 @@ export default function HoyClient({ initialLeads, today }: { initialLeads: Growt
           ))}
           <p className="col-span-2 border-t sm:col-span-3 border-white/10 px-4 py-2.5 text-xs text-white/60 sm:px-5">
             Semana desde el {dayLabel(weekStart(today))}. Cuenta personas con las que hablaste.
+            {fromAgent.leads > 0 &&
+              ` El agente te pasó ${fromAgent.leads} ${fromAgent.leads === 1 ? "lead" : "leads"}${fromAgent.calls ? `, ${fromAgent.calls} con llamada` : ""}.`}
           </p>
         </section>
 
@@ -150,7 +186,7 @@ export default function HoyClient({ initialLeads, today }: { initialLeads: Growt
           <ol className="mt-6 grid gap-3" aria-label="Para hablar hoy">
             {queue.map((lead) => (
               <LeadCard
-                key={lead.id}
+                key={`${lead.id}:${lead.nextAction}`}
                 lead={lead}
                 today={today}
                 done={done[lead.id]}
@@ -209,8 +245,13 @@ function LeadCard({
   const [askReason, setAskReason] = useState(false);
   const [reason, setReason] = useState("");
   const stage = stageOf(lead) ?? "first";
-  const link = waLink(lead.businessPhone, messageFor(stage, lead));
+  const state = lead.agentState ?? null;
+  // El mensaje propuesto se puede ajustar antes de abrir WhatsApp; el link sale del texto editado.
+  const [text, setText] = useState(() => messageFor(stage, lead));
+  const link = waLink(lead.businessPhone, text);
+  const chatUrl = state?.crmUrl ?? null;
   const overdue = lead.nextActionAt && lead.nextActionAt.slice(0, 10) < today;
+  const outcomes = OUTCOMES.filter((o) => o.id !== "no_show" || stage === "after_call" || stage === "call");
 
   const log = async (outcome: Outcome) => {
     setSaving(outcome);
@@ -255,14 +296,43 @@ function LeadCard({
         <h2 className="min-w-0 break-words text-[17px] font-semibold tracking-[-0.01em]">{lead.businessName}</h2>
         <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${STAGE_UI[stage].className}`}>{STAGE_UI[stage].label}</span>
       </div>
+      {state && <p className="mt-1 break-words text-sm font-medium leading-6 text-[var(--ink)]">{agentLine(state)}</p>}
       <p className="mt-1 text-sm leading-6 text-[var(--ink-60)]">
         {lastTouch(lead, today)}
         {lead.nextAction ? ` · ${lead.nextAction}` : ""}
         {overdue ? ` · tocaba el ${dayLabel(lead.nextActionAt!.slice(0, 10))}` : ""}
       </p>
 
-      <div className="mt-4">
-        {link ? (
+      {stage === "replied" && (
+        <p className="mt-4 text-sm leading-6">Te respondió. Lee el chat y contéstale desde WhatsApp.</p>
+      )}
+      {stage === "close" && (
+        <p className="mt-4 text-sm leading-6">Dos seguimientos sin respuesta. Si no hay novedad, ciérralo con «No por ahora».</p>
+      )}
+      {stage !== "replied" && stage !== "close" && lead.businessPhone && (
+        <label className="mt-4 grid gap-1.5 text-xs font-semibold text-[var(--ink-60)]">
+          Mensaje propuesto
+          <textarea
+            className={`${FIELD} min-h-28 py-2.5 font-normal leading-6 [field-sizing:content]`}
+            rows={5}
+            value={text}
+            onChange={(event) => setText(event.target.value)}
+            maxLength={1000}
+          />
+        </label>
+      )}
+
+      <div className="mt-3 flex flex-col gap-2 sm:flex-row">
+        {stage === "replied" && chatUrl ? (
+          <a
+            href={chatUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="on-ink inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg bg-[var(--ink-fill)] px-4 text-sm font-semibold text-white sm:w-auto"
+          >
+            <ExternalLink className="size-4" aria-hidden="true" /> Abrir el chat
+          </a>
+        ) : link && text.trim() ? (
           <a
             href={link}
             target="_blank"
@@ -271,21 +341,30 @@ function LeadCard({
           >
             <MessageCircle className="size-4" aria-hidden="true" /> Escribir por WhatsApp
           </a>
-        ) : (
+        ) : !lead.businessPhone ? (
           <PhoneForm leadId={lead.id} onSaved={onPhone} />
+        ) : null}
+        {chatUrl && stage !== "replied" && (
+          <a href={chatUrl} target="_blank" rel="noopener noreferrer" className={QUIET_BUTTON}>
+            <ExternalLink className="size-4" aria-hidden="true" /> Ver chat
+          </a>
         )}
       </div>
 
       <fieldset className="mt-4">
         <legend className="mb-2 text-xs font-semibold text-[var(--ink-60)]">Qué pasó</legend>
-        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-          {OUTCOMES.map((outcome) => (
+        <div className={`grid grid-cols-2 gap-2 ${outcomes.length > 4 ? "sm:grid-cols-5" : "sm:grid-cols-4"}`}>
+          {outcomes.map((outcome) => (
             <button
               key={outcome.id}
               type="button"
               disabled={saving !== null}
               aria-pressed={outcome.id === "not_now" ? askReason : undefined}
-              onClick={() => (outcome.id === "not_now" ? setAskReason((open) => !open) : void log(outcome.id))}
+              onClick={() => {
+                if (outcome.id !== "not_now") return void log(outcome.id);
+                if (stage === "close" && !reason) setReason("sin respuesta");
+                setAskReason((open) => !open);
+              }}
               className={QUIET_BUTTON}
             >
               {saving === outcome.id && <LoaderCircle className="size-4 animate-spin" aria-hidden="true" />}

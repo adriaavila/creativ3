@@ -7,6 +7,9 @@ import type {
   OutreachDraft,
   PublicAgentEvent,
 } from "@/lib/growth-types";
+import { type AgentState, type CaptureStage, type CapturedRow, followupFor } from "@/lib/ops-capture";
+import { capturedLeadId } from "@/lib/ops-capture-server";
+import { waDigits } from "@/lib/sales-queue";
 
 let sqlClient: NeonQueryFunction<false, false> | null = null;
 
@@ -84,7 +87,7 @@ export async function getGrowthLeads(limit = 50): Promise<GrowthLead[]> {
       business_phone, contact_source_url,
       evidence, source_urls, problem_detected, offer_angle, lead_score, status,
       next_action, next_action_at, close_probability, potential_value, last_contacted_at,
-      created_at
+      created_at, to_jsonb(leads) -> 'agent_state' AS agent_state
     FROM leads
     ORDER BY created_at DESC
     LIMIT ${limit}
@@ -111,6 +114,7 @@ export async function getGrowthLeads(limit = 50): Promise<GrowthLead[]> {
     potentialValue: row.potential_value === null ? null : Number(row.potential_value),
     lastContactedAt: row.last_contacted_at ? new Date(String(row.last_contacted_at)).toISOString() : null,
     createdAt: new Date(String(row.created_at)).toISOString(),
+    agentState: (row.agent_state as AgentState | null) ?? null,
   }));
 }
 
@@ -122,7 +126,7 @@ export async function getGrowthLeadById(id: string): Promise<GrowthLead | null> 
       business_phone, contact_source_url,
       evidence, source_urls, problem_detected, offer_angle, lead_score, status,
       next_action, next_action_at, close_probability, potential_value, last_contacted_at,
-      created_at
+      created_at, to_jsonb(leads) -> 'agent_state' AS agent_state
     FROM leads
     WHERE id = ${id}
     LIMIT 1
@@ -150,6 +154,7 @@ export async function getGrowthLeadById(id: string): Promise<GrowthLead | null> 
     potentialValue: row.potential_value === null ? null : Number(row.potential_value),
     lastContactedAt: row.last_contacted_at ? new Date(String(row.last_contacted_at)).toISOString() : null,
     createdAt: new Date(String(row.created_at)).toISOString(),
+    agentState: (row.agent_state as AgentState | null) ?? null,
   };
 }
 
@@ -409,4 +414,89 @@ export async function completeGrowthOutreachAttempt(
         sent_at = CASE WHEN ${input.status} = 'sent' THEN now() ELSE sent_at END
     WHERE id = ${id} AND status = 'pending'
   `;
+}
+
+const SOURCE_LABEL: Record<CapturedRow["source"], string> = {
+  anuncio: "anuncio",
+  web: "web",
+  invitacion: "invitación",
+  whatsapp: "WhatsApp",
+};
+
+/**
+ * Un lead que llegó solo desde Vocero, ya filtrado. Si el teléfono ya existe
+ * (un negocio invitado desde Growth o cargado a mano) se actualiza esa misma
+ * fila; si no, la fila nace con un id que sale de la conversación, así que
+ * repetir el lote no duplica nada. Lo que decide la cola sale de
+ * `followupFor`, y lo que Adrian marcó con «Qué pasó» sigue mandando.
+ * Devuelve el id y si la fila es nueva.
+ */
+export async function upsertCapturedLead(row: CapturedRow, now = new Date()) {
+  const sql = getSql();
+  if (!sql) throw new Error("DATABASE_URL is not configured");
+  const id = capturedLeadId(row.conversationId);
+  const digits = waDigits(row.phone) ?? row.phone.replace(/\D/g, "");
+  const tail = digits.slice(-10);
+
+  const found = await sql`
+    SELECT id, status, next_action, next_action_at, last_contacted_at, to_jsonb(leads) -> 'agent_state' AS agent_state
+    FROM leads
+    WHERE id = ${id} OR right(regexp_replace(coalesce(business_phone, ''), '\\D', '', 'g'), 10) = ${tail}
+    ORDER BY (id = ${id}) DESC, created_at DESC
+    LIMIT 1
+  `;
+  const existing = found[0];
+  const prevState = (existing?.agent_state as AgentState | null) ?? null;
+  const patch = followupFor(
+    row,
+    existing
+      ? {
+          status: String(existing.status),
+          nextAction: existing.next_action ? String(existing.next_action) : null,
+          nextActionAt: existing.next_action_at ? new Date(String(existing.next_action_at)).toISOString().slice(0, 10) : null,
+          lastContactedAt: existing.last_contacted_at ? new Date(String(existing.last_contacted_at)).toISOString() : null,
+          step: prevState?.step ?? 0,
+        }
+      : null,
+    now,
+  );
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- el teléfono vive en `business_phone`, no en el estado
+  const { phone: _phone, ...fromVocero } = row;
+  const stage: CaptureStage =
+    patch.stage === "asked" || patch.stage === "closed" ? (prevState?.stage ?? "followup") : patch.stage;
+  // Un número que ya estaba en /ops (invitado desde Growth o cargado a mano) volvió por el agente.
+  const invited = existing && String(existing.id) !== id && row.source !== "anuncio";
+  const agentState: AgentState = {
+    ...fromVocero,
+    source: invited ? "invitacion" : row.source,
+    stage,
+    step: patch.step,
+    computedAt: now.toISOString(),
+  };
+  const state = JSON.stringify(agentState);
+  const lastContactedAt = patch.lastContactedAt;
+
+  if (existing) {
+    await sql`
+      UPDATE leads
+      SET status = ${patch.status}, next_action = ${patch.nextAction}, next_action_at = ${patch.nextActionAt}::date,
+          last_contacted_at = ${lastContactedAt}, agent_state = ${state}::jsonb,
+          business_phone = coalesce(business_phone, ${digits}), contact_source_url = coalesce(contact_source_url, ${row.crmUrl}),
+          updated_at = now()
+      WHERE id = ${String(existing.id)}
+    `;
+    return { id: String(existing.id), created: false };
+  }
+
+  const source = row.source === "anuncio" && row.adHeadline ? `anuncio "${row.adHeadline}"` : SOURCE_LABEL[row.source];
+  await sql`
+    INSERT INTO leads (id, business_name, vertical, evidence, problem_detected, offer_angle, lead_score, status,
+      business_phone, contact_source_url, next_action, next_action_at, last_contacted_at, agent_state)
+    VALUES (${id}, ${row.name?.trim() || `Sin nombre ·${digits.slice(-4)}`}, ${row.rubro?.trim() || "WhatsApp"},
+      ${`Fuente: ${source}`}, ${row.dolor?.trim() || row.firstMessage?.trim() || ""}, 'vocero', ${row.calificado ? 8 : 6},
+      ${patch.status}, ${digits}, ${row.crmUrl}, ${patch.nextAction}, ${patch.nextActionAt}::date, ${lastContactedAt},
+      ${state}::jsonb)
+    ON CONFLICT (id) DO NOTHING
+  `;
+  return { id, created: true };
 }

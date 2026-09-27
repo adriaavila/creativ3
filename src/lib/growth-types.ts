@@ -1,3 +1,5 @@
+import type { AgentState } from "./ops-capture";
+
 export type GrowthRunStatus = "queued" | "running" | "completed" | "failed";
 export type LeadStatus =
   | "new"
@@ -52,6 +54,8 @@ export type GrowthLead = {
   potentialValue: number | null;
   lastContactedAt: string | null;
   createdAt: string;
+  /** Lo que el agente de allok sabe del lead, si llegó solo desde Vocero (`021`). */
+  agentState?: AgentState | null;
 };
 
 export type OutreachDraft = {

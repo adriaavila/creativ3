@@ -11,6 +11,7 @@ import {
   ExternalLink,
   FileText,
   LoaderCircle,
+  MessageCircle,
   Play,
   RefreshCw,
   TrendingDown,
@@ -20,6 +21,10 @@ import {
 import type { DraftKind, GrowthLead, GrowthRun, OutreachDraft } from "@/lib/growth-types";
 import type { MarketingSnapshot, PostizMetric, PostizPost } from "@/lib/postiz";
 import { DISPLAY_TIGHT, TapButton } from "@/components/ops/apple";
+import { DAILY_INVITE_CAP, waLink } from "@/lib/sales-queue";
+
+/** Borradores que se mandan desde el teléfono de Adrian con «Invitar por WhatsApp». */
+const INVITE_KINDS = new Set<DraftKind>(["dm", "followup_1", "followup_2"]);
 
 type Tab = "hoy" | "marketing" | "runs" | "leads" | "drafts";
 
@@ -48,6 +53,7 @@ export default function GrowthOpsClient({
   initialDrafts,
   initialTab,
   initialDraftId,
+  initialInvitesToday = 0,
   marketing,
 }: {
   initialRuns: GrowthRun[];
@@ -55,8 +61,10 @@ export default function GrowthOpsClient({
   initialDrafts: OutreachDraft[];
   initialTab: Tab;
   initialDraftId: string | null;
+  initialInvitesToday?: number;
   marketing: MarketingSnapshot;
 }) {
+  const [invitesToday, setInvitesToday] = useState(initialInvitesToday);
   const [tab, setTab] = useState<Tab>(initialTab);
   const [drafts, setDrafts] = useState(initialDrafts);
   const [leads, setLeads] = useState(initialLeads);
@@ -96,6 +104,8 @@ export default function GrowthOpsClient({
     const enviarPropuesta: GrowthLead[] = [];
     const today = new Date().toISOString().slice(0, 10);
     for (const lead of leads) {
+      // Growth trabaja lo que investigó su agente; el resto (Vocero, cargados a mano) vive en /ops Hoy.
+      if (!lead.runId) continue;
       if (lead.status === "replied") enviarPropuesta.push(lead);
       else if (lead.status === "approved" && !lead.lastContactedAt) contactarHoy.push(lead);
       // Scheduled follow-up that's due (set by the agent's schedule_followup tool).
@@ -113,6 +123,27 @@ export default function GrowthOpsClient({
     if (!response.ok) setNotice(payload.error ?? "No se pudo iniciar el run.");
     else setNotice("Run enviado al Growth Agent. Actualiza en unos segundos para ver progreso.");
     setRunning(false);
+  };
+
+  // El link ya abrió WhatsApp (lo manda Adrian); aquí sólo se anota y se agenda el seguimiento.
+  const invite = async (draft: OutreachDraft) => {
+    const response = await fetch(`/api/ops/growth/drafts/${draft.id}/invited`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ content: draft.content }),
+    }).catch(() => null);
+    const payload = response ? await response.json().catch(() => ({})) : {};
+    if (!response?.ok) {
+      setNotice(payload.error ?? "Se abrió WhatsApp, pero no se anotó. Toca otra vez para anotarlo.");
+      return;
+    }
+    if (draft.status !== "approved") setInvitesToday((n) => n + 1);
+    setDrafts((items) => items.map((item) => (item.id === draft.id ? { ...item, status: "approved" } : item)));
+    setNotice(
+      payload.nextActionAt
+        ? `Anotado. El seguimiento queda para el ${new Date(`${payload.nextActionAt}T12:00:00Z`).toLocaleDateString("es-VE", { weekday: "long", day: "numeric", timeZone: "UTC" })}.`
+        : "Anotado. Era el último seguimiento.",
+    );
   };
 
   const saveDraft = async (draft: OutreachDraft, status?: OutreachDraft["status"]) => {
@@ -397,7 +428,26 @@ export default function GrowthOpsClient({
                             className="mt-4 w-full resize-y rounded-lg border border-[var(--rule)] bg-white p-4 text-sm leading-6 text-[var(--ink)] outline-none focus:border-[var(--assist-line)] focus:ring-2 focus:ring-[var(--assist-ink)]/20"
                           />
                           <div className="mt-4 flex flex-wrap gap-2">
-                            <TapButton type="button" onClick={() => void saveDraft(draft, "approved")} className="inline-flex items-center gap-2 rounded-lg bg-[var(--assist)] px-4 py-2 text-xs font-semibold text-[var(--on-assist)]"><Check className="size-3.5" /> Aprobar</TapButton>
+                            {(() => {
+                              const link = draft.channel === "whatsapp" && INVITE_KINDS.has(draft.kind) ? waLink(lead?.businessPhone, draft.content) : null;
+                              if (!link) {
+                                return <TapButton type="button" onClick={() => void saveDraft(draft, "approved")} className="inline-flex items-center gap-2 rounded-lg bg-[var(--assist)] px-4 py-2 text-xs font-semibold text-[var(--on-assist)]"><Check className="size-3.5" /> Aprobar</TapButton>;
+                              }
+                              const capped = draft.status !== "approved" && invitesToday >= DAILY_INVITE_CAP;
+                              return (
+                                <a
+                                  href={capped ? undefined : link}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  aria-disabled={capped || undefined}
+                                  onClick={(event) => (capped ? event.preventDefault() : void invite(draft))}
+                                  className={`on-ink inline-flex min-h-11 items-center gap-2 rounded-lg bg-[var(--ink-fill)] px-4 text-xs font-semibold text-white ${capped ? "cursor-not-allowed opacity-50" : ""}`}
+                                >
+                                  <MessageCircle className="size-3.5" aria-hidden="true" />
+                                  {draft.status === "approved" ? "Abrir otra vez" : draft.kind === "dm" ? "Invitar por WhatsApp" : "Enviar seguimiento"}
+                                </a>
+                              );
+                            })()}
                             <TapButton type="button" onClick={() => void saveDraft(draft, "rejected")} className="inline-flex items-center gap-2 rounded-lg border border-[var(--rule)] bg-white px-4 py-2 text-xs font-semibold text-[var(--ink-60)]"><X className="size-3.5" /> Rechazar</TapButton>
                             <TapButton type="button" onClick={() => navigator.clipboard.writeText(draft.content)} className="inline-flex items-center gap-2 rounded-lg border border-[var(--rule)] bg-white px-4 py-2 text-xs font-semibold text-[var(--ink-60)]"><Copy className="size-3.5" /> Copiar</TapButton>
                           </div>
@@ -407,7 +457,10 @@ export default function GrowthOpsClient({
                   </div>
                 );
               })}
-              <p className="text-[10px] text-[var(--ink-60)]">Aprobar cambia el estado. No envía el mensaje.</p>
+              <p className="text-xs text-[var(--ink-60)]">
+                «Invitar por WhatsApp» abre el mensaje en tu teléfono y lo mandas tú; queda anotado con su seguimiento.
+                Hoy van {invitesToday} de {DAILY_INVITE_CAP}. «Aprobar» sólo cambia el estado.
+              </p>
             </div>
           )}
         </section>

@@ -9,7 +9,8 @@ import type {
 } from "@/lib/growth-types";
 import { type AgentState, type CaptureStage, type CapturedRow, followupFor } from "@/lib/ops-capture";
 import { capturedLeadId } from "@/lib/ops-capture-server";
-import { waDigits } from "@/lib/sales-queue";
+import { addDays, waDigits } from "@/lib/sales-queue";
+export { DAILY_INVITE_CAP } from "@/lib/sales-queue";
 
 let sqlClient: NeonQueryFunction<false, false> | null = null;
 
@@ -87,7 +88,7 @@ export async function getGrowthLeads(limit = 50): Promise<GrowthLead[]> {
       business_phone, contact_source_url,
       evidence, source_urls, problem_detected, offer_angle, lead_score, status,
       next_action, next_action_at, close_probability, potential_value, last_contacted_at,
-      created_at, to_jsonb(leads) -> 'agent_state' AS agent_state
+      created_at, run_id, to_jsonb(leads) -> 'agent_state' AS agent_state
     FROM leads
     ORDER BY created_at DESC
     LIMIT ${limit}
@@ -114,6 +115,7 @@ export async function getGrowthLeads(limit = 50): Promise<GrowthLead[]> {
     potentialValue: row.potential_value === null ? null : Number(row.potential_value),
     lastContactedAt: row.last_contacted_at ? new Date(String(row.last_contacted_at)).toISOString() : null,
     createdAt: new Date(String(row.created_at)).toISOString(),
+    runId: row.run_id ? String(row.run_id) : null,
     agentState: (row.agent_state as AgentState | null) ?? null,
   }));
 }
@@ -126,7 +128,7 @@ export async function getGrowthLeadById(id: string): Promise<GrowthLead | null> 
       business_phone, contact_source_url,
       evidence, source_urls, problem_detected, offer_angle, lead_score, status,
       next_action, next_action_at, close_probability, potential_value, last_contacted_at,
-      created_at, to_jsonb(leads) -> 'agent_state' AS agent_state
+      created_at, run_id, to_jsonb(leads) -> 'agent_state' AS agent_state
     FROM leads
     WHERE id = ${id}
     LIMIT 1
@@ -154,6 +156,7 @@ export async function getGrowthLeadById(id: string): Promise<GrowthLead | null> 
     potentialValue: row.potential_value === null ? null : Number(row.potential_value),
     lastContactedAt: row.last_contacted_at ? new Date(String(row.last_contacted_at)).toISOString() : null,
     createdAt: new Date(String(row.created_at)).toISOString(),
+    runId: row.run_id ? String(row.run_id) : null,
     agentState: (row.agent_state as AgentState | null) ?? null,
   };
 }
@@ -499,4 +502,61 @@ export async function upsertCapturedLead(row: CapturedRow, now = new Date()) {
     ON CONFLICT (id) DO NOTHING
   `;
   return { id, created: true };
+}
+
+/** Invitaciones y seguimientos de Growth anotados hoy (día de Caracas). */
+export async function countInvitesToday(): Promise<number> {
+  const sql = getSql();
+  if (!sql) return 0;
+  const [row] = await sql`
+    SELECT count(*)::int AS total FROM growth_outreach_messages
+    WHERE (created_at AT TIME ZONE 'America/Caracas')::date = (now() AT TIME ZONE 'America/Caracas')::date
+  `;
+  return Number(row?.total ?? 0);
+}
+
+const INVITE_NEXT: Record<"dm" | "followup_1" | "followup_2", { action: string; days: number | null }> = {
+  dm: { action: "Seguimiento 1 de la invitación", days: 2 },
+  followup_1: { action: "Seguimiento 2 de la invitación", days: 3 },
+  followup_2: { action: "Invitación sin respuesta", days: null },
+};
+
+/**
+ * Adrian abrió WhatsApp con el borrador para mandarlo desde su teléfono: queda
+ * anotado (auditoría en `growth_outreach_messages`, con el id del borrador como
+ * llave, así que un doble toque no cuenta dos veces), el lead pasa a contactado
+ * y el siguiente seguimiento queda con fecha. Todo en una transacción.
+ */
+export async function logInvite(input: {
+  draftId: string;
+  leadId: string;
+  kind: "dm" | "followup_1" | "followup_2";
+  recipient: string;
+  content: string;
+  sentBy: string;
+  today: string;
+}) {
+  const sql = getSql();
+  if (!sql) throw new Error("DATABASE_URL is not configured");
+  const next = INVITE_NEXT[input.kind];
+  const nextActionAt = next.days === null ? null : addDays(input.today, next.days);
+  await sql.transaction([
+    sql`
+      INSERT INTO growth_outreach_messages (lead_id, channel, recipient, content, status, sent_by, sent_at, client_action_id)
+      VALUES (${input.leadId}, 'whatsapp', ${input.recipient}, ${input.content}, 'sent', ${input.sentBy}, now(), ${input.draftId})
+      ON CONFLICT (client_action_id) WHERE client_action_id IS NOT NULL DO NOTHING
+    `,
+    sql`
+      UPDATE outreach_drafts SET content = ${input.content}, status = 'approved', reviewed_by = ${input.sentBy},
+        reviewed_at = now(), updated_at = now()
+      WHERE id = ${input.draftId}
+    `,
+    sql`
+      UPDATE leads
+      SET status = CASE WHEN status IN ('new', 'researched', 'drafted', 'approved') THEN 'contacted' ELSE status END,
+          last_contacted_at = now(), next_action = ${next.action}, next_action_at = ${nextActionAt}::date, updated_at = now()
+      WHERE id = ${input.leadId}
+    `,
+  ]);
+  return { nextAction: next.action, nextActionAt };
 }

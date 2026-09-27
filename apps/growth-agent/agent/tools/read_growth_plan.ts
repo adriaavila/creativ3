@@ -1,36 +1,34 @@
 import { defineTool } from "eve/tools";
 import { z } from "zod";
+import { DAILY_LEADS, INVITE_URL, MARKETS, MIN_SCORE, OFFER, VERTICALS } from "../../lib/offer.js";
 
 export default defineTool({
-  description: "Read the approved allok markets, offers, pricing boundaries, and outreach rules.",
+  description: "Read what allok sells today, where, to whom, the lead filter and the outreach rules.",
   inputSchema: z.object({}),
   async execute() {
     return {
-      market: "Caracas and Venezuela",
-      verticals: ["ecommerce", "clinics", "real_estate", "academies"],
-      campaignRule: "Run one intent + one vertical as a 14-day experiment. Do not mix offers inside a campaign.",
-      outcomes: ["increase_revenue", "reduce_costs"],
-      offers: [
-        { service: "Landing page", range: "from USD 199", goal: "increase_revenue" },
-        { service: "Web design", range: "from USD 699", goal: "increase_revenue" },
-        { service: "Ecommerce", range: "custom scope", goal: "increase_revenue" },
-        { service: "Automation", range: "from USD 499", goal: "reduce_costs" },
-        { service: "Operations dashboard", range: "from USD 499", goal: "reduce_costs" },
-        { service: "Custom app", range: "from USD 699", goal: "reduce_costs" },
-      ],
-      firstExperiment: {
-        durationDays: 14,
-        intent: "reduce_costs",
-        vertical: "ecommerce",
-        offer: "WhatsApp and operations automation",
-        northStar: "qualified conversations per week",
+      offer: OFFER,
+      markets: MARKETS,
+      verticals: VERTICALS,
+      idealCustomer:
+        "Negocio que vende o agenda por WhatsApp y no alcanza a contestar a todos o contesta tarde " +
+        "(abogados, estética y spa, clínicas, inmobiliarias).",
+      filter: {
+        minScore: MIN_SCORE,
+        perDay: DAILY_LEADS,
+        required: ["WhatsApp público verificado con contactSourceUrl", "señal concreta de que vende por WhatsApp", "≥1 URL pública de evidencia"],
       },
+      firstMessage: {
+        goal: "Invitarlo a probar el agente como si fuera un cliente. No vender en el primer mensaje.",
+        mustInclude: INVITE_URL,
+      },
+      followUps: "followup_1 a los 2 días sin respuesta, followup_2 a los 5. Después, nada.",
       rules: [
         "Evidence must include at least one public URL.",
         "Never claim unverified percentages, revenue, or savings.",
-        "Create drafts only. Never send outreach.",
-        "Social content may be queued to Postiz with a review window; WhatsApp Status or Channels require an approved content item.",
-        "Store no personal data.",
+        "Create drafts only. Never send outreach: Adrian sends each one from his phone.",
+        "No long dashes (— or –) and no emojis in drafts.",
+        "Store no personal data beyond the business's public WhatsApp.",
       ],
     };
   },

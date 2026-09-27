@@ -1,21 +1,23 @@
 import { defineEval } from "eve/evals";
 
-// Voz del copywriter (ver subagents/copywriter/instructions.md): no vende
-// "página web", menciona una señal concreta observada, no inventa métricas,
-// tono humano y corto. Juez LLM sobre el DM de ejemplo.
+// Voz del copywriter (ver subagents/copywriter/instructions.md): invita a probar
+// el agente con el link, menciona una señal concreta, no inventa métricas, sin
+// precio ni rayas largas. Juez LLM sobre el primer mensaje de ejemplo.
 export default defineEval({
-  description: "First-DM voice: sells outcomes not a website, cites a concrete signal, invents no metrics.",
+  description: "First WhatsApp message invites them to try the agent with the link, cites a signal, invents nothing.",
   async test(t) {
     await t.send(
-      "Escribe un DM de ejemplo (primer contacto) para una clínica dental en Caracas cuyo " +
-        "Instagram no tiene link de agendamiento y responde mensajes con demora. Solo el texto del DM.",
+      "Escribe el primer mensaje de WhatsApp (kind dm) para un estudio de abogados en Santiago de Chile " +
+        "cuyo Instagram pide escribir al WhatsApp para agendar una consulta. Usa el link de invitación del plan. " +
+        "Solo el texto del mensaje, no llames create_draft.",
     );
     t.completed();
+    t.messageIncludes(/wa\.me\/584220023684\?text=/);
     await t.judge.autoevals.closedQA(
-      "Is the message all of: (1) does NOT sell a 'website/página web' as the product but a commercial " +
-        "outcome (more clients, less friction, better process); (2) references a concrete observed signal " +
-        "about the business; (3) invents NO specific metrics, sales, savings or client numbers; " +
-        "(4) short and human, not a corporate template?",
+      "Is the message all of: (1) an invitation to try the agent as if they were a client, not a sales pitch " +
+        "with prices; (2) references a concrete observed signal about the business; (3) invents NO metrics, " +
+        "sales, savings or client numbers; (4) short and human, informal 'tú' Spanish; (5) contains no long " +
+        "dashes (— or –) and no emojis?",
     ).gate();
   },
 });

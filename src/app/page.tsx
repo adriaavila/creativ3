@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { whatsappUrl } from "@/lib/contact";
+import { TRY_AGENT_MESSAGE, whatsappUrl } from "@/lib/contact";
 import { BRAND, STATES } from "@/lib/brand";
 import { CRM_APP_URL, FROM_PRICE, PLANS, SETUP_SERVICE, planCta, priceLabel } from "@/lib/plans";
 import SiteHeader from "@/components/allok/SiteHeader";
@@ -25,7 +25,7 @@ export const metadata: Metadata = {
   twitter: { card: "summary_large_image", title: TITLE, description: DESCRIPTION },
 };
 
-const DEMO = "Hola, vengo de allok.fun. Quiero probar el agente en mi WhatsApp.";
+const DEMO = TRY_AGENT_MESSAGE;
 const START = "Hola, vengo de allok.fun. Quiero un agente de WhatsApp para mi negocio.";
 
 const NAV = [

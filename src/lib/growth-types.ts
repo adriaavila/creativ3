@@ -54,6 +54,8 @@ export type GrowthLead = {
   potentialValue: number | null;
   lastContactedAt: string | null;
   createdAt: string;
+  /** Run del Growth Agent que lo investigó; null si llegó por otro lado. */
+  runId?: string | null;
   /** Lo que el agente de allok sabe del lead, si llegó solo desde Vocero (`021`). */
   agentState?: AgentState | null;
 };

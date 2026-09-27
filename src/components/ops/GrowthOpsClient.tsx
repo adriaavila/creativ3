@@ -21,7 +21,7 @@ import {
 import type { DraftKind, GrowthLead, GrowthRun, OutreachDraft } from "@/lib/growth-types";
 import type { MarketingSnapshot, PostizMetric, PostizPost } from "@/lib/postiz";
 import { DISPLAY_TIGHT, TapButton } from "@/components/ops/apple";
-import { DAILY_INVITE_CAP, waLink } from "@/lib/sales-queue";
+import { DAILY_INVITE_CAP, localDate, waLink } from "@/lib/sales-queue";
 
 /** Borradores que se mandan desde el teléfono de Adrian con «Invitar por WhatsApp». */
 const INVITE_KINDS = new Set<DraftKind>(["dm", "followup_1", "followup_2"]);
@@ -102,7 +102,7 @@ export default function GrowthOpsClient({
     const contactarHoy: GrowthLead[] = [];
     const followUp: GrowthLead[] = [];
     const enviarPropuesta: GrowthLead[] = [];
-    const today = new Date().toISOString().slice(0, 10);
+    const today = localDate(new Date());
     for (const lead of leads) {
       // Growth trabaja lo que investigó su agente; el resto (Vocero, cargados a mano) vive en /ops Hoy.
       if (!lead.runId) continue;
@@ -137,12 +137,14 @@ export default function GrowthOpsClient({
       setNotice(payload.error ?? "Se abrió WhatsApp, pero no se anotó. Toca otra vez para anotarlo.");
       return;
     }
-    if (draft.status !== "approved") setInvitesToday((n) => n + 1);
+    if (!payload.repeat) setInvitesToday((n) => n + 1);
     setDrafts((items) => items.map((item) => (item.id === draft.id ? { ...item, status: "approved" } : item)));
     setNotice(
-      payload.nextActionAt
-        ? `Anotado. El seguimiento queda para el ${new Date(`${payload.nextActionAt}T12:00:00Z`).toLocaleDateString("es-VE", { weekday: "long", day: "numeric", timeZone: "UTC" })}.`
-        : "Anotado. Era el último seguimiento.",
+      payload.repeat
+        ? "Ya estaba anotado. No cambió el seguimiento."
+        : payload.nextActionAt
+          ? `Anotado. El seguimiento queda para el ${new Date(`${payload.nextActionAt}T12:00:00Z`).toLocaleDateString("es-VE", { weekday: "long", day: "numeric", timeZone: "UTC" })}.`
+          : "Anotado. Era el último seguimiento.",
     );
   };
 

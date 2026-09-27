@@ -515,6 +515,14 @@ export async function countInvitesToday(): Promise<number> {
   return Number(row?.total ?? 0);
 }
 
+/** ¿Ya se anotó este borrador? Un «Abrir otra vez» no cuenta contra el tope. */
+export async function inviteAlreadyLogged(draftId: string): Promise<boolean> {
+  const sql = getSql();
+  if (!sql) return false;
+  const rows = await sql`SELECT 1 FROM growth_outreach_messages WHERE client_action_id = ${draftId} LIMIT 1`;
+  return rows.length > 0;
+}
+
 const INVITE_NEXT: Record<"dm" | "followup_1" | "followup_2", { action: string; days: number | null }> = {
   dm: { action: "Seguimiento 1 de la invitación", days: 2 },
   followup_1: { action: "Seguimiento 2 de la invitación", days: 3 },
@@ -540,23 +548,29 @@ export async function logInvite(input: {
   if (!sql) throw new Error("DATABASE_URL is not configured");
   const next = INVITE_NEXT[input.kind];
   const nextActionAt = next.days === null ? null : addDays(input.today, next.days);
-  await sql.transaction([
-    sql`
-      INSERT INTO growth_outreach_messages (lead_id, channel, recipient, content, status, sent_by, sent_at, client_action_id)
-      VALUES (${input.leadId}, 'whatsapp', ${input.recipient}, ${input.content}, 'sent', ${input.sentBy}, now(), ${input.draftId})
-      ON CONFLICT (client_action_id) WHERE client_action_id IS NOT NULL DO NOTHING
-    `,
+  const rows = await sql.transaction([
     sql`
       UPDATE outreach_drafts SET content = ${input.content}, status = 'approved', reviewed_by = ${input.sentBy},
         reviewed_at = now(), updated_at = now()
       WHERE id = ${input.draftId}
     `,
     sql`
+      WITH logged AS (
+        INSERT INTO growth_outreach_messages (lead_id, channel, recipient, content, status, sent_by, sent_at, client_action_id)
+        VALUES (${input.leadId}, 'whatsapp', ${input.recipient}, ${input.content}, 'sent', ${input.sentBy}, now(), ${input.draftId})
+        ON CONFLICT (client_action_id) WHERE client_action_id IS NOT NULL DO NOTHING
+        RETURNING lead_id
+      )
       UPDATE leads
       SET status = CASE WHEN status IN ('new', 'researched', 'drafted', 'approved') THEN 'contacted' ELSE status END,
           last_contacted_at = now(), next_action = ${next.action}, next_action_at = ${nextActionAt}::date, updated_at = now()
       WHERE id = ${input.leadId}
+        AND EXISTS (SELECT 1 FROM logged)
+        -- Si ya entró por el agente, su próximo paso lo decide Hoy, no la invitación.
+        AND ((to_jsonb(leads) -> 'agent_state') IS NULL OR (to_jsonb(leads) -> 'agent_state') = 'null'::jsonb)
+      RETURNING id
     `,
   ]);
-  return { nextAction: next.action, nextActionAt };
+  const logged = rows[1].length > 0;
+  return { logged, nextAction: next.action, nextActionAt };
 }

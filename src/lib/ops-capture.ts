@@ -54,6 +54,9 @@ export type AgentState = Omit<CapturedRow, "phone"> & {
 /** Pases a Adrian que son del lead. `manual_reply`, `hostilidad`, `error` y `ventana` no. */
 const LEAD_HANDOFFS = new Set(["cliente", "modelo"]);
 
+/** Un lead cerrado que volvió a escribir. */
+const REOPENED_ACTION = "Volvió a escribir";
+
 const time = (iso: string | null | undefined) => (iso ? Date.parse(iso) : 0);
 
 export function handedOff(row: Pick<CapturedRow, "handoffAt" | "handoffReason">): boolean {
@@ -107,8 +110,13 @@ export function followupFor(row: CapturedRow, prev: Previous | null, now = new D
   const mark = (label: string) => (asked ? `${ASKED_PREFIX} · ${label.toLowerCase()}` : label);
   const keep = { lastContactedAt, step };
 
-  if (prev && (prev.status === "won" || prev.status === "lost")) {
+  /** Escribió después de que Adrian lo cerró con «No por ahora»: vuelve a Hoy. */
+  const wroteBack = prev?.status === "lost" && time(row.lastInboundAt) > time(prevContact);
+  if (prev && (prev.status === "won" || (prev.status === "lost" && !wroteBack))) {
     return { stage: "closed", status: prev.status, nextAction: prev.nextAction, nextActionAt: prev.nextActionAt, ...keep };
+  }
+  if (wroteBack) {
+    return { stage: "replied", status: asked ? "meeting_booked" : "replied", nextAction: mark(REOPENED_ACTION), nextActionAt: today, lastContactedAt, step: 0 };
   }
   // Respondió después de que Adrian le escribió (el bot queda en pausa tras una respuesta manual).
   if (lastContactedAt && time(row.lastInboundAt) > time(lastContactedAt) && time(row.lastAiAt) < time(row.lastInboundAt)) {
@@ -116,6 +124,10 @@ export function followupFor(row: CapturedRow, prev: Previous | null, now = new D
   }
   if (handedOff(row) && time(row.handoffAt) > time(lastContactedAt)) {
     return { stage: "handoff", status: asked ? "meeting_booked" : "replied", nextAction: mark("Te pasó el agente"), nextActionAt: today, ...keep };
+  }
+  // Volvió a escribir: se queda para hoy hasta que Adrian le conteste o marque «Qué pasó».
+  if (prev && !touched && prev.nextAction === REOPENED_ACTION) {
+    return { stage: "replied", status: "replied", nextAction: REOPENED_ACTION, nextActionAt: prev.nextActionAt, ...keep };
   }
   // Próximos pasos que escribió Adrian con «Qué pasó» («Hablamos», «No vino»): la captura no los pisa.
   // Dentro de la función y no como constante del módulo: sales-queue y este archivo se importan entre sí.

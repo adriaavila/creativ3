@@ -87,10 +87,28 @@ test("si contesta después de que Adrian le escribió, vuelve hoy como «Te resp
 });
 
 test("lo que decide Adrian manda: un lead cerrado o con pago pedido no se reescribe", () => {
-  const lost = followupFor(row({ calificado: true }), { status: "lost", nextAction: "No por ahora: caro", nextActionAt: null, lastContactedAt: "2026-09-25T12:00:00Z", step: 1 }, NOW);
+  const lost = followupFor(row({ calificado: true }), { status: "lost", nextAction: "No por ahora: caro", nextActionAt: null, lastContactedAt: "2026-09-26T16:00:00Z", step: 1 }, NOW);
   assert.deepEqual([lost.status, lost.nextAction], ["lost", "No por ahora: caro"]);
+  const won = followupFor(row({ calificado: true }), { status: "won", nextAction: null, nextActionAt: null, lastContactedAt: "2026-09-25T12:00:00Z", step: 1 }, NOW);
+  assert.equal(won.status, "won");
   const asked = followupFor(row({ calificado: true }), { status: "meeting_booked", nextAction: "Pago pedido: confirmar", nextActionAt: "2026-09-28", lastContactedAt: "2026-09-26T12:00:00Z", step: 0 }, NOW);
   assert.deepEqual([asked.stage, asked.nextActionAt], ["asked", "2026-09-28"]);
+});
+
+test("un lead cerrado que vuelve a escribir vuelve a Hoy y se queda hasta que Adrian actúe", () => {
+  const closed = { status: "lost", nextAction: "No por ahora: caro", nextActionAt: null, lastContactedAt: "2026-09-20T12:00:00Z", step: 2 };
+  const back = followupFor(row({ calificado: true, lastInboundAt: "2026-09-26T18:00:00Z", lastAiAt: "2026-09-26T18:01:00Z" }), closed, NOW);
+  assert.deepEqual([back.stage, back.status, back.nextAction, back.nextActionAt, back.step], ["replied", "replied", "Volvió a escribir", "2026-09-26", 0]);
+
+  const next = followupFor(
+    row({ calificado: true, lastInboundAt: "2026-09-26T18:00:00Z", lastAiAt: "2026-09-26T18:01:00Z" }),
+    { status: back.status, nextAction: back.nextAction, nextActionAt: back.nextActionAt, lastContactedAt: back.lastContactedAt, step: back.step },
+    NOW,
+  );
+  assert.deepEqual([next.nextAction, next.nextActionAt], ["Volvió a escribir", "2026-09-26"], "la siguiente corrida no lo manda a mañana");
+
+  const askedBack = followupFor(row({ lastInboundAt: "2026-09-26T18:00:00Z" }), { ...closed, nextAction: "Pago pedido · No por ahora: caro" }, NOW);
+  assert.equal(askedBack.nextAction, "Pago pedido · volvió a escribir");
 });
 
 test("la tarjeta: un «Qué pasó» posterior manda, y una llamada vencida se ve como después de la llamada", () => {

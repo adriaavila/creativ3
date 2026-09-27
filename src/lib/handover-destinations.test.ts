@@ -1,10 +1,12 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
+  isBuiltInDestination,
   matchesDestinationSubscription,
   normalizeWebhookUrl,
   parseDestinationInput,
   parseExternalRef,
+  retryDestinationAllowed,
 } from "@/lib/handover/destinations";
 
 test("confirma el callback aunque Meta omita el app id", () => {
@@ -65,4 +67,19 @@ test("la referencia externa es opaca pero acotada", () => {
   assert.equal(parseExternalRef("org:42"), "org:42");
   assert.equal(parseExternalRef("con espacios"), null);
   assert.equal(parseExternalRef("x".repeat(81)), null);
+});
+
+test("el secreto de sincronización no toca los destinos propios", () => {
+  assert.equal(isBuiltInDestination("vocero"), true);
+  assert.equal(isBuiltInDestination("allok"), true);
+  assert.equal(isBuiltInDestination("rei_crm"), true);
+  assert.equal(isBuiltInDestination("vocero-acme"), false);
+});
+
+test("un reintento sólo repite la entrega que ya empezó", () => {
+  assert.equal(retryDestinationAllowed("vocero", undefined), true, "sin destino es vocero");
+  assert.equal(retryDestinationAllowed("vocero-acme", "vocero-acme"), true);
+  assert.equal(retryDestinationAllowed("vocero", "vocero-otro"), false, "no se cambia de destino");
+  assert.equal(retryDestinationAllowed(null, "vocero"), false, "sin entrega anotada no hay reintento");
+  assert.equal(retryDestinationAllowed("rei_crm", undefined), false);
 });

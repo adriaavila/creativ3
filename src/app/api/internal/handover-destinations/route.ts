@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { bearerMatches } from "@/lib/handover/bearer";
-import { parseDestinationInput, upsertDestination } from "@/lib/handover/destinations";
+import { isBuiltInDestination, parseDestinationInput, upsertDestination } from "@/lib/handover/destinations";
 
 export const dynamic = "force-dynamic";
 
@@ -15,6 +15,10 @@ export async function POST(request: NextRequest) {
 
   const parsed = parseDestinationInput(await request.json().catch(() => null));
   if ("error" in parsed) return NextResponse.json({ error: parsed.error }, { status: 400 });
+  // Los destinos propios (allok, vocero, rei_crm) sólo se editan con sesión de /ops.
+  if (isBuiltInDestination(parsed.input.slug)) {
+    return NextResponse.json({ error: "Ese destino se edita desde /ops." }, { status: 409 });
+  }
 
   try {
     return NextResponse.json({ destination: await upsertDestination(parsed.input) });

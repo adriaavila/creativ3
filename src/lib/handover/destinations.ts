@@ -47,6 +47,21 @@ export type DestinationInput = {
  */
 export const DESTINATION_ALLOK = "allok";
 
+/** Destinos que arma el entorno. Sólo se editan desde /ops, nunca con el secreto de sincronización. */
+export const BUILT_IN_DESTINATIONS = [DESTINATION_ALLOK, "vocero", "rei_crm"] as const;
+
+export function isBuiltInDestination(slug: string): boolean {
+  return (BUILT_IN_DESTINATIONS as readonly string[]).includes(slug);
+}
+
+/**
+ * Un reintento sólo repite la entrega que ya empezó: mismo destino que quedó
+ * anotado en la conexión. Sin entrega anotada no hay nada que reintentar.
+ */
+export function retryDestinationAllowed(recorded: string | null | undefined, requested: string | undefined): boolean {
+  return Boolean(recorded) && recorded === (requested ?? "vocero");
+}
+
 const SLUG = /^[a-z0-9][a-z0-9._-]{1,39}$/;
 /** Meta lo manda como query param en el GET de verificación: nada de espacios. */
 const VERIFY_TOKEN = /^[\w.~-]{8,200}$/;
@@ -133,7 +148,7 @@ export async function listDestinations(): Promise<DestinationView[]> {
   // Los destinos de entorno primero: volver a la bandeja de allok tiene que
   // estar a un clic antes de mover un número, no configurarse después de que
   // algo salga mal.
-  const builtIn = [DESTINATION_ALLOK, "vocero", "rei_crm"]
+  const builtIn = BUILT_IN_DESTINATIONS
     .filter((slug) => !stored.some((destination) => destination.slug === slug))
     .map(builtInDestination)
     .filter((destination): destination is DestinationSecrets => destination !== null)

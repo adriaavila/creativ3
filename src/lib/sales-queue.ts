@@ -9,6 +9,7 @@
  * ya es mañana, y la cola adelantaría un día los seguimientos.
  */
 import type { GrowthLead, LeadStatus } from "./growth-types";
+import { type CaptureStage, callHour, displayStage } from "./ops-capture";
 import { PLANS, SETUP_SERVICE } from "./plans";
 
 export const SALES_TZ = "America/Caracas";
@@ -21,11 +22,27 @@ export const SALES_TZ = "America/Caracas";
  */
 export const ASKED_PREFIX = "Pago pedido";
 
-export type Stage = "asked" | "interested" | "first";
-export type Outcome = "talked" | "asked" | "paid" | "not_now";
+/** `asked`/`interested`/`first` son de leads cargados a mano; el resto llega desde Vocero ya filtrado. */
+export type Stage = "asked" | "interested" | "first" | CaptureStage;
+export type Outcome = "talked" | "asked" | "paid" | "not_now" | "no_show";
+
+/** «No vino» a la llamada: se reprograma al día siguiente con el mensaje de reprogramar. */
+export const NO_SHOW_ACTION = "Reprogramar la llamada";
 export type Offer = "vocero" | "rei" | "agencia";
 
-const STAGE_RANK: Record<Stage, number> = { asked: 0, interested: 1, first: 2 };
+/** Primero lo que se enfría en horas (un pase del agente, alguien que contestó), después lo que espera días. */
+const STAGE_RANK: Record<Stage, number> = {
+  handoff: 0,
+  replied: 1,
+  after_call: 2,
+  no_show: 2,
+  call: 3,
+  asked: 4,
+  followup: 5,
+  interested: 6,
+  close: 7,
+  first: 8,
+};
 const CLOSED: LeadStatus[] = ["won", "lost"];
 
 /** `YYYY-MM-DD` del instante en la zona dada. */
@@ -49,9 +66,15 @@ export function weekStart(ymd: string): string {
   return addDays(ymd, -((day + 6) % 7));
 }
 
-export function stageOf(lead: Pick<GrowthLead, "status" | "nextAction">): Stage | null {
+export function stageOf(
+  lead: Pick<GrowthLead, "status" | "nextAction"> & Partial<Pick<GrowthLead, "agentState" | "lastContactedAt">>,
+  now = new Date(),
+): Stage | null {
   if (CLOSED.includes(lead.status)) return null;
   if (lead.nextAction?.startsWith(ASKED_PREFIX)) return "asked";
+  if (lead.nextAction === NO_SHOW_ACTION) return "no_show";
+  const captured = displayStage(lead.agentState, lead.lastContactedAt ?? null, now);
+  if (captured) return captured;
   if (lead.status === "replied" || lead.status === "meeting_booked") return "interested";
   return "first";
 }
@@ -107,6 +130,8 @@ export function outcomePatch(
       return asked;
     case "paid":
       return { status: "won", nextAction: null, nextActionAt: null };
+    case "no_show":
+      return { status: "meeting_booked", nextAction: NO_SHOW_ACTION, nextActionAt: addDays(today, 1) };
     case "not_now": {
       const why = `No por ahora: ${reason?.trim() || "sin motivo"}`;
       return { status: "lost", nextAction: wasAsked ? `${ASKED_PREFIX} · ${why}` : why, nextActionAt: null };
@@ -128,32 +153,80 @@ export function waDigits(phone: string | null | undefined): string | null {
 
 const esencial = PLANS.find((plan) => plan.key === "esencial")!;
 
+/** El saludo con nombre sólo si parece de persona: un nombre largo suele ser el del negocio. */
+function hello(name: string | null | undefined): string {
+  const clean = name?.trim();
+  return clean && clean.length <= 24 && !/^sin nombre/i.test(clean) ? `Hola ${clean}` : "Hola";
+}
+
+const payAsk = () =>
+  `Como lo hablamos: la ${SETUP_SERVICE.name.toLowerCase()} son US$${SETUP_SERVICE.price} una vez y el plan ${esencial.name} US$${esencial.price} al mes. Se paga aquí: ${SETUP_SERVICE.paymentUrl} Cuando pagues, agendamos la instalación.`;
+
 /**
- * El borrador que abre WhatsApp. Adrian lo lee y lo manda desde su teléfono.
- * Sólo Vocero lleva precio: es el único con hoja de precios (`plans.ts`). REI
- * y agencia piden el pago sin cifra hasta tener la suya.
+ * El borrador que abre WhatsApp. Adrian lo lee, lo ajusta si quiere y lo manda
+ * desde su teléfono. Los leads que llegan desde Vocero se escriben con lo que el
+ * agente ya sabe (rubro, dolor, la llamada); si falta un dato, la frase lo
+ * omite en vez de dejar un hueco. Vacío = no hay nada que proponer (leer el
+ * chat o cerrar el lead).
+ * Sólo Vocero lleva precio: es el único con hoja de precios (`plans.ts`).
  */
-export function messageFor(stage: Stage, lead: Pick<GrowthLead, "businessName" | "offerAngle">): string {
-  if (stage === "asked") {
-    return "¿Pudiste ver lo del pago? Si lo confirmas hoy, esta semana lo dejamos andando.";
-  }
-  const offer = lead.offerAngle;
-  if (stage === "first") {
-    if (offer === "rei") {
-      return "Hola, soy Adrian de allok. Armamos un CRM de WhatsApp para inmobiliarias: cada interesado queda anotado con su inmueble y su próximo paso. ¿Te lo muestro en 15 minutos?";
+export function messageFor(
+  stage: Stage,
+  lead: Pick<GrowthLead, "businessName" | "offerAngle"> & Partial<Pick<GrowthLead, "agentState">>,
+): string {
+  const state = lead.agentState;
+  const hi = hello(state ? state.name : null);
+  switch (stage) {
+    case "handoff":
+      return `${hi}, soy Adrian de allok. El agente me pasó tu mensaje y sigo yo. ¿Lo vemos en una llamada de 15 minutos hoy, o prefieres por aquí?`;
+    case "replied":
+    case "close":
+      return "";
+    case "call": {
+      const booking = state?.booking;
+      const when = booking ? ` a las ${callHour(booking.at)}` : "";
+      const link = booking?.meetLink ? ` El enlace es ${booking.meetLink}` : "";
+      return `${hi}, te confirmo la llamada de hoy${when}.${link} ¿Seguimos?`;
     }
-    if (offer === "agencia") {
-      return "Hola, soy Adrian de allok. Hacemos webs y automatizaciones para negocios que venden por WhatsApp. ¿Te cuento en 15 minutos qué haría con el tuyo?";
+    case "after_call":
+      return payAsk();
+    case "no_show":
+      return `${hi}, hoy no pudimos conectarnos. ¿La movemos a otro día?`;
+    case "followup": {
+      if ((state?.step ?? 0) >= 1) {
+        const opener = state?.name && hello(state.name) !== "Hola" ? `${state.name.trim()}, ¿lo` : "¿Lo";
+        return `${opener} vemos esta semana? Si ahora no es buen momento, dime y te escribo más adelante.`;
+      }
+      const about = state?.rubro
+        ? `Vi lo que le contaste a nuestro agente sobre tu ${state.rubro.trim()}${state.dolor ? `: ${state.dolor.trim().replace(/[.\s]+$/, "")}` : ""}.`
+        : "Quedó pendiente mostrarte cómo quedaría el agente en tu negocio.";
+      return `${hi}, soy Adrian de allok. ${about} ¿Te muestro en 15 minutos cómo quedaría?`;
     }
-    return `Hola, soy Adrian de allok. Armamos un agente que contesta el WhatsApp de ${lead.businessName} a cualquier hora y deja cada cliente anotado. ¿Te muestro en 15 minutos cómo quedaría con tu negocio?`;
+    case "asked":
+      return lead.offerAngle === "vocero"
+        ? `¿Pudiste ver lo del pago? Si lo confirmas hoy, esta semana lo dejamos andando. Te dejo el link: ${SETUP_SERVICE.paymentUrl}`
+        : "¿Pudiste ver lo del pago? Si lo confirmas hoy, esta semana lo dejamos andando.";
+    case "first": {
+      const offer = lead.offerAngle;
+      if (offer === "rei") {
+        return "Hola, soy Adrian de allok. Armamos un CRM de WhatsApp para inmobiliarias: cada interesado queda anotado con su inmueble y su próximo paso. ¿Te lo muestro en 15 minutos?";
+      }
+      if (offer === "agencia") {
+        return "Hola, soy Adrian de allok. Hacemos webs y automatizaciones para negocios que venden por WhatsApp. ¿Te cuento en 15 minutos qué haría con el tuyo?";
+      }
+      return `Hola, soy Adrian de allok. Armamos un agente que contesta el WhatsApp de ${lead.businessName} a cualquier hora y deja cada cliente anotado. ¿Te muestro en 15 minutos cómo quedaría con tu negocio?`;
+    }
+    case "interested": {
+      const offer = lead.offerAngle;
+      if (offer === "agencia") {
+        return "¿Arrancamos esta semana? Te paso la propuesta con el precio cerrado y el link de pago.";
+      }
+      if (offer === "rei") {
+        return "¿Arrancamos esta semana? Te paso el plan y el link de pago.";
+      }
+      return `Para dejarlo andando: el plan ${esencial.name} es US$${esencial.price} al mes y la ${SETUP_SERVICE.name.toLowerCase()} US$${SETUP_SERVICE.price}, que la hacemos nosotros. ¿Arrancamos esta semana? Aquí puedes pagar la ${SETUP_SERVICE.name.toLowerCase()}: ${SETUP_SERVICE.paymentUrl}`;
+    }
   }
-  if (offer === "agencia") {
-    return "¿Arrancamos esta semana? Te paso la propuesta con el precio cerrado y el link de pago.";
-  }
-  if (offer === "rei") {
-    return "¿Arrancamos esta semana? Te paso el plan y el link de pago.";
-  }
-  return `Para dejarlo andando: el plan ${esencial.name} es US$${esencial.price} al mes y la ${SETUP_SERVICE.name.toLowerCase()} US$${SETUP_SERVICE.price}, que la hacemos nosotros. ¿Arrancamos esta semana? Te paso el link de pago.`;
 }
 
 export function waLink(phone: string | null | undefined, text: string): string | null {

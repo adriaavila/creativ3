@@ -84,13 +84,12 @@ Workflow ID:
 EA6f6q8SZkewllyJ
 ```
 
-The durable retry worker is active as `allok - Drain Meta Webhook Queue`:
-
-```txt
-Yf3mR8qK2vL7sN5p
-```
-
-It calls the protected drain endpoint every minute with `N8N_WEBHOOK_SECRET`. The daily Vercel cron is only a Hobby-plan fallback.
+The retry worker `allok - Drain Meta Webhook Queue` (`Yf3mR8qK2vL7sN5p`) is
+**parked** (inactive) since 2026-09-27. Each call woke Neon for an empty queue
+(48 wakes a day) and the webhook route already processes events inline with
+`after()`. To drain by hand: `curl -H "x-servicioscreativos-secret: …" https://allok.fun/api/meta/whatsapp/webhook/drain`.
+Do not re-activate it on a schedule without first making the endpoint skip
+Neon when nothing is pending.
 
 Expected webhook path:
 
@@ -100,7 +99,7 @@ https://n8n.frontia.app/webhook/meta/embedded-signup
 
 The app no longer forwards signup authorization codes or business tokens to n8n. Neon is the only connection source of truth. The legacy signup workflow remains only for lifecycle/diagnostic compatibility and must not store credentials.
 
-The protected drain also claims `auto_reply_jobs`. The worker only responds when the conversation is in IA mode, matches a safe predefined rule, and the inbound message is still the latest event. Outside the Cloud API 24-hour window it sends only when `WHATSAPP_AUTO_REPLY_TEMPLATE_NAME` points to an approved template; otherwise it records a skipped job for review.
+The drain only claims the Meta webhook queue: WAHA and `auto_reply_jobs` were retired with the CRM (see the comment in `src/app/api/meta/whatsapp/webhook/drain/route.ts`).
 
 The obsolete direct Meta deauthorization and data-deletion workflows are
 unpublished. Meta calls the Allok callbacks above; Allok updates Neon first and
@@ -116,7 +115,7 @@ https://n8n.frontia.app/webhook/meta/whatsapp-events
 
 Do not republish that workflow without tenant lookup, idempotency, and explicit human-supervision gates.
 
-Import `n8n/meta-embedded-signup.workflow.json` or `n8n/meta-webhook-drain.workflow.json` only if the corresponding workflow needs to be recreated. A regular single-main n8n deployment cannot honor `--activeState=fromJson`; import, publish/activate, and restart n8n instead.
+Import `n8n/meta-embedded-signup.workflow.json` only if the corresponding workflow needs to be recreated. A regular single-main n8n deployment cannot honor `--activeState=fromJson`; import, publish/activate, and restart n8n instead.
 
 ## Connected numbers in Ops
 

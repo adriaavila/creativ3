@@ -3,18 +3,20 @@ import { z } from "zod";
 import type { CapturedRow } from "./ops-capture";
 
 const iso = z.iso.datetime({ offset: true });
+/** Recorta en vez de rechazar: SQL cuenta caracteres y zod unidades UTF-16 (un emoji vale 2). */
+const text = (n: number) => z.string().transform((s) => Array.from(s).slice(0, n).join(""));
 
 /** La frontera de confianza: lo que manda la rutina del VPS, tal cual se acepta. */
 export const capturedRowSchema = z.object({
   conversationId: z.string().min(1).max(80),
-  phone: z.string().trim().min(8).max(40),
-  name: z.string().trim().max(120).nullable(),
-  crmUrl: z.url().max(300),
+  phone: z.string().regex(/^\d{8,15}$/),
+  name: text(120).nullable(),
+  crmUrl: z.string().max(300).startsWith("https://crm.allok.fun/"),
   source: z.enum(["anuncio", "web", "invitacion", "whatsapp"]),
-  adHeadline: z.string().max(200).nullable(),
-  firstMessage: z.string().max(400).nullable(),
-  rubro: z.string().max(160).nullable(),
-  dolor: z.string().max(400).nullable(),
+  adHeadline: text(200).nullable(),
+  firstMessage: text(400).nullable(),
+  rubro: text(160).nullable(),
+  dolor: text(400).nullable(),
   calificado: z.boolean().nullable(),
   resultado: z.string().max(40).nullable(),
   askedPrice: z.boolean(),
@@ -24,7 +26,7 @@ export const capturedRowSchema = z.object({
     .object({
       at: iso,
       status: z.enum(["agendada", "realizada", "no_show", "cancelada"]),
-      meetLink: z.string().max(300).nullable(),
+      meetLink: text(300).nullable(),
     })
     .nullable(),
   lastInboundAt: iso.nullable(),
@@ -32,7 +34,8 @@ export const capturedRowSchema = z.object({
   lastManualAt: iso.nullable(),
 }) satisfies z.ZodType<CapturedRow>;
 
-export const captureBatchSchema = z.object({ rows: z.array(capturedRowSchema).max(200) });
+/** El lote se valida fila por fila en la ruta: una fila mala no frena a las demás. */
+export const captureBatchSchema = z.object({ rows: z.array(z.unknown()).max(200) });
 
 /**
  * El id del lead sale de la conversación de Vocero (UUID v5): la misma

@@ -1,7 +1,7 @@
 import { createHash, timingSafeEqual } from "node:crypto";
 import { upsertCapturedLead } from "@/lib/growth-db";
 import { passesFilter } from "@/lib/ops-capture";
-import { captureBatchSchema } from "@/lib/ops-capture-server";
+import { captureBatchSchema, capturedRowSchema } from "@/lib/ops-capture-server";
 
 export const dynamic = "force-dynamic";
 
@@ -26,8 +26,14 @@ export async function POST(request: Request) {
   }
 
   const now = new Date();
-  const results = { created: 0, updated: 0, skipped: 0 };
-  for (const row of parsed.data.rows) {
+  const results = { created: 0, updated: 0, skipped: 0, invalid: 0 };
+  for (const raw of parsed.data.rows) {
+    const valid = capturedRowSchema.safeParse(raw);
+    if (!valid.success) {
+      results.invalid += 1;
+      continue;
+    }
+    const row = valid.data;
     // El filtro vive también en el SQL de la rutina; aquí se vuelve a aplicar por ser la frontera.
     if (!passesFilter(row)) {
       results.skipped += 1;

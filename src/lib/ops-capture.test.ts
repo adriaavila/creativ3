@@ -1,7 +1,8 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { type AgentState, type CapturedRow, displayStage, followupFor, passesFilter } from "@/lib/ops-capture";
-import { capturedLeadId, captureBatchSchema } from "@/lib/ops-capture-server";
+import { capturedLeadId, capturedRowSchema } from "@/lib/ops-capture-server";
+import { ASKED_PREFIX, NO_SHOW_ACTION } from "@/lib/sales-queue";
 import { messageFor, salesQueue, stageOf } from "@/lib/sales-queue";
 import type { GrowthLead } from "@/lib/growth-types";
 
@@ -164,6 +165,56 @@ test("la misma conversación siempre da el mismo lead; el lote rechaza lo que no
   assert.equal(capturedLeadId("conv_abc"), capturedLeadId("conv_abc"));
   assert.notEqual(capturedLeadId("conv_abc"), capturedLeadId("conv_abd"));
   assert.match(capturedLeadId("conv_abc"), /^[0-9a-f]{8}-[0-9a-f]{4}-5[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/);
-  assert.equal(captureBatchSchema.safeParse({ rows: [row()] }).success, true);
-  assert.equal(captureBatchSchema.safeParse({ rows: [{ ...row(), crmUrl: "no-url" }] }).success, false);
+  assert.equal(capturedRowSchema.safeParse(row()).success, true);
+  assert.equal(capturedRowSchema.safeParse({ ...row(), crmUrl: "javascript:alert(1)" }).success, false);
+  assert.equal(capturedRowSchema.safeParse({ ...row(), phone: "bsuid:xyz" }).success, false, "sin dígitos no hay llave");
+});
+
+test("un mensaje con emojis se recorta en vez de frenar el lote", () => {
+  const parsed = capturedRowSchema.parse({ ...row(), firstMessage: "🙂".repeat(450) });
+  assert.equal(Array.from(parsed.firstMessage!).length, 400);
+});
+
+const prevOf = (over: Partial<{ status: string; nextAction: string | null; nextActionAt: string | null; lastContactedAt: string | null; step: number }>) => ({
+  status: "replied",
+  nextAction: null,
+  nextActionAt: "2026-09-26",
+  lastContactedAt: "2026-09-26T14:00:00Z",
+  step: 0,
+  ...over,
+});
+
+test("«Pedí el pago» y después contesta: vuelve hoy sin perder la marca de pago pedido", () => {
+  const prev = prevOf({ status: "meeting_booked", nextAction: `${ASKED_PREFIX}: confirmar`, nextActionAt: "2026-09-28" });
+  const patch = followupFor(row({ calificado: true, lastInboundAt: "2026-09-26T18:00:00Z", lastAiAt: "2026-09-26T13:00:00Z" }), prev, NOW);
+  assert.equal(patch.nextActionAt, "2026-09-26");
+  assert.ok(patch.nextAction?.startsWith(ASKED_PREFIX), patch.nextAction ?? "");
+  assert.equal(stageOf({ status: patch.status, nextAction: patch.nextAction }, NOW), "asked");
+});
+
+test("«Hablamos» y «No vino» no se pisan con la actividad del agente", () => {
+  // Después de «Hablamos», el agente sigue contestando: no es un primer seguimiento.
+  const talked = followupFor(
+    row({ calificado: true, lastInboundAt: "2026-09-26T13:00:00Z", lastAiAt: "2026-09-26T13:30:00Z" }),
+    prevOf({ nextAction: "Pedir el pago", nextActionAt: "2026-09-28" }),
+    NOW,
+  );
+  assert.deepEqual([talked.nextAction, talked.nextActionAt], ["Pedir el pago", "2026-09-28"]);
+  const noShow = followupFor(
+    row({ booking: { at: "2026-09-26T13:00:00Z", status: "agendada", meetLink: null } }),
+    prevOf({ status: "meeting_booked", nextAction: NO_SHOW_ACTION, nextActionAt: "2026-09-27" }),
+    NOW,
+  );
+  assert.deepEqual([noShow.nextAction, noShow.nextActionAt], [NO_SHOW_ACTION, "2026-09-27"]);
+});
+
+test("si el lead contesta, la secuencia de seguimientos vuelve a empezar", () => {
+  // Iba en el seguimiento 1; contestó; Adrian le respondió: no toca «cerrar sin respuesta».
+  const patch = followupFor(
+    row({ calificado: true, lastInboundAt: "2026-09-26T15:00:00Z", lastAiAt: "2026-09-26T12:00:00Z", lastManualAt: "2026-09-26T16:00:00Z" }),
+    prevOf({ nextAction: "Seguimiento 2", lastContactedAt: "2026-09-25T14:00:00Z", step: 1 }),
+    NOW,
+  );
+  assert.deepEqual([patch.stage, patch.step], ["followup", 1]);
+  assert.equal(patch.nextAction, "Seguimiento 2");
 });

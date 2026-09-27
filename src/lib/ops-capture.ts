@@ -9,7 +9,7 @@
  *
  * Todo es determinista y puro: la cola se puede auditar y probar sin base.
  */
-import { ASKED_PREFIX, SALES_TZ, addDays, localDate } from "./sales-queue";
+import { ASKED_PREFIX, NO_SHOW_ACTION, SALES_TZ, addDays, localDate } from "./sales-queue";
 
 /** Lo que manda la rutina por cada conversación que cambió (validado en `ops-capture-server.ts`). */
 export type CapturedRow = {
@@ -99,7 +99,12 @@ export function followupFor(row: CapturedRow, prev: Previous | null, now = new D
   const prevContact = prev?.lastContactedAt ?? null;
   const touched = Boolean(row.lastManualAt && time(row.lastManualAt) > time(prevContact));
   const lastContactedAt = touched ? row.lastManualAt : prevContact;
-  const step = (prev?.step ?? 0) + (touched ? 1 : 0);
+  // Si el lead escribió después del último toque, la secuencia de seguimientos vuelve a empezar.
+  const repliedSincePrev = Boolean(prevContact && time(row.lastInboundAt) > time(prevContact));
+  const step = (repliedSincePrev ? 0 : (prev?.step ?? 0)) + (touched ? 1 : 0);
+  const asked = Boolean(prev?.nextAction?.startsWith(ASKED_PREFIX));
+  // Con pago pedido, un pase o una respuesta no borran la marca: la semana la sigue contando.
+  const mark = (label: string) => (asked ? `${ASKED_PREFIX} · ${label.toLowerCase()}` : label);
   const keep = { lastContactedAt, step };
 
   if (prev && (prev.status === "won" || prev.status === "lost")) {
@@ -107,14 +112,19 @@ export function followupFor(row: CapturedRow, prev: Previous | null, now = new D
   }
   // Respondió después de que Adrian le escribió (el bot queda en pausa tras una respuesta manual).
   if (lastContactedAt && time(row.lastInboundAt) > time(lastContactedAt) && time(row.lastAiAt) < time(row.lastInboundAt)) {
-    return { stage: "replied", status: "replied", nextAction: "Te respondió", nextActionAt: today, ...keep };
+    return { stage: "replied", status: asked ? "meeting_booked" : "replied", nextAction: mark("Te respondió"), nextActionAt: today, ...keep };
   }
   if (handedOff(row) && time(row.handoffAt) > time(lastContactedAt)) {
-    return { stage: "handoff", status: "replied", nextAction: "Te pasó el agente", nextActionAt: today, ...keep };
+    return { stage: "handoff", status: asked ? "meeting_booked" : "replied", nextAction: mark("Te pasó el agente"), nextActionAt: today, ...keep };
   }
-  if (prev?.nextAction?.startsWith(ASKED_PREFIX)) {
-    const nextActionAt = touched ? addDays(localDate(row.lastManualAt!), 3) : prev.nextActionAt;
-    return { stage: "asked", status: "meeting_booked", nextAction: prev.nextAction, nextActionAt, ...keep };
+  // Próximos pasos que escribió Adrian con «Qué pasó» («Hablamos», «No vino»): la captura no los pisa.
+  // Dentro de la función y no como constante del módulo: sales-queue y este archivo se importan entre sí.
+  if (prev && !touched && (prev.nextAction === "Pedir el pago" || prev.nextAction === NO_SHOW_ACTION)) {
+    return { stage: "asked", status: prev.status as FollowupPatch["status"], nextAction: prev.nextAction, nextActionAt: prev.nextActionAt, ...keep };
+  }
+  if (asked) {
+    const nextActionAt = touched ? addDays(localDate(row.lastManualAt!), 3) : prev!.nextActionAt;
+    return { stage: "asked", status: "meeting_booked", nextAction: prev!.nextAction, nextActionAt, ...keep };
   }
   if (booked(row)) {
     const at = row.booking!.at;

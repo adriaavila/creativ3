@@ -175,7 +175,6 @@ export async function getGrowthRuns(limit = 20): Promise<GrowthRun[]> {
     error: row.error ? String(row.error) : null,
     leadsRequested: Number(row.leads_requested),
     createdAt: new Date(String(row.created_at)).toISOString(),
-    agentState: (row.agent_state as AgentState | null) ?? null,
   }));
 }
 
@@ -482,7 +481,7 @@ export async function upsertCapturedLead(row: CapturedRow, now = new Date()) {
       UPDATE leads
       SET status = ${patch.status}, next_action = ${patch.nextAction}, next_action_at = ${patch.nextActionAt}::date,
           last_contacted_at = ${lastContactedAt}, agent_state = ${state}::jsonb,
-          business_phone = coalesce(business_phone, ${digits}), contact_source_url = ${row.crmUrl},
+          business_phone = coalesce(business_phone, ${digits}), contact_source_url = coalesce(contact_source_url, ${row.crmUrl}),
           updated_at = now()
       WHERE id = ${String(existing.id)}
     `;

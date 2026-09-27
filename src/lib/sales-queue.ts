@@ -73,6 +73,7 @@ export function stageOf(
   if (CLOSED.includes(lead.status)) return null;
   if (lead.nextAction?.startsWith(ASKED_PREFIX)) return "asked";
   if (lead.nextAction === NO_SHOW_ACTION) return "no_show";
+  if (lead.nextAction === "Pedir el pago") return "interested";
   const captured = displayStage(lead.agentState, lead.lastContactedAt ?? null, now);
   if (captured) return captured;
   if (lead.status === "replied" || lead.status === "meeting_booked") return "interested";
@@ -191,7 +192,7 @@ export function messageFor(
     case "after_call":
       return payAsk();
     case "no_show":
-      return `${hi}, hoy no pudimos conectarnos. ¿La movemos a otro día?`;
+      return `${hi}, no pudimos conectarnos en la llamada. ¿La movemos a otro día?`;
     case "followup": {
       if ((state?.step ?? 0) >= 1) {
         const opener = state?.name && hello(state.name) !== "Hola" ? `${state.name.trim()}, ¿lo` : "¿Lo";

@@ -186,7 +186,7 @@ export default function HoyClient({ initialLeads, today }: { initialLeads: Growt
           <ol className="mt-6 grid gap-3" aria-label="Para hablar hoy">
             {queue.map((lead) => (
               <LeadCard
-                key={lead.id}
+                key={`${lead.id}:${lead.nextAction}`}
                 lead={lead}
                 today={today}
                 done={done[lead.id]}

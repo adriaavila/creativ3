@@ -360,7 +360,7 @@ function LeadCard({
 
       <fieldset className="mt-4">
         <legend className="mb-2 text-xs font-semibold text-[var(--ink-60)]">Qué pasó</legend>
-        <div className={`grid gap-2 ${outcomes.length === 1 ? "grid-cols-1" : "grid-cols-2"} ${outcomes.length > 4 ? "sm:grid-cols-5" : "sm:grid-cols-4"}`}>
+        <div className={`grid gap-2 ${outcomes.length === 1 ? "grid-cols-1" : `grid-cols-2 ${outcomes.length > 4 ? "sm:grid-cols-5" : "sm:grid-cols-4"}`}`}>
           {outcomes.map((outcome) => (
             <button
               key={outcome.id}

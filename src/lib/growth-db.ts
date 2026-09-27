@@ -512,7 +512,7 @@ export async function upsertCapturedLead(row: CapturedRow, now = new Date()) {
 export async function markLeadPaid(input: { leadId: string | null; phone: string | null; amountUsd: number | null }) {
   const sql = getSql();
   if (!sql) return null;
-  const leadId = input.leadId && /^[0-9a-f-]{36}$/i.test(input.leadId) ? input.leadId : "";
+  const leadId = input.leadId && /^[0-9a-f-]{36}$/i.test(input.leadId) ? input.leadId.toLowerCase() : "";
   const digits = (input.phone ?? "").replace(/\D/g, "");
   // Con menos de 10 dígitos no se busca por teléfono: una cola corta puede coincidir con otro lead.
   const tail = digits.length >= 10 ? digits.slice(-10) : "";

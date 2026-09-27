@@ -7,7 +7,7 @@ import {
 } from "@/lib/stripe-purchases-db";
 import { markLeadPaid } from "@/lib/growth-db";
 import { projectPaymentEmail } from "@/lib/project-payment-email";
-import { verifiedEvent, webhookSecrets } from "@/lib/stripe-webhook";
+import { itemOf, verifiedEvent, webhookSecrets } from "@/lib/stripe-webhook";
 
 export const runtime = "nodejs";
 
@@ -26,11 +26,6 @@ const PROJECT_LABELS: Record<string, string> = {
   "desk-scale": "Desk Scale",
   "puesta-en-marcha": "Puesta en marcha",
 };
-
-// ponytail: el único Payment Link que se usa para vender es el de la puesta en marcha (plans.ts);
-// si aparece otro, ponerle `metadata.item` en Stripe en vez de adivinar aquí.
-const itemOf = (session: Stripe.Checkout.Session) =>
-  session.metadata?.item ?? session.metadata?.plan ?? (session.payment_link ? "puesta-en-marcha" : "");
 
 async function sendProjectPaymentEmail(session: Stripe.Checkout.Session) {
   const apiKey = process.env.RESEND_API_KEY;
@@ -112,13 +107,14 @@ export async function POST(request: NextRequest) {
       });
 
       if (session.payment_status === "paid") {
-        // Sólo la puesta en marcha cierra un lead: el del link (client_reference_id) o el del
-        // mismo teléfono. Un error de base cae al 500 y Stripe reintenta; markLeadPaid es idempotente.
+        // Cierra el lead del link (client_reference_id); el teléfono sólo cuenta en la puesta en
+        // marcha. Un error de base cae al 500 y Stripe reintenta; markLeadPaid es idempotente.
+        const setup = itemOf(session) === "puesta-en-marcha";
         const lead =
-          itemOf(session) === "puesta-en-marcha" || session.client_reference_id
+          setup || session.client_reference_id
             ? await markLeadPaid({
                 leadId: session.client_reference_id ?? null,
-                phone: session.customer_details?.phone ?? null,
+                phone: setup ? (session.customer_details?.phone ?? null) : null,
                 amountUsd:
                   session.currency === "usd" && session.amount_total != null ? Math.round(session.amount_total / 100) : null,
               })

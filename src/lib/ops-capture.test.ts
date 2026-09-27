@@ -142,6 +142,11 @@ test("los mensajes salen de lo que sabe el agente, sin huecos ni rayas largas", 
   const lead = captured();
   const follow1 = messageFor("followup", lead);
   assert.match(follow1, /^Hola Nurbelys, soy Adrian de allok\. Vi lo que le contaste a nuestro agente sobre tu bufete: no alcanzamos a contestar a todos\./);
+  const priced = messageFor("followup", captured({}, { askedPrice: true }));
+  assert.match(priced, /^Hola Nurbelys, soy Adrian de allok\. Le preguntaste a nuestro agente por el precio: la puesta en marcha son US\$499 una vez y el plan Esencial US\$49 al mes\. Se paga aquí: https:\/\/buy\.stripe\.com\//);
+  assert.match(priced, /verlo antes en tu bufete/);
+  assert.doesNotMatch(messageFor("followup", captured({}, { askedPrice: true, rubro: null })), /en tu/);
+  assert.match(messageFor("followup", captured({}, { askedPrice: true, step: 1 })), /^Nurbelys, ¿lo vemos esta semana\?/, "el segundo seguimiento no repite el precio");
   const bare = messageFor("followup", captured({}, { name: null, rubro: null, dolor: null }));
   assert.match(bare, /^Hola, soy Adrian de allok\. Quedó pendiente/);
   assert.match(messageFor("followup", captured({}, { step: 1 })), /^Nurbelys, ¿lo vemos esta semana\?/);
@@ -159,6 +164,8 @@ test("los mensajes salen de lo que sabe el agente, sin huecos ni rayas largas", 
     assert.doesNotMatch(text, /\p{Extended_Pictographic}/u, `${stage}: sin emojis`);
     assert.doesNotMatch(text, /undefined|null|\{/, `${stage}: sin huecos`);
   }
+  const pricedText = messageFor("followup", captured({}, { askedPrice: true }));
+  assert.doesNotMatch(pricedText, /[—–]|\p{Extended_Pictographic}|undefined|null|\{/u);
 });
 
 test("la misma conversación siempre da el mismo lead; el lote rechaza lo que no cumple", () => {

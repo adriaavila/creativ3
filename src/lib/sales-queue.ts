@@ -204,6 +204,11 @@ export function messageFor(
         const opener = state?.name && hello(state.name) !== "Hola" ? `${state.name.trim()}, ¿lo` : "¿Lo";
         return `${opener} vemos esta semana? Si ahora no es buen momento, dime y te escribo más adelante.`;
       }
+      // Preguntó el precio y el agente no lo da en el chat: el primer seguimiento lo responde y pide el pago.
+      if (state?.askedPrice) {
+        const where = state.rubro ? ` en tu ${state.rubro.trim()}` : "";
+        return `${hi}, soy Adrian de allok. Le preguntaste a nuestro agente por el precio: la ${SETUP_SERVICE.name.toLowerCase()} son US$${SETUP_SERVICE.price} una vez y el plan ${esencial.name} US$${esencial.price} al mes. Se paga aquí: ${SETUP_SERVICE.paymentUrl} Si prefieres verlo antes${where}, te lo muestro en 15 minutos.`;
+      }
       const about = state?.rubro
         ? `Vi lo que le contaste a nuestro agente sobre tu ${state.rubro.trim()}${state.dolor ? `: ${state.dolor.trim().replace(/[.\s]+$/, "")}` : ""}.`
         : "Quedó pendiente mostrarte cómo quedaría el agente en tu negocio.";

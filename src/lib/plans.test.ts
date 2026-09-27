@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { FROM_PRICE, PLANS, SELF_SERVE, metaMonthlyCost, planCta, priceLabel, usd } from "./plans";
+import { FROM_PRICE, PLANS, SELF_SERVE, SETUP_SERVICE, metaMonthlyCost, planCta, priceLabel, usd } from "./plans";
 
 test("el tramo gratis de Meta deja el costo en cero", () => {
   // 200 consultas × 5 respuestas = 1.000 mensajes, justo el límite gratis.
@@ -52,6 +52,10 @@ test("FROM_PRICE ignora lo que no se contrata solo", () => {
   // barato que un plan, la frase «desde» mentiría.
   assert.equal(FROM_PRICE, 49);
   assert.ok(PLANS.every((p) => (p.appPlan === null) === (p.talkTo !== undefined)));
+});
+
+test("la puesta en marcha cobra lo que dice la página", () => {
+  assert.equal(SETUP_SERVICE.price, 499, "si cambia el precio, cambia también el Payment Link en Stripe");
 });
 
 test("sin autoservicio, cada plan termina en una conversación que activa al agente", () => {

@@ -12,6 +12,14 @@ function sign(payload: string, secret: string) {
   return createHmac("sha256", secret).update(payload).digest("base64url");
 }
 
+/**
+ * La llave que firma las sesiones sale del secreto y de la contraseña: cambiar
+ * `OPS_ACCESS_PASSWORD` invalida todas las sesiones abiertas sin guardar nada.
+ */
+export function opsSessionKey(secret: string, password: string): string {
+  return createHmac("sha256", secret).update(`ops-session:${password}`).digest("base64url");
+}
+
 /** Builds `<payload>.<signature>` — payload is base64url JSON, signature is HMAC-SHA256 over it. */
 export function createOpsSessionToken(
   userId: string,

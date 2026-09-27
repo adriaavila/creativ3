@@ -1,5 +1,5 @@
 import { cookies } from "next/headers";
-import { createOpsSessionToken, OPS_COOKIE_NAME, verifyOpsSessionToken } from "@/lib/ops-session";
+import { createOpsSessionToken, OPS_COOKIE_NAME, opsSessionKey, verifyOpsSessionToken } from "@/lib/ops-session";
 
 export { OPS_COOKIE_NAME };
 
@@ -8,13 +8,17 @@ export type OpsAuthorization =
   | { authorized: false; response: Response };
 
 export function isOpsAuthConfigured() {
-  return Boolean(process.env.OPS_ACCESS_PASSWORD && process.env.OPS_SESSION_SECRET);
+  return Boolean(
+    process.env.OPS_ACCESS_PASSWORD && (process.env.OPS_SESSION_SECRET ?? "").length >= 32,
+  );
 }
 
 export async function authorizeOps(): Promise<OpsAuthorization> {
   const secret = process.env.OPS_SESSION_SECRET;
+  const password = process.env.OPS_ACCESS_PASSWORD;
   const token = (await cookies()).get(OPS_COOKIE_NAME)?.value;
-  const session = secret ? verifyOpsSessionToken(token, secret) : null;
+  const key = secret && password ? opsSessionKey(secret, password) : null;
+  const session = key ? verifyOpsSessionToken(token, key) : null;
   if (!session) {
     return {
       authorized: false,
@@ -35,9 +39,15 @@ export function resolveOpsWorkspace(requested: string | null | undefined, userId
   return value && /^[a-zA-Z0-9._-]{1,80}$/.test(value) ? value : userId;
 }
 
-/** Signs a fresh session token. Throws if OPS_SESSION_SECRET is unset — callers already gate on isOpsAuthConfigured(). */
+/**
+ * Signs a fresh session token. Throws if OPS_SESSION_SECRET or OPS_ACCESS_PASSWORD
+ * is unset — callers already gate on isOpsAuthConfigured().
+ */
 export function issueOpsSessionToken(userId = "allok-ops-owner") {
   const secret = process.env.OPS_SESSION_SECRET;
-  if (!secret) throw new Error("OPS_SESSION_SECRET is not configured.");
-  return createOpsSessionToken(userId, secret);
+  const password = process.env.OPS_ACCESS_PASSWORD;
+  if (!secret || !password) {
+    throw new Error("OPS_SESSION_SECRET or OPS_ACCESS_PASSWORD is not configured.");
+  }
+  return createOpsSessionToken(userId, opsSessionKey(secret, password));
 }

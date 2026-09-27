@@ -73,15 +73,9 @@ export async function POST(request: NextRequest) {
     if (event.type === "checkout.session.completed") {
       const session = event.data.object;
 
-      // El comprobante va ANTES de persistir: la base puede estar caída y el
-      // cliente igual tiene que recibir su recibo. Resend deduplica por
-      // session.id, así que los reintentos de Stripe no mandan dos correos, y
-      // si la escritura falla el 500 hace que Stripe reintente hasta que la
-      // base vuelva.
-      if (session.payment_status === "paid") {
-        await sendProjectPaymentEmail(session);
-      }
-
+      // El registro va PRIMERO: si Resend rechaza el recibo no puede tumbar la
+      // escritura del pago. El recibo es best-effort porque Resend deduplica
+      // por session.id, así que un reintento de Stripe no manda dos correos.
       await recordStripePurchase({
         stripeSessionId: session.id,
         plan: session.metadata?.item ?? session.metadata?.plan ?? "unknown",
@@ -97,6 +91,13 @@ export async function POST(request: NextRequest) {
             : session.subscription?.id ?? null,
         paymentStatus: session.payment_status,
       });
+
+      if (session.payment_status === "paid") {
+        // El recibo no bloquea el registro: si Resend lo rechaza, el pago ya quedó guardado.
+        await sendProjectPaymentEmail(session).catch((error) =>
+          console.error("Payment receipt not sent", session.id, error instanceof Error ? error.message : error),
+        );
+      }
     }
 
     if (

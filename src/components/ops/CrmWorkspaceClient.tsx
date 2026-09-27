@@ -1,8 +1,7 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import {
   ArrowRight,
   Bot,
@@ -14,7 +13,6 @@ import {
   Network,
   Plus,
   Search,
-  ShieldAlert,
   Smartphone,
   Sparkles,
   Users,
@@ -231,50 +229,6 @@ function LeadCard({ lead, active, onSelect }: { lead: GrowthLead; active: boolea
 
 function ConnectionsPanel({ initialChannels, onChannelsChange }: { initialChannels: CrmChannel[]; onChannelsChange: (channels: CrmChannel[]) => void }) {
   const [channels, setChannels] = useState(initialChannels);
-  const [session, setSession] = useState("allok-main");
-  const [creating, setCreating] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [qr, setQr] = useState<{ mimetype: string; data: string } | null>(null);
-  const [pairingSession, setPairingSession] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!pairingSession) return;
-    let cancelled = false;
-    const poll = async () => {
-      const response = await fetch(`/api/ops/waha/sessions/${encodeURIComponent(pairingSession)}`, { cache: "no-store" });
-      if (!response.ok || cancelled) return;
-      const data = await response.json() as { connection?: { status: string; phoneDisplay?: string | null }; qr?: { mimetype: string; data: string } | null };
-      if (data.qr) setQr(data.qr);
-      if (data.connection) {
-        const connection: CrmChannel = { id: pairingSession, channel: "waha", official: false, label: data.connection.phoneDisplay ?? pairingSession, phone: data.connection.phoneDisplay ?? null, status: data.connection.status, detail: "WAHA · no oficial" };
-        setChannels((current) => {
-          const merged = [...current.filter((channel) => channel.id !== pairingSession), connection];
-          onChannelsChange(merged);
-          return merged;
-        });
-        if (data.connection.status === "connected") setPairingSession(null);
-      }
-    };
-    void poll();
-    const timer = setInterval(() => void poll(), 3000);
-    return () => { cancelled = true; clearInterval(timer); };
-  }, [onChannelsChange, pairingSession]);
-
-  async function createWahaSession() {
-    setCreating(true);
-    setError(null);
-    try {
-      const response = await fetch("/api/ops/waha/sessions", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: session, client: "allok" }) });
-      const data = await response.json() as { error?: string; session?: string; qr?: { mimetype: string; data: string } | null };
-      if (!response.ok) throw new Error(data.error ?? "No se pudo iniciar WAHA.");
-      setPairingSession(data.session ?? session);
-      setQr(data.qr ?? null);
-    } catch (reason) {
-      setError(reason instanceof Error ? reason.message : "No se pudo iniciar WAHA.");
-    } finally {
-      setCreating(false);
-    }
-  }
 
   function updateChannel(next: CrmChannel) {
     setChannels((current) => {
@@ -343,11 +297,6 @@ function ConnectionsPanel({ initialChannels, onChannelsChange }: { initialChanne
 
         {otherChannels.length > 0 && <div className="mt-8 border-t border-[var(--hairline)] pt-6"><div className="mb-3"><h3 className="text-sm font-semibold text-[var(--ink)]">Otros canales</h3><p className="mt-1 text-xs text-[var(--ink-60)]">Cloud API puro y sesiones secundarias.</p></div>{otherChannels.map((channel) => <ChannelConnectionRow key={channel.id} channel={channel} onChange={updateChannel} />)}</div>}
       </section>
-
-      <details className="rounded-xl border border-[var(--warn-line)] bg-[var(--warn-soft)]">
-        <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between gap-3 px-4 text-sm font-semibold text-[var(--status-warn)]"><span className="flex items-center gap-3"><ShieldAlert className="size-4 text-[var(--status-warn)]" aria-hidden="true" /> Canal no oficial · WAHA</span><span className="text-[11px] font-medium text-[var(--status-warn)]">Configuración avanzada</span></summary>
-        <div className="border-t border-[var(--warn-line)] p-4"><p className="text-xs leading-5 text-[var(--status-warn)]">Úsalo sólo como canal secundario: puede implicar riesgo de bloqueo del número.</p><label className="mt-4 block text-xs text-[var(--ink-60)]">Nombre de sesión<input value={session} onChange={(event) => setSession(event.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "-"))} className="mt-2 min-h-11 w-full rounded-lg border border-[var(--warn-line)] bg-white px-3 text-sm text-[var(--ink)] outline-none focus:border-[var(--rule)]" /></label><TapButton type="button" onClick={() => void createWahaSession()} disabled={creating || session.length < 2} className="mt-3 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg border border-[var(--rule)] bg-white text-sm font-medium text-[var(--ink-60)] transition hover:border-[var(--rule)] hover:text-[var(--ink)] disabled:opacity-50">{creating ? <Loader2 className="size-4 animate-spin" /> : <Plus className="size-4" />} {pairingSession ? "Reiniciar sesión" : "Crear sesión WAHA"}</TapButton>{pairingSession && <p className="mt-3 text-xs text-[var(--ink-60)]">Sesión <span className="font-medium text-[var(--ink)]">{pairingSession}</span> · espera el QR.</p>}{qr && <div className="mt-4 rounded-lg border border-[var(--hairline)] bg-white p-3"><Image src={`data:${qr.mimetype};base64,${qr.data}`} alt="Código QR para conectar WhatsApp a WAHA" width={260} height={260} unoptimized className="mx-auto h-auto w-full max-w-[220px]" /></div>}{error && <p className="mt-4 rounded-lg border border-[var(--risk-line)] bg-[var(--risk-soft)] px-3 py-2.5 text-sm text-[var(--status-risk)]" role="alert">{error}</p>}</div>
-      </details>
     </div>
   );
 }

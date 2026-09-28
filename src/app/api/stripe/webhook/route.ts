@@ -71,7 +71,8 @@ async function alertPaid(session: Stripe.Checkout.Session, businessName: string 
 
 export async function POST(request: NextRequest) {
   const secret = process.env.STRIPE_SECRET_KEY;
-  const secrets = webhookSecrets(process.env.STRIPE_WEBHOOK_SECRET);
+  // La de allok LLC va aparte: Vercel no devuelve el valor de un secreto, así que no se le puede sumar a la otra.
+  const secrets = webhookSecrets([process.env.STRIPE_WEBHOOK_SECRET, process.env.STRIPE_WEBHOOK_SECRET_LLC].join(","));
   const signature = request.headers.get("stripe-signature");
   if (!secret || secrets.length === 0 || !signature) {
     return NextResponse.json({ error: "Stripe webhook is not configured." }, { status: 503 });

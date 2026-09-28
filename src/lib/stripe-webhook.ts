@@ -2,9 +2,9 @@ import type Stripe from "stripe";
 import { SETUP_SERVICE } from "@/lib/plans";
 
 /**
- * `STRIPE_WEBHOOK_SECRET` puede traer varias llaves separadas por coma, una por
- * cuenta de Stripe que avisa a esta URL: la de siempre y la de allok LLC, donde
- * vive el link de la puesta en marcha.
+ * Las llaves de firma, una por cuenta de Stripe que avisa a esta URL: la de
+ * siempre (`STRIPE_WEBHOOK_SECRET`, puede traer varias separadas por coma) y la
+ * de allok LLC (`STRIPE_WEBHOOK_SECRET_LLC`), donde vive el link de la puesta en marcha.
  */
 export function webhookSecrets(raw: string | undefined): string[] {
   return (raw ?? "").split(",").map((secret) => secret.trim()).filter(Boolean);

@@ -96,10 +96,7 @@ At the snapshot:
 - Before the change, a consistent SQLite snapshot passed `PRAGMA integrity_check`
   and was stored at
   `/data/dumps/n8n-pre-allok-coexistence-20260807.sqlite`.
-- `allok - Drain Meta Webhook Queue` (`Yf3mR8qK2vL7sN5p`) remains active. It had
-  10.080 successes and zero errors over seven days; execution `11035` succeeded
-  after the version-pinned restart. Executions `12057`–`12059` also succeeded
-  after the final Allok production deployment.
+- `allok - Drain Meta Webhook Queue` (`Yf3mR8qK2vL7sN5p`) was parked on 2026-09-27: it woke Neon ~48 times a day for an empty queue.
 - `Meta Embedded Signup - Tech Provider` (`EA6f6q8SZkewllyJ`) remains active only
   for lifecycle/diagnostic notifications; it does not exchange or store tokens.
 - Obsolete direct `Meta deauthorize` and `Meta data deletion` workflows were

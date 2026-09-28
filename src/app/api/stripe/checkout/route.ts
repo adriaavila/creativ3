@@ -8,11 +8,12 @@ import {
   type BillingChannel,
 } from "@/lib/billing/catalog";
 import { isLocale, type Locale } from "@/lib/i18n";
+import { SETUP_SERVICE } from "@/lib/plans";
 
 // ponytail: ad-hoc prices inline; move to Stripe dashboard prices if they need editing without a deploy
 const AD_HOC = {
   "project-deposit": { currency: "usd", unit_amount: 20_000, name: "Depósito de proyecto allok" },
-  "puesta-en-marcha": { currency: "usd", unit_amount: 49_900, name: "Puesta en marcha allok" },
+  "puesta-en-marcha": { currency: "usd", unit_amount: SETUP_SERVICE.price * 100, name: "Puesta en marcha allok" },
   "project-juanete": { currency: "usd", unit_amount: 10_000, name: "Proyecto Juanete" },
   nodria: { currency: "eur", unit_amount: 20_000, name: "Nodria" },
   "project-continuation": { currency: "eur", unit_amount: 20_000, name: "Continuación de proyecto allok" },

@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { DAILY_INVITE_CAP, countInvitesToday, getGrowthLeadById, getOutreachDraftById, logInvite } from "@/lib/growth-db";
+import { DAILY_INVITE_CAP, countInvitesToday, getGrowthLeadById, getOutreachDraftById, inviteAlreadyLogged, logInvite } from "@/lib/growth-db";
 import { authorizeOps } from "@/lib/ops-auth";
 import { localDate, waDigits } from "@/lib/sales-queue";
 
@@ -28,7 +28,8 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
   if (!lead || !recipient) return Response.json({ error: "Ese negocio no tiene WhatsApp." }, { status: 400 });
 
   // Un reintento del mismo borrador no cuenta contra el tope (lo resuelve la llave única).
-  if (draft.status !== "approved" && (await countInvitesToday()) >= DAILY_INVITE_CAP) {
+  const repeat = await inviteAlreadyLogged(draft.id);
+  if (!repeat && (await countInvitesToday()) >= DAILY_INVITE_CAP) {
     return Response.json(
       { error: `Ya van ${DAILY_INVITE_CAP} mensajes en frío hoy. Sigue mañana para cuidar el número.` },
       { status: 429 },
@@ -44,5 +45,5 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     sentBy: authorization.userId,
     today: localDate(new Date()),
   });
-  return Response.json({ ok: true, ...next });
+  return Response.json({ ok: true, repeat, ...next });
 }

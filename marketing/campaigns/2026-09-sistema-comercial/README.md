@@ -38,7 +38,7 @@ Se contrastaron archivos locales, cuatro páginas públicas mediante navegador, 
 ### Fuentes locales principales
 
 - Web: [README](../../../README.md), [planes](../../../src/lib/plans.ts), [cobros](../../../docs/cobros.md), [checkout](../../../src/app/api/stripe/checkout/route.ts), [webhook](../../../src/app/api/stripe/webhook/route.ts).
-- VPS: `/Users/ama/projects/work-tools/ssh-c001/docs/operations/projects.md`, `clients.md` y `docs/runbooks/alta-cliente-whatsapp.md`.
+- VPS: `/Users/ama/projects/vps/harness/docs/operations/projects.md`, `clients.md` y `docs/runbooks/alta-cliente-whatsapp.md`.
 - CRM relacionado, localizado desde ese inventario: `/Users/ama/projects/saas/vocero-crm/src/server/saas/billing.ts`, `src/server/readiness.ts`, `src/server/ai/actions.ts`, `src/server/agenda/flag.ts` y `src/server/attribution/flag.ts`. Su checkout local está más adelantado que el commit desplegado; código local no equivale a función publicada.
 - Web pública revisada: [home](https://allok.fun), [REI](https://allok.fun/rei), [Vocero](https://allok.fun/vocero), [agencia](https://allok.fun/agencia).
 

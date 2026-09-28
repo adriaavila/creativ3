@@ -25,16 +25,19 @@ export const DAILY_INVITE_CAP = 10;
  */
 export const ASKED_PREFIX = "Pago pedido";
 
-/** `asked`/`interested`/`first` son de leads cargados a mano; el resto llega desde Vocero ya filtrado. */
-export type Stage = "asked" | "interested" | "first" | CaptureStage;
-export type Outcome = "talked" | "asked" | "paid" | "not_now" | "no_show";
+/** `asked`/`interested`/`first`/`onboard` son de leads cargados a mano; el resto llega desde Vocero ya filtrado. */
+export type Stage = "asked" | "interested" | "first" | "onboard" | CaptureStage;
+export type Outcome = "talked" | "asked" | "paid" | "not_now" | "no_show" | "installed";
 
 /** «No vino» a la llamada: se reprograma al día siguiente con el mensaje de reprogramar. */
 export const NO_SHOW_ACTION = "Reprogramar la llamada";
+/** Pagó: el lead queda en Hoy hasta que Adrian marca «Instalado». */
+export const ONBOARD_ACTION = "Instalar";
 export type Offer = "vocero" | "rei" | "agencia";
 
 /** Primero lo que se enfría en horas (un pase del agente, alguien que contestó), después lo que espera días. */
 const STAGE_RANK: Record<Stage, number> = {
+  onboard: 0,
   handoff: 0,
   replied: 1,
   after_call: 2,
@@ -73,6 +76,7 @@ export function stageOf(
   lead: Pick<GrowthLead, "status" | "nextAction"> & Partial<Pick<GrowthLead, "agentState" | "lastContactedAt" | "runId">>,
   now = new Date(),
 ): Stage | null {
+  if (lead.status === "won" && lead.nextAction === ONBOARD_ACTION) return "onboard";
   if (CLOSED.includes(lead.status)) return null;
   // Lo que investigó el Growth Agent vive en Growth (invitación y seguimientos)
   // hasta que el negocio le escribe al agente y pasa su filtro.
@@ -136,6 +140,8 @@ export function outcomePatch(
     case "asked":
       return asked;
     case "paid":
+      return { status: "won", nextAction: ONBOARD_ACTION, nextActionAt: today };
+    case "installed":
       return { status: "won", nextAction: null, nextActionAt: null };
     case "no_show":
       return { status: "meeting_booked", nextAction: NO_SHOW_ACTION, nextActionAt: addDays(today, 1) };
@@ -166,8 +172,11 @@ function hello(name: string | null | undefined): string {
   return clean && clean.length <= 24 && !/^sin nombre/i.test(clean) ? `Hola ${clean}` : "Hola";
 }
 
-const payAsk = () =>
-  `Como lo hablamos: la ${SETUP_SERVICE.name.toLowerCase()} son US$${SETUP_SERVICE.price} una vez y el plan ${esencial.name} US$${esencial.price} al mes. Se paga aquí: ${SETUP_SERVICE.paymentUrl} Cuando pagues, agendamos la instalación.`;
+/** El link de pago con el id del lead: el webhook de Stripe lo usa para cerrar ese lead. */
+const payUrl = (leadId: string) => `${SETUP_SERVICE.paymentUrl}?client_reference_id=${encodeURIComponent(leadId)}`;
+
+const payAsk = (leadId: string) =>
+  `Como lo hablamos: la ${SETUP_SERVICE.name.toLowerCase()} son US$${SETUP_SERVICE.price} una vez y el plan ${esencial.name} US$${esencial.price} al mes. Se paga aquí: ${payUrl(leadId)} Cuando pagues, agendamos la instalación.`;
 
 /**
  * El borrador que abre WhatsApp. Adrian lo lee, lo ajusta si quiere y lo manda
@@ -179,7 +188,7 @@ const payAsk = () =>
  */
 export function messageFor(
   stage: Stage,
-  lead: Pick<GrowthLead, "businessName" | "offerAngle"> & Partial<Pick<GrowthLead, "agentState">>,
+  lead: Pick<GrowthLead, "id" | "businessName" | "offerAngle"> & Partial<Pick<GrowthLead, "agentState">>,
 ): string {
   const state = lead.agentState;
   const hi = hello(state ? state.name : null);
@@ -196,13 +205,20 @@ export function messageFor(
       return `${hi}, te confirmo la llamada de hoy${when}.${link} ¿Seguimos?`;
     }
     case "after_call":
-      return payAsk();
+      return payAsk(lead.id);
+    case "onboard":
+      return `${hi}, recibí tu pago, gracias. Para dejar el agente andando conectamos tu WhatsApp con Meta en una llamada de 30 minutos. ¿Qué día te queda bien?`;
     case "no_show":
       return `${hi}, no pudimos conectarnos en la llamada. ¿La movemos a otro día?`;
     case "followup": {
       if ((state?.step ?? 0) >= 1) {
         const opener = state?.name && hello(state.name) !== "Hola" ? `${state.name.trim()}, ¿lo` : "¿Lo";
         return `${opener} vemos esta semana? Si ahora no es buen momento, dime y te escribo más adelante.`;
+      }
+      // Preguntó el precio y el agente no lo da en el chat: el primer seguimiento lo responde y pide el pago.
+      if (state?.askedPrice) {
+        const where = state.rubro ? ` en tu ${state.rubro.trim()}` : "";
+        return `${hi}, soy Adrian de allok. Le preguntaste a nuestro agente por el precio: la ${SETUP_SERVICE.name.toLowerCase()} son US$${SETUP_SERVICE.price} una vez y el plan ${esencial.name} US$${esencial.price} al mes. Se paga aquí: ${payUrl(lead.id)} Si prefieres verlo antes${where}, te lo muestro en 15 minutos.`;
       }
       const about = state?.rubro
         ? `Vi lo que le contaste a nuestro agente sobre tu ${state.rubro.trim()}${state.dolor ? `: ${state.dolor.trim().replace(/[.\s]+$/, "")}` : ""}.`
@@ -211,7 +227,7 @@ export function messageFor(
     }
     case "asked":
       return lead.offerAngle === "vocero"
-        ? `¿Pudiste ver lo del pago? Si lo confirmas hoy, esta semana lo dejamos andando. Te dejo el link: ${SETUP_SERVICE.paymentUrl}`
+        ? `¿Pudiste ver lo del pago? Si lo confirmas hoy, esta semana lo dejamos andando. Te dejo el link: ${payUrl(lead.id)}`
         : "¿Pudiste ver lo del pago? Si lo confirmas hoy, esta semana lo dejamos andando.";
     case "first": {
       const offer = lead.offerAngle;
@@ -231,7 +247,7 @@ export function messageFor(
       if (offer === "rei") {
         return "¿Arrancamos esta semana? Te paso el plan y el link de pago.";
       }
-      return `Para dejarlo andando: el plan ${esencial.name} es US$${esencial.price} al mes y la ${SETUP_SERVICE.name.toLowerCase()} US$${SETUP_SERVICE.price}, que la hacemos nosotros. ¿Arrancamos esta semana? Aquí puedes pagar la ${SETUP_SERVICE.name.toLowerCase()}: ${SETUP_SERVICE.paymentUrl}`;
+      return `Para dejarlo andando: el plan ${esencial.name} es US$${esencial.price} al mes y la ${SETUP_SERVICE.name.toLowerCase()} US$${SETUP_SERVICE.price}, que la hacemos nosotros. ¿Arrancamos esta semana? Aquí puedes pagar la ${SETUP_SERVICE.name.toLowerCase()}: ${payUrl(lead.id)}`;
     }
   }
 }

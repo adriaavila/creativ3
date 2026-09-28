@@ -24,6 +24,7 @@ import {
 const WEEK_GOAL = 5;
 
 const STAGE_UI: Record<Stage, { label: string; className: string }> = {
+  onboard: { label: "Pagó: instalar", className: "bg-[var(--st-activo-soft)] text-[var(--st-activo-ink)]" },
   asked: { label: "Pago pedido", className: "bg-[var(--st-atencion-soft)] text-[var(--st-atencion-ink)]" },
   interested: { label: "Interesado", className: "bg-[var(--st-atendiendo-soft)] text-[var(--st-atendiendo-ink)]" },
   first: { label: "Primer contacto", className: "bg-[var(--st-pausado-soft)] text-[var(--st-pausado-ink)]" },
@@ -62,6 +63,7 @@ const OUTCOMES: { id: Outcome; label: string; done: string }[] = [
   { id: "paid", label: "Pagó", done: "Pagó" },
   { id: "not_now", label: "No por ahora", done: "No por ahora" },
   { id: "no_show", label: "No vino", done: "No vino, se reprograma" },
+  { id: "installed", label: "Instalado", done: "Instalado" },
 ];
 
 const SOURCES = ["aliado", "referido", "reunión", "growth", "otro"] as const;
@@ -192,6 +194,8 @@ export default function HoyClient({ initialLeads, today }: { initialLeads: Growt
                 done={done[lead.id]}
                 onLogged={(outcome, patch) => {
                   patchLead(lead.id, patch);
+                  // Pagó: la tarjeta pasa a «Pagó: instalar» en su sitio, con el mensaje para agendar la instalación.
+                  if (outcome === "paid") return;
                   setDone((d) => ({ ...d, [lead.id]: { outcome, nextActionAt: patch.nextActionAt ?? null } }));
                 }}
                 onReopen={() =>
@@ -251,7 +255,10 @@ function LeadCard({
   const link = waLink(lead.businessPhone, text);
   const chatUrl = state?.crmUrl ?? null;
   const overdue = lead.nextActionAt && lead.nextActionAt.slice(0, 10) < today;
-  const outcomes = OUTCOMES.filter((o) => o.id !== "no_show" || stage === "after_call" || stage === "call");
+  const outcomes =
+    stage === "onboard"
+      ? OUTCOMES.filter((o) => o.id === "installed")
+      : OUTCOMES.filter((o) => o.id !== "installed" && (o.id !== "no_show" || stage === "after_call" || stage === "call"));
 
   const log = async (outcome: Outcome) => {
     setSaving(outcome);
@@ -353,7 +360,7 @@ function LeadCard({
 
       <fieldset className="mt-4">
         <legend className="mb-2 text-xs font-semibold text-[var(--ink-60)]">Qué pasó</legend>
-        <div className={`grid grid-cols-2 gap-2 ${outcomes.length > 4 ? "sm:grid-cols-5" : "sm:grid-cols-4"}`}>
+        <div className={`grid gap-2 ${outcomes.length === 1 ? "grid-cols-1" : `grid-cols-2 ${outcomes.length > 4 ? "sm:grid-cols-5" : "sm:grid-cols-4"}`}`}>
           {outcomes.map((outcome) => (
             <button
               key={outcome.id}

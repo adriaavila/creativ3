@@ -105,7 +105,8 @@ export default function GrowthOpsClient({
     const today = new Date().toISOString().slice(0, 10);
     for (const lead of leads) {
       // Growth trabaja lo que investigó su agente; el resto (Vocero, cargados a mano) vive en /ops Hoy.
-      if (!lead.runId) continue;
+      // Un lead que pagó vive en Hoy («Instalar»), no en los seguimientos de Growth.
+      if (!lead.runId || lead.status === "won") continue;
       if (lead.status === "replied") enviarPropuesta.push(lead);
       else if (lead.status === "approved" && !lead.lastContactedAt) contactarHoy.push(lead);
       // Scheduled follow-up that's due (set by the agent's schedule_followup tool).

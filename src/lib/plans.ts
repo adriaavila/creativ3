@@ -166,6 +166,8 @@ export const SETUP_SERVICE = {
     "Hola, vengo de allok.fun. Quiero la puesta en marcha de allok (US$499).",
   /** Payment Link live de `allok LLC` (creado el 2026-09-24). Pide teléfono. */
   paymentUrl: "https://buy.stripe.com/14A3cx3JpcpobG55qdeEo00",
+  /** Su id: el webhook lo reconoce por esto (la otra cuenta tiene más links sin metadata). */
+  paymentLinkId: "plink_1UJLejQssTDjutCko2emNKF9",
 } as const;
 
 /**

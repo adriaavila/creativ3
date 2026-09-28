@@ -4,6 +4,7 @@ import type { GrowthLead } from "@/lib/growth-types";
 import {
   localDate,
   messageFor,
+  ONBOARD_ACTION,
   outcomePatch,
   salesQueue,
   stageOf,
@@ -65,7 +66,7 @@ test("qué pasó: cada botón deja el estado y la próxima fecha", () => {
   assert.deepEqual(outcomePatch("talked", "2026-09-24"), { status: "replied", nextAction: "Pedir el pago", nextActionAt: "2026-09-26" });
   const asked = outcomePatch("asked", "2026-09-24");
   assert.equal(stageOf({ status: asked.status, nextAction: asked.nextAction }), "asked");
-  assert.deepEqual(outcomePatch("paid", "2026-09-24"), { status: "won", nextAction: null, nextActionAt: null });
+  assert.deepEqual(outcomePatch("paid", "2026-09-24"), { status: "won", nextAction: ONBOARD_ACTION, nextActionAt: "2026-09-24" });
   assert.equal(outcomePatch("not_now", "2026-09-24", "  caro  ").nextAction, "No por ahora: caro");
   assert.equal(outcomePatch("not_now", "2026-09-24").nextAction, "No por ahora: sin motivo");
 });
@@ -116,4 +117,14 @@ test("REI y agencia no heredan el precio de Vocero", () => {
     }
   }
   assert.match(messageFor("first", lead({ offerAngle: "rei" })), /inmobiliarias/);
+});
+
+test("pagó: queda en Hoy como «Instalar» hasta que se marca instalado", () => {
+  const today = "2026-09-27";
+  assert.deepEqual(outcomePatch("paid", today), { status: "won", nextAction: ONBOARD_ACTION, nextActionAt: today });
+  const onboarding = lead({ id: "p", status: "won", nextAction: ONBOARD_ACTION, nextActionAt: today });
+  assert.equal(stageOf(onboarding), "onboard");
+  assert.equal(salesQueue([lead({ id: "a", nextActionAt: today }), onboarding], today)[0], onboarding, "el que pagó va primero");
+  assert.deepEqual(outcomePatch("installed", today), { status: "won", nextAction: null, nextActionAt: null });
+  assert.equal(stageOf(lead({ status: "won", nextAction: null })), null, "instalado sale de Hoy");
 });

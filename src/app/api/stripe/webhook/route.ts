@@ -5,7 +5,9 @@ import {
   recordStripePurchase,
   upsertStripeSubscription,
 } from "@/lib/stripe-purchases-db";
+import { markLeadPaid } from "@/lib/growth-db";
 import { projectPaymentEmail } from "@/lib/project-payment-email";
+import { itemOf, verifiedEvent, webhookSecrets } from "@/lib/stripe-webhook";
 
 export const runtime = "nodejs";
 
@@ -22,6 +24,7 @@ const PROJECT_LABELS: Record<string, string> = {
   desk: "Desk",
   "desk-cohort": "Desk Cohort",
   "desk-scale": "Desk Scale",
+  "puesta-en-marcha": "Puesta en marcha",
 };
 
 async function sendProjectPaymentEmail(session: Stripe.Checkout.Session) {
@@ -30,14 +33,14 @@ async function sendProjectPaymentEmail(session: Stripe.Checkout.Session) {
   const to = session.customer_details?.email;
   if (!apiKey || !from || !to) return;
 
-  const item = session.metadata?.item ?? session.metadata?.plan ?? "";
+  const item = itemOf(session);
   const client = session.metadata?.client ?? "";
   const email = projectPaymentEmail({
     name: session.customer_details?.name ?? null,
     amount: session.amount_total,
     currency: session.currency,
     project: PROJECT_LABELS[client] ?? PROJECT_LABELS[item] ?? null,
-    kind: item === "project-continuation" ? "continuation" : "deposit",
+    kind: item === "project-continuation" ? "continuation" : item === "puesta-en-marcha" ? "setup" : "deposit",
   });
   const { error } = await new Resend(apiKey).emails.send(
     { from, to, subject: email.subject, html: email.html, text: email.text },
@@ -46,45 +49,50 @@ async function sendProjectPaymentEmail(session: Stripe.Checkout.Session) {
   if (error) throw new Error("Project payment email was rejected.");
 }
 
+/** Aviso a Adrian de que alguien pagó. Sin `OPS_ALERT_EMAIL` no hace nada. */
+async function alertPaid(session: Stripe.Checkout.Session, businessName: string | null) {
+  const apiKey = process.env.RESEND_API_KEY;
+  const from = process.env.RESEND_FROM_EMAIL;
+  const to = process.env.OPS_ALERT_EMAIL;
+  if (!apiKey || !from || !to) return;
+  const total = session.amount_total != null ? `${(session.amount_total / 100).toFixed(2)} ${session.currency?.toUpperCase() ?? ""}` : "";
+  const who = businessName ?? session.customer_details?.name ?? "Alguien";
+  const { error } = await new Resend(apiKey).emails.send(
+    {
+      from,
+      to,
+      subject: `Pagó: ${who} · ${total}`.trim(),
+      text: businessName ? `${who} pagó ${total}. En /ops Hoy queda como «Instalar».` : `${who} pagó ${total}.`,
+    },
+    { idempotencyKey: `lead-paid/${session.id}` },
+  );
+  if (error) throw new Error("Paid alert was rejected.");
+}
+
 export async function POST(request: NextRequest) {
   const secret = process.env.STRIPE_SECRET_KEY;
-  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+  const secrets = webhookSecrets(process.env.STRIPE_WEBHOOK_SECRET);
   const signature = request.headers.get("stripe-signature");
-  if (!secret || !webhookSecret || !signature) {
+  if (!secret || secrets.length === 0 || !signature) {
     return NextResponse.json({ error: "Stripe webhook is not configured." }, { status: 503 });
   }
 
   const stripe = new Stripe(secret, { apiVersion: "2026-04-22.dahlia" });
-  let event: Stripe.Event;
-  try {
-    event = stripe.webhooks.constructEvent(
-      await request.text(),
-      signature,
-      webhookSecret,
-    );
-  } catch (error) {
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Invalid signature." },
-      { status: 400 },
-    );
+  const event = verifiedEvent(stripe, await request.text(), signature, secrets);
+  if (!event) {
+    return NextResponse.json({ error: "Invalid signature." }, { status: 400 });
   }
 
   try {
     if (event.type === "checkout.session.completed") {
       const session = event.data.object;
 
-      // El comprobante va ANTES de persistir: la base puede estar caída y el
-      // cliente igual tiene que recibir su recibo. Resend deduplica por
-      // session.id, así que los reintentos de Stripe no mandan dos correos, y
-      // si la escritura falla el 500 hace que Stripe reintente hasta que la
-      // base vuelva.
-      if (session.payment_status === "paid") {
-        await sendProjectPaymentEmail(session);
-      }
-
+      // El registro va PRIMERO: si Resend rechaza el recibo no puede tumbar la
+      // escritura del pago. El recibo es best-effort porque Resend deduplica
+      // por session.id, así que un reintento de Stripe no manda dos correos.
       await recordStripePurchase({
         stripeSessionId: session.id,
-        plan: session.metadata?.item ?? session.metadata?.plan ?? "unknown",
+        plan: itemOf(session) || "unknown",
         channel: session.metadata?.channel === "cloud_api" ? "cloud_api" : "waha",
         client: session.metadata?.client || null,
         amountTotal: session.amount_total,
@@ -97,6 +105,28 @@ export async function POST(request: NextRequest) {
             : session.subscription?.id ?? null,
         paymentStatus: session.payment_status,
       });
+
+      if (session.payment_status === "paid") {
+        // Cierra el lead del link (client_reference_id); el teléfono sólo cuenta en la puesta en
+        // marcha. Un error de base cae al 500 y Stripe reintenta; markLeadPaid es idempotente.
+        const setup = itemOf(session) === "puesta-en-marcha";
+        const lead =
+          setup || session.client_reference_id
+            ? await markLeadPaid({
+                leadId: session.client_reference_id ?? null,
+                phone: setup ? (session.customer_details?.phone ?? null) : null,
+                amountUsd:
+                  session.currency === "usd" && session.amount_total != null ? Math.round(session.amount_total / 100) : null,
+              })
+            : null;
+        // El recibo y el aviso no bloquean el registro: si Resend los rechaza, el pago ya quedó guardado.
+        await sendProjectPaymentEmail(session).catch((error) =>
+          console.error("Payment receipt not sent", session.id, error instanceof Error ? error.message : error),
+        );
+        await alertPaid(session, lead?.businessName ?? null).catch((error) =>
+          console.error("Paid alert not sent", session.id, error instanceof Error ? error.message : error),
+        );
+      }
     }
 
     if (

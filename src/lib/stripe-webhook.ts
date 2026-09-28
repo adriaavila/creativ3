@@ -1,5 +1,5 @@
 import type Stripe from "stripe";
-import { SETUP_SERVICE } from "@/lib/plans";
+import { ESENCIAL_LINK, SETUP_SERVICE } from "@/lib/plans";
 
 /**
  * Las llaves de firma, una por cuenta de Stripe que avisa a esta URL: la de
@@ -18,7 +18,9 @@ export function webhookSecrets(raw: string | undefined): string[] {
 export function itemOf(session: Pick<Stripe.Checkout.Session, "metadata" | "payment_link">): string {
   const link = typeof session.payment_link === "string" ? session.payment_link : session.payment_link?.id;
   const setup = link === SETUP_SERVICE.paymentLinkId || session.metadata?.kind === "puesta_en_marcha";
-  return session.metadata?.item ?? session.metadata?.plan ?? (setup ? "puesta-en-marcha" : "");
+  if (session.metadata?.item ?? session.metadata?.plan) return (session.metadata?.item ?? session.metadata?.plan)!;
+  if (link === ESENCIAL_LINK.id) return "esencial";
+  return setup ? "puesta-en-marcha" : "";
 }
 
 /** El evento si alguna de las llaves lo firma; si ninguna, null. */

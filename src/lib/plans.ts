@@ -171,6 +171,16 @@ export const SETUP_SERVICE = {
 } as const;
 
 /**
+ * El plan Esencial por Payment Link live de `allok LLC` (2026-09-27): US$49 al mes, 7 días de
+ * prueba, acepta códigos de descuento y pide teléfono. La puesta en marcha se cotiza aparte.
+ */
+export const ESENCIAL_LINK = {
+  url: "https://buy.stripe.com/cNieVf1BhgFE6lLg4ReEo01",
+  id: "plink_1UKTJrQssTDjutCksAOMT5hr",
+  trialDays: 7,
+} as const;
+
+/**
  * El "desde" de la página. Sale de PLANS a propósito: el número suelto en una
  * frase de copy es exactamente lo que se queda viejo cuando cambia el precio.
  */

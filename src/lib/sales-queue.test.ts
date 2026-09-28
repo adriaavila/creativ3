@@ -97,7 +97,8 @@ test("teléfonos para wa.me", () => {
 test("el pedido de pago sale de la hoja de precios y sin rayas largas", () => {
   const text = messageFor("interested", lead({}));
   assert.match(text, /US\$49 al mes/);
-  assert.match(text, /US\$499/);
+  assert.match(text, /7 días de prueba/);
+  assert.match(text, /puesta en marcha la cotizamos/);
   for (const stage of ["first", "interested", "asked"] as const) assert.doesNotMatch(messageFor(stage, lead({})), /—/);
 });
 

@@ -161,7 +161,7 @@ test("los mensajes salen de lo que sabe el agente, sin huecos ni rayas largas", 
   const follow1 = messageFor("followup", lead);
   assert.match(follow1, /^Hola Nurbelys, soy Adrian de allok\. Vi lo que le contaste a nuestro agente sobre tu bufete: no alcanzamos a contestar a todos\./);
   const priced = messageFor("followup", captured({}, { askedPrice: true }));
-  assert.match(priced, /^Hola Nurbelys, soy Adrian de allok\. Le preguntaste a nuestro agente por el precio: la puesta en marcha son US\$499 una vez y el plan Esencial US\$49 al mes\. Se paga aquí: https:\/\/buy\.stripe\.com\//);
+  assert.match(priced, /^Hola Nurbelys, soy Adrian de allok\. Le preguntaste a nuestro agente por el precio: el plan Esencial es US\$49 al mes, con 7 días de prueba\. Te suscribes aquí: https:\/\/buy\.stripe\.com\/cNieVf1BhgFE6lLg4ReEo01\?client_reference_id=x La puesta en marcha la cotizamos/);
   assert.match(priced, /verlo antes en tu bufete/);
   assert.doesNotMatch(messageFor("followup", captured({}, { askedPrice: true, rubro: null })), /en tu/);
   assert.match(messageFor("followup", captured({}, { askedPrice: true, step: 1 })), /^Nurbelys, ¿lo vemos esta semana\?/, "el segundo seguimiento no repite el precio");
@@ -170,7 +170,7 @@ test("los mensajes salen de lo que sabe el agente, sin huecos ni rayas largas", 
   assert.match(messageFor("followup", captured({}, { step: 1 })), /^Nurbelys, ¿lo vemos esta semana\?/);
   const call = messageFor("call", captured({}, { booking: { at: "2026-09-29T19:00:00Z", status: "agendada", meetLink: "https://meet.google.com/uvz" } }));
   assert.equal(call, "Hola Nurbelys, te confirmo la llamada de hoy a las 15:00. El enlace es https://meet.google.com/uvz ¿Seguimos?");
-  assert.match(messageFor("after_call", lead), /US\$499 una vez y el plan Esencial US\$49 al mes\. Se paga aquí: https:\/\/buy\.stripe\.com\//);
+  assert.match(messageFor("after_call", lead), /el plan Esencial es US\$49 al mes y los primeros 7 días son de prueba\. Te suscribes aquí: https:\/\/buy\.stripe\.com\//);
   assert.match(messageFor("after_call", lead), /buy\.stripe\.com\/\S+\?client_reference_id=x /, "el link lleva el id del lead");
   for (const stage of ["asked", "interested"] as const) {
     assert.match(messageFor(stage, lead), /\?client_reference_id=x$/, `${stage}: link con el id del lead`);

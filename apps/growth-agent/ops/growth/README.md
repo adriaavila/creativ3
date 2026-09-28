@@ -13,7 +13,7 @@
 
 ## Evaluating the agents
 
-- `pnpm --filter @allok/growth-agent eval` runs the suite in `evals/`. The judge model for `t.judge.*` LLM-as-judge checks is configured in `evals/evals.config.ts` (override with `GROWTH_JUDGE_MODEL`); it only scores, never changes the agent under test.
+- `pnpm --filter @allok/growth-agent eval` runs the suite in `evals/`. The judge model for `t.judge(...)` LLM-as-judge checks is configured in `evals/evals.config.ts` (override with `GROWTH_JUDGE_MODEL`); it only scores, never changes the agent under test.
 - Current checks: `limits`, `no-outreach`, `evidence-has-url`, `draft-voice` (judge), `lead-score-sanity` (judge), `no-pii` (judge). Gate failures fail the run; tune judge strictness with `.soft()`/`.gate()`/`.atLeast()` per assertion.
 - To trust a change: break a copywriter rule in `subagents/copywriter/instructions.md` and confirm `draft-voice` fails, then revert.
 

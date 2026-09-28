@@ -1,9 +1,8 @@
 import { defineEvalConfig } from "eve/evals";
-import { gateway } from "ai";
 
 export default defineEvalConfig({
-  // LLM-as-judge for t.judge.* assertions. String id routes through AI Gateway.
-  judge: { model: gateway(process.env.GROWTH_JUDGE_MODEL ?? "anthropic/claude-sonnet-4-6") },
+  // Juez de los t.judge(...): un modelo de evaluación por AI Gateway (id de texto).
+  judge: { model: process.env.GROWTH_JUDGE_MODEL ?? "typesafe-ai/jev" },
   maxConcurrency: 2,
   timeoutMs: 120_000,
 });

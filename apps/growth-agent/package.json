@@ -14,10 +14,10 @@
     "eval": "eve eval"
   },
   "dependencies": {
-    "@ai-sdk/openai-compatible": "3.0.0-beta.57",
+    "@ai-sdk/openai-compatible": "3.0.57",
     "@neondatabase/serverless": "1.1.0",
-    "ai": "7.0.0-beta.178",
-    "eve": "0.11.7",
+    "ai": "7.0.118",
+    "eve": "0.67.2",
     "zod": "4.3.6"
   }
 }

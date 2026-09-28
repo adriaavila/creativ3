@@ -10,7 +10,7 @@
  */
 import type { GrowthLead, LeadStatus } from "./growth-types";
 import { type CaptureStage, callHour, displayStage } from "./ops-capture";
-import { PLANS, SETUP_SERVICE } from "./plans";
+import { ESENCIAL_LINK, PLANS } from "./plans";
 
 export const SALES_TZ = "America/Caracas";
 
@@ -173,10 +173,10 @@ function hello(name: string | null | undefined): string {
 }
 
 /** El link de pago con el id del lead: el webhook de Stripe lo usa para cerrar ese lead. */
-const payUrl = (leadId: string) => `${SETUP_SERVICE.paymentUrl}?client_reference_id=${encodeURIComponent(leadId)}`;
+const payUrl = (leadId: string) => `${ESENCIAL_LINK.url}?client_reference_id=${encodeURIComponent(leadId)}`;
 
 const payAsk = (leadId: string) =>
-  `Como lo hablamos: la ${SETUP_SERVICE.name.toLowerCase()} son US$${SETUP_SERVICE.price} una vez y el plan ${esencial.name} US$${esencial.price} al mes. Se paga aquí: ${payUrl(leadId)} Cuando pagues, agendamos la instalación.`;
+  `Como lo hablamos: el plan ${esencial.name} es US$${esencial.price} al mes y los primeros ${ESENCIAL_LINK.trialDays} días son de prueba. Te suscribes aquí: ${payUrl(leadId)} La puesta en marcha te la cotizo aparte, y apenas te suscribas agendamos la instalación.`;
 
 /**
  * El borrador que abre WhatsApp. Adrian lo lee, lo ajusta si quiere y lo manda
@@ -218,7 +218,7 @@ export function messageFor(
       // Preguntó el precio y el agente no lo da en el chat: el primer seguimiento lo responde y pide el pago.
       if (state?.askedPrice) {
         const where = state.rubro ? ` en tu ${state.rubro.trim()}` : "";
-        return `${hi}, soy Adrian de allok. Le preguntaste a nuestro agente por el precio: la ${SETUP_SERVICE.name.toLowerCase()} son US$${SETUP_SERVICE.price} una vez y el plan ${esencial.name} US$${esencial.price} al mes. Se paga aquí: ${payUrl(lead.id)} Si prefieres verlo antes${where}, te lo muestro en 15 minutos.`;
+        return `${hi}, soy Adrian de allok. Le preguntaste a nuestro agente por el precio: el plan ${esencial.name} es US$${esencial.price} al mes, con ${ESENCIAL_LINK.trialDays} días de prueba. Te suscribes aquí: ${payUrl(lead.id)} La puesta en marcha la cotizamos según tu negocio. Si prefieres verlo antes${where}, te lo muestro en 15 minutos.`;
       }
       const about = state?.rubro
         ? `Vi lo que le contaste a nuestro agente sobre tu ${state.rubro.trim()}${state.dolor ? `: ${state.dolor.trim().replace(/[.\s]+$/, "")}` : ""}.`
@@ -247,7 +247,7 @@ export function messageFor(
       if (offer === "rei") {
         return "¿Arrancamos esta semana? Te paso el plan y el link de pago.";
       }
-      return `Para dejarlo andando: el plan ${esencial.name} es US$${esencial.price} al mes y la ${SETUP_SERVICE.name.toLowerCase()} US$${SETUP_SERVICE.price}, que la hacemos nosotros. ¿Arrancamos esta semana? Aquí puedes pagar la ${SETUP_SERVICE.name.toLowerCase()}: ${payUrl(lead.id)}`;
+      return `Para dejarlo andando: el plan ${esencial.name} es US$${esencial.price} al mes, con ${ESENCIAL_LINK.trialDays} días de prueba, y la puesta en marcha la cotizamos según tu negocio. ¿Arrancamos esta semana? Te suscribes aquí: ${payUrl(lead.id)}`;
     }
   }
 }

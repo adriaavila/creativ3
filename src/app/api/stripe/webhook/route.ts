@@ -32,6 +32,8 @@ async function sendProjectPaymentEmail(session: Stripe.Checkout.Session) {
   const from = process.env.RESEND_FROM_EMAIL;
   const to = session.customer_details?.email;
   if (!apiKey || !from || !to) return;
+  // El plan mensual no es un proyecto: su confirmación la da Stripe al suscribirse.
+  if (itemOf(session) === "esencial") return;
 
   const item = itemOf(session);
   const client = session.metadata?.client ?? "";
@@ -107,17 +109,19 @@ export async function POST(request: NextRequest) {
         paymentStatus: session.payment_status,
       });
 
-      if (session.payment_status === "paid") {
+      // La suscripción con días de prueba termina el checkout sin cobro («no_payment_required»): igual es un cliente.
+      const signedUp = session.payment_status === "paid" || (session.mode === "subscription" && session.payment_status === "no_payment_required");
+      if (signedUp) {
         // Cierra el lead del link (client_reference_id); el teléfono sólo cuenta en la puesta en
         // marcha. Un error de base cae al 500 y Stripe reintenta; markLeadPaid es idempotente.
-        const setup = itemOf(session) === "puesta-en-marcha";
+        const setup = ["puesta-en-marcha", "esencial"].includes(itemOf(session));
         const lead =
           setup || session.client_reference_id
             ? await markLeadPaid({
                 leadId: session.client_reference_id ?? null,
                 phone: setup ? (session.customer_details?.phone ?? null) : null,
                 amountUsd:
-                  session.currency === "usd" && session.amount_total != null ? Math.round(session.amount_total / 100) : null,
+                  session.currency === "usd" && session.amount_total ? Math.round(session.amount_total / 100) : null,
               })
             : null;
         // El recibo y el aviso no bloquean el registro: si Resend los rechaza, el pago ya quedó guardado.

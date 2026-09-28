@@ -25,3 +25,8 @@ test("sólo el link de la puesta en marcha cobra como puesta en marcha", () => {
   assert.equal(itemOf({ payment_link: null, metadata: { item: "project-juanete" } }), "project-juanete", "nuestro checkout manda su item");
   assert.equal(itemOf({ payment_link: null, metadata: null }), "");
 });
+
+test("el link del plan Esencial se reconoce como plan mensual", () => {
+  assert.equal(itemOf({ metadata: {}, payment_link: "plink_1UKTJrQssTDjutCksAOMT5hr" }), "esencial");
+  assert.equal(itemOf({ metadata: {}, payment_link: "plink_otro" }), "");
+});

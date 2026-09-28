@@ -5,7 +5,7 @@ import {
   getLatestWhatsAppConnectionForClient,
   getWhatsAppProviderConnection,
 } from "@/lib/whatsapp-connections-db";
-import { parseExternalRef } from "@/lib/handover/destinations";
+import { parseExternalRef, retryDestinationAllowed } from "@/lib/handover/destinations";
 
 export const dynamic = "force-dynamic";
 
@@ -53,6 +53,13 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       { error: "Ese espacio no tiene ningún número conectado en Allok.", step: "config" },
       { status: 404 },
+    );
+  }
+  // El secreto compartido sólo reintenta la entrega que ya empezó: no mueve un número a otro destino.
+  if (!retryDestinationAllowed(connection.crmProvider, destination)) {
+    return NextResponse.json(
+      { error: "Ese número no tiene una entrega pendiente hacia ese destino.", step: "config" },
+      { status: 403 },
     );
   }
 

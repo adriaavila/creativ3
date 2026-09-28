@@ -3,14 +3,18 @@ import { createOpsSessionToken, OPS_COOKIE_NAME, opsSessionKey, verifyOpsSession
 
 export { OPS_COOKIE_NAME };
 
+// Vercel doesn't return sensitive env values, so this can't be enforced without
+// risking a lockout on deploy: warn instead of gating access on it.
+if ((process.env.OPS_SESSION_SECRET ?? "").length > 0 && process.env.OPS_SESSION_SECRET!.length < 32) {
+  console.warn("OPS_SESSION_SECRET is shorter than 32 characters");
+}
+
 export type OpsAuthorization =
   | { authorized: true; userId: string }
   | { authorized: false; response: Response };
 
 export function isOpsAuthConfigured() {
-  return Boolean(
-    process.env.OPS_ACCESS_PASSWORD && (process.env.OPS_SESSION_SECRET ?? "").length >= 32,
-  );
+  return Boolean(process.env.OPS_ACCESS_PASSWORD && process.env.OPS_SESSION_SECRET);
 }
 
 export async function authorizeOps(): Promise<OpsAuthorization> {

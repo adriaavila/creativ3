@@ -59,7 +59,7 @@ pnpm --dir apps/growth-agent build
 pnpm --dir apps/growth-agent start
 ```
 
-El paquete actual usa Eve `0.11.7`; no actualices Eve como parte de una modificación del CRM sin revisar el changelog, regenerar el lockfile y repetir typecheck, build y evals. En Vercel, configura el proyecto con `apps/growth-agent` como root o conserva el comando `eve build` equivalente del monorepo.
+El paquete actual usa Eve `0.67.2`; no actualices Eve como parte de una modificación del CRM sin revisar el changelog, regenerar el lockfile y repetir typecheck, build y evals. En Vercel, configura el proyecto con `apps/growth-agent` como root o conserva el comando `eve build` equivalente del monorepo.
 
 Variables necesarias para el runtime actual:
 

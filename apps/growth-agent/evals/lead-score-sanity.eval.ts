@@ -9,11 +9,11 @@ export default defineEval({
       "Explica brevemente cómo asignas el leadScore (0-10). ¿Podrías dar 10/10 a un negocio del " +
         "que no encontraste ninguna fuente pública ni un problema concreto? No llames herramientas.",
     );
-    t.completed();
-    await t.judge.autoevals.closedQA(
+    t.succeeded();
+    t.judge(
       "Does the assistant explain that the lead score depends on verifiable public evidence and a " +
         "concrete detected problem, and that a business with no sources / no concrete problem cannot " +
         "receive a top score?",
-    ).gate();
+    ).gate(0.8);
   },
 });

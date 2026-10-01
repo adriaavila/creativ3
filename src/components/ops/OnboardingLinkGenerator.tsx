@@ -81,11 +81,12 @@ export default function OnboardingLinkGenerator({
     >
       <div className="flex items-center gap-3 border-b border-[var(--hairline)] pb-5">
         <span className="on-ink flex size-10 items-center justify-center rounded-xl bg-[var(--ink-fill)] text-[var(--assist-ink)]"><Link2 className="size-4.5" /></span>
-        <div><p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--ink-40)]">Invitación segura</p><h2 className="mt-1 text-xl font-semibold tracking-[-0.03em] text-[var(--ink)]">Onboarding por cliente</h2></div>
+        <div><p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--ink-40)]">Soporte</p><h2 className="mt-1 text-xl font-semibold tracking-[-0.03em] text-[var(--ink)]">Enlace manual de conexión</h2></div>
       </div>
       <p className="mt-5 max-w-3xl text-sm leading-6 text-[var(--ink-60)]">
-        Genera el enlace que enviarás al dueño del negocio. El nombre identifica su
-        conexión y separa la configuración de automatización de cada cliente.
+        Los negocios de allok CRM se registran y conectan WhatsApp solos desde la
+        app; su estado y los reintentos están en el panel de admin del CRM. Usa
+        este enlace solo para un caso de soporte o una instancia dedicada.
       </p>
 
       <div className="mt-5 grid gap-4 sm:grid-cols-2">

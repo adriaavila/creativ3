@@ -325,10 +325,11 @@ export default function EmbeddedSignupClient({
       return_scopes: true,
       scope: config.requiredPermissions.join(","),
       state: signupStateRef.current,
+      // Embedded Signup v4: the configuration (config_id) decides the
+      // version; v2/v3 and `sessionInfoVersion` end on 2026-10-15.
       extras: {
         setup: {},
         ...(cloudApi ? {} : { featureType: "whatsapp_business_app_onboarding" }),
-        sessionInfoVersion: "3",
       },
     });
   };

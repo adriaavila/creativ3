@@ -45,8 +45,9 @@ export default async function GrowthOpsPage({
   const requestedDraftId = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(rawDraftId) ? rawDraftId : null;
   const [runs, leads, listedDrafts, marketing, requestedDraft, invitesToday] = await Promise.all([
     getGrowthRuns(),
-    getGrowthLeads(),
-    getOutreachDrafts(),
+    // ponytail: todo en memoria (hoy ~30 leads y ~50 borradores). Paginar en SQL cuando pasen de estos topes.
+    getGrowthLeads(500),
+    getOutreachDrafts(500),
     getMarketingSnapshot(),
     requestedDraftId ? getOutreachDraftById(requestedDraftId).catch(() => null) : null,
     countInvitesToday().catch(() => 0),

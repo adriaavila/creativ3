@@ -98,10 +98,12 @@ export default function GrowthOpsClient({
   }, [drafts]);
 
   // La invitación pendiente de cada lead: lo que Hoy ofrece mandar.
-  const dmByLead = useMemo(
-    () => new Map(drafts.filter((d) => d.kind === "dm" && d.status === "pending" && d.channel === "whatsapp").map((d) => [d.leadId, d])),
-    [drafts],
-  );
+  // Si un lead tiene dos invitaciones pendientes, vale la más nueva (la lista llega de la más nueva a la más vieja).
+  const dmByLead = useMemo(() => {
+    const map = new Map<string, OutreachDraft>();
+    for (const d of drafts) if (d.kind === "dm" && d.status === "pending" && d.channel === "whatsapp" && !map.has(d.leadId)) map.set(d.leadId, d);
+    return map;
+  }, [drafts]);
 
   // Deterministic daily buckets (no LLM).
   const buckets = useMemo(() => {
@@ -149,7 +151,7 @@ export default function GrowthOpsClient({
     }
     if (!payload.repeat) setInvitesToday((n) => n + 1);
     setDrafts((items) => items.map((item) => (item.id === draft.id ? { ...item, status: "approved" } : item)));
-    if (!payload.repeat) patchLead(draft.leadId, { status: "contacted", lastContactedAt: new Date().toISOString(), nextActionAt: payload.nextActionAt ?? null });
+    if (payload.logged) patchLead(draft.leadId, { status: "contacted", lastContactedAt: new Date().toISOString(), nextActionAt: payload.nextActionAt ?? null });
     setNotice(
       payload.repeat
         ? "Ya estaba anotado. No cambió el seguimiento."
@@ -298,7 +300,7 @@ export default function GrowthOpsClient({
                 leads={buckets.contactarHoy}
                 action={(lead) => {
                   const dm = dmByLead.get(lead.id);
-                  return dm ? (
+                  return dm && waDigits(lead.businessPhone) ? (
                     <InviteLink draft={dm} phone={lead.businessPhone} capped={invitesToday >= DAILY_INVITE_CAP} onInvite={() => void invite(dm)} />
                   ) : (
                     <TapButton type="button" onClick={() => void markContacted(lead)} className="on-ink rounded-lg bg-[var(--ink-fill)] px-3 py-2 text-xs font-semibold text-white">Marcar contactado</TapButton>

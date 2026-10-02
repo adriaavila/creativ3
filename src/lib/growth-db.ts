@@ -208,7 +208,8 @@ export async function getOutreachDrafts(limit = 50): Promise<OutreachDraft[]> {
   const rows = await sql`
     SELECT id, lead_id, channel, kind, content, status, updated_at
     FROM outreach_drafts
-    ORDER BY updated_at DESC
+    -- Pendientes primero: Hoy necesita la invitación de cada lead, y la invitación es el borrador más viejo del lead.
+    ORDER BY (status = 'pending') DESC, updated_at DESC
     LIMIT ${limit}
   `;
 

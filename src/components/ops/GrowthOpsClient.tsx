@@ -21,7 +21,7 @@ import {
 import type { DraftKind, GrowthLead, GrowthRun, OutreachDraft } from "@/lib/growth-types";
 import type { MarketingSnapshot, PostizMetric, PostizPost } from "@/lib/postiz";
 import { DISPLAY_TIGHT, TapButton } from "@/components/ops/apple";
-import { DAILY_INVITE_CAP, localDate, waLink } from "@/lib/sales-queue";
+import { DAILY_INVITE_CAP, localDate, waDigits, waLink } from "@/lib/sales-queue";
 
 /** Borradores que se mandan desde el teléfono de Adrian con «Invitar por WhatsApp». */
 const INVITE_KINDS = new Set<DraftKind>(["dm", "followup_1", "followup_2"]);
@@ -97,6 +97,14 @@ export default function GrowthOpsClient({
     return [...groups.entries()];
   }, [drafts]);
 
+  // La invitación pendiente de cada lead: lo que Hoy ofrece mandar.
+  // Si un lead tiene dos invitaciones pendientes, vale la más nueva (la lista llega de la más nueva a la más vieja).
+  const dmByLead = useMemo(() => {
+    const map = new Map<string, OutreachDraft>();
+    for (const d of drafts) if (d.kind === "dm" && d.status === "pending" && d.channel === "whatsapp" && !map.has(d.leadId)) map.set(d.leadId, d);
+    return map;
+  }, [drafts]);
+
   // Deterministic daily buckets (no LLM).
   const buckets = useMemo(() => {
     const contactarHoy: GrowthLead[] = [];
@@ -109,12 +117,15 @@ export default function GrowthOpsClient({
       if (!lead.runId || lead.status === "won") continue;
       if (lead.status === "replied") enviarPropuesta.push(lead);
       else if (lead.status === "approved" && !lead.lastContactedAt) contactarHoy.push(lead);
+      // Redactado por el agente, con WhatsApp y su invitación lista: se manda desde aquí, sin pasar por Borradores.
+      else if (lead.status === "drafted" && !lead.lastContactedAt && dmByLead.has(lead.id) && waDigits(lead.businessPhone)) contactarHoy.push(lead);
       // Scheduled follow-up that's due (set by the agent's schedule_followup tool).
       else if (lead.nextActionAt != null && lead.nextActionAt.slice(0, 10) <= today) followUp.push(lead);
       else if (lead.status === "contacted" && isStale(lead.lastContactedAt)) followUp.push(lead);
     }
+    contactarHoy.sort((a, b) => (b.leadScore ?? 0) - (a.leadScore ?? 0));
     return { contactarHoy, followUp, enviarPropuesta };
-  }, [leads]);
+  }, [leads, dmByLead]);
 
   const startRun = async () => {
     setRunning(true);
@@ -140,6 +151,7 @@ export default function GrowthOpsClient({
     }
     if (!payload.repeat) setInvitesToday((n) => n + 1);
     setDrafts((items) => items.map((item) => (item.id === draft.id ? { ...item, status: "approved" } : item)));
+    if (payload.logged) patchLead(draft.leadId, { status: "contacted", lastContactedAt: new Date().toISOString(), nextActionAt: payload.nextActionAt ?? null });
     setNotice(
       payload.repeat
         ? "Ya estaba anotado. No cambió el seguimiento."
@@ -284,11 +296,16 @@ export default function GrowthOpsClient({
             <div className="grid gap-5">
               <DayBucket
                 title="Contactar hoy"
-                hint="Aprobados, aún sin contactar"
+                hint={`Sin contactar · hoy van ${invitesToday} de ${DAILY_INVITE_CAP}`}
                 leads={buckets.contactarHoy}
-                action={(lead) => (
-                  <TapButton type="button" onClick={() => void markContacted(lead)} className="on-ink rounded-lg bg-[var(--ink-fill)] px-3 py-2 text-xs font-semibold text-white">Marcar contactado</TapButton>
-                )}
+                action={(lead) => {
+                  const dm = dmByLead.get(lead.id);
+                  return dm && waDigits(lead.businessPhone) ? (
+                    <InviteLink draft={dm} phone={lead.businessPhone} capped={invitesToday >= DAILY_INVITE_CAP} onInvite={() => void invite(dm)} />
+                  ) : (
+                    <TapButton type="button" onClick={() => void markContacted(lead)} className="on-ink rounded-lg bg-[var(--ink-fill)] px-3 py-2 text-xs font-semibold text-white">Marcar contactado</TapButton>
+                  );
+                }}
               />
               <DayBucket
                 title="Follow-up"
@@ -436,20 +453,7 @@ export default function GrowthOpsClient({
                               if (!link) {
                                 return <TapButton type="button" onClick={() => void saveDraft(draft, "approved")} className="inline-flex items-center gap-2 rounded-lg bg-[var(--assist)] px-4 py-2 text-xs font-semibold text-[var(--on-assist)]"><Check className="size-3.5" /> Aprobar</TapButton>;
                               }
-                              const capped = draft.status !== "approved" && invitesToday >= DAILY_INVITE_CAP;
-                              return (
-                                <a
-                                  href={capped ? undefined : link}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  aria-disabled={capped || undefined}
-                                  onClick={(event) => (capped ? event.preventDefault() : void invite(draft))}
-                                  className={`on-ink inline-flex min-h-11 items-center gap-2 rounded-lg bg-[var(--ink-fill)] px-4 text-xs font-semibold text-white ${capped ? "cursor-not-allowed opacity-50" : ""}`}
-                                >
-                                  <MessageCircle className="size-3.5" aria-hidden="true" />
-                                  {draft.status === "approved" ? "Abrir otra vez" : draft.kind === "dm" ? "Invitar por WhatsApp" : "Enviar seguimiento"}
-                                </a>
-                              );
+                              return <InviteLink draft={draft} phone={lead?.businessPhone} capped={draft.status !== "approved" && invitesToday >= DAILY_INVITE_CAP} onInvite={() => void invite(draft)} />;
                             })()}
                             <TapButton type="button" onClick={() => void saveDraft(draft, "rejected")} className="inline-flex items-center gap-2 rounded-lg border border-[var(--rule)] bg-white px-4 py-2 text-xs font-semibold text-[var(--ink-60)]"><X className="size-3.5" /> Rechazar</TapButton>
                             <TapButton type="button" onClick={() => navigator.clipboard.writeText(draft.content)} className="inline-flex items-center gap-2 rounded-lg border border-[var(--rule)] bg-white px-4 py-2 text-xs font-semibold text-[var(--ink-60)]"><Copy className="size-3.5" /> Copiar</TapButton>
@@ -472,6 +476,25 @@ export default function GrowthOpsClient({
   );
 }
 
+/** Abre WhatsApp en el teléfono de Adrian con el mensaje; el clic lo anota. */
+function InviteLink({ draft, phone, capped, onInvite }: { draft: OutreachDraft; phone: string | null | undefined; capped: boolean; onInvite: () => void }) {
+  const link = waLink(phone, draft.content);
+  if (!link) return null;
+  return (
+    <a
+      href={capped ? undefined : link}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-disabled={capped || undefined}
+      onClick={(event) => (capped ? event.preventDefault() : onInvite())}
+      className={`on-ink inline-flex min-h-11 items-center gap-2 rounded-lg bg-[var(--ink-fill)] px-4 text-xs font-semibold text-white ${capped ? "cursor-not-allowed opacity-50" : ""}`}
+    >
+      <MessageCircle className="size-3.5" aria-hidden="true" />
+      {draft.status === "approved" ? "Abrir otra vez" : draft.kind === "dm" ? "Invitar por WhatsApp" : "Enviar seguimiento"}
+    </a>
+  );
+}
+
 function DayBucket({
   title,
   hint,
@@ -484,7 +507,7 @@ function DayBucket({
   action: (lead: GrowthLead) => ReactNode;
 }) {
   return (
-    <div className="rounded-xl border border-[var(--rule)] bg-white p-5 shadow-[var(--shadow-md)] sm:p-6">
+    <div className="min-w-0 rounded-xl border border-[var(--rule)] bg-white p-5 shadow-[var(--shadow-md)] sm:p-6">
       <div className="flex flex-wrap items-baseline justify-between gap-3">
         <h2 className="font-display text-2xl font-semibold tracking-[-0.035em] text-[var(--ink)]">{title}</h2>
         <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-[var(--ink-60)]">{leads.length} · {hint}</span>
@@ -492,10 +515,10 @@ function DayBucket({
       {leads.length === 0 ? (
         <p className="mt-4 rounded-lg border border-dashed border-[var(--rule)] bg-[var(--ground-2)] px-4 py-6 text-sm text-[var(--ink-60)]">No hay acciones pendientes.</p>
       ) : (
-        <ul className="mt-4 grid gap-2">
+        <ul className="mt-4 grid grid-cols-1 gap-2">
           {leads.map((lead) => (
-            <li key={lead.id} className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-[var(--hairline)] bg-[var(--ground-2)] px-4 py-3">
-              <div className="min-w-0">
+            <li key={lead.id} className="flex min-w-0 flex-wrap items-center justify-between gap-3 rounded-lg border border-[var(--hairline)] bg-[var(--ground-2)] px-4 py-3">
+              <div className="min-w-0 flex-1 basis-56">
                 <div className="truncate text-sm font-semibold">{lead.businessName}</div>
                 <div className="truncate text-xs text-[var(--ink-60)]">{lead.nextAction ?? lead.problemDetected}</div>
               </div>

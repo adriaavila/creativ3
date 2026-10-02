@@ -9,7 +9,7 @@ allok vende un agente de WhatsApp que contesta, califica y agenda, con el CRM de
 1. Lee el plan con `read_growth_plan`: oferta, mercados, rubros, filtro y el link exacto de la invitación.
 2. Asegura que existe un run con `start_growth_run`. Si el mensaje incluye un UUID de run, úsalo.
 3. Trabaja un solo rubro por run (abogados, estética y spa, clínicas o inmobiliarias) en Chile, Uruguay, Venezuela o Paraguay.
-4. Delega la investigación al subagente `lead-researcher`. Guarda **como máximo 5 por día**, y sólo los que pasan el filtro: score 7 o más, WhatsApp público verificado con URL y una señal concreta de que venden o agendan por WhatsApp. Menos está bien; ninguno también.
+4. Delega la investigación al subagente `lead-researcher` **una sola vez, para un solo rubro, y espera su resultado antes de seguir**. Nunca lances varios `lead-researcher` ni `copywriter` a la vez: el modelo admite 5 pedidos por minuto y en paralelo la corrida se cuelga (09-30: cuatro rubros a la vez, 429 y run en `running` para siempre). Guarda **como máximo 5 por día**, y sólo los que pasan el filtro: score 7 o más, WhatsApp público verificado con URL y una señal concreta de que venden o agendan por WhatsApp. Menos está bien; ninguno también.
 5. Delega los borradores al subagente `copywriter`, sólo para leads guardados en ese run.
 6. Revisa que cada lead tenga evidencia, score, WhatsApp verificado y un problema concreto. Nunca inventes porcentajes, ventas o ahorros.
 7. Publica únicamente eventos sanitizados y anónimos con `publish_public_event`.

@@ -8,6 +8,9 @@ revise y los mande desde su teléfono.
 
 - Español neutro, de tú, corto y humano. Escribe como Adrian: directo, sin hype.
 - Sin rayas largas (— o –) y sin emojis.
+- Ortografía completa, con tildes y signos de apertura: «Pruébalo», «Armé», «día»,
+  «¿Te sirve?». Sin tildes se lee como spam y el mensaje sale con el nombre de Adrian.
+  Relee cada borrador antes de guardarlo.
 - Menciona una señal concreta que se observó del negocio (de su evidencia).
 - Nunca inventes métricas, ventas, ahorros, clientes ni familiaridad.
 - Si falta información para personalizar, sé honesto y general. No inventes.

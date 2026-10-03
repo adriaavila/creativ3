@@ -24,8 +24,10 @@
  *
  * Lo que dice cada plan sale de lo que la app realmente cierra por plan
  * (`hasSaaSPlan(org, "pro")` en vocero-crm): pipeline, agenda, equipo y
- * respuesta fuera de horario son de Completo. No inventar una diferencia que
- * el código no hace.
+ * respuesta todo el día son de Completo. Esencial contesta solo fuera del
+ * horario del negocio (`responseMode: "outside_hours"`; atender a cualquier
+ * hora exige Completo, ver `api/agent/profile` en la app). No inventar una
+ * diferencia que el código no hace.
  */
 
 /** La app del CRM: ahí se registra el negocio y ahí se cobra. */
@@ -62,12 +64,37 @@ export type Plan = {
 };
 
 /**
- * Autoservicio apagado (decisión de Adrian, 2026-09-24: "all in en sistemas a
- * medida"). Cada plan se vende en una conversación y la puesta en marcha la hace
- * allok; nadie se registra solo desde la web. Volver a `true` reactiva los
- * botones de registro sin tocar las páginas.
+ * Autoservicio encendido (decisión de Adrian, 2026-10-03: «abrir autoservicio»;
+ * antes apagado desde el 2026-09-24). Los dos planes de suscripción llevan a
+ * `CRM_APP_URL/register`, donde cualquiera crea su cuenta y arranca la misma
+ * prueba: 7 días del plan Completo, sin tarjeta, y después elige plan.
+ *
+ * Producción solo queda abierta cuando Adrian fusiona esto Y pone
+ * `SAAS_SELF_SERVE=true` en el CRM (ver `docs/autoservicio.md` en vocero-crm):
+ * con el CRM aún cerrado, estos botones llevarían a una pantalla de «el alta la
+ * hacemos contigo». Poner `false` aquí devuelve cada plan a una conversación
+ * por WhatsApp sin tocar las páginas.
  */
-export const SELF_SERVE = false;
+export const SELF_SERVE = true;
+
+/**
+ * La nota bajo el botón de un plan de suscripción. Con autoservicio, los dos
+ * botones abren la misma prueba de Completo, así que las dos tarjetas dicen lo
+ * mismo y ninguna promete una prueba del plan Esencial. Sin autoservicio solo
+ * Completo lleva su prueba, como antes.
+ */
+export function trialNote(plan: Plan): string | null {
+  if (SELF_SERVE && plan.appPlan) {
+    // Lo que el CRM da a quien se registra solo, sin importar el plan del
+    // botón (`startSelfServeTrial` en vocero-crm). Sale del plan Completo para
+    // que los días vivan en un solo lugar de este repo.
+    const trial = PLANS.find((p) => p.appPlan === "pro");
+    if (trial?.trialDays) {
+      return `${trial.trialDays} días gratis del plan ${trial.name}. Después eliges tu plan.`;
+    }
+  }
+  return plan.trialDays ? `${plan.trialDays} días de prueba` : null;
+}
 
 /**
  * El botón de un plan: registro si hay autoservicio, WhatsApp si no. El texto
@@ -76,7 +103,7 @@ export const SELF_SERVE = false;
  */
 export function planCta(plan: Plan): { href: string; label: string } {
   if (SELF_SERVE && plan.appPlan) {
-    return { href: registerUrl(plan.appPlan), label: "Conectar mi WhatsApp" };
+    return { href: registerUrl(plan.appPlan), label: "Crear mi cuenta" };
   }
   return {
     href: whatsappUrl(plan.talkTo ?? `Hola, vengo de allok.fun. Quiero el plan ${plan.name}.`),
@@ -101,7 +128,7 @@ export const PLANS: Plan[] = [
     line: "Que nadie se quede sin respuesta.",
     features: [
       "Tu número de siempre, sin cambiar nada",
-      "Contesta a cualquier hora con lo que de verdad vendes",
+      "Contesta fuera de tu horario con lo que de verdad vendes",
       "Una bandeja donde queda toda la conversación",
       "Ficha del cliente y su historial",
       "Pruébalo antes de soltarlo con clientes reales",
@@ -122,7 +149,7 @@ export const PLANS: Plan[] = [
       "Tus ventas en etapas, de la consulta al cliente",
       "Agenda citas y las confirma solo",
       "Tu equipo entero en la misma bandeja",
-      "Responde todo el día, no solo en tu horario",
+      "Responde todo el día, también dentro de tu horario",
     ],
   },
   {
@@ -173,6 +200,9 @@ export const SETUP_SERVICE = {
 /**
  * El plan Esencial por Payment Link live de `allok LLC` (2026-09-27): US$49 al mes, 7 días de
  * prueba, acepta códigos de descuento y pide teléfono. La puesta en marcha se cotiza aparte.
+ *
+ * Solo para mensajes de venta uno a uno (`sales-queue`). Las tarjetas de plan NO lo usan: un
+ * pago aquí no crea la cuenta del CRM, y el registro ya da la prueba de Completo.
  */
 export const ESENCIAL_LINK = {
   url: "https://buy.stripe.com/cNieVf1BhgFE6lLg4ReEo01",

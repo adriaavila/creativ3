@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { whatsappUrl } from "@/lib/contact";
-import { FROM_PRICE, PLANS, SELF_SERVE, planCta } from "@/lib/plans";
+import { FROM_PRICE, PLANS, planCta, trialNote } from "@/lib/plans";
 import SiteHeader from "@/components/allok/SiteHeader";
 import SiteFooter from "@/components/allok/SiteFooter";
 import MetaCostCalculator from "@/components/rei/MetaCostCalculator";
@@ -145,8 +145,11 @@ export default function ReiPage() {
                     : "border border-[rgba(16,17,18,.22)] text-[var(--ink)]"
                 }`}
               >
-                {plan.appPlan && SELF_SERVE ? `Empezar con ${plan.name}` : "Hablemos"}
+                {plan.appPlan ? planCta(plan).label : "Hablemos"}
               </a>
+              {trialNote(plan) ? (
+                <p className="mono mt-3 text-center opacity-65">{trialNote(plan)}</p>
+              ) : null}
 
               <ul
                 className={`mt-5 grid gap-2.5 border-t pt-4.5 ${

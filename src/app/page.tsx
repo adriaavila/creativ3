@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { TRY_AGENT_MESSAGE, whatsappUrl } from "@/lib/contact";
 import { BRAND, STATES } from "@/lib/brand";
-import { CRM_APP_URL, FROM_PRICE, PLANS, SETUP_SERVICE, planCta, priceLabel } from "@/lib/plans";
+import { CRM_APP_URL, FROM_PRICE, PLANS, SETUP_SERVICE, planCta, priceLabel, trialNote } from "@/lib/plans";
 import SiteHeader from "@/components/allok/SiteHeader";
 import SiteFooter from "@/components/allok/SiteFooter";
 import Conversation from "@/components/allok/Conversation";
@@ -275,8 +275,8 @@ export default function Home() {
               >
                 {planCta(plan).label}
               </a>
-              {plan.trialDays ? (
-                <p className="mono mt-3 text-center opacity-65">{plan.trialDays} días de prueba</p>
+              {trialNote(plan) ? (
+                <p className="mono mt-3 text-center opacity-65">{trialNote(plan)}</p>
               ) : null}
 
               <ul className={`allok-hair mt-7 grid gap-3 pt-6 ${plan.featured ? "border-white/12" : ""}`}>

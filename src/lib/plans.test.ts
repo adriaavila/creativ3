@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { CRM_APP_URL, FROM_PRICE, PLANS, SETUP_SERVICE, closingOffer, isSelfServe, metaMonthlyCost, planCta, priceLabel, registerUrl, trialNote, usd } from "./plans";
+import { CRM_APP_URL, FROM_PRICE, PLANS, SETUP_SERVICE, closingOffer, headerCta, headerNav, heroCta, isSelfServe, metaMonthlyCost, planCta, priceLabel, registerUrl, trialNote, usd } from "./plans";
 
 test("el tramo gratis de Meta deja el costo en cero", () => {
   // 200 consultas × 5 respuestas = 1.000 mensajes, justo el límite gratis.
@@ -165,5 +165,25 @@ test("el cierre de la home: encendido ofrece el registro y deja WhatsApp de segu
     assert.ok(on.line.includes("7 días gratis del plan Completo"), on.line);
     assert.deepEqual(on.primary, { href: `${CRM_APP_URL}/register`, label: "Crear mi cuenta" });
     assert.deepEqual(on.secondary, { href: talk, label: "Prefiero hablarlo por WhatsApp" });
+  });
+});
+
+test("sin NEXT_PUBLIC_SELF_SERVE, portada y cabecera conservan el WhatsApp y el login de siempre", () => {
+  withSelfServe(undefined, () => {
+    const talk = "https://wa.me/1?text=hola";
+    assert.deepEqual(heroCta(talk), { href: talk, label: "Quiero mi agente" });
+    assert.deepEqual(headerCta(), { href: `${CRM_APP_URL}/login`, label: "Entrar" });
+    const nav = [{ href: "#precios", label: "Precios" }];
+    assert.deepEqual(headerNav(nav), nav);
+  });
+});
+
+test("con NEXT_PUBLIC_SELF_SERVE=true, portada y cabecera llevan al registro y el login pasa a la navegación", () => {
+  withSelfServe("true", () => {
+    const talk = "https://wa.me/1?text=hola";
+    assert.deepEqual(heroCta(talk), { href: `${CRM_APP_URL}/register`, label: "Crear mi cuenta" });
+    assert.deepEqual(headerCta(), { href: `${CRM_APP_URL}/register`, label: "Crear mi cuenta" });
+    const nav = headerNav([{ href: "#precios", label: "Precios" }]);
+    assert.deepEqual(nav.at(-1), { href: `${CRM_APP_URL}/login`, label: "Entrar" });
   });
 });

@@ -144,6 +144,33 @@ export function closingOffer(talkHref: string): {
   };
 }
 
+/**
+ * El botón principal de la portada: «Quiero mi agente». Con autoservicio es
+ * crear la cuenta (el WhatsApp queda como segunda opción en el cierre); sin él,
+ * la conversación de siempre.
+ */
+export function heroCta(talkHref: string): { href: string; label: string } {
+  return isSelfServe()
+    ? { href: registerUrl(), label: "Crear mi cuenta" }
+    : { href: talkHref, label: "Quiero mi agente" };
+}
+
+/**
+ * La cabecera de la portada. Con autoservicio la acción es crear la cuenta; el
+ * acceso de quien ya es cliente pasa a la navegación (`headerNav`) y al enlace
+ * «Inicia sesión» del propio registro.
+ */
+export function headerCta(): { href: string; label: string } {
+  return isSelfServe()
+    ? { href: registerUrl(), label: "Crear mi cuenta" }
+    : { href: `${CRM_APP_URL}/login`, label: "Entrar" };
+}
+
+/** La navegación de la portada; con autoservicio suma «Entrar» (la acción de la cabecera ya es el registro). */
+export function headerNav<T extends { href: string; label: string }>(nav: readonly T[]): { href: string; label: string }[] {
+  return isSelfServe() ? [...nav, { href: `${CRM_APP_URL}/login`, label: "Entrar" }] : [...nav];
+}
+
 /** A dónde manda el botón de un plan de suscripción (sin plan: el registro a secas). */
 export function registerUrl(appPlan?: "basic" | "pro"): string {
   return appPlan ? `${CRM_APP_URL}/register?plan=${appPlan}` : `${CRM_APP_URL}/register`;

@@ -129,3 +129,40 @@ test("pagó: queda en Hoy como «Instalar» hasta que se marca instalado", () =>
   assert.deepEqual(outcomePatch("installed", today), { status: "won", nextAction: null, nextActionAt: null });
   assert.equal(stageOf(lead({ status: "won", nextAction: null })), null, "instalado sale de Hoy");
 });
+
+const withSelfServe = (value: string | undefined, fn: () => void) => {
+  const before = process.env.NEXT_PUBLIC_SELF_SERVE;
+  if (value === undefined) delete process.env.NEXT_PUBLIC_SELF_SERVE;
+  else process.env.NEXT_PUBLIC_SELF_SERVE = value;
+  try {
+    fn();
+  } finally {
+    if (before === undefined) delete process.env.NEXT_PUBLIC_SELF_SERVE;
+    else process.env.NEXT_PUBLIC_SELF_SERVE = before;
+  }
+};
+
+test("sin autoservicio, los mensajes de pago llevan el Payment Link de Esencial con el id del lead", () => {
+  withSelfServe(undefined, () => {
+    for (const stage of ["after_call", "interested", "asked"] as const) {
+      const text = messageFor(stage, lead({ id: "ld_1", offerAngle: "vocero" }));
+      assert.match(text, /buy\.stripe\.com\/[^\s]+\?client_reference_id=ld_1/, stage);
+      assert.doesNotMatch(text, /\/register/, stage);
+    }
+  });
+});
+
+test("con autoservicio, los mensajes de pago mandan el registro y no el Payment Link", () => {
+  withSelfServe("true", () => {
+    for (const stage of ["after_call", "interested", "asked"] as const) {
+      const text = messageFor(stage, lead({ id: "ld_1", offerAngle: "vocero" }));
+      assert.match(text, /https:\/\/whatsapp\.allok\.fun\/register(?!\?)/, stage);
+      assert.doesNotMatch(text, /buy\.stripe\.com/, stage);
+      assert.doesNotMatch(text, /client_reference_id/, stage);
+    }
+    const priced = messageFor("followup", lead({ id: "ld_2", agentState: { step: 0, askedPrice: true, name: "Marta" } as GrowthLead["agentState"] }));
+    assert.match(priced, /\/register/);
+    assert.match(priced, /7 días el plan Completo sin tarjeta/);
+    assert.doesNotMatch(priced, /buy\.stripe\.com/);
+  });
+});

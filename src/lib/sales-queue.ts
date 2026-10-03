@@ -10,7 +10,7 @@
  */
 import type { GrowthLead, LeadStatus } from "./growth-types";
 import { type CaptureStage, callHour, displayStage } from "./ops-capture";
-import { ESENCIAL_LINK, PLANS } from "./plans";
+import { ESENCIAL_LINK, PLANS, isSelfServe, registerUrl } from "./plans";
 
 export const SALES_TZ = "America/Caracas";
 
@@ -175,8 +175,25 @@ function hello(name: string | null | undefined): string {
 /** El link de pago con el id del lead: el webhook de Stripe lo usa para cerrar ese lead. */
 const payUrl = (leadId: string) => `${ESENCIAL_LINK.url}?client_reference_id=${encodeURIComponent(leadId)}`;
 
+/**
+ * Con el autoservicio encendido, el «te suscribes aquí» ya no es el Payment
+ * Link de Esencial: es el registro del CRM, donde la persona crea su cuenta y
+ * prueba el plan Completo sin tarjeta. El Payment Link cobraba sin crearle
+ * cuenta (ver `ESENCIAL_LINK`).
+ * ponytail: el registro no lleva el id del lead, así que el pago de una cuenta
+ * creada solo ya no cierra ese lead en `/ops`; se marca a mano.
+ */
+const trialDays = () => PLANS.find((plan) => plan.appPlan === "pro")?.trialDays ?? ESENCIAL_LINK.trialDays;
+
+const planAndLink = (leadId: string) =>
+  isSelfServe()
+    ? `el plan ${esencial.name} es US$${esencial.price} al mes y pruebas ${trialDays()} días el plan Completo sin tarjeta. Creas tu cuenta aquí: ${registerUrl()}`
+    : `el plan ${esencial.name} es US$${esencial.price} al mes, con ${ESENCIAL_LINK.trialDays} días de prueba. Te suscribes aquí: ${payUrl(leadId)}`;
+
 const payAsk = (leadId: string) =>
-  `Como lo hablamos: el plan ${esencial.name} es US$${esencial.price} al mes y los primeros ${ESENCIAL_LINK.trialDays} días son de prueba. Te suscribes aquí: ${payUrl(leadId)} La puesta en marcha te la cotizo aparte, y apenas te suscribas agendamos la instalación.`;
+  isSelfServe()
+    ? `Como lo hablamos: ${planAndLink(leadId)} La puesta en marcha te la cotizo aparte, y apenas te registres agendamos la instalación.`
+    : `Como lo hablamos: el plan ${esencial.name} es US$${esencial.price} al mes y los primeros ${ESENCIAL_LINK.trialDays} días son de prueba. Te suscribes aquí: ${payUrl(leadId)} La puesta en marcha te la cotizo aparte, y apenas te suscribas agendamos la instalación.`;
 
 /**
  * El borrador que abre WhatsApp. Adrian lo lee, lo ajusta si quiere y lo manda
@@ -218,7 +235,7 @@ export function messageFor(
       // Preguntó el precio y el agente no lo da en el chat: el primer seguimiento lo responde y pide el pago.
       if (state?.askedPrice) {
         const where = state.rubro ? ` en tu ${state.rubro.trim()}` : "";
-        return `${hi}, soy Adrian de allok. Le preguntaste a nuestro agente por el precio: el plan ${esencial.name} es US$${esencial.price} al mes, con ${ESENCIAL_LINK.trialDays} días de prueba. Te suscribes aquí: ${payUrl(lead.id)} La puesta en marcha la cotizamos según tu negocio. Si prefieres verlo antes${where}, te lo muestro en 15 minutos.`;
+        return `${hi}, soy Adrian de allok. Le preguntaste a nuestro agente por el precio: ${planAndLink(lead.id)} La puesta en marcha la cotizamos según tu negocio. Si prefieres verlo antes${where}, te lo muestro en 15 minutos.`;
       }
       const about = state?.rubro
         ? `Vi lo que le contaste a nuestro agente sobre tu ${state.rubro.trim()}${state.dolor ? `: ${state.dolor.trim().replace(/[.\s]+$/, "")}` : ""}.`
@@ -227,7 +244,9 @@ export function messageFor(
     }
     case "asked":
       return lead.offerAngle === "vocero"
-        ? `¿Pudiste ver lo del pago? Si lo confirmas hoy, esta semana lo dejamos andando. Te dejo el link: ${payUrl(lead.id)}`
+        ? isSelfServe()
+          ? `¿Pudiste crear tu cuenta? Si lo haces hoy, esta semana lo dejamos andando. Te dejo el link: ${registerUrl()}`
+          : `¿Pudiste ver lo del pago? Si lo confirmas hoy, esta semana lo dejamos andando. Te dejo el link: ${payUrl(lead.id)}`
         : "¿Pudiste ver lo del pago? Si lo confirmas hoy, esta semana lo dejamos andando.";
     case "first": {
       const offer = lead.offerAngle;
@@ -247,7 +266,9 @@ export function messageFor(
       if (offer === "rei") {
         return "¿Arrancamos esta semana? Te paso el plan y el link de pago.";
       }
-      return `Para dejarlo andando: el plan ${esencial.name} es US$${esencial.price} al mes, con ${ESENCIAL_LINK.trialDays} días de prueba, y la puesta en marcha la cotizamos según tu negocio. ¿Arrancamos esta semana? Te suscribes aquí: ${payUrl(lead.id)}`;
+      return isSelfServe()
+        ? `Para dejarlo andando: ${planAndLink(lead.id)} La puesta en marcha la cotizamos según tu negocio. ¿Arrancamos esta semana?`
+        : `Para dejarlo andando: el plan ${esencial.name} es US$${esencial.price} al mes, con ${ESENCIAL_LINK.trialDays} días de prueba, y la puesta en marcha la cotizamos según tu negocio. ¿Arrancamos esta semana? Te suscribes aquí: ${payUrl(lead.id)}`;
     }
   }
 }

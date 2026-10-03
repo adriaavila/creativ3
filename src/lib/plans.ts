@@ -2,7 +2,8 @@
  * Los planes de allok y el costo de mensajería que Meta le factura al cliente.
  *
  * Tres planes y una sola idea: que nadie se quede sin respuesta. Dos se
- * contratan solos desde la web; el tercero se conversa, porque es a medida.
+ * contratan solos desde la web cuando el autoservicio está encendido
+ * (`isSelfServe`); el tercero se conversa, porque es a medida.
  *
  * **Los nombres son comerciales a propósito.** Nada de "básico", "headless" ni
  * "tier": quien compra esto tiene un taller, una clínica o una academia, y
@@ -64,18 +65,25 @@ export type Plan = {
 };
 
 /**
- * Autoservicio encendido (decisión de Adrian, 2026-10-03: «abrir autoservicio»;
- * antes apagado desde el 2026-09-24). Los dos planes de suscripción llevan a
- * `CRM_APP_URL/register`, donde cualquiera crea su cuenta y arranca la misma
- * prueba: 7 días del plan Completo, sin tarjeta, y después elige plan.
+ * Autoservicio: decisión de Adrian, 2026-10-03 («abrir autoservicio»; estuvo
+ * apagado desde el 2026-09-24). Lo controla la variable de entorno
+ * `NEXT_PUBLIC_SELF_SERVE`, **apagada por defecto**: fusionar este código no
+ * cambia nada del sitio.
  *
- * Producción solo queda abierta cuando Adrian fusiona esto Y pone
- * `SAAS_SELF_SERVE=true` en el CRM (ver `docs/autoservicio.md` en vocero-crm):
- * con el CRM aún cerrado, estos botones llevarían a una pantalla de «el alta la
- * hacemos contigo». Poner `false` aquí devuelve cada plan a una conversación
- * por WhatsApp sin tocar las páginas.
+ * Encendida (`"true"`), los dos planes de suscripción de `/` llevan a
+ * `CRM_APP_URL/register`, donde cualquiera crea su cuenta y arranca la misma
+ * prueba: 7 días del plan Completo, sin tarjeta, y después elige plan. `/rei`
+ * y el plan a medida siguen en una conversación por WhatsApp.
+ *
+ * Encender = poner `NEXT_PUBLIC_SELF_SERVE=true` en el proyecto y volver a
+ * desplegar (Next la lee en el build); volver atrás = quitarla y redesplegar.
+ * Solo después de que el CRM tenga `SAAS_SELF_SERVE=true` (ver
+ * `docs/autoservicio.md` en vocero-crm): con el CRM aún cerrado, estos botones
+ * llevarían a una pantalla de «el alta la hacemos contigo».
  */
-export const SELF_SERVE = true;
+export function isSelfServe(): boolean {
+  return process.env.NEXT_PUBLIC_SELF_SERVE === "true";
+}
 
 /**
  * La nota bajo el botón de un plan de suscripción. Con autoservicio, los dos
@@ -84,7 +92,7 @@ export const SELF_SERVE = true;
  * Completo lleva su prueba, como antes.
  */
 export function trialNote(plan: Plan): string | null {
-  if (SELF_SERVE && plan.appPlan) {
+  if (isSelfServe() && plan.appPlan) {
     // Lo que el CRM da a quien se registra solo, sin importar el plan del
     // botón (`startSelfServeTrial` en vocero-crm). Sale del plan Completo para
     // que los días vivan en un solo lugar de este repo.
@@ -102,7 +110,7 @@ export function trialNote(plan: Plan): string | null {
  * cuando el mensaje coincide exacto con una frase de activación.
  */
 export function planCta(plan: Plan): { href: string; label: string } {
-  if (SELF_SERVE && plan.appPlan) {
+  if (isSelfServe() && plan.appPlan) {
     return { href: registerUrl(plan.appPlan), label: "Crear mi cuenta" };
   }
   return {
@@ -111,9 +119,34 @@ export function planCta(plan: Plan): { href: string; label: string } {
   };
 }
 
-/** A dónde manda el botón de un plan de suscripción. */
-export function registerUrl(appPlan: "basic" | "pro"): string {
-  return `${CRM_APP_URL}/register?plan=${appPlan}`;
+/**
+ * El cierre de la home. Con autoservicio ofrece crear la cuenta y deja el
+ * WhatsApp como segunda opción; sin él, es la frase de siempre: nos cuentas tu
+ * negocio y lo dejamos andando. `talkHref` es la conversación de WhatsApp.
+ */
+export function closingOffer(talkHref: string): {
+  line: string;
+  primary: { href: string; label: string };
+  secondary: { href: string; label: string } | null;
+} {
+  if (isSelfServe()) {
+    const trial = trialNote(PLANS.find((p) => p.appPlan === "pro")!);
+    return {
+      line: `Desde US$${FROM_PRICE} al mes. Creas tu cuenta y conectas tu WhatsApp tú mismo.${trial ? ` ${trial}` : ""}`,
+      primary: { href: registerUrl(), label: "Crear mi cuenta" },
+      secondary: { href: talkHref, label: "Prefiero hablarlo por WhatsApp" },
+    };
+  }
+  return {
+    line: `Desde US$${FROM_PRICE} al mes. Nos cuentas tu negocio por WhatsApp y nosotros lo dejamos andando.`,
+    primary: { href: talkHref, label: "Quiero mi agente" },
+    secondary: null,
+  };
+}
+
+/** A dónde manda el botón de un plan de suscripción (sin plan: el registro a secas). */
+export function registerUrl(appPlan?: "basic" | "pro"): string {
+  return appPlan ? `${CRM_APP_URL}/register?plan=${appPlan}` : `${CRM_APP_URL}/register`;
 }
 
 export const PLANS: Plan[] = [

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { TRY_AGENT_MESSAGE, whatsappUrl } from "@/lib/contact";
 import { BRAND, STATES } from "@/lib/brand";
-import { CRM_APP_URL, FROM_PRICE, PLANS, SETUP_SERVICE, planCta, priceLabel, trialNote } from "@/lib/plans";
+import { CRM_APP_URL, PLANS, SETUP_SERVICE, closingOffer, planCta, priceLabel, trialNote } from "@/lib/plans";
 import SiteHeader from "@/components/allok/SiteHeader";
 import SiteFooter from "@/components/allok/SiteFooter";
 import Conversation from "@/components/allok/Conversation";
@@ -68,6 +68,7 @@ const SECTORS = [
 export default function Home() {
   const fallback = whatsappUrl(DEMO);
   const connect = whatsappUrl(START);
+  const closing = closingOffer(connect);
 
   return (
     <div className="allok">
@@ -333,15 +334,20 @@ export default function Home() {
                   </span>
                 ))}
               </p>
-              <p className="lede mt-6 max-w-[44ch] text-[#919292]">
-                Desde US${FROM_PRICE} al mes. Nos cuentas tu negocio por WhatsApp y
-                nosotros lo dejamos andando.
-              </p>
+              <p className="lede mt-6 max-w-[44ch] text-[#919292]">{closing.line}</p>
             </div>
             <div className="relative grid gap-3 md:justify-self-end">
-              <a href={connect} className="allok-btn bg-[var(--ok)] font-semibold text-[var(--ink)]">
-                Quiero mi agente
+              <a href={closing.primary.href} className="allok-btn bg-[var(--ok)] font-semibold text-[var(--ink)]">
+                {closing.primary.label}
               </a>
+              {closing.secondary ? (
+                <a
+                  href={closing.secondary.href}
+                  className="allok-btn border border-[rgba(245,244,240,.28)] bg-[var(--ink)] text-center text-[var(--cloud)]"
+                >
+                  {closing.secondary.label}
+                </a>
+              ) : null}
             </div>
           </div>
         </Rise>

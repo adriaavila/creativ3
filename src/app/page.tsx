@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { TRY_AGENT_MESSAGE, whatsappUrl } from "@/lib/contact";
 import { BRAND, STATES } from "@/lib/brand";
-import { CRM_APP_URL, FROM_PRICE, PLANS, SETUP_SERVICE, planCta, priceLabel } from "@/lib/plans";
+import { PLANS, SETUP_SERVICE, closingOffer, headerCta, headerNav, heroCta, isSelfServe, planCta, priceLabel, trialNote } from "@/lib/plans";
 import SiteHeader from "@/components/allok/SiteHeader";
 import SiteFooter from "@/components/allok/SiteFooter";
 import Conversation from "@/components/allok/Conversation";
@@ -35,7 +35,8 @@ const NAV = [
   { href: "/vocero", label: "A medida" },
 ];
 
-const STEPS = [
+/** Sin autoservicio: la puesta en marcha la hacemos nosotros, por WhatsApp. */
+const ASSISTED_STEPS = [
   {
     n: "01",
     title: "Hablamos 15 minutos",
@@ -56,6 +57,31 @@ const STEPS = [
   },
 ] as const;
 
+/** Los días de la prueba salen del plan Completo (que refleja el CRM): un solo lugar. */
+const TRIAL_DAYS = PLANS.find((p) => p.appPlan === "pro")?.trialDays ?? 7;
+
+/** Con autoservicio: el dueño crea la cuenta y conecta su número solo. */
+const SELF_SERVE_STEPS = [
+  {
+    n: "01",
+    title: "Creas tu cuenta",
+    body: `Con tu correo y sin tarjeta. Tienes ${TRIAL_DAYS} días del plan Completo para probarlo con tu negocio.`,
+    aside: "Sin tarjeta",
+  },
+  {
+    n: "02",
+    title: "Conectas tu WhatsApp",
+    body: "Eliges tu número en la ventana de Meta. La cuenta queda a nombre de tu empresa: es tuya, no nuestra.",
+    aside: "Sin cambiar de número",
+  },
+  {
+    n: "03",
+    title: "Pruebas y activas",
+    body: "Le cuentas tu negocio, lo pruebas como si fueras un cliente y lo pones a atender cuando te guste cómo responde.",
+    aside: "Y se apaga igual de fácil",
+  },
+] as const;
+
 const SECTORS = [
   ["Clínicas y estética", "¿Cuánto sale, cuánto dura y cuándo hay hora?"],
   ["Academias y cursos", "¿Queda cupo, cuándo empieza y cómo reservo?"],
@@ -68,13 +94,17 @@ const SECTORS = [
 export default function Home() {
   const fallback = whatsappUrl(DEMO);
   const connect = whatsappUrl(START);
+  const closing = closingOffer(connect);
+  const start = heroCta(connect);
+  const selfServe = isSelfServe();
+  const steps = selfServe ? SELF_SERVE_STEPS : ASSISTED_STEPS;
 
   return (
     <div className="allok">
       {/* ── Portada en Cloud. El logotipo a tamaño de cartel, y el punto vivo:
              la marca es lo primero que se ve y ya está diciendo el estado. ── */}
       <div className="overflow-x-clip bg-[var(--cloud)]">
-        <SiteHeader nav={NAV} cta={{ href: `${CRM_APP_URL}/login`, label: "Entrar" }} onCloud />
+        <SiteHeader nav={headerNav(NAV)} cta={headerCta()} onCloud />
 
         <div className="mx-auto grid max-w-[1240px] items-center gap-12 px-5 pb-14 pt-6 sm:px-10 lg:grid-cols-[minmax(0,1.02fr)_minmax(0,.98fr)] lg:gap-8 lg:pb-20 lg:pt-10">
           <div>
@@ -97,8 +127,8 @@ export default function Home() {
             </p>
 
             <div className="mt-9 flex flex-wrap gap-3">
-              <a href={connect} className="allok-btn bg-[var(--ink)] font-semibold text-[var(--cloud)]">
-                Quiero mi agente
+              <a href={start.href} className="allok-btn bg-[var(--ink)] font-semibold text-[var(--cloud)]">
+                {start.label}
               </a>
               <a
                 href={fallback}
@@ -167,14 +197,15 @@ export default function Home() {
           <div className="grid items-end gap-6 md:grid-cols-[minmax(0,1fr)_minmax(0,.7fr)]">
             <h2 className="statement max-w-[13ch]">Tres pasos y queda andando.</h2>
             <p className="text-[15.5px] leading-relaxed text-[var(--ink-60)] text-pretty">
-              No instalas nada ni programas nada. Nos explicas tu negocio como a un
-              empleado nuevo y nosotros hacemos el resto.
+              {selfServe
+                ? "No instalas nada ni programas nada. Le explicas tu negocio como a un empleado nuevo y allok hace el resto."
+                : "No instalas nada ni programas nada. Nos explicas tu negocio como a un empleado nuevo y nosotros hacemos el resto."}
             </p>
           </div>
         </Rise>
 
         <ol className="mt-14 grid gap-px overflow-hidden rounded-[26px] bg-[var(--line)] md:grid-cols-3">
-          {STEPS.map((s, i) => (
+          {steps.map((s, i) => (
             <Rise key={s.n} delay={(i as 0 | 1 | 2)} className="grid bg-white">
               <li className="grid content-start p-8">
                 <div className="flex items-start justify-between gap-4">
@@ -275,8 +306,8 @@ export default function Home() {
               >
                 {planCta(plan).label}
               </a>
-              {plan.trialDays ? (
-                <p className="mono mt-3 text-center opacity-65">{plan.trialDays} días de prueba</p>
+              {trialNote(plan) ? (
+                <p className="mono mt-3 text-center opacity-65">{trialNote(plan)}</p>
               ) : null}
 
               <ul className={`allok-hair mt-7 grid gap-3 pt-6 ${plan.featured ? "border-white/12" : ""}`}>
@@ -333,15 +364,20 @@ export default function Home() {
                   </span>
                 ))}
               </p>
-              <p className="lede mt-6 max-w-[44ch] text-[#919292]">
-                Desde US${FROM_PRICE} al mes. Nos cuentas tu negocio por WhatsApp y
-                nosotros lo dejamos andando.
-              </p>
+              <p className="lede mt-6 max-w-[44ch] text-[#919292]">{closing.line}</p>
             </div>
             <div className="relative grid gap-3 md:justify-self-end">
-              <a href={connect} className="allok-btn bg-[var(--ok)] font-semibold text-[var(--ink)]">
-                Quiero mi agente
+              <a href={closing.primary.href} className="allok-btn bg-[var(--ok)] font-semibold text-[var(--ink)]">
+                {closing.primary.label}
               </a>
+              {closing.secondary ? (
+                <a
+                  href={closing.secondary.href}
+                  className="allok-btn border border-[rgba(245,244,240,.28)] bg-[var(--ink)] text-center text-[var(--cloud)]"
+                >
+                  {closing.secondary.label}
+                </a>
+              ) : null}
             </div>
           </div>
         </Rise>

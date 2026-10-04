@@ -2,7 +2,8 @@
  * Los planes de allok y el costo de mensajería que Meta le factura al cliente.
  *
  * Tres planes y una sola idea: que nadie se quede sin respuesta. Dos se
- * contratan solos desde la web; el tercero se conversa, porque es a medida.
+ * contratan solos desde la web cuando el autoservicio está encendido
+ * (`isSelfServe`); el tercero se conversa, porque es a medida.
  *
  * **Los nombres son comerciales a propósito.** Nada de "básico", "headless" ni
  * "tier": quien compra esto tiene un taller, una clínica o una academia, y
@@ -24,8 +25,10 @@
  *
  * Lo que dice cada plan sale de lo que la app realmente cierra por plan
  * (`hasSaaSPlan(org, "pro")` en vocero-crm): pipeline, agenda, equipo y
- * respuesta fuera de horario son de Completo. No inventar una diferencia que
- * el código no hace.
+ * respuesta todo el día son de Completo. Esencial contesta solo fuera del
+ * horario del negocio (`responseMode: "outside_hours"`; atender a cualquier
+ * hora exige Completo, ver `api/agent/profile` en la app). No inventar una
+ * diferencia que el código no hace.
  */
 
 /** La app del CRM: ahí se registra el negocio y ahí se cobra. */
@@ -62,12 +65,44 @@ export type Plan = {
 };
 
 /**
- * Autoservicio apagado (decisión de Adrian, 2026-09-24: "all in en sistemas a
- * medida"). Cada plan se vende en una conversación y la puesta en marcha la hace
- * allok; nadie se registra solo desde la web. Volver a `true` reactiva los
- * botones de registro sin tocar las páginas.
+ * Autoservicio: decisión de Adrian, 2026-10-03 («abrir autoservicio»; estuvo
+ * apagado desde el 2026-09-24). Lo controla la variable de entorno
+ * `NEXT_PUBLIC_SELF_SERVE`, **apagada por defecto**: fusionar este código no
+ * cambia nada del sitio.
+ *
+ * Encendida (`"true"`), los dos planes de suscripción de `/` llevan a
+ * `CRM_APP_URL/register`, donde cualquiera crea su cuenta y arranca la misma
+ * prueba: 7 días del plan Completo, sin tarjeta, y después elige plan. `/rei`
+ * y el plan a medida siguen en una conversación por WhatsApp.
+ *
+ * Encender = poner `NEXT_PUBLIC_SELF_SERVE=true` en el proyecto y volver a
+ * desplegar (Next la lee en el build); volver atrás = quitarla y redesplegar.
+ * Solo después de que el CRM tenga `SAAS_SELF_SERVE=true` (ver
+ * `docs/autoservicio.md` en vocero-crm): con el CRM aún cerrado, estos botones
+ * llevarían a una pantalla de «el alta la hacemos contigo».
  */
-export const SELF_SERVE = false;
+export function isSelfServe(): boolean {
+  return process.env.NEXT_PUBLIC_SELF_SERVE === "true";
+}
+
+/**
+ * La nota bajo el botón de un plan de suscripción. Con autoservicio, los dos
+ * botones abren la misma prueba de Completo, así que las dos tarjetas dicen lo
+ * mismo y ninguna promete una prueba del plan Esencial. Sin autoservicio solo
+ * Completo lleva su prueba, como antes.
+ */
+export function trialNote(plan: Plan): string | null {
+  if (isSelfServe() && plan.appPlan) {
+    // Lo que el CRM da a quien se registra solo, sin importar el plan del
+    // botón (`startSelfServeTrial` en vocero-crm). Sale del plan Completo para
+    // que los días vivan en un solo lugar de este repo.
+    const trial = PLANS.find((p) => p.appPlan === "pro");
+    if (trial?.trialDays) {
+      return `${trial.trialDays} días gratis del plan ${trial.name}. Después eliges tu plan.`;
+    }
+  }
+  return plan.trialDays ? `${plan.trialDays} días de prueba` : null;
+}
 
 /**
  * El botón de un plan: registro si hay autoservicio, WhatsApp si no. El texto
@@ -75,8 +110,8 @@ export const SELF_SERVE = false;
  * cuando el mensaje coincide exacto con una frase de activación.
  */
 export function planCta(plan: Plan): { href: string; label: string } {
-  if (SELF_SERVE && plan.appPlan) {
-    return { href: registerUrl(plan.appPlan), label: "Conectar mi WhatsApp" };
+  if (isSelfServe() && plan.appPlan) {
+    return { href: registerUrl(plan.appPlan), label: "Crear mi cuenta" };
   }
   return {
     href: whatsappUrl(plan.talkTo ?? `Hola, vengo de allok.fun. Quiero el plan ${plan.name}.`),
@@ -84,9 +119,61 @@ export function planCta(plan: Plan): { href: string; label: string } {
   };
 }
 
-/** A dónde manda el botón de un plan de suscripción. */
-export function registerUrl(appPlan: "basic" | "pro"): string {
-  return `${CRM_APP_URL}/register?plan=${appPlan}`;
+/**
+ * El cierre de la home. Con autoservicio ofrece crear la cuenta y deja el
+ * WhatsApp como segunda opción; sin él, es la frase de siempre: nos cuentas tu
+ * negocio y lo dejamos andando. `talkHref` es la conversación de WhatsApp.
+ */
+export function closingOffer(talkHref: string): {
+  line: string;
+  primary: { href: string; label: string };
+  secondary: { href: string; label: string } | null;
+} {
+  if (isSelfServe()) {
+    const trial = trialNote(PLANS.find((p) => p.appPlan === "pro")!);
+    return {
+      line: `Desde US$${FROM_PRICE} al mes. Creas tu cuenta y conectas tu WhatsApp tú mismo.${trial ? ` ${trial}` : ""}`,
+      primary: { href: registerUrl(), label: "Crear mi cuenta" },
+      secondary: { href: talkHref, label: "Prefiero hablarlo por WhatsApp" },
+    };
+  }
+  return {
+    line: `Desde US$${FROM_PRICE} al mes. Nos cuentas tu negocio por WhatsApp y nosotros lo dejamos andando.`,
+    primary: { href: talkHref, label: "Quiero mi agente" },
+    secondary: null,
+  };
+}
+
+/**
+ * El botón principal de la portada: «Quiero mi agente». Con autoservicio es
+ * crear la cuenta (el WhatsApp queda como segunda opción en el cierre); sin él,
+ * la conversación de siempre.
+ */
+export function heroCta(talkHref: string): { href: string; label: string } {
+  return isSelfServe()
+    ? { href: registerUrl(), label: "Crear mi cuenta" }
+    : { href: talkHref, label: "Quiero mi agente" };
+}
+
+/**
+ * La cabecera de la portada. Con autoservicio la acción es crear la cuenta; el
+ * acceso de quien ya es cliente pasa a la navegación (`headerNav`) y al enlace
+ * «Inicia sesión» del propio registro.
+ */
+export function headerCta(): { href: string; label: string } {
+  return isSelfServe()
+    ? { href: registerUrl(), label: "Crear mi cuenta" }
+    : { href: `${CRM_APP_URL}/login`, label: "Entrar" };
+}
+
+/** La navegación de la portada; con autoservicio suma «Entrar» (la acción de la cabecera ya es el registro). */
+export function headerNav<T extends { href: string; label: string }>(nav: readonly T[]): { href: string; label: string }[] {
+  return isSelfServe() ? [...nav, { href: `${CRM_APP_URL}/login`, label: "Entrar" }] : [...nav];
+}
+
+/** A dónde manda el botón de un plan de suscripción (sin plan: el registro a secas). */
+export function registerUrl(appPlan?: "basic" | "pro"): string {
+  return appPlan ? `${CRM_APP_URL}/register?plan=${appPlan}` : `${CRM_APP_URL}/register`;
 }
 
 export const PLANS: Plan[] = [
@@ -101,7 +188,7 @@ export const PLANS: Plan[] = [
     line: "Que nadie se quede sin respuesta.",
     features: [
       "Tu número de siempre, sin cambiar nada",
-      "Contesta a cualquier hora con lo que de verdad vendes",
+      "Contesta fuera de tu horario con lo que de verdad vendes",
       "Una bandeja donde queda toda la conversación",
       "Ficha del cliente y su historial",
       "Pruébalo antes de soltarlo con clientes reales",
@@ -122,7 +209,7 @@ export const PLANS: Plan[] = [
       "Tus ventas en etapas, de la consulta al cliente",
       "Agenda citas y las confirma solo",
       "Tu equipo entero en la misma bandeja",
-      "Responde todo el día, no solo en tu horario",
+      "Responde todo el día, también dentro de tu horario",
     ],
   },
   {
@@ -173,6 +260,9 @@ export const SETUP_SERVICE = {
 /**
  * El plan Esencial por Payment Link live de `allok LLC` (2026-09-27): US$49 al mes, 7 días de
  * prueba, acepta códigos de descuento y pide teléfono. La puesta en marcha se cotiza aparte.
+ *
+ * Solo para mensajes de venta uno a uno (`sales-queue`). Las tarjetas de plan NO lo usan: un
+ * pago aquí no crea la cuenta del CRM, y el registro ya da la prueba de Completo.
  */
 export const ESENCIAL_LINK = {
   url: "https://buy.stripe.com/cNieVf1BhgFE6lLg4ReEo01",

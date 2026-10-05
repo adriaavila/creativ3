@@ -86,7 +86,7 @@ test("el autoservicio nace apagado: sin la variable (o con otro valor) nada camb
       }
       // Como antes: solo Completo lleva su prueba.
       assert.equal(trialNote(PLANS.find((p) => p.key === "esencial")!), null);
-      assert.equal(trialNote(PLANS.find((p) => p.key === "completo")!), "7 días de prueba");
+      assert.equal(trialNote(PLANS.find((p) => p.key === "completo")!), null, "sin prueba en la web por ahora");
     });
   }
 });
@@ -109,16 +109,9 @@ test("NEXT_PUBLIC_SELF_SERVE=true: cada plan de suscripción lleva al registro d
   });
 });
 
-test("encendido, las dos tarjetas de suscripción dicen la misma prueba: 7 días de Completo, sin prometer una de Esencial", () => {
+test("encendido, ninguna tarjeta promete prueba (quitada de la web el 2026-10-05)", () => {
   withSelfServe("true", () => {
-    const [esencial, completo, medida] = ["esencial", "completo", "a-medida"].map((key) => PLANS.find((p) => p.key === key)!);
-    const note = trialNote(completo!);
-    assert.equal(note, "7 días gratis del plan Completo. Después eliges tu plan.");
-    assert.equal(trialNote(esencial!), note);
-    assert.ok(!/esencial/i.test(trialNote(esencial!) ?? ""), "la tarjeta de Esencial no promete una prueba de Esencial");
-    assert.equal(trialNote(medida!), null);
-    // Los días salen del plan Completo, que a su vez refleja el CRM (SELF_SERVE_TRIAL_DAYS = 7).
-    assert.equal(completo!.trialDays, 7);
+    for (const plan of PLANS) assert.equal(trialNote(plan), null, plan.key);
   });
 });
 
@@ -162,7 +155,7 @@ test("el cierre de la home: encendido ofrece el registro y deja WhatsApp de segu
   withSelfServe("true", () => {
     const on = closingOffer(talk);
     assert.ok(!/nos cuentas tu negocio por WhatsApp|lo dejamos andando/i.test(on.line), on.line);
-    assert.ok(on.line.includes("7 días gratis del plan Completo"), on.line);
+    assert.ok(!/días|gratis|prueba/i.test(on.line), on.line);
     assert.deepEqual(on.primary, { href: `${CRM_APP_URL}/register`, label: "Crear mi cuenta" });
     assert.deepEqual(on.secondary, { href: talk, label: "Prefiero hablarlo por WhatsApp" });
   });

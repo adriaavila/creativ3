@@ -4,7 +4,7 @@ import { SETUP_SERVICE } from "@/lib/plans";
 
 const TITLE = "Puesta en marcha | allok";
 const DESCRIPTION =
-  "Conectamos tu WhatsApp, cargamos tu agente y lo ajustamos sobre conversaciones reales. Pago único de US$499.";
+  `Conectamos tu WhatsApp, cargamos tu agente y lo ajustamos sobre conversaciones reales. Pago único de US$${SETUP_SERVICE.price}.`;
 
 // ponytail: link que se manda en la conversación de venta, no se enlaza desde la web.
 export const metadata: Metadata = {

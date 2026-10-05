@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { whatsappUrl } from "@/lib/contact";
-import { FROM_PRICE, PLANS } from "@/lib/plans";
+import { FROM_PRICE, SHOWN_PLANS } from "@/lib/plans";
 import SiteHeader from "@/components/allok/SiteHeader";
 import SiteFooter from "@/components/allok/SiteFooter";
 import MetaCostCalculator from "@/components/rei/MetaCostCalculator";
@@ -108,8 +108,8 @@ export default function ReiPage() {
           </p>
         </div>
 
-        <div className="mt-11 grid gap-4 md:grid-cols-3">
-          {PLANS.map((plan) => (
+        <div className="mt-11 grid gap-4 md:grid-cols-2">
+          {SHOWN_PLANS.map((plan) => (
             <div
               key={plan.key}
               className={`rounded-[22px] border border-[var(--line)] p-7 ${

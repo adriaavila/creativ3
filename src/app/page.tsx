@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { TRY_AGENT_MESSAGE, whatsappUrl } from "@/lib/contact";
 import { BRAND, STATES } from "@/lib/brand";
-import { PLANS, SETUP_SERVICE, closingOffer, headerCta, headerNav, heroCta, isSelfServe, planCta, priceLabel, trialNote } from "@/lib/plans";
+import { FROM_PRICE, PLANS, SETUP_SERVICE, SHOWN_PLANS, closingOffer, headerCta, headerNav, heroCta, isSelfServe, planCta, priceLabel, trialNote } from "@/lib/plans";
 import SiteHeader from "@/components/allok/SiteHeader";
 import SiteFooter from "@/components/allok/SiteFooter";
 import Conversation from "@/components/allok/Conversation";
@@ -15,7 +15,7 @@ import { CloseMark, NightSky, NightTicker, StepGlyph } from "@/components/allok/
 
 const TITLE = "allok · tu negocio sigue funcionando";
 const DESCRIPTION =
-  "allok conecta tu WhatsApp con agentes que contestan, califican y agendan por ti. Mensualidad fija desde US$49: la cuenta es de tu empresa y Meta te cobra los mensajes al costo.";
+  `allok conecta tu WhatsApp con agentes que contestan, califican y agendan por ti. Mensualidad fija de US$${FROM_PRICE}: la cuenta es de tu empresa y Meta te cobra los mensajes al costo.`;
 
 export const metadata: Metadata = {
   title: TITLE,
@@ -274,8 +274,8 @@ export default function Home() {
         </Rise>
 
         {/* Columnas iguales; la elegida cambia de polaridad, no de tamaño. */}
-        <div className="mt-12 grid gap-px overflow-hidden rounded-[26px] bg-[var(--line)] md:grid-cols-3">
-          {PLANS.map((plan) => (
+        <div className="mt-12 grid gap-px overflow-hidden rounded-[26px] bg-[var(--line)] md:grid-cols-2">
+          {SHOWN_PLANS.map((plan) => (
             <div
               key={plan.key}
               className={`grid content-start p-8 ${
@@ -329,7 +329,7 @@ export default function Home() {
         <div className="allok-hair mt-10 grid items-baseline gap-x-10 gap-y-3 pt-8 md:grid-cols-[minmax(0,1fr)_auto]">
           <div>
             <h3 className="display-sm text-[17px]">
-              {SETUP_SERVICE.name} · ${SETUP_SERVICE.price} una vez
+              {SETUP_SERVICE.name} · desde ${SETUP_SERVICE.price} una vez
             </h3>
             <p className="mt-2 max-w-[62ch] text-[15.5px] leading-relaxed text-[var(--ink-60)] text-pretty">
               {SETUP_SERVICE.line} Cargamos tu agente, armamos tus etapas y

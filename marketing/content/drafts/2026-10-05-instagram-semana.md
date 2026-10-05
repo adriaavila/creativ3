@@ -139,7 +139,7 @@ son ideas para la semana que viene.
 - Una captura de lo que estás construyendo ese día (la app, un commit, una pantalla).
 - Repost del post del día.
 - Viernes: encuesta "¿Contestas WhatsApp después de las 9 pm? Sí / A veces".
-- Guardar en destacadas: Demo (reel del martes y miércoles), Precios, Cómo funciona.
+- Guardar en destacadas: Demo (reels del lunes y del miércoles), Precios, Cómo funciona.
 
 ## Cómo medir el viernes
 
@@ -149,6 +149,6 @@ son ideas para la semana que viene.
 
 ## Lo que falta de ti
 
-- Grabar los 3 reels (martes, miércoles, viernes). Son pantalla y tu voz, sin edición pesada.
+- Grabar los 3 reels (lunes, miércoles, viernes). Son pantalla y tu voz, sin edición pesada.
 - Publicar. Nada de esto sale sin que lo apruebes.
 - Decidir si el link de la bio va a allok.fun o directo al agente.

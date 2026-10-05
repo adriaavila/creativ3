@@ -7,7 +7,7 @@ la semana sirve para los que vengan de anuncios y referidos.
 **Regla:** solo cosas reales. Capturas de la app, el agente contestando de
 verdad, proyectos que existen. Ningún número que no puedas mostrar.
 
-**Oferta (igual que la web):** US$99 al mes + US$199 de puesta en marcha, una
+**Oferta (igual que la web):** US$99 al mes + puesta en marcha desde US$199, una
 vez. Meta te cobra los mensajes directo, al costo.
 
 **CTA de toda la semana:** "Escríbele al agente" (link al …3684 con la frase de
@@ -41,7 +41,7 @@ prueba) o "Escríbeme PRUEBA". Una sola acción, siempre la misma.
 - **S3:** Le hace las preguntas que tú harías y te deja el cliente calificado.
 - **S4:** Le agenda la cita y se la confirma.
 - **S5:** Tú ves toda la conversación en una bandeja. Entras cuando quieras.
-- **S6:** US$99 al mes. Lo dejamos andando por US$199. Escríbele al agente y pruébalo tú.
+- **S6:** US$99 al mes. Lo dejamos andando desde US$199. Escríbele al agente y pruébalo tú.
 
 **Visual:** captura real de la bandeja de Vocero + chat real del agente. Fondo
 y tipografía de allok.fun.
@@ -73,7 +73,7 @@ Si quieres ver cómo contesta con lo tuyo, escríbele tú.
 
 - **S1:** Cuánto cuesta un agente de WhatsApp. Sin "escríbeme para cotizar".
 - **S2:** US$99 al mes. Contesta todo el día, agenda, tus ventas por etapas, tu equipo en la misma bandeja.
-- **S3:** US$199 una vez: lo dejamos andando. Cargamos tus precios y servicios, conectamos WhatsApp con Meta, una semana de ajustes.
+- **S3:** Desde US$199 una vez: lo dejamos andando. Cargamos tus precios y servicios, conectamos WhatsApp con Meta, una semana de ajustes. ¿Integraciones o flujos propios? Desarrollo a medida desde US$499.
 - **S4:** Los mensajes te los cobra Meta directo, al costo. Los primeros 1.000 de servicio al mes son gratis. No cobramos por conversación.
 - **S5:** La cuenta queda a nombre de tu empresa. Si te vas, te la llevas.
 - **S6:** 7 días de prueba. Escríbeme PRUEBA.
@@ -81,7 +81,7 @@ Si quieres ver cómo contesta con lo tuyo, escríbele tú.
 **Caption:**
 ```
 Precio publicado, porque odio el "precio por DM".
-US$99 al mes + US$199 de puesta en marcha. Meta cobra los mensajes al costo, nosotros no tocamos eso.
+US$99 al mes + puesta en marcha desde US$199. Meta cobra los mensajes al costo, nosotros no tocamos eso.
 Escríbeme PRUEBA y lo vemos con tu negocio.
 ```
 
@@ -102,7 +102,7 @@ demo, sin datos de clientes):
 3. Probar el agente desde el modo prueba.
 4. Encenderlo.
 
-**Texto:** "Esto es lo que hacemos por US$199."
+**Texto:** "Esto es lo que hacemos desde US$199."
 
 ## Jueves 8 · Carrusel "Lo que construí" (portafolio)
 

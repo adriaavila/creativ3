@@ -329,7 +329,7 @@ export default function Home() {
         <div className="allok-hair mt-10 grid items-baseline gap-x-10 gap-y-3 pt-8 md:grid-cols-[minmax(0,1fr)_auto]">
           <div>
             <h3 className="display-sm text-[17px]">
-              {SETUP_SERVICE.name} · ${SETUP_SERVICE.price} una vez
+              {SETUP_SERVICE.name} · desde ${SETUP_SERVICE.price} una vez
             </h3>
             <p className="mt-2 max-w-[62ch] text-[15.5px] leading-relaxed text-[var(--ink-60)] text-pretty">
               {SETUP_SERVICE.line} Cargamos tu agente, armamos tus etapas y

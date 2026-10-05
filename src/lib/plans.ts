@@ -187,7 +187,7 @@ export const PLANS: Plan[] = [
     price: 49,
     period: "mes",
     featured: false,
-    // Decisión de Adrian, 2026-10-05: la web vende solo Completo ($99) + puesta en marcha ($199).
+    // Decisión de Adrian, 2026-10-05: la web vende solo Completo ($99) + puesta en marcha (desde $199; a medida desde $499).
     hidden: true,
     line: "Que nadie se quede sin respuesta.",
     features: [

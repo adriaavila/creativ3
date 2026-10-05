@@ -71,3 +71,25 @@ export function siteJsonLd() {
     },
   ];
 }
+
+/** FAQPage de schema.org para una página con preguntas frecuentes. */
+export function faqJsonLd(faqs: readonly { q: string; a: string }[]) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faqs.map(({ q, a }) => ({
+      "@type": "Question",
+      name: q,
+      acceptedAnswer: { "@type": "Answer", text: a },
+    })),
+  };
+}
+
+/**
+ * JSON-LD listo para `<script type="application/ld+json">`. Escapa `<` como
+ * recomienda la guía de JSON-LD de Next: un texto con `</script>` no cierra la
+ * etiqueta.
+ */
+export function jsonLdHtml(data: unknown): string {
+  return JSON.stringify(data).replace(/</g, "\\u003c");
+}

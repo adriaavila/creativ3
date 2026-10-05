@@ -9,9 +9,8 @@ export const INVITE_URL = `https://wa.me/584220023684?text=${encodeURIComponent(
 
 export const OFFER = {
   product: "Un agente de WhatsApp que contesta, califica y agenda, con el CRM detrás",
-  setup: { name: "Puesta en marcha", price: 499 },
+  setup: { name: "Puesta en marcha", price: 199 },
   plans: [
-    { name: "Esencial", price: 49, period: "mes" },
     { name: "Completo", price: 99, period: "mes" },
     { name: "A tu medida", price: 499, period: "mes", from: true },
   ],

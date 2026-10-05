@@ -49,14 +49,14 @@ test("el «desde» sólo aparece donde el precio es un piso", () => {
 
 test("FROM_PRICE ignora lo que no se contrata solo", () => {
   // El plan a medida cuesta más y no tiene autoservicio: si entrara en el
-  // mínimo, la página seguiría diciendo 49 — pero si algún día fuera más
+  // mínimo, la página seguiría diciendo 99 — pero si algún día fuera más
   // barato que un plan, la frase «desde» mentiría.
-  assert.equal(FROM_PRICE, 49);
+  assert.equal(FROM_PRICE, 99, "Esencial ($49) está oculto: no cuenta para el «desde»");
   assert.ok(PLANS.every((p) => (p.appPlan === null) === (p.talkTo !== undefined)));
 });
 
 test("la puesta en marcha cobra lo que dice la página", () => {
-  assert.equal(SETUP_SERVICE.price, 499, "si cambia el precio, cambia también el Payment Link en Stripe");
+  assert.equal(SETUP_SERVICE.price, 199, "/pago/puesta-en-marcha cobra este número por Checkout");
 });
 
 /** Corre `fn` con el autoservicio encendido (`"true"`), apagado (`undefined`) o con otro valor. */
@@ -155,7 +155,7 @@ test("el cierre de la home: encendido ofrece el registro y deja WhatsApp de segu
   const talk = "https://wa.me/584220023684?text=hola";
   withSelfServe(undefined, () => {
     const off = closingOffer(talk);
-    assert.equal(off.line, "Desde US$49 al mes. Nos cuentas tu negocio por WhatsApp y nosotros lo dejamos andando.");
+    assert.equal(off.line, "Desde US$99 al mes. Nos cuentas tu negocio por WhatsApp y nosotros lo dejamos andando.");
     assert.deepEqual(off.primary, { href: talk, label: "Quiero mi agente" });
     assert.equal(off.secondary, null);
   });

@@ -62,6 +62,8 @@ export type Plan = {
   trialDays?: number;
   /** Adónde va el botón cuando no hay autoservicio. */
   talkTo?: string;
+  /** Sigue existiendo en la app y en los mensajes de venta, pero la web no lo muestra. */
+  hidden?: boolean;
 };
 
 /**
@@ -185,6 +187,8 @@ export const PLANS: Plan[] = [
     price: 49,
     period: "mes",
     featured: false,
+    // Decisión de Adrian, 2026-10-05: la web vende solo Completo ($99) + puesta en marcha ($199).
+    hidden: true,
     line: "Que nadie se quede sin respuesta.",
     features: [
       "Tu número de siempre, sin cambiar nada",
@@ -205,7 +209,8 @@ export const PLANS: Plan[] = [
     trialDays: 7,
     line: "Cuando la consulta ya vale plata.",
     features: [
-      "Todo lo de Esencial",
+      "Tu número de siempre, sin cambiar nada",
+      "Una bandeja con toda la conversación y la ficha del cliente",
       "Tus ventas en etapas, de la consulta al cliente",
       "Agenda citas y las confirma solo",
       "Tu equipo entero en la misma bandeja",
@@ -234,6 +239,9 @@ export const PLANS: Plan[] = [
   },
 ];
 
+/** Los planes que muestra la web (`/`, `/rei`). */
+export const SHOWN_PLANS = PLANS.filter((p) => !p.hidden);
+
 /**
  * La puesta en marcha se suma a cualquier plan; no es un cuarto bloque.
  * Ponerla como plan hacía elegir entre "pagar la mensualidad" y "que me lo
@@ -241,7 +249,7 @@ export const PLANS: Plan[] = [
  */
 export const SETUP_SERVICE = {
   name: "Puesta en marcha",
-  price: 499,
+  price: 199,
   line: "Lo dejamos andando nosotros, sobre cualquier plan.",
   features: [
     "Cargamos tu agente: precios, servicios, políticas",
@@ -250,8 +258,12 @@ export const SETUP_SERVICE = {
     "Una semana de ajustes sobre conversaciones reales",
   ],
   talkTo:
-    "Hola, vengo de allok.fun. Quiero la puesta en marcha de allok (US$499).",
-  /** Payment Link live de `allok LLC` (creado el 2026-09-24). Pide teléfono. */
+    "Hola, vengo de allok.fun. Quiero la puesta en marcha de allok (US$199).",
+  /**
+   * Payment Link live de `allok LLC` (creado el 2026-09-24) por el precio VIEJO de US$499. La web
+   * no lo enlaza: `/pago/puesta-en-marcha` cobra `price` por Checkout. Queda para que el webhook
+   * reconozca pagos hechos por ese link.
+   */
   paymentUrl: "https://buy.stripe.com/14A3cx3JpcpobG55qdeEo00",
   /** Su id: el webhook lo reconoce por esto (la otra cuenta tiene más links sin metadata). */
   paymentLinkId: "plink_1UJLejQssTDjutCko2emNKF9",
@@ -275,7 +287,7 @@ export const ESENCIAL_LINK = {
  * frase de copy es exactamente lo que se queda viejo cuando cambia el precio.
  */
 export const FROM_PRICE = Math.min(
-  ...PLANS.filter((p) => p.appPlan !== null && p.period === "mes").map((p) => p.price),
+  ...SHOWN_PLANS.filter((p) => p.appPlan !== null && p.period === "mes").map((p) => p.price),
 );
 
 /** El texto del precio, ya resuelto. La página no decide formato. */

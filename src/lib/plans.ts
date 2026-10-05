@@ -206,7 +206,8 @@ export const PLANS: Plan[] = [
     price: 99,
     period: "mes",
     featured: true,
-    trialDays: 7,
+    // ponytail: sin prueba en la web por ahora (Adrian, 2026-10-05: vender con entrada de US$199).
+    // El registro del CRM sigue dando 7 días; volver = `trialDays: 7`.
     line: "Cuando la consulta ya vale plata.",
     features: [
       "Tu número de siempre, sin cambiar nada",

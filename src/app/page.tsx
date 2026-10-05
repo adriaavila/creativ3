@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { TRY_AGENT_MESSAGE, whatsappUrl } from "@/lib/contact";
 import { BRAND, STATES } from "@/lib/brand";
-import { FROM_PRICE, PLANS, SETUP_SERVICE, SHOWN_PLANS, closingOffer, headerCta, headerNav, heroCta, isSelfServe, planCta, priceLabel, trialNote } from "@/lib/plans";
+import { FROM_PRICE, SETUP_SERVICE, SHOWN_PLANS, closingOffer, headerCta, headerNav, heroCta, isSelfServe, planCta, priceLabel, trialNote } from "@/lib/plans";
 import SiteHeader from "@/components/allok/SiteHeader";
 import SiteFooter from "@/components/allok/SiteFooter";
 import Conversation from "@/components/allok/Conversation";
@@ -57,16 +57,14 @@ const ASSISTED_STEPS = [
   },
 ] as const;
 
-/** Los días de la prueba salen del plan Completo (que refleja el CRM): un solo lugar. */
-const TRIAL_DAYS = PLANS.find((p) => p.appPlan === "pro")?.trialDays ?? 7;
 
 /** Con autoservicio: el dueño crea la cuenta y conecta su número solo. */
 const SELF_SERVE_STEPS = [
   {
     n: "01",
     title: "Creas tu cuenta",
-    body: `Con tu correo y sin tarjeta. Tienes ${TRIAL_DAYS} días del plan Completo para probarlo con tu negocio.`,
-    aside: "Sin tarjeta",
+    body: "Con tu correo, en un par de minutos.",
+    aside: "Dos minutos",
   },
   {
     n: "02",

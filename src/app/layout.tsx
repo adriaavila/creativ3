@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Archivo_Black, JetBrains_Mono, Geist } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import WhatsappClickTracker from "@/components/analytics/WhatsappClickTracker";
+import SignupAttribution from "@/components/analytics/SignupAttribution";
+import MetaPixel from "@/components/analytics/MetaPixel";
 import "./globals.css";
 import { siteJsonLd } from "@/lib/seo";
 import { PORTFOLIO_PROJECTS } from "@/lib/projects";
@@ -107,6 +109,8 @@ export default async function RootLayout({
         {children}
         <Analytics mode={process.env.VERCEL ? "auto" : "development"} debug={false} />
         <WhatsappClickTracker />
+        <SignupAttribution />
+        <MetaPixel />
       </body>
     </html>
   );

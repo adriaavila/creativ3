@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { CRM_APP_URL } from "./plans";
+import { CRM_APP_URL, registerUrl } from "./plans";
 import {
   buildFirstTouch,
   externalReferrerHost,
@@ -67,6 +67,16 @@ test("el origen se agrega sin pisar lo que el enlace ya trae", () => {
   assert.equal(merged.searchParams.get("utm_campaign"), "q4");
   assert.equal(merged.searchParams.get("landing"), "/");
   assert.equal(merged.searchParams.get("referrer"), "www.google.com");
+});
+
+test("el botón de Completo conserva plan=pro y pagar=1 al sumar el origen", () => {
+  const merged = new URL(
+    mergeIntoRegisterUrl(registerUrl("pro", { payNow: true }), { utm_source: "meta", fbclid: "abc", landing: "/" }),
+  );
+  assert.equal(merged.searchParams.get("plan"), "pro");
+  assert.equal(merged.searchParams.get("pagar"), "1");
+  assert.equal(merged.searchParams.get("utm_source"), "meta");
+  assert.equal(merged.searchParams.get("fbclid"), "abc");
 });
 
 test("un enlace que no es el registro no se toca", () => {

@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { TRY_AGENT_MESSAGE, whatsappUrl } from "@/lib/contact";
 import { BRAND, STATES } from "@/lib/brand";
-import { FROM_PRICE, SETUP_SERVICE, SHOWN_PLANS, closingOffer, headerCta, headerNav, heroCta, isSelfServe, planCta, priceLabel, trialNote } from "@/lib/plans";
+import { faqJsonLd, jsonLdHtml } from "@/lib/seo";
+import { CANCEL_NOTE, FROM_PRICE, SETUP_SERVICE, SHOWN_PLANS, closingOffer, headerCta, headerNav, heroCta, isSelfServe, planCta, priceLabel, trialNote } from "@/lib/plans";
 import SiteHeader from "@/components/allok/SiteHeader";
 import SiteFooter from "@/components/allok/SiteFooter";
 import Conversation from "@/components/allok/Conversation";
@@ -89,6 +90,46 @@ const SECTORS = [
   ["Ecommerce y tiendas", "¿Tienen esta talla y cuánto es el envío?"],
 ] as const;
 
+/**
+ * Las dudas de un dueño antes de pagar. Cada respuesta dice solo lo que la app
+ * hace hoy (vocero-crm); si cambia allá, cambia aquí:
+ * - número: coexistencia de Embedded Signup (`server/agencia/whatsapp-signup`).
+ * - mensajes: la cuenta es del negocio y Meta le cobra directo (`lib/plans.ts`).
+ * - cancelar: portal de Stripe (`api/saas/billing/portal`, al final del periodo).
+ * - inventar: «lo que no esté aquí, no lo inventa» (`components/agencia/tu-negocio.tsx`).
+ * - encendido: el agente nace en pausa (`server/agent/default-profile.ts`).
+ */
+const FAQS: { q: string; a: string; link?: { href: string; label: string } }[] = [
+  {
+    q: "¿Tengo que cambiar de número?",
+    a: "No. Conectas el número que ya usas, por la vía oficial de Meta. Si lo tienes en la app de WhatsApp Business, la sigues usando en tu celular como siempre.",
+  },
+  {
+    q: "¿Quién paga los mensajes de WhatsApp?",
+    a: "La cuenta de WhatsApp queda a nombre de tu empresa y Meta te cobra el consumo directo, a su tarifa. allok cobra solo la mensualidad fija, no tus conversaciones.",
+  },
+  {
+    q: "¿Puedo cancelar cuando quiera?",
+    a: "Sí. Cancelas tú mismo desde Facturación, sin llamar a nadie, y tu plan sigue activo hasta el final del periodo que ya pagaste.",
+  },
+  {
+    q: "¿Va a inventar respuestas?",
+    a: "No. Contesta solo con lo que tú le cargas de tu negocio: precios, servicios, horarios. Lo que no está ahí no lo inventa; le dice al cliente que lo confirma con tu equipo.",
+  },
+  {
+    q: "¿Empieza a contestarle a mis clientes apenas lo conecto?",
+    a: "No. Tu agente nace en pausa: lo pruebas escribiéndole como si fueras un cliente y lo enciendes tú cuando te guste cómo responde. Lo pausas igual de fácil.",
+  },
+  {
+    q: "¿Y si me trabo conectando WhatsApp?",
+    a: `Te ayudamos por WhatsApp. Si prefieres no tocar nada, la ${SETUP_SERVICE.name} (desde US$${SETUP_SERVICE.price}, una vez) conecta tu número con Meta y carga tu agente por ti.`,
+    link: {
+      href: whatsappUrl("Hola, vengo de allok.fun. Necesito ayuda para conectar mi WhatsApp."),
+      label: "Pedir ayuda por WhatsApp",
+    },
+  },
+];
+
 export default function Home() {
   const fallback = whatsappUrl(DEMO);
   const connect = whatsappUrl(START);
@@ -107,7 +148,8 @@ export default function Home() {
         <div className="mx-auto grid max-w-[1240px] items-center gap-12 px-5 pb-14 pt-6 sm:px-10 lg:grid-cols-[minmax(0,1.02fr)_minmax(0,.98fr)] lg:gap-8 lg:pb-20 lg:pt-10">
           <div>
             <AllokLogo variant="wordmark" state="activo" size={112} live className="!text-[clamp(64px,9vw,112px)]" />
-            <p className="mono mt-6 text-[var(--ink-60)]">{BRAND.positioning}</p>
+            {/* `BRAND.positioning` es el registro de marca en inglés; aquí va lo que lee el cliente. */}
+            <p className="mono mt-6 text-[var(--ink-60)]">Tu agente de WhatsApp con IA</p>
 
             {/* La estructura del anuncio: tres líneas, y la tercera es la marca. */}
             <div className="mt-10 font-display text-[clamp(1.75rem,3.4vw,2.6rem)] font-bold leading-[1.12] tracking-[-0.04em]">
@@ -304,8 +346,8 @@ export default function Home() {
               >
                 {planCta(plan).label}
               </a>
-              {trialNote(plan) ? (
-                <p className="mono mt-3 text-center opacity-65">{trialNote(plan)}</p>
+              {trialNote(plan) || (plan.appPlan && plan.period === "mes") ? (
+                <p className="mono mt-3 text-center opacity-65">{trialNote(plan) ?? CANCEL_NOTE}</p>
               ) : null}
 
               <ul className={`allok-hair mt-7 grid gap-3 pt-6 ${plan.featured ? "border-white/12" : ""}`}>
@@ -341,6 +383,40 @@ export default function Home() {
             Que lo dejen andando
           </a>
         </div>
+      </section>
+
+      {/* ── Preguntas: las dudas de antes de pagar, sin JS (<details>). ──── */}
+      <section id="preguntas" className="mx-auto max-w-[1240px] scroll-mt-6 px-5 pb-[clamp(72px,10vw,140px)] sm:px-10">
+        <div className="grid gap-x-10 gap-y-8 md:grid-cols-[minmax(0,.7fr)_minmax(0,1fr)]">
+          <h2 className="statement max-w-[12ch]">Lo que todos preguntan antes.</h2>
+          <div className="border-t border-[var(--line)]">
+            {FAQS.map(({ q, a, link }) => (
+              <details key={q} className="group border-b border-[var(--line)]">
+                <summary className="flex cursor-pointer list-none items-start justify-between gap-6 py-5 text-[17px] font-medium leading-snug [&::-webkit-details-marker]:hidden">
+                  {q}
+                  <span
+                    aria-hidden="true"
+                    className="mt-0.5 shrink-0 text-[20px] leading-none text-[var(--ink-40)] transition-transform duration-200 ease-[cubic-bezier(.23,1,.32,1)] group-open:rotate-45"
+                  >
+                    +
+                  </span>
+                </summary>
+                <p className="max-w-[62ch] pb-6 text-[15.5px] leading-relaxed text-[var(--ink-60)] text-pretty">
+                  {a}
+                  {link ? (
+                    <>
+                      {" "}
+                      <a href={link.href} className="text-[var(--ink)] underline underline-offset-4">
+                        {link.label}
+                      </a>
+                    </>
+                  ) : null}
+                </p>
+              </details>
+            ))}
+          </div>
+        </div>
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdHtml(faqJsonLd(FAQS)) }} />
       </section>
 
       {/* ── Cierre: la marca cerrando la frase ──────────────────────────── */}

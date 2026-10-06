@@ -97,7 +97,11 @@ test("NEXT_PUBLIC_SELF_SERVE=true: cada plan de suscripción lleva al registro d
     for (const plan of PLANS) {
       const { href, label } = planCta(plan);
       if (plan.appPlan) {
-        assert.equal(href, `${CRM_APP_URL}/register?plan=${plan.appPlan}`, plan.key);
+        // Completo llega con «pagar ahora» marcado; el resto, el registro con su plan.
+        const expected = plan.appPlan === "pro"
+          ? `${CRM_APP_URL}/register?plan=pro&pagar=1`
+          : `${CRM_APP_URL}/register?plan=${plan.appPlan}`;
+        assert.equal(href, expected, plan.key);
         assert.equal(label, "Crear mi cuenta", plan.key);
         continue;
       }
@@ -106,6 +110,18 @@ test("NEXT_PUBLIC_SELF_SERVE=true: cada plan de suscripción lleva al registro d
       assert.equal(label, "Hablemos");
     }
     assert.equal(registerUrl(), `${CRM_APP_URL}/register`);
+    assert.equal(registerUrl("pro"), `${CRM_APP_URL}/register?plan=pro`, "pagar=1 solo cuando se pide");
+  });
+});
+
+test("solo el botón de Completo marca «pagar ahora»; cabecera, portada y cierre llevan al registro a secas", () => {
+  withSelfServe("true", () => {
+    const talk = "https://wa.me/1?text=hola";
+    for (const href of [headerCta().href, heroCta(talk).href, closingOffer(talk).primary.href]) {
+      assert.equal(href, `${CRM_APP_URL}/register`);
+    }
+    const completo = PLANS.find((p) => p.appPlan === "pro")!;
+    assert.equal(new URL(planCta(completo).href).searchParams.get("pagar"), "1");
   });
 });
 

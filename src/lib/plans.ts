@@ -113,7 +113,9 @@ export function trialNote(plan: Plan): string | null {
  */
 export function planCta(plan: Plan): { href: string; label: string } {
   if (isSelfServe() && plan.appPlan) {
-    return { href: registerUrl(plan.appPlan), label: "Crear mi cuenta" };
+    // Completo es el plan que se paga desde la web: `pagar=1` deja marcado
+    // «pagar ahora» en el registro del CRM (`register-form.tsx` en vocero-crm).
+    return { href: registerUrl(plan.appPlan, { payNow: plan.appPlan === "pro" }), label: "Crear mi cuenta" };
   }
   return {
     href: whatsappUrl(plan.talkTo ?? `Hola, vengo de allok.fun. Quiero el plan ${plan.name}.`),
@@ -173,10 +175,22 @@ export function headerNav<T extends { href: string; label: string }>(nav: readon
   return isSelfServe() ? [...nav, { href: `${CRM_APP_URL}/login`, label: "Entrar" }] : [...nav];
 }
 
-/** A dónde manda el botón de un plan de suscripción (sin plan: el registro a secas). */
-export function registerUrl(appPlan?: "basic" | "pro"): string {
-  return appPlan ? `${CRM_APP_URL}/register?plan=${appPlan}` : `${CRM_APP_URL}/register`;
+/**
+ * A dónde manda el botón de un plan de suscripción (sin plan: el registro a
+ * secas). `payNow` agrega `pagar=1`, que el registro del CRM lee para dejar
+ * preseleccionado «pagar ahora».
+ */
+export function registerUrl(appPlan?: "basic" | "pro", opts: { payNow?: boolean } = {}): string {
+  if (!appPlan) return `${CRM_APP_URL}/register`;
+  return `${CRM_APP_URL}/register?plan=${appPlan}${opts.payNow ? "&pagar=1" : ""}`;
 }
+
+/**
+ * La línea de tranquilidad bajo el botón de un plan mensual. Es verdad en la
+ * app: el dueño cancela solo desde Facturación (portal de Stripe,
+ * `api/saas/billing/portal` en vocero-crm, cancelación al final del periodo).
+ */
+export const CANCEL_NOTE = "Cancelas cuando quieras.";
 
 export const PLANS: Plan[] = [
   {

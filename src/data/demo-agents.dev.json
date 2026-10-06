@@ -1,0 +1,34 @@
+[
+  {
+    "slug": "clinica-sonrisa-cdmx",
+    "business_name": "Clínica Sonrisa",
+    "sector": "Clínica dental",
+    "city": "CDMX",
+    "country": "México",
+    "website": "https://clinica-sonrisa.example",
+    "created_at": "2026-10-05T00:00:00.000Z",
+    "chat_count": 0,
+    "last_chat_at": null,
+    "signup_clicks": 0,
+    "profile": {
+      "summary": "Clínica dental en la colonia Narvarte: odontología general, ortodoncia y estética dental para toda la familia.",
+      "services": [
+        { "name": "Limpieza dental", "price": "$650 MXN", "duration": "45 minutos" },
+        { "name": "Blanqueamiento dental", "price": "desde $3,500 MXN" },
+        { "name": "Valoración de ortodoncia", "price": "$400 MXN", "notes": "Se abona al tratamiento si inicias ese mes." },
+        { "name": "Resinas" },
+        { "name": "Endodoncia" }
+      ],
+      "hours": ["Lunes a viernes de 9:00 a 19:00", "Sábados de 9:00 a 14:00"],
+      "address": "Av. Universidad 1200, local 3, Col. Narvarte Poniente, Benito Juárez, CDMX",
+      "phone": "55 1234 5678",
+      "booking": "Citas por WhatsApp o por teléfono.",
+      "payment": ["Efectivo", "Tarjeta de débito y crédito", "Meses sin intereses en tratamientos de ortodoncia"],
+      "tone": "usted, cálido y profesional",
+      "faqs": [
+        { "q": "¿Atienden niños?", "a": "Sí, atendemos a niños a partir de los 3 años." }
+      ],
+      "sourceUrls": ["https://clinica-sonrisa.example/"]
+    }
+  }
+]

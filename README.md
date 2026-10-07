@@ -17,11 +17,13 @@ En `http://localhost:3000`. Las variables de entorno están documentadas en
 ## La estructura del sitio
 
 ```
-/               allok — el CRM de WhatsApp. Se compra aquí, por mensualidad.
-├── /rei        el mismo CRM con el pipeline de una inmobiliaria.
-├── /vocero     a medida: agente de WhatsApp sobre los sistemas del cliente.
-├── /agencia    web, automatización y producto a medida, por entregable.
-└── /portfolio  la prueba
+/                 allok — optimizamos negocios: soluciones, casos y el diagnóstico.
+├── /casos        los casos, uno por página (`src/lib/casos.ts`)
+├── /agente-whatsapp  el agente de WhatsApp con CRM. Se compra aquí, por mensualidad.
+├── /rei          el mismo CRM con el pipeline de una inmobiliaria.
+├── /vocero       a medida: agente de WhatsApp sobre los sistemas del cliente.
+├── /agencia      entregables sueltos (fuera de la navegación desde 2026-10).
+└── /portfolio    la prueba
     ├── /work       índice de sistemas con capturas reales
     ├── /lab        experimentos
     └── /writing    notas

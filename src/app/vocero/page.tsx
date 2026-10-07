@@ -23,7 +23,7 @@ const NAV = [
   { href: "#cuando", label: "¿Es para ti?" },
   { href: "#como-trabajamos", label: "Cómo trabajamos" },
   { href: "#precios", label: "El precio" },
-  { href: "/", label: "Los planes" },
+  { href: "/agente-whatsapp", label: "Los planes" },
 ];
 
 /** Un hilo de ejemplo. Ilustra el producto — no es la conversación de nadie. */
@@ -164,7 +164,7 @@ export default function VoceroPage() {
                 ))}
               </ul>
               {col.accent ? null : (
-                <Link href="/" className="mono mt-3 inline-flex min-h-11 items-center text-[var(--dusk)] underline underline-offset-4">
+                <Link href="/agente-whatsapp" className="mono mt-3 inline-flex min-h-11 items-center text-[var(--dusk)] underline underline-offset-4">
                   Ver allok ↗
                 </Link>
               )}

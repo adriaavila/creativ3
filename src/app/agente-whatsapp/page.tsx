@@ -1,0 +1,490 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+import { TRY_AGENT_MESSAGE, whatsappUrl } from "@/lib/contact";
+import { BRAND, STATES } from "@/lib/brand";
+import { faqJsonLd, jsonLdHtml } from "@/lib/seo";
+import { CANCEL_NOTE, FROM_PRICE, SETUP_SERVICE, SHOWN_PLANS, closingOffer, headerCta, headerNav, heroCta, isSelfServe, planCta, priceLabel, trialNote } from "@/lib/plans";
+import SiteHeader from "@/components/allok/SiteHeader";
+import SiteFooter from "@/components/allok/SiteFooter";
+import Conversation from "@/components/allok/Conversation";
+import ControlCenter from "@/components/allok/ControlCenter";
+import Rise from "@/components/allok/Rise";
+import ArmaTuDemo from "@/components/allok/ArmaTuDemo";
+import AllokLogo from "@/components/brand/AllokLogo";
+import OkDot from "@/components/brand/OkDot";
+import NightOrbit from "@/components/allok/NightOrbit";
+import { CloseMark, NightSky, NightTicker, StepGlyph } from "@/components/allok/Ambient";
+
+const TITLE = "Agente de WhatsApp con IA para tu negocio";
+const DESCRIPTION =
+  `allok conecta tu WhatsApp con agentes que contestan, califican y agendan por ti. Mensualidad fija de US$${FROM_PRICE}: la cuenta es de tu empresa y Meta te cobra los mensajes al costo.`;
+
+export const metadata: Metadata = {
+  title: TITLE,
+  description: DESCRIPTION,
+  alternates: { canonical: "/agente-whatsapp" },
+  openGraph: { title: TITLE, description: DESCRIPTION, url: "/agente-whatsapp", type: "website", locale: "es" },
+  twitter: { card: "summary_large_image", title: TITLE, description: DESCRIPTION },
+};
+
+const DEMO = TRY_AGENT_MESSAGE;
+const START = "Hola, vengo de allok.fun. Quiero un agente de WhatsApp para mi negocio.";
+
+const NAV = [
+  { href: "#control", label: "El sistema" },
+  { href: "#como", label: "Cómo funciona" },
+  { href: "#precios", label: "Precios" },
+  { href: "/", label: "Soluciones" },
+];
+
+/** Sin autoservicio: la puesta en marcha la hacemos nosotros, por WhatsApp. */
+const ASSISTED_STEPS = [
+  {
+    n: "01",
+    title: "Hablamos 15 minutos",
+    body: "Por WhatsApp. Nos cuentas qué vendes, a qué hora atiendes y qué no debe contestar, y te decimos qué plan te sirve.",
+    aside: "Sin compromiso",
+  },
+  {
+    n: "02",
+    title: "Lo dejamos andando",
+    body: "Conectamos tu número de siempre y cargamos tu agente con tus precios y servicios. La cuenta queda a nombre de tu empresa: es tuya, no nuestra.",
+    aside: "Sin cambiar de número",
+  },
+  {
+    n: "03",
+    title: "Actívalo",
+    body: "Pruébalo escribiéndole tú primero. Cuando te guste cómo responde, lo pones a atender de verdad.",
+    aside: "Y se apaga igual de fácil",
+  },
+] as const;
+
+
+/** Con autoservicio: el dueño crea la cuenta y conecta su número solo. */
+const SELF_SERVE_STEPS = [
+  {
+    n: "01",
+    title: "Creas tu cuenta",
+    body: "Con tu correo, en un par de minutos.",
+    aside: "Dos minutos",
+  },
+  {
+    n: "02",
+    title: "Conectas tu WhatsApp",
+    body: "Eliges tu número en la ventana de Meta. La cuenta queda a nombre de tu empresa: es tuya, no nuestra.",
+    aside: "Sin cambiar de número",
+  },
+  {
+    n: "03",
+    title: "Pruebas y activas",
+    body: "Le cuentas tu negocio, lo pruebas como si fueras un cliente y lo pones a atender cuando te guste cómo responde.",
+    aside: "Y se apaga igual de fácil",
+  },
+] as const;
+
+const SECTORS = [
+  ["Clínicas y estética", "¿Cuánto sale, cuánto dura y cuándo hay hora?"],
+  ["Academias y cursos", "¿Queda cupo, cuándo empieza y cómo reservo?"],
+  ["Servicios legales", "¿Atienden mi caso y qué necesito llevar?"],
+  ["Talleres y servicio técnico", "¿Lo reparan, cuánto tarda y cuánto cuesta?"],
+  ["Turismo y hospedaje", "¿Hay disponibilidad para esas fechas?"],
+  ["Ecommerce y tiendas", "¿Tienen esta talla y cuánto es el envío?"],
+] as const;
+
+/**
+ * Las dudas de un dueño antes de pagar. Cada respuesta dice solo lo que la app
+ * hace hoy (vocero-crm); si cambia allá, cambia aquí:
+ * - número: coexistencia de Embedded Signup (`server/agencia/whatsapp-signup`).
+ * - mensajes: la cuenta es del negocio y Meta le cobra directo (`lib/plans.ts`).
+ * - cancelar: portal de Stripe (`api/saas/billing/portal`, al final del periodo).
+ * - inventar: «lo que no esté aquí, no lo inventa» (`components/agencia/tu-negocio.tsx`).
+ * - encendido: el agente nace en pausa (`server/agent/default-profile.ts`).
+ */
+const FAQS: { q: string; a: string; link?: { href: string; label: string } }[] = [
+  {
+    q: "¿Tengo que cambiar de número?",
+    a: "No. Conectas el número que ya usas, por la vía oficial de Meta. Si lo tienes en la app de WhatsApp Business, la sigues usando en tu celular como siempre.",
+  },
+  {
+    q: "¿Quién paga los mensajes de WhatsApp?",
+    a: "La cuenta de WhatsApp queda a nombre de tu empresa y Meta te cobra el consumo directo, a su tarifa. allok cobra solo la mensualidad fija, no tus conversaciones.",
+  },
+  {
+    q: "¿Puedo cancelar cuando quiera?",
+    a: "Sí. Cancelas tú mismo desde Facturación, sin llamar a nadie, y tu plan sigue activo hasta el final del periodo que ya pagaste.",
+  },
+  {
+    q: "¿Va a inventar respuestas?",
+    a: "No. Contesta solo con lo que tú le cargas de tu negocio: precios, servicios, horarios. Lo que no está ahí no lo inventa; le dice al cliente que lo confirma con tu equipo.",
+  },
+  {
+    q: "¿Empieza a contestarle a mis clientes apenas lo conecto?",
+    a: "No. Tu agente nace en pausa: lo pruebas escribiéndole como si fueras un cliente y lo enciendes tú cuando te guste cómo responde. Lo pausas igual de fácil.",
+  },
+  {
+    q: "¿Y si me trabo conectando WhatsApp?",
+    a: `Te ayudamos por WhatsApp. Si prefieres no tocar nada, la ${SETUP_SERVICE.name} (desde US$${SETUP_SERVICE.price}, una vez) conecta tu número con Meta y carga tu agente por ti.`,
+    link: {
+      href: whatsappUrl("Hola, vengo de allok.fun. Necesito ayuda para conectar mi WhatsApp."),
+      label: "Pedir ayuda por WhatsApp",
+    },
+  },
+];
+
+export default function AgenteWhatsapp() {
+  const fallback = whatsappUrl(DEMO);
+  const connect = whatsappUrl(START);
+  const closing = closingOffer(connect);
+  const start = heroCta(connect);
+  const selfServe = isSelfServe();
+  const steps = selfServe ? SELF_SERVE_STEPS : ASSISTED_STEPS;
+
+  return (
+    <div className="allok">
+      {/* ── Portada en Cloud. El logotipo a tamaño de cartel, y el punto vivo:
+             la marca es lo primero que se ve y ya está diciendo el estado. ── */}
+      <div className="overflow-x-clip bg-[var(--cloud)]">
+        <SiteHeader nav={headerNav(NAV)} cta={headerCta()} onCloud />
+
+        <div className="mx-auto grid max-w-[1240px] items-center gap-12 px-5 pb-14 pt-6 sm:px-10 lg:grid-cols-[minmax(0,1.02fr)_minmax(0,.98fr)] lg:gap-8 lg:pb-20 lg:pt-10">
+          <div>
+            <AllokLogo variant="wordmark" state="activo" size={112} live className="!text-[clamp(64px,9vw,112px)]" />
+            {/* `BRAND.positioning` es el registro de marca en inglés; aquí va lo que lee el cliente. */}
+            <p className="mono mt-6 text-[var(--ink-60)]">Tu agente de WhatsApp con IA</p>
+
+            {/* La estructura del anuncio: tres líneas, y la tercera es la marca. */}
+            <div className="mt-10 font-display text-[clamp(1.75rem,3.4vw,2.6rem)] font-bold leading-[1.12] tracking-[-0.04em]">
+              <p>Te fuiste a dormir.</p>
+              <p className="text-[var(--ink-40)]">Tu WhatsApp no.</p>
+              <p className="mt-1 flex items-center gap-2.5">
+                <OkDot state="activo" size={17} />
+                <span>all ok</span>
+              </p>
+            </div>
+
+            <p className="lede mt-8 max-w-[44ch] text-[var(--ink-60)]">
+              allok contesta con lo que de verdad vendes, pregunta lo que hay que
+              preguntar y agenda la cita. Tú ves lo que pasó y decides cuándo entrar.
+            </p>
+
+            <div className="mt-9 flex flex-wrap gap-3">
+              <a href={start.href} className="allok-btn bg-[var(--ink)] font-semibold text-[var(--cloud)]">
+                {start.label}
+              </a>
+              <a
+                href="#tu-demo"
+                className="allok-btn border border-[rgba(11,13,14,.2)] text-[var(--ink)]"
+              >
+                Probarlo con mi negocio
+              </a>
+            </div>
+          </div>
+
+          {/* Los mensajes de la noche orbitan el teléfono: entran ámbar, salen verdes. */}
+          <div className="relative flex justify-center">
+            <NightOrbit className="absolute left-1/2 top-1/2 hidden w-[640px] max-w-none xl:w-[740px] -translate-x-1/2 -translate-y-1/2 sm:block" />
+            <Rise delay={1} className="relative w-full max-w-[320px]">
+              <Conversation />
+            </Rise>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Arma tu demo: el dueño ve a SU agente antes de crear cuenta. ── */}
+      <section id="tu-demo" aria-labelledby="tu-demo-titulo" className="scroll-mt-6 border-t border-[var(--line)] bg-[var(--cloud)]">
+        <div className="mx-auto grid max-w-[1240px] gap-8 px-5 py-[clamp(48px,7vw,88px)] sm:px-10 lg:grid-cols-[minmax(0,.8fr)_minmax(0,1.2fr)] lg:items-end lg:gap-14">
+          <div>
+            <p className="mono text-[var(--ink-60)]">En 30 segundos</p>
+            <h2 id="tu-demo-titulo" className="display mt-4 text-balance text-[clamp(1.9rem,3.6vw,2.8rem)]">
+              Mira cómo le contestaría a tus clientes.
+            </h2>
+            <p className="mt-4 max-w-[46ch] text-[15.5px] leading-relaxed text-[var(--ink-60)] text-pretty">
+              Pega tu web: tu agente la lee y le escribes como si fueras un cliente. Si te gusta, al crear tu cuenta ya viene
+              con lo que aprendió.
+            </p>
+          </div>
+          <div className="min-w-0">
+            <ArmaTuDemo />
+            <p className="mt-4 text-[14px] text-[var(--ink-60)]">
+              ¿Sin web?{" "}
+              <a href={fallback} className="font-semibold text-[var(--ink)] underline underline-offset-2">
+                Escríbele a nuestro agente por WhatsApp
+              </a>
+              .
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* ── El sistema es la estética. Nada de ilustraciones. ─────────────── */}
+      <section id="control" className="bg-[var(--ink)] text-[var(--cloud)]">
+        {/* La noche que pasó: las preguntas llegaron igual. */}
+        <div className="pt-[clamp(56px,7vw,96px)]" aria-hidden="true">
+          <p className="mono mx-auto max-w-[1240px] px-5 text-[var(--on-void-60)] sm:px-10">Mientras dormías</p>
+          <div className="mt-5">
+            <NightTicker />
+          </div>
+        </div>
+        <div className="mx-auto max-w-[1240px] px-5 py-[clamp(72px,10vw,140px)] sm:px-10">
+          <Rise>
+            <div className="grid items-end gap-6 md:grid-cols-[minmax(0,1fr)_minmax(0,.66fr)]">
+              <h2 className="statement max-w-[15ch]">Abres allok y ya sabes si está bien.</h2>
+              <p className="text-[15.5px] leading-relaxed text-white/55 text-pretty">
+                El color es el estado, no adorno. Verde: atendido. Azul: trabajando
+                ahora. Ámbar: algo necesita que entres tú. No hay informe que leer.
+              </p>
+            </div>
+          </Rise>
+
+          <Rise delay={1} className="mt-14">
+            <ControlCenter />
+          </Rise>
+
+          <Rise delay={2}>
+            <dl className="mt-12 grid gap-x-10 gap-y-6 sm:grid-cols-2 lg:grid-cols-4">
+              {(["activo", "atendiendo", "atencion", "pausado"] as const).map((k) => (
+                <div key={k} className="flex items-start gap-3">
+                  <span className="mt-[7px] size-2.5 shrink-0 rounded-full" style={{ background: STATES[k].dot }} />
+                  <span>
+                    <span className="block text-[15px] font-semibold">{STATES[k].label}</span>
+                    <span className="mono mt-1 block text-[var(--on-void-60)]">
+                      {{ activo: "Atendido solo", atendiendo: "Hay conversación viva", atencion: "Te toca a ti", pausado: "Apagado a propósito" }[k]}
+                    </span>
+                  </span>
+                </div>
+              ))}
+            </dl>
+          </Rise>
+        </div>
+      </section>
+
+      {/* ── Cómo funciona ───────────────────────────────────────────────── */}
+      <section id="como" className="mx-auto max-w-[1240px] px-5 py-[clamp(72px,10vw,140px)] sm:px-10">
+        <Rise>
+          <div className="grid items-end gap-6 md:grid-cols-[minmax(0,1fr)_minmax(0,.7fr)]">
+            <h2 className="statement max-w-[13ch]">Tres pasos y queda andando.</h2>
+            <p className="text-[15.5px] leading-relaxed text-[var(--ink-60)] text-pretty">
+              {selfServe
+                ? "No instalas nada ni programas nada. Le explicas tu negocio como a un empleado nuevo y allok hace el resto."
+                : "No instalas nada ni programas nada. Nos explicas tu negocio como a un empleado nuevo y nosotros hacemos el resto."}
+            </p>
+          </div>
+        </Rise>
+
+        <ol className="mt-14 grid gap-px overflow-hidden rounded-[26px] bg-[var(--line)] md:grid-cols-3">
+          {steps.map((s, i) => (
+            <Rise key={s.n} delay={(i as 0 | 1 | 2)} className="grid bg-white">
+              <li className="grid content-start p-8">
+                <div className="flex items-start justify-between gap-4">
+                  <span className="mono tabular-nums text-[var(--ok-ink)]">{s.n}</span>
+                  <StepGlyph step={(i + 1) as 1 | 2 | 3} className="-mt-1 h-14 w-auto" />
+                </div>
+                <h3 className="display-sm mt-4 text-[clamp(1.25rem,1.8vw,1.55rem)]">{s.title}</h3>
+                <p className="mt-3 text-[15.5px] leading-relaxed text-[var(--ink-60)] text-pretty">{s.body}</p>
+                <p className="mono mt-6 text-[var(--ink-60)]">{s.aside}</p>
+              </li>
+            </Rise>
+          ))}
+        </ol>
+
+        <div className="mt-8 flex flex-wrap items-center gap-4">
+          <a href={fallback} className="allok-btn border border-[rgba(11,13,14,.2)] text-[var(--ink)]">
+            Probarlo como cliente
+          </a>
+          <p className="text-[14.5px] text-[var(--ink-60)]">
+            Escríbele tú primero y mira cómo contesta. No pide tarjeta.
+          </p>
+        </div>
+      </section>
+
+      {/* ── Para quién ──────────────────────────────────────────────────── */}
+      <section className="mx-auto max-w-[1240px] px-5 pb-[clamp(72px,10vw,140px)] sm:px-10">
+        <Rise>
+          <h2 className="statement max-w-[17ch]">
+            Si tu negocio vive de una pregunta que se repite, ya está hecho.
+          </h2>
+        </Rise>
+        <dl className="mt-12">
+          {SECTORS.map(([sector, question]) => (
+            <div
+              key={sector}
+              className="allok-hair allok-close-row grid items-baseline gap-x-10 gap-y-1 py-5 last:border-b last:border-[var(--line)] sm:grid-cols-[minmax(0,.4fr)_minmax(0,.6fr)]"
+            >
+              <dt className="display-sm text-[17px]">
+                <CloseMark className="mr-3 inline-block size-[18px] align-[-3px] text-[var(--ink-40)]" />
+                {sector}
+              </dt>
+              <dd className="text-[15.5px] leading-relaxed text-[var(--ink-60)]">«{question}»</dd>
+            </div>
+          ))}
+        </dl>
+        <p className="mt-8 max-w-[62ch] text-[15.5px] leading-relaxed text-[var(--ink-60)] text-pretty">
+          ¿Inmobiliaria? El mismo producto con el vocabulario de una corredora se
+          llama{" "}
+          <Link href="/rei" className="text-[var(--ink)] underline underline-offset-4">REI</Link>. ¿Reglas
+          propias o tu propio servidor? Eso es{" "}
+          <Link href="/vocero" className="text-[var(--ink)] underline underline-offset-4">allok a tu medida</Link>.
+        </p>
+      </section>
+
+      {/* ── Precios ─────────────────────────────────────────────────────── */}
+      <section id="precios" className="mx-auto max-w-[1240px] px-5 pb-[clamp(72px,10vw,140px)] sm:px-10">
+        <Rise>
+          <div className="grid items-end gap-6 md:grid-cols-[minmax(0,1fr)_minmax(0,.8fr)]">
+            <h2 className="statement max-w-[14ch]">Precio fijo. Mensajes al costo.</h2>
+            <p className="text-[15.5px] leading-relaxed text-[var(--ink-60)] text-pretty">
+              La cuenta de WhatsApp queda a nombre de tu empresa y Meta te factura
+              el consumo directo, a su tarifa. Cobramos el software, no tus
+              conversaciones.
+            </p>
+          </div>
+        </Rise>
+
+        {/* Columnas iguales; la elegida cambia de polaridad, no de tamaño. */}
+        <div className="mt-12 grid gap-px overflow-hidden rounded-[26px] bg-[var(--line)] md:grid-cols-2">
+          {SHOWN_PLANS.map((plan) => (
+            <div
+              key={plan.key}
+              className={`grid content-start p-8 ${
+                plan.featured ? "allok-on-ink bg-[var(--ink)] text-[var(--cloud)]" : "bg-white"
+              }`}
+            >
+              <div className="flex items-baseline justify-between gap-4">
+                <h3 className="display-sm text-[19px]">{plan.name}</h3>
+                {plan.featured ? <span className="mono text-[var(--ok)]">Más elegido</span> : null}
+              </div>
+              <p className="mono mt-1.5 opacity-65">{plan.kicker}</p>
+
+              <p className="display mt-6 text-[56px] leading-none tabular-nums">
+                {plan.from ? <span className="mono mr-2 align-middle opacity-65">desde</span> : null}
+                <span className="align-super text-[22px]">$</span>
+                {plan.price}
+              </p>
+              <p className="mono mt-2.5 opacity-65">{priceLabel(plan).unit}</p>
+              <p className="mt-4 mb-7 text-[15px] leading-snug opacity-70">{plan.line}</p>
+
+              <a
+                href={planCta(plan).href}
+                className={`allok-btn w-full !py-3.5 !text-[15px] font-semibold ${
+                  plan.featured
+                    ? "bg-[var(--ok)] text-[var(--ink)]"
+                    : "border border-[rgba(11,13,14,.2)] font-medium text-[var(--ink)]"
+                }`}
+              >
+                {planCta(plan).label}
+              </a>
+              {trialNote(plan) || (plan.appPlan && plan.period === "mes") ? (
+                <p className="mono mt-3 text-center opacity-65">{trialNote(plan) ?? CANCEL_NOTE}</p>
+              ) : null}
+
+              <ul className={`allok-hair mt-7 grid gap-3 pt-6 ${plan.featured ? "border-white/12" : ""}`}>
+                {plan.features.map((f) => (
+                  <li key={f} className="flex items-start gap-3 text-[14.5px] leading-snug">
+                    <span
+                      className="mt-[7px] size-[5px] shrink-0 rounded-full"
+                      style={{ background: STATES.activo.dot }}
+                      aria-hidden="true"
+                    />
+                    {f}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+
+        <div className="allok-hair mt-10 grid items-baseline gap-x-10 gap-y-3 pt-8 md:grid-cols-[minmax(0,1fr)_auto]">
+          <div>
+            <h3 className="display-sm text-[17px]">
+              {SETUP_SERVICE.name} · desde ${SETUP_SERVICE.price} una vez
+            </h3>
+            <p className="mt-2 max-w-[62ch] text-[15.5px] leading-relaxed text-[var(--ink-60)] text-pretty">
+              {SETUP_SERVICE.line} Cargamos tu agente, armamos tus etapas y
+              conectamos WhatsApp con Meta de punta a punta.
+            </p>
+          </div>
+          <a
+            href={whatsappUrl(SETUP_SERVICE.talkTo)}
+            className="allok-btn border border-[rgba(11,13,14,.2)] text-[var(--ink)] md:justify-self-end"
+          >
+            Que lo dejen andando
+          </a>
+        </div>
+      </section>
+
+      {/* ── Preguntas: las dudas de antes de pagar, sin JS (<details>). ──── */}
+      <section id="preguntas" className="mx-auto max-w-[1240px] scroll-mt-6 px-5 pb-[clamp(72px,10vw,140px)] sm:px-10">
+        <div className="grid gap-x-10 gap-y-8 md:grid-cols-[minmax(0,.7fr)_minmax(0,1fr)]">
+          <h2 className="statement max-w-[12ch]">Lo que todos preguntan antes.</h2>
+          <div className="border-t border-[var(--line)]">
+            {FAQS.map(({ q, a, link }) => (
+              <details key={q} className="group border-b border-[var(--line)]">
+                <summary className="flex cursor-pointer list-none items-start justify-between gap-6 py-5 text-[17px] font-medium leading-snug [&::-webkit-details-marker]:hidden">
+                  {q}
+                  <span
+                    aria-hidden="true"
+                    className="mt-0.5 shrink-0 text-[20px] leading-none text-[var(--ink-40)] transition-transform duration-200 ease-[cubic-bezier(.23,1,.32,1)] group-open:rotate-45"
+                  >
+                    +
+                  </span>
+                </summary>
+                <p className="max-w-[62ch] pb-6 text-[15.5px] leading-relaxed text-[var(--ink-60)] text-pretty">
+                  {a}
+                  {link ? (
+                    <>
+                      {" "}
+                      <a href={link.href} className="text-[var(--ink)] underline underline-offset-4">
+                        {link.label}
+                      </a>
+                    </>
+                  ) : null}
+                </p>
+              </details>
+            ))}
+          </div>
+        </div>
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdHtml(faqJsonLd(FAQS)) }} />
+      </section>
+
+      {/* ── Cierre: la marca cerrando la frase ──────────────────────────── */}
+      <section className="mx-auto max-w-[1240px] px-5 pb-[clamp(72px,10vw,140px)] sm:px-10">
+        <Rise>
+          <div className="allok-on-ink allok-dawn-host relative isolate grid items-center gap-10 overflow-hidden rounded-[30px] bg-[var(--ink)] px-7 py-16 text-[var(--cloud)] sm:px-14 sm:py-20 md:grid-cols-[minmax(0,1fr)_auto]">
+            <NightSky />
+            {/* Sobre las estrellas el texto va en gris opaco (el white/55 de
+                antes, ya mezclado sobre --ink, 6,3:1): uno translúcido deja
+                ver la estrella a través de la letra. Por lo mismo el botón
+                de borde lleva fondo. */}
+            <div className="relative">
+              <h2 className="hero !text-[clamp(2rem,4.4vw,3.6rem)]">{BRAND.promise}</h2>
+              <p className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-2 text-[15.5px] text-[#919292]">
+                {BRAND.voice.map((line) => (
+                  <span key={line} className="flex items-center gap-2">
+                    <span className="size-1.5 rounded-full" style={{ background: STATES.activo.dot }} aria-hidden="true" />
+                    {line}
+                  </span>
+                ))}
+              </p>
+              <p className="lede mt-6 max-w-[44ch] text-[#919292]">{closing.line}</p>
+            </div>
+            <div className="relative grid gap-3 md:justify-self-end">
+              <a href={closing.primary.href} className="allok-btn bg-[var(--ok)] font-semibold text-[var(--ink)]">
+                {closing.primary.label}
+              </a>
+              {closing.secondary ? (
+                <a
+                  href={closing.secondary.href}
+                  className="allok-btn border border-[rgba(245,244,240,.28)] bg-[var(--ink)] text-center text-[var(--cloud)]"
+                >
+                  {closing.secondary.label}
+                </a>
+              ) : null}
+            </div>
+          </div>
+        </Rise>
+      </section>
+
+      <SiteFooter />
+    </div>
+  );
+}

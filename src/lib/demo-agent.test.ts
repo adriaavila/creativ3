@@ -124,6 +124,12 @@ test("demoCta: con autoservicio va al registro con la atribución de la demo", (
     assert.equal(url.searchParams.get("utm_source"), "cold_email");
     assert.equal(url.searchParams.get("utm_medium"), "demo");
     assert.equal(url.searchParams.get("landing"), "/demo/clinica-sonrisa-cdmx");
+    // El CRM llena el negocio con lo que ya sabe la demo.
+    assert.equal(url.searchParams.get("demo"), "clinica-sonrisa-cdmx");
+    assert.equal(url.searchParams.get("negocio"), "Clínica Sonrisa");
+    const own = new URL(demoCta("clinica-sonrisa-cdmx", "Clínica Sonrisa", { own: true }).href);
+    assert.equal(own.searchParams.get("utm_source"), "web");
+    assert.equal(own.searchParams.get("utm_medium"), "demo_propia");
     // El primer toque guardado de otra visita no pisa la atribución de la demo.
     const merged = new URL(mergeIntoRegisterUrl(cta.href, { utm_source: "google", ref: "otro", utm_campaign: "q4" }));
     assert.equal(merged.searchParams.get("utm_source"), "cold_email");

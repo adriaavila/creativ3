@@ -277,13 +277,20 @@ export const LIMIT_REPLY =
  * porque el enlace ya los trae. Sin autoservicio, el registro llevaría a «el
  * alta la hacemos contigo», así que va a una conversación por WhatsApp.
  */
-export function demoCta(slug: string, businessName: string): { href: string; label: string; external: true } {
+export function demoCta(
+  slug: string,
+  businessName: string,
+  { own = false }: { own?: boolean } = {},
+): { href: string; label: string; external: true } {
   if (isSelfServe()) {
     const url = new URL(`${CRM_APP_URL}/register`);
     url.searchParams.set("ref", `demo:${slug}`);
-    url.searchParams.set("utm_source", "cold_email");
-    url.searchParams.set("utm_medium", "demo");
+    url.searchParams.set("utm_source", own ? "web" : "cold_email");
+    url.searchParams.set("utm_medium", own ? "demo_propia" : "demo");
     url.searchParams.set("landing", `/demo/${slug}`);
+    // El CRM llena el nombre del negocio y, al entrar, «Tu negocio» con lo que ya sabe esta demo.
+    url.searchParams.set("demo", slug);
+    url.searchParams.set("negocio", businessName);
     return { href: url.toString(), label: "Crear mi cuenta con este agente", external: true };
   }
   return {

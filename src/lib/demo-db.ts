@@ -80,7 +80,7 @@ async function readFixture(): Promise<Record<string, unknown>[]> {
 export async function getDemoAgent(slug: string): Promise<DemoAgent | null> {
   if (!SLUG_PATTERN.test(slug) || slug.length > 80) return null;
   if (fromDevFixture()) {
-    const row = (await readFixture()).find((r) => r.slug === slug);
+    const row = devCreated.get(slug) ?? (await readFixture()).find((r) => r.slug === slug);
     return row ? mapRow(row) : null;
   }
   const sql = getSql();
@@ -179,4 +179,70 @@ export async function recordSignupClick(slug: string): Promise<void> {
   } catch (error) {
     console.error("Could not record demo signup click", error);
   }
+}
+
+// ─── «Arma tu demo» desde el sitio ───────────────────────────
+
+/**
+ * En `next dev` sin base, las demos que arma el sitio viven en memoria. En
+ * `globalThis` porque la ruta y la página son módulos distintos en dev.
+ */
+const devStore = globalThis as typeof globalThis & { __allokDevDemos?: Map<string, Record<string, unknown>> };
+const devCreated = (devStore.__allokDevDemos ??= new Map<string, Record<string, unknown>>());
+
+/** La demo que ya existe para esa web (la de la prospección o una armada antes), o `null`. */
+export async function findDemoByWebsite(website: string): Promise<{ slug: string } | null> {
+  if (fromDevFixture()) {
+    const all = [...devCreated.values(), ...(await readFixture())];
+    const row = all.find((r) => r.website === website);
+    return row ? { slug: String(row.slug) } : null;
+  }
+  const sql = getSql();
+  if (!sql) return null;
+  const rows = await sql`SELECT slug FROM demo_agent WHERE website = ${website} ORDER BY created_at DESC LIMIT 1`;
+  return rows[0] ? { slug: String(rows[0].slug) } : null;
+}
+
+/** Cuántas demos nacieron en las últimas `hours` horas: el techo de gasto de «Arma tu demo». */
+export async function countDemosSince(hours: number): Promise<number> {
+  if (fromDevFixture()) return devCreated.size;
+  const sql = getSql();
+  if (!sql) return Number.POSITIVE_INFINITY;
+  const rows = await sql`SELECT count(*)::int AS n FROM demo_agent WHERE created_at > now() - make_interval(hours => ${hours})`;
+  return Number(rows[0]?.n ?? 0);
+}
+
+/** Guarda la demo que armó un visitante (sin pisar otra: el slug ya viene único). */
+export async function insertDemoAgent(input: {
+  slug: string;
+  businessName: string;
+  sector: string;
+  city: string;
+  country: string;
+  website: string;
+  profile: DemoProfile;
+}): Promise<void> {
+  if (fromDevFixture()) {
+    devCreated.set(input.slug, {
+      slug: input.slug,
+      business_name: input.businessName,
+      sector: input.sector,
+      city: input.city,
+      country: input.country,
+      website: input.website,
+      profile: input.profile,
+      created_at: new Date().toISOString(),
+    });
+    return;
+  }
+  await upsertDemoAgent(input);
+}
+
+/** Slug → web, también en `next dev` sin base. */
+export async function demoSlugOwners(): Promise<Map<string, string | null>> {
+  if (fromDevFixture()) {
+    const all = [...(await readFixture()), ...devCreated.values()];
+    return new Map(all.map((r) => [String(r.slug), r.website ? String(r.website) : null]));
+  }
+  return getDemoSlugOwners();
 }

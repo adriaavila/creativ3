@@ -9,6 +9,7 @@ import SiteFooter from "@/components/allok/SiteFooter";
 import Conversation from "@/components/allok/Conversation";
 import ControlCenter from "@/components/allok/ControlCenter";
 import Rise from "@/components/allok/Rise";
+import ArmaTuDemo from "@/components/allok/ArmaTuDemo";
 import AllokLogo from "@/components/brand/AllokLogo";
 import OkDot from "@/components/brand/OkDot";
 import NightOrbit from "@/components/allok/NightOrbit";
@@ -171,10 +172,10 @@ export default function Home() {
                 {start.label}
               </a>
               <a
-                href={fallback}
+                href="#tu-demo"
                 className="allok-btn border border-[rgba(11,13,14,.2)] text-[var(--ink)]"
               >
-                Probarlo como cliente
+                Probarlo con mi negocio
               </a>
             </div>
           </div>
@@ -188,6 +189,32 @@ export default function Home() {
           </div>
         </div>
       </div>
+
+      {/* ── Arma tu demo: el dueño ve a SU agente antes de crear cuenta. ── */}
+      <section id="tu-demo" aria-labelledby="tu-demo-titulo" className="scroll-mt-6 border-t border-[var(--line)] bg-[var(--cloud)]">
+        <div className="mx-auto grid max-w-[1240px] gap-8 px-5 py-[clamp(48px,7vw,88px)] sm:px-10 lg:grid-cols-[minmax(0,.8fr)_minmax(0,1.2fr)] lg:items-end lg:gap-14">
+          <div>
+            <p className="mono text-[var(--ink-60)]">En 30 segundos</p>
+            <h2 id="tu-demo-titulo" className="display mt-4 text-balance text-[clamp(1.9rem,3.6vw,2.8rem)]">
+              Mira cómo le contestaría a tus clientes.
+            </h2>
+            <p className="mt-4 max-w-[46ch] text-[15.5px] leading-relaxed text-[var(--ink-60)] text-pretty">
+              Pega tu web: tu agente la lee y le escribes como si fueras un cliente. Si te gusta, al crear tu cuenta ya viene
+              con lo que aprendió.
+            </p>
+          </div>
+          <div className="min-w-0">
+            <ArmaTuDemo />
+            <p className="mt-4 text-[14px] text-[var(--ink-60)]">
+              ¿Sin web?{" "}
+              <a href={fallback} className="font-semibold text-[var(--ink)] underline underline-offset-2">
+                Escríbele a nuestro agente por WhatsApp
+              </a>
+              .
+            </p>
+          </div>
+        </div>
+      </section>
 
       {/* ── El sistema es la estética. Nada de ilustraciones. ─────────────── */}
       <section id="control" className="bg-[var(--ink)] text-[var(--cloud)]">

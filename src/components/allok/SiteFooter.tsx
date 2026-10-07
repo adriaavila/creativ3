@@ -4,24 +4,25 @@ import { Lockup } from "./Marks";
 
 /**
  * El pie es el mapa del sitio, y separa las dos cosas que la gente confunde:
- * la **agencia** es lo que se contrata, el **portafolio** es la prueba de que
- * funciona. Una columna cada una, nunca mezcladas.
+ * las **soluciones** son lo que se contrata (proyectos) y los **productos** lo
+ * que se compra por mes; el **portafolio** es la prueba de que funciona.
  */
 const COLUMNS = [
   {
-    title: "Productos",
+    title: "Soluciones",
     links: [
-      { href: "/", label: "allok · planes y precios" },
-      { href: "/rei", label: "REI · edición inmobiliaria" },
-      { href: "/vocero", label: "allok a tu medida" },
+      { href: "/#soluciones", label: "Qué resolvemos" },
+      { href: "/casos", label: "Casos" },
+      { href: "/#metodo", label: "Cómo trabajamos" },
+      { href: "/#diagnostico", label: "Diagnóstico" },
     ],
   },
   {
-    title: "Agencia",
+    title: "Productos",
     links: [
-      { href: "/agencia", label: "Qué construimos" },
-      { href: "/agencia#como-trabajamos", label: "Cómo trabajamos" },
-      { href: "/agencia#precios", label: "Qué cuesta" },
+      { href: "/agente-whatsapp", label: "Agente de WhatsApp" },
+      { href: "/rei", label: "REI · edición inmobiliaria" },
+      { href: "/vocero", label: "allok a tu medida" },
     ],
   },
   {

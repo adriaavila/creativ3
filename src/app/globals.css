@@ -997,6 +997,9 @@ html:has(.rig) ::selection { background: var(--hazard); color: var(--paper); }
 .allok .allok-on-ink :focus-visible { outline-color: var(--on-void); }
 .allok .allok-sky :focus-visible { outline-color: var(--on-sky); }
 .allok footer :focus-visible { outline-color: var(--on-void); }
+/* Una tarjeta de papel dentro de una negra (el formulario del diagnóstico):
+   vuelve al azul, que sobre blanco da 5,12:1; el crema ahí no se vería. */
+.allok .allok-on-ink .allok-on-paper :focus-visible { outline-color: var(--signal); }
 
 /* ─────────────────────────────────────────────────────────────────────────
    allok · superficie de producto

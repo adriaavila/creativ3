@@ -12,8 +12,8 @@ import SiteHeader from "./SiteHeader";
  */
 
 const NAV = [
-  { href: "/#como", label: "Cómo funciona" },
-  { href: "/#precios", label: "Precios" },
+  { href: "/agente-whatsapp#como", label: "Cómo funciona" },
+  { href: "/agente-whatsapp#precios", label: "Precios" },
   { href: "/rei", label: "Inmobiliarias" },
 ];
 

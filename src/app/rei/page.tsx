@@ -63,7 +63,7 @@ export default function ReiPage() {
           </h1>
           <p className="lede mx-auto mt-7 max-w-[600px] text-[var(--on-void-60)]">
             REI es{" "}
-            <Link href="/" className="text-[var(--on-void)] underline underline-offset-4">
+            <Link href="/agente-whatsapp" className="text-[var(--on-void)] underline underline-offset-4">
               allok
             </Link>{" "}
             hablando de captaciones, visitas y cierres: responde, califica y

@@ -2,6 +2,7 @@ import { WRITING } from "@/lib/writing";
 import type { MetadataRoute } from "next";
 import { EXPERIMENTS } from "@/components/lab/registry";
 import { PORTFOLIO_PROJECTS } from "@/lib/projects";
+import { CASOS } from "@/lib/casos";
 import { SITE_URL } from "@/lib/seo";
 import { SEO_PAGES, seoPath } from "@/lib/seo-pages";
 
@@ -17,6 +18,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   const core: MetadataRoute.Sitemap = [
     { url: `${SITE_URL}/`, lastModified: now, changeFrequency: "weekly", priority: 1 },
+    { url: `${SITE_URL}/casos`, lastModified: now, changeFrequency: "monthly", priority: 0.95 },
+    { url: `${SITE_URL}/agente-whatsapp`, lastModified: now, changeFrequency: "weekly", priority: 0.95 },
     { url: `${SITE_URL}/rei`, lastModified: now, changeFrequency: "weekly", priority: 0.95 },
     { url: `${SITE_URL}/vocero`, lastModified: now, changeFrequency: "monthly", priority: 0.9 },
     { url: `${SITE_URL}/agencia`, lastModified: now, changeFrequency: "monthly", priority: 0.9 },
@@ -30,6 +33,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.4,
     },
   ];
+
+  const casos: MetadataRoute.Sitemap = CASOS.map((c) => ({
+    url: `${SITE_URL}/casos/${c.slug}`,
+    lastModified: now,
+    changeFrequency: "monthly",
+    priority: 0.8,
+  }));
 
   const work: MetadataRoute.Sitemap = PORTFOLIO_PROJECTS.map((project) => ({
     url: `${SITE_URL}/work/${project.id}`,
@@ -67,5 +77,5 @@ export default function sitemap(): MetadataRoute.Sitemap {
   }));
 
   const writing: MetadataRoute.Sitemap = ["/writing", ...WRITING.map(note => `/writing/${note.slug}`)].map(path => ({ url: `${SITE_URL}${path}`, changeFrequency: "monthly", priority: .6 }));
-  return [...core, ...seo, ...work, ...lab, ...writing, ...legal];
+  return [...core, ...casos, ...seo, ...work, ...lab, ...writing, ...legal];
 }

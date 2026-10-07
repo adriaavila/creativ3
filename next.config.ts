@@ -13,14 +13,15 @@ const nextConfig: NextConfig = {
       { source: "/pago/cancelado", destination: "/es/pago/cancelado", permanent: true },
       // The agency site became the portfolio; these had live inbound links.
       { source: "/projects", destination: "/work", permanent: true },
-      { source: "/whatsapp", destination: "/", permanent: true },
-      // `/crm` y `/` vendían el mismo producto con dos rejillas de precio.
-      // La home es la página del producto; ésta se queda por los enlaces vivos.
-      { source: "/crm", destination: "/", permanent: true },
-      { source: "/cotizar", destination: "/", permanent: true },
+      { source: "/whatsapp", destination: "/agente-whatsapp", permanent: true },
+      // `/crm` y la página del producto vendían lo mismo con dos rejillas de
+      // precio. Desde 2026-10 el producto vive en /agente-whatsapp y la
+      // portada vende proyectos; esto se queda por los enlaces vivos.
+      { source: "/crm", destination: "/agente-whatsapp", permanent: true },
+      { source: "/cotizar", destination: "/#diagnostico", permanent: false },
       // allok Desk fue el producto anterior; /desk daba 404 y /es/desk seguía vivo.
-      { source: "/desk", destination: "/", permanent: true },
-      { source: "/:locale(es|en)/desk", destination: "/", permanent: true },
+      { source: "/desk", destination: "/agente-whatsapp", permanent: true },
+      { source: "/:locale(es|en)/desk", destination: "/agente-whatsapp", permanent: true },
     ];
   },
   outputFileTracingIncludes: {

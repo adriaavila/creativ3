@@ -400,6 +400,15 @@ en el mismo día; la lista está en `vocero-crm/design/SOURCE.md`.
 
 ## La estructura del sitio
 
+**Desde 2026-10 la portada vende proyectos.** `/` es la casa de allok como
+estudio que optimiza negocios: soluciones, casos con capturas reales
+(`src/lib/casos.ts`), el método, la inversión (proyectos desde US$10.000) y el
+formulario de diagnóstico (`/api/diagnostico`, guarda en `diagnostico_request`
+y avisa por correo si hay Resend). El agente de WhatsApp con sus planes se
+mudó tal cual a `/agente-whatsapp`, y `/crm`, `/whatsapp` y `/desk` apuntan
+ahí. La sección de abajo describe el sitio de antes de ese cambio.
+
+
 ```
 /               allok — la casa. Tres puertas, y el portafolio como prueba.
 ├── /rei        producto. CRM de WhatsApp para inmobiliarias. $29/59/99 al mes.

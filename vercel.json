@@ -3,7 +3,7 @@
   "crons": [
     {
       "path": "/api/cron/outreach",
-      "schedule": "*/30 * * * *"
+      "schedule": "0 16 * * 1-5"
     }
   ]
 }

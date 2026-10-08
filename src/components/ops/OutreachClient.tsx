@@ -150,7 +150,7 @@ export default function OutreachClient({ data }: { data: OutreachOpsData }) {
                 <h2 className="text-[17px] font-semibold">Envíos activos</h2>
                 <p className="mt-1 text-sm leading-6 text-[var(--ink-60)]">
                   {sw.effectiveOn
-                    ? "Encendido: el cron envía lo que toca cada 30 minutos."
+                    ? "Encendido: el cron envía lo que toca una vez al día, de lunes a viernes a las 10:00 de CDMX."
                     : sw.forcedOff
                       ? "Apagado por OUTREACH_ENABLED=false en Vercel: este interruptor no puede encenderlo."
                       : "Apagado: no sale ningún correo. Las demos y los rebotes siguen corriendo."}
@@ -216,7 +216,7 @@ export default function OutreachClient({ data }: { data: OutreachOpsData }) {
 
               <section aria-label="Última corrida" className={CARD}>
                 <h2 className="text-[17px] font-semibold">Última corrida del cron</h2>
-                {lastRun ? <LastRun run={lastRun} /> : <p className="mt-1 text-sm leading-6 text-[var(--ink-60)]">Aún no corre. Vercel lo llama cada 30 minutos.</p>}
+                {lastRun ? <LastRun run={lastRun} /> : <p className="mt-1 text-sm leading-6 text-[var(--ink-60)]">Aún no corre. Vercel lo llama de lunes a viernes a las 16:00 UTC (10:00 CDMX, 11:00 Bogotá).</p>}
               </section>
             </div>
 
@@ -301,7 +301,7 @@ export default function OutreachClient({ data }: { data: OutreachOpsData }) {
         <Modal title="¿Activar los envíos?" onClose={() => setConfirmOpen(false)}>
           <ul className="grid list-disc gap-2 pl-5 text-sm leading-6">
             <li>
-              El cron enviará hasta <strong>{data.dailyCap} correos al día</strong>, de <strong>lunes a viernes entre 9:00 y 17:00</strong> en la hora local de cada negocio (CDMX o Bogotá), como mucho 3 cada 30 minutos.
+              El cron enviará hasta <strong>{data.dailyCap} correos al día</strong>, de <strong>lunes a viernes entre 9:00 y 17:00</strong> en la hora local de cada negocio (CDMX o Bogotá), en una sola corrida diaria a las 10:00 de CDMX.
             </li>
             <li>Cada negocio recibe hasta tres correos (días 0, 3 y 8) desde adrian@hola.allok.fun; las respuestas llegan a hi@allok.fun.</li>
             <li>El primer correo a un negocio con web espera a que su demo esté lista. Si falla dos veces, sale la versión sin demo.</li>

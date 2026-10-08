@@ -36,8 +36,8 @@ import {
 } from "@/lib/outreach-db";
 
 /**
- * La prospección corriendo sola en producción (`/api/cron/outreach`, cada 30
- * minutos), y el envío que comparte con `pnpm outreach send`. Tres etapas,
+ * La prospección corriendo sola en producción (`/api/cron/outreach`, una vez al día de lunes a viernes
+ * a las 16:00 UTC), y el envío que comparte con `pnpm outreach send`. Tres etapas,
  * en este orden: armar demos pendientes, preguntarle a Resend por rebotes, y
  * —solo con el interruptor encendido— enviar lo que toca.
  */
@@ -207,9 +207,10 @@ export type CronSummary = {
   ms?: number;
 };
 
-export const CRON_DEMOS_PER_RUN = 3;
-/** Pocos por corrida: con una corrida cada 30 min, 20 al día se reparten en la mañana, no salen en ráfaga. */
-export const CRON_SENDS_PER_RUN = 3;
+/** Una corrida al día (el plan Hobby de Vercel no permite más): las demos se arman en paralelo, 45 s de tope cada una. */
+export const CRON_DEMOS_PER_RUN = 15;
+/** Una corrida al día: el tope diario (20 por defecto) sale en esa corrida. */
+export const CRON_SENDS_PER_RUN = 20;
 
 export async function runOutreachCron(options: { now?: Date; env?: Record<string, string | undefined>; budgetMs?: number } = {}): Promise<CronSummary> {
   const started = Date.now();

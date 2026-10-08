@@ -7,7 +7,7 @@ export const runtime = "nodejs";
 export const maxDuration = 300;
 
 /**
- * La prospección en frío corriendo sola (vercel.json: cada 30 minutos). Vercel
+ * La prospección en frío corriendo sola (vercel.json: lunes a viernes, 16:00 UTC). Vercel
  * manda `Authorization: Bearer ${CRON_SECRET}`; sin ese encabezado, 401. Nada
  * sale si el interruptor de /ops/outreach está apagado (y empieza apagado).
  */

@@ -19,9 +19,9 @@ Todo corre desde Vercel; no hace falta la terminal.
 2. `/ops/outreach` → **Subir leads** (el CSV de siempre). Importa los
    contactos con los mismos filtros de `pnpm outreach import` y pone en cola
    la demo de cada fila con web.
-3. El cron (`vercel.json`, cada 30 min) arma 3 demos por corrida, le pregunta
+3. El cron (`vercel.json`, de lunes a viernes a las 16:00 UTC; el plan Hobby solo permite una corrida diaria) arma hasta 15 demos por corrida, le pregunta
    a Resend por los rebotes de las últimas 72 h y, **solo con «Envíos activos»
-   encendido**, envía hasta 3 correos por corrida, 20 en 24 h, L–V 9–17 hora
+   encendido**, envía hasta 20 correos en esa corrida (el tope de 24 h), L–V 9–17 hora
    local. El paso 1 a un negocio con web espera a su demo; tras dos fallos sale
    la variante sin demo (enlace a `/whatsapp-para/<sector>` o
    `/agente-whatsapp`, nunca a la portada).

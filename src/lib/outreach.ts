@@ -16,7 +16,7 @@ import { countryName, normalizeUrl, parseCsv } from "@/lib/demo-profile-build";
 
 // ─── Estados y secuencia ──────────────────────────────────────
 
-export const OUTREACH_STATUSES = ["queued", "sent", "replied", "bounced", "complained", "unsubscribed", "signed_up"] as const;
+export const OUTREACH_STATUSES = ["queued", "sent", "replied", "bounced", "complained", "unsubscribed", "signed_up", "excluded"] as const;
 export type OutreachStatus = (typeof OUTREACH_STATUSES)[number];
 
 /** Los estados que se marcan a mano (`pnpm outreach mark`): no podemos leer el buzón. */
@@ -31,6 +31,8 @@ export const SEQUENCE_STEPS = SEQUENCE_DAYS.length;
 export const OUTREACH_SENDING_DOMAIN = "hola.allok.fun";
 export const SITE_URL = "https://allok.fun";
 export const DEFAULT_REPLY_TO = "hi@allok.fun";
+/** El remitente si `OUTREACH_FROM` no está: así producción no necesita una variable más. */
+export const DEFAULT_FROM = "Adrián de allok <adrian@hola.allok.fun>";
 export const DEFAULT_DAILY_CAP = 20;
 /** Si más de este porcentaje de los últimos envíos rebotó, el envío entero se detiene. */
 export const MAX_BOUNCE_RATE = 0.03;
@@ -279,30 +281,159 @@ export function matchDemoSlug(
 
 // ─── Configuración del envío ──────────────────────────────────
 
+/** Lo que dice `.env.example`: un `REEMPLAZA_…` copiado tal cual cuenta como vacío. */
+function envValue(env: Record<string, string | undefined>, key: string): string {
+  const v = env[key]?.trim() ?? "";
+  return /^REEMPLAZA/i.test(v) ? "" : v;
+}
+
+/** La etiqueta con la que se deriva el secreto de baja de otro secreto del despliegue. */
+export const OUTREACH_SECRET_LABEL = "allok-outreach-unsub-v1";
+
+function deriveSecret(base: string): string {
+  return createHmac("sha256", base).update(OUTREACH_SECRET_LABEL).digest("base64url");
+}
+
+/**
+ * Los secretos que pueden haber firmado un enlace de baja, el que firma
+ * primero: `OUTREACH_SECRET` si está, si no HMAC(`OPS_SESSION_SECRET`) y luego
+ * HMAC(`CRON_SECRET`). La baja acepta cualquiera de ellos: agregar
+ * `OUTREACH_SECRET` después no rompe los enlaces de correos ya enviados.
+ */
+export function outreachSecretCandidates(env: Record<string, string | undefined>): string[] {
+  const out: string[] = [];
+  const own = envValue(env, "OUTREACH_SECRET");
+  if (own.length >= 16) out.push(own);
+  for (const key of ["OPS_SESSION_SECRET", "CRON_SECRET"]) {
+    const base = envValue(env, key);
+    if (base) out.push(deriveSecret(base));
+  }
+  return [...new Set(out)];
+}
+
+/** El secreto que firma los enlaces de baja. Lanza si el despliegue no tiene de dónde sacarlo. */
+export function resolveOutreachSecret(env: Record<string, string | undefined>): string {
+  const [secret] = outreachSecretCandidates(env);
+  if (!secret) {
+    throw new Error("No hay secreto para los enlaces de baja: define OUTREACH_SECRET (16+ caracteres), OPS_SESSION_SECRET o CRON_SECRET.");
+  }
+  return secret;
+}
+
+export type SendingSwitch = { on: boolean; reason: string };
+
+/**
+ * ¿Está encendido el envío? Manda el interruptor de la base (`/ops/outreach`,
+ * apagado si nunca se tocó); `OUTREACH_ENABLED=false` en el entorno lo fuerza
+ * apagado pase lo que pase. Ninguna variable lo puede encender sola.
+ */
+export function resolveSendingSwitch(env: Record<string, string | undefined>, dbEnabled: boolean | null | undefined): SendingSwitch {
+  if (env.OUTREACH_ENABLED?.trim().toLowerCase() === "false") return { on: false, reason: "OUTREACH_ENABLED=false lo fuerza apagado" };
+  if (dbEnabled === true) return { on: true, reason: "encendido en /ops/outreach" };
+  return { on: false, reason: "apagado en /ops/outreach" };
+}
+
 export type SendConfig = { apiKey: string; from: string; replyTo: string; secret: string; dailyCap: number };
 
 /**
  * La configuración para enviar de verdad, o la lista de lo que falta. El
- * interruptor `OUTREACH_ENABLED=true` es obligatorio: sin él no sale nada.
+ * interruptor (`resolveSendingSwitch`) es obligatorio: apagado, no sale nada.
+ * Remitente, respuesta, tope y secreto tienen valor por defecto; lo único
+ * que no se puede inventar es `RESEND_API_KEY`.
  */
-export function readSendConfig(env: Record<string, string | undefined>): { config: SendConfig | null; problems: string[] } {
+export function readSendConfig(
+  env: Record<string, string | undefined>,
+  sending: SendingSwitch,
+): { config: SendConfig | null; problems: string[] } {
   const problems: string[] = [];
-  if (env.OUTREACH_ENABLED !== "true") problems.push("OUTREACH_ENABLED no es «true» (interruptor apagado)");
-  const apiKey = env.RESEND_API_KEY?.trim() ?? "";
+  if (!sending.on) problems.push(`interruptor apagado (${sending.reason})`);
+  const apiKey = envValue(env, "RESEND_API_KEY");
   if (!apiKey) problems.push("falta RESEND_API_KEY");
-  const from = env.OUTREACH_FROM?.trim() ?? "";
+  const from = envValue(env, "OUTREACH_FROM") || DEFAULT_FROM;
   const fromAddress = /<([^>]+)>\s*$/.exec(from)?.[1] ?? from;
-  if (!from) problems.push("falta OUTREACH_FROM");
-  else if (emailDomain(fromAddress.toLowerCase()) !== OUTREACH_SENDING_DOMAIN) {
+  if (emailDomain(fromAddress.toLowerCase()) !== OUTREACH_SENDING_DOMAIN) {
     problems.push(`OUTREACH_FROM tiene que ser una dirección de @${OUTREACH_SENDING_DOMAIN} (la del dominio raíz no se arriesga)`);
   }
-  const secret = env.OUTREACH_SECRET?.trim() ?? "";
-  if (secret.length < 16) problems.push("falta OUTREACH_SECRET (16 caracteres o más)");
-  const capRaw = env.OUTREACH_DAILY_CAP?.trim();
+  let secret = "";
+  try {
+    secret = resolveOutreachSecret(env);
+  } catch (error) {
+    problems.push((error as Error).message);
+  }
+  const capRaw = envValue(env, "OUTREACH_DAILY_CAP");
   const dailyCap = capRaw ? Number(capRaw) : DEFAULT_DAILY_CAP;
   if (!Number.isInteger(dailyCap) || dailyCap < 0) problems.push("OUTREACH_DAILY_CAP no es un entero ≥ 0");
-  const replyTo = env.OUTREACH_REPLY_TO?.trim() || DEFAULT_REPLY_TO;
+  const replyTo = envValue(env, "OUTREACH_REPLY_TO") || DEFAULT_REPLY_TO;
   return { config: problems.length ? null : { apiKey, from, replyTo, secret, dailyCap }, problems };
+}
+
+// ─── La demo antes del primer correo ──────────────────────────
+
+/** Intentos de armar la demo antes de rendirse y mandar la variante sin demo. */
+export const MAX_DEMO_ATTEMPTS = 2;
+
+export type DemoJobStatus = "pending" | "ready" | "failed";
+
+export const DEMO_STATUS_LABEL: Record<DemoJobStatus, "pendiente" | "listo" | "falló"> = { pending: "pendiente", ready: "listo", failed: "falló" };
+
+export type DemoJobState = { status: DemoJobStatus; attempts: number; slug: string | null };
+
+/** El estado de un trabajo después de un intento: listo, otra vuelta, o se rinde al segundo fallo. */
+export function demoJobAfterAttempt(attempts: number, slug: string | null): DemoJobState {
+  if (slug) return { status: "ready", attempts, slug };
+  return { status: attempts >= MAX_DEMO_ATTEMPTS ? "failed" : "pending", attempts, slug: null };
+}
+
+export type StepReadiness = { ready: true; demoSlug: string | null } | { ready: false; reason: string };
+
+/**
+ * ¿Puede salir ya el siguiente paso, y con qué demo? El paso 1 a un negocio con
+ * web espera a su demo: nunca sale la variante sin demo mientras la demo
+ * sigue pendiente. Tras `MAX_DEMO_ATTEMPTS` fallos, sale sin demo (con la
+ * página del sector). Los pasos 2 y 3 llevan lo que llevó el 1.
+ */
+export function stepReadiness(
+  contact: { step: number; website: string | null; demoSlug: string | null },
+  job: DemoJobState | null | undefined,
+): StepReadiness {
+  if (contact.step > 0 || contact.demoSlug) return { ready: true, demoSlug: contact.demoSlug };
+  if (!contact.website) return { ready: true, demoSlug: null };
+  if (job?.status === "ready" && job.slug) return { ready: true, demoSlug: job.slug };
+  // Solo una demo que FALLÓ (dos intentos) libera la variante sin demo; una
+  // pendiente con dos intentos puede estar armándose en este momento.
+  if (job?.status === "failed") return { ready: true, demoSlug: null };
+  return { ready: false, reason: "demo pendiente" };
+}
+
+export type DueContact = { email: string; country: CountryCode; step: number; website: string | null; demoSlug: string | null };
+
+/**
+ * Del montón de vencidos, los que salen en esta corrida: con la demo resuelta
+ * (`stepReadiness`), en su horario local (`inSendWindow`) y sin pasar de
+ * `budget`. Cada uno sale con la demo que le toca. Puro.
+ */
+export function pickSendBatch<T extends DueContact>(
+  due: readonly T[],
+  jobsByHost: ReadonlyMap<string, DemoJobState>,
+  now: Date,
+  budget: number,
+): { batch: (T & { demoSlug: string | null })[]; due: number; waitingDemo: number; outsideWindow: number } {
+  const batch: (T & { demoSlug: string | null })[] = [];
+  let waitingDemo = 0;
+  let outsideWindow = 0;
+  for (const c of due) {
+    const r = stepReadiness(c, c.website ? jobsByHost.get(hostOf(c.website)) : null);
+    if (!r.ready) {
+      waitingDemo++;
+      continue;
+    }
+    if (!inSendWindow(now, c.country)) {
+      outsideWindow++;
+      continue;
+    }
+    if (batch.length < Math.max(0, budget)) batch.push({ ...c, demoSlug: r.demoSlug });
+  }
+  return { batch, due: due.length, waitingDemo, outsideWindow };
 }
 
 // ─── El token de baja ─────────────────────────────────────────

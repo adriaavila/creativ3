@@ -1,5 +1,5 @@
-import { verifyUnsubscribeToken } from "@/lib/outreach";
-import { outreachDbConfigured, suppressEmail } from "@/lib/outreach-db";
+import { outreachSecretCandidates, verifyUnsubscribeToken } from "@/lib/outreach";
+import { ensureOutreachTables, outreachDbConfigured, suppressEmail } from "@/lib/outreach-db";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -7,7 +7,9 @@ export const runtime = "nodejs";
 /**
  * La baja de los correos en frío: `GET` (el enlace visible del correo) y
  * `POST` (el one-click de `List-Unsubscribe-Post`, RFC 8058). El token es el
- * correo firmado con `OUTREACH_SECRET`; la página nunca lo muestra ni dice
+ * correo firmado con el secreto de la prospección (`OUTREACH_SECRET` o el que
+ * se deriva de `OPS_SESSION_SECRET`/`CRON_SECRET`; se acepta cualquiera, ver
+ * `outreachSecretCandidates`); la página nunca lo muestra ni dice
  * nada más del contacto.
  */
 
@@ -31,12 +33,14 @@ a{color:inherit}@media (prefers-color-scheme:dark){body{background:#0c0a09;color
 type Outcome = "ok" | "invalid" | "unavailable";
 
 async function unsubscribe(request: Request): Promise<Outcome> {
-  const secret = process.env.OUTREACH_SECRET?.trim();
-  if (!secret) return "unavailable";
-  const email = verifyUnsubscribeToken(new URL(request.url).searchParams.get("t"), secret);
+  const secrets = outreachSecretCandidates(process.env);
+  if (!secrets.length) return "unavailable";
+  const token = new URL(request.url).searchParams.get("t");
+  const email = secrets.map((secret) => verifyUnsubscribeToken(token, secret)).find(Boolean);
   if (!email) return "invalid";
   if (!outreachDbConfigured()) return "unavailable";
   try {
+    await ensureOutreachTables();
     await suppressEmail({ email, reason: "unsubscribed", detail: { via: request.method === "POST" ? "one-click" : "link" } });
     return "ok";
   } catch (error) {

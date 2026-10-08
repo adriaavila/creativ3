@@ -99,11 +99,15 @@ export function offerHook(offer: string | null | undefined): string | null {
   return /^[A-ZÁÉÍÓÚÑ][a-záéíóúñü]+(?=[\s,]|$)/.test(o) && !/^(Invisalign|Botox|Sculptra)/.test(o) ? o.charAt(0).toLowerCase() + o.slice(1) : o;
 }
 
-/** El enlace del correo: la demo del negocio, la página de su sector o la portada. */
+/**
+ * El enlace del correo: la demo del negocio, la página de su sector o la del
+ * agente de WhatsApp. Nunca la portada: desde 2026-10 `/` vende proyectos de
+ * estudio, no el agente de US$99.
+ */
 export function outreachLink(contact: Pick<OutreachContactForEmail, "demoSlug" | "sector">, step: number): string {
   if (contact.demoSlug) return `${SITE_URL}/demo/${contact.demoSlug}?${utm(step)}`;
   const page = sectorPageSlug(contact.sector);
-  return page ? `${SITE_URL}/whatsapp-para/${page}?${utm(step)}` : `${SITE_URL}/?${utm(step)}`;
+  return page ? `${SITE_URL}/whatsapp-para/${page}?${utm(step)}` : `${SITE_URL}/agente-whatsapp?${utm(step)}`;
 }
 
 /** A quién atiende el negocio: pacientes, alumnos o clientes. */

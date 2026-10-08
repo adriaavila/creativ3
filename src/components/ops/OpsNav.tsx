@@ -10,6 +10,7 @@ import {
   KanbanSquare,
   Link2,
   LogOut,
+  Mail,
   Menu,
   TrendingUp,
   X,
@@ -26,6 +27,7 @@ const salesItems: NavItem[] = [
 
 const moreItems: NavItem[] = [
   { href: "/ops/growth", label: "Growth", icon: TrendingUp },
+  { href: "/ops/outreach", label: "Correo en frío", icon: Mail },
   { href: "/ops/agents", label: "Eve Agents", icon: Bot },
   { href: "/ops/lab", label: "Observabilidad", icon: FlaskConical },
 ] as const;

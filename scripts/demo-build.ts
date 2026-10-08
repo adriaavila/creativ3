@@ -15,9 +15,8 @@
  */
 import { readFile } from "node:fs/promises";
 import { parseArgs } from "node:util";
-import { demoSlugBase, uniqueSlug } from "../src/lib/demo-agent";
-import { buildProfile } from "../src/lib/demo-builder";
-import { ensureDemoAgentTable, getDemoSlugOwners, upsertDemoAgent } from "../src/lib/demo-db";
+import { buildAndSaveDemo } from "../src/lib/demo-build-run";
+import { ensureDemoAgentTable, getDemoSlugOwners } from "../src/lib/demo-db";
 import { isDemoLlmConfigured } from "../src/lib/demo-llm";
 import { countryName, leadsFromCsv, normalizeUrl, type LeadInput } from "../src/lib/demo-profile-build";
 
@@ -42,29 +41,10 @@ const baseUrl = (values["base-url"] ?? "https://allok.fun").replace(/\/+$/, "");
 type Outcome = { lead: LeadInput; url?: string; reason?: string; dropped?: string[] };
 
 async function buildOne(lead: LeadInput, owners: Map<string, string | null>): Promise<Outcome> {
-  const built = await buildProfile(lead);
-  if (!built.ok) {
-    const reason = { unreadable: "no se pudo leer la web", model: "el modelo no devolvió un perfil válido", empty: "la web no dice servicios, horario ni dirección" }[built.reason];
-    return { lead, reason, dropped: built.dropped };
-  }
-  const { profile, dropped } = built;
-
-  const slug = uniqueSlug(demoSlugBase(lead.name, lead.city), lead.website, owners);
-  owners.set(slug, lead.website);
-  if (dryRun) {
-    console.log(JSON.stringify({ slug, ...lead, profile }, null, 2));
-  } else {
-    await upsertDemoAgent({
-      slug,
-      businessName: lead.name,
-      sector: lead.sector,
-      city: lead.city,
-      country: lead.country,
-      website: lead.website,
-      profile,
-    });
-  }
-  return { lead, url: `${baseUrl}/demo/${slug}`, dropped };
+  const built = await buildAndSaveDemo(lead, owners, { dryRun });
+  if (!built.ok) return { lead, reason: built.reason, dropped: built.dropped };
+  if (dryRun) console.log(JSON.stringify({ slug: built.slug, ...lead, profile: built.profile }, null, 2));
+  return { lead, url: `${baseUrl}/demo/${built.slug}`, dropped: built.dropped };
 }
 
 async function loadLeads(): Promise<LeadInput[]> {

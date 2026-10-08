@@ -55,7 +55,8 @@ export default async function DemoPage({ params, searchParams }: PageProps<"/dem
     <div className="allok">
       <div className="allok-void pb-14 sm:pb-20">
         <header className="flex items-center justify-between px-5 py-5 sm:px-10">
-          <Link href="/" aria-label="allok" className="inline-flex min-h-11 min-w-11 items-center">
+          {/* No a `/`: la portada vende proyectos de estudio; quien llega de una demo busca el agente. */}
+          <Link href="/agente-whatsapp" aria-label="allok, el agente de WhatsApp" className="inline-flex min-h-11 min-w-11 items-center">
             <Lockup live />
           </Link>
           <span className="mono rounded-full border border-[var(--hair-void)] px-3 py-1.5 text-[var(--on-void-60)]">Demo</span>

@@ -179,21 +179,19 @@ test("svix signature verification", () => {
   assert.equal(verifySvixSignature({ ...base, signature: null }), false);
 });
 
-test("send config needs the kill switch, the key and a hola.allok.fun sender", () => {
-  const good = {
-    OUTREACH_ENABLED: "true",
-    RESEND_API_KEY: "re_x",
-    OUTREACH_FROM: "Adrián de allok <adrian@hola.allok.fun>",
-    OUTREACH_SECRET: "0123456789abcdef0123",
-  };
-  const ok = readSendConfig(good);
+test("send config needs the switch and the key; the rest has defaults", () => {
+  const on = { on: true, reason: "encendido en /ops/outreach" };
+  const good = { RESEND_API_KEY: "re_x", OPS_SESSION_SECRET: "ops-session-secret-0123456789abcdef" };
+  const ok = readSendConfig(good, on);
   assert.deepEqual(ok.problems, []);
   assert.equal(ok.config?.dailyCap, 20);
   assert.equal(ok.config?.replyTo, "hi@allok.fun");
-  assert.equal(readSendConfig({ ...good, OUTREACH_ENABLED: "1" }).config, null);
-  assert.equal(readSendConfig({ ...good, RESEND_API_KEY: "" }).config, null);
-  assert.equal(readSendConfig({ ...good, OUTREACH_FROM: "adrian@allok.fun" }).config, null);
-  assert.equal(readSendConfig({ ...good, OUTREACH_DAILY_CAP: "40" }).config?.dailyCap, 40);
+  assert.equal(ok.config?.from, "Adrián de allok <adrian@hola.allok.fun>");
+  assert.equal(readSendConfig(good, { on: false, reason: "apagado" }).config, null);
+  assert.equal(readSendConfig({ ...good, RESEND_API_KEY: "" }, on).config, null);
+  assert.equal(readSendConfig({ ...good, OUTREACH_FROM: "adrian@allok.fun" }, on).config, null);
+  assert.equal(readSendConfig({ ...good, OUTREACH_DAILY_CAP: "40" }, on).config?.dailyCap, 40);
+  assert.equal(readSendConfig({ RESEND_API_KEY: "re_x" }, on).config, null, "no secret to sign opt-out links");
 });
 
 // ─── Plantillas ───────────────────────────────────────────────
@@ -227,13 +225,13 @@ test("offer hook keeps the first clause and drops what reads badly", () => {
   assert.equal(offerHook("Ver https://x.mx para más información de cursos"), null);
 });
 
-test("links go to the demo, the sector page or the home, always on allok.fun", () => {
+test("links go to the demo, the sector page or /agente-whatsapp, always on allok.fun", () => {
   assert.equal(
     outreachLink({ demoSlug: "clinica-vea-cdmx", sector: "" }, 1),
     "https://allok.fun/demo/clinica-vea-cdmx?utm_source=cold_email&utm_medium=email&utm_campaign=q4_demo&utm_content=step1",
   );
   assert.match(outreachLink({ demoSlug: null, sector: base.sector }, 2), /^https:\/\/allok\.fun\/whatsapp-para\/clinicas-esteticas\?.*utm_content=step2$/);
-  assert.match(outreachLink({ demoSlug: null, sector: "Ferretería" }, 3), /^https:\/\/allok\.fun\/\?utm_source=cold_email/);
+  assert.match(outreachLink({ demoSlug: null, sector: "Ferretería" }, 3), /^https:\/\/allok\.fun\/agente-whatsapp\?utm_source=cold_email/);
 });
 
 test("every step renders a short plain-text email with opt-out and only allok.fun links", () => {

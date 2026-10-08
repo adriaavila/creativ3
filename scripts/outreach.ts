@@ -5,7 +5,7 @@
  *   pnpm outreach import --csv leads.csv [--allow-freemail] [--dry-run]
  *   pnpm outreach send --limit 20 --dry-run          # imprime, no envía, sin interruptor
  *   pnpm outreach send --dry-run --fixture leads.csv # sin base: el CSV como si fuera la cola
- *   pnpm outreach send --limit 20                    # envía (OUTREACH_ENABLED=true)
+ *   pnpm outreach send --limit 20                    # envía (interruptor de /ops/outreach encendido)
  *   pnpm outreach status
  *   pnpm outreach mark --email hola@clinica.mx --status replied|signed_up
  *
@@ -24,28 +24,33 @@ import {
   MAX_BOUNCE_RATE,
   bounceGuardTripped,
   bounceRate,
-  inSendWindow,
+  hostOf,
   matchDemoSlug,
-  nextSendAt,
   outreachLeadsFromCsv,
+  pickSendBatch,
   readSendConfig,
+  resolveOutreachSecret,
+  resolveSendingSwitch,
+  type DemoJobState,
   type ManualStatus,
 } from "../src/lib/outreach";
 import { renderOutreachEmail } from "../src/lib/outreach-templates";
 import {
   dueContacts,
   ensureOutreachTables,
+  getSendingSetting,
   getSuppressedEmails,
+  listDemoJobs,
   listDemoRefs,
   markContact,
   outreachReport,
   recentDeliverability,
-  recordSent,
   sendsLast24h,
-  upsertContacts,
   type DemoRef,
   type OutreachContactRow,
 } from "../src/lib/outreach-db";
+import { importOutreachCsv } from "../src/lib/outreach-import";
+import { sendOutreachBatch } from "../src/lib/outreach-run";
 
 const [command, ...rest] = process.argv.slice(2);
 
@@ -66,7 +71,6 @@ const { values } = parseArgs({
 });
 
 const DRY_SECRET = "dry-run-secret-los-enlaces-de-baja-no-sirven";
-const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 function needDb() {
   if (!process.env.DATABASE_URL) throw new Error("Falta DATABASE_URL.");
@@ -114,23 +118,26 @@ async function cmdImport() {
   const dryRun = values["dry-run"];
   if (!dryRun) {
     needDb();
-    await ensureOutreachTables();
+    const result = await importOutreachCsv(await readFile(values.csv, "utf8"), {
+      allowFreemail: values["allow-freemail"],
+      source: values.source ?? basename(values.csv),
+    });
+    if (result.missingColumns.length) console.warn(`Columnas no encontradas (quedan vacías): ${result.missingColumns.join(", ")}`);
+    console.log(`${result.contacts} contactos escribibles, ${result.skipped.length} saltados.`);
+    printSkips(result.skipped);
+    console.log(`Guardados: ${result.inserted} nuevos, ${result.existing} ya estaban.`);
+    console.log(`Demos: ${result.demos.queued} en cola para el cron, ${result.demos.ready} ya existían.`);
+    return;
   }
-  const suppressed = dryRun || !process.env.DATABASE_URL ? new Set<string>() : await getSuppressedEmails();
+  const suppressed = process.env.DATABASE_URL ? await getSuppressedEmails() : new Set<string>();
   const { leads, skipped } = await readLeads(values.csv, suppressed);
   const demos = process.env.DATABASE_URL ? await listDemoRefs() : await fixtureDemos();
   const contacts = leads.map((l) => ({ ...l, demoSlug: matchDemoSlug(l, demos) }));
   const withDemo = contacts.filter((c) => c.demoSlug).length;
   console.log(`${contacts.length} contactos escribibles (${withDemo} con demo), ${skipped.length} saltados.`);
   printSkips(skipped);
-  if (dryRun) {
-    for (const c of contacts) console.log(`  ${c.email}\t${c.businessName}\t${c.country}\t${c.demoSlug ?? "(sin demo)"}`);
-    console.log("dry-run: no se guardó nada.");
-    return;
-  }
-  const source = values.source ?? basename(values.csv);
-  const { inserted, existing } = await upsertContacts(contacts, source);
-  console.log(`Guardados: ${inserted} nuevos, ${existing} ya estaban.`);
+  for (const c of contacts) console.log(`  ${c.email}\t${c.businessName}\t${c.country}\t${c.demoSlug ?? "(sin demo)"}`);
+  console.log("dry-run: no se guardó nada.");
 }
 
 // ─── send ─────────────────────────────────────────────────────
@@ -151,6 +158,7 @@ async function fixtureQueue(path: string): Promise<OutreachContactRow[]> {
   return leads.map((l) => ({
     email: l.email,
     businessName: l.businessName,
+    website: l.website,
     demoSlug: matchDemoSlug(l, demos),
     sector: l.sector,
     country: l.country,
@@ -168,17 +176,26 @@ async function cmdSend() {
   if (values.fixture && !dryRun) throw new Error("--fixture solo sirve con --dry-run.");
 
   if (dryRun) {
-    const secret = process.env.OUTREACH_SECRET?.trim() || DRY_SECRET;
-    if (secret === DRY_SECRET) console.warn("(sin OUTREACH_SECRET: los enlaces de baja de este dry-run no son válidos)");
+    let secret = DRY_SECRET;
+    try {
+      secret = resolveOutreachSecret(process.env);
+    } catch {
+      console.warn("(sin OUTREACH_SECRET, OPS_SESSION_SECRET ni CRON_SECRET: los enlaces de baja de este dry-run no son válidos)");
+    }
     const replyTo = process.env.OUTREACH_REPLY_TO?.trim() || DEFAULT_REPLY_TO;
     const cap = Number(process.env.OUTREACH_DAILY_CAP || DEFAULT_DAILY_CAP);
     let queue: OutreachContactRow[];
+    let jobs: Map<string, DemoJobState>;
     let alreadyToday = 0;
     if (values.fixture) {
       queue = await fixtureQueue(values.fixture);
+      // Sin base no hay cola de demos: la que no está armada cuenta como fallida (sale sin demo).
+      jobs = new Map(queue.filter((c) => c.website && !c.demoSlug).map((c) => [hostOf(c.website!), { status: "failed", attempts: 2, slug: null }]));
     } else {
       needDb();
+      await ensureOutreachTables();
       queue = await dueContacts(now);
+      jobs = await listDemoJobs();
       alreadyToday = await sendsLast24h();
       const recent = await recentDeliverability();
       if (bounceGuardTripped(recent.sent, recent.bounced)) {
@@ -186,11 +203,9 @@ async function cmdSend() {
       }
     }
     const budget = Math.max(0, Math.min(limit, cap - alreadyToday));
-    const inWindow = queue.filter((c) => inSendWindow(now, c.country));
-    const outside = queue.length - inWindow.length;
-    const batch = inWindow.slice(0, budget);
+    const { batch, waitingDemo, outsideWindow } = pickSendBatch(queue, jobs, now, budget);
     console.log(
-      `dry-run ${now.toISOString()}: ${queue.length} vencidos, ${outside} fuera de horario (L–V 9–17 local), tope ${cap}/24 h (ya van ${alreadyToday}), --limit ${limit} → saldrían ${batch.length}.\n`,
+      `dry-run ${now.toISOString()}: ${queue.length} vencidos, ${waitingDemo} esperan su demo, ${outsideWindow} fuera de horario (L–V 9–17 local), tope ${cap}/24 h (ya van ${alreadyToday}), --limit ${limit} → saldrían ${batch.length}.\n`,
     );
     for (const c of batch) {
       const step = c.step + 1;
@@ -204,9 +219,12 @@ async function cmdSend() {
     return;
   }
 
-  const { config, problems } = readSendConfig(process.env);
-  if (!config) throw new Error(`No se envía nada:\n  - ${problems.join("\n  - ")}`);
   needDb();
+  await ensureOutreachTables();
+  // El mismo interruptor que el cron: el de /ops/outreach (OUTREACH_ENABLED=false lo fuerza apagado).
+  const sending = resolveSendingSwitch(process.env, (await getSendingSetting()).enabled);
+  const { config, problems } = readSendConfig(process.env, sending);
+  if (!config) throw new Error(`No se envía nada:\n  - ${problems.join("\n  - ")}`);
 
   const recent = await recentDeliverability();
   if (bounceGuardTripped(recent.sent, recent.bounced)) {
@@ -217,54 +235,14 @@ async function cmdSend() {
   const already = await sendsLast24h();
   const budget = Math.max(0, Math.min(limit, config.dailyCap - already));
   if (budget === 0) {
-    console.log(`Tope alcanzado: ${already} envíos en 24 h (OUTREACH_DAILY_CAP=${config.dailyCap}).`);
+    console.log(`Tope alcanzado: ${already} envíos en 24 h (tope ${config.dailyCap}).`);
     return;
   }
-  const queue = (await dueContacts(now)).filter((c) => inSendWindow(now, c.country));
-  const batch = queue.slice(0, budget);
-  console.log(`${batch.length} por enviar (tope restante ${budget}).`);
-
-  const resend = new Resend(config.apiKey);
-  let sent = 0;
-  let failuresInRow = 0;
-  for (const c of batch) {
-    const step = c.step + 1;
-    const email = renderOutreachEmail(c, step, { secret: config.secret, replyTo: config.replyTo });
-    const { data, error } = await resend.emails.send(
-      {
-        from: config.from,
-        to: c.email,
-        replyTo: config.replyTo,
-        subject: email.subject,
-        text: email.text,
-        headers: email.headers,
-        tags: [
-          { name: "campaign", value: "q4_demo" },
-          { name: "step", value: String(step) },
-        ],
-      },
-      // Reintentar el script no duplica: Resend devuelve el mismo envío.
-      { idempotencyKey: `outreach/${c.email}/step${step}` },
-    );
-    if (error || !data) {
-      failuresInRow++;
-      console.error(`  ✗ ${c.email}: ${error?.message ?? "sin respuesta"}`);
-      if (failuresInRow >= 3) throw new Error("Tres fallos seguidos de Resend: se detiene el envío.");
-      continue;
-    }
-    failuresInRow = 0;
-    await recordSent({ email: c.email, step, resendId: data.id, nextSendAt: nextSendAt(step, new Date()) });
-    sent++;
-    console.log(`  ✓ ${c.email} (paso ${step})`);
-    // Los rebotes llegan por webhook mientras se envía: se revisa cada 10.
-    if (sent % 10 === 0) {
-      const r = await recentDeliverability();
-      if (bounceGuardTripped(r.sent, r.bounced)) throw new Error(`Detenido a mitad: ${r.bounced}/${r.sent} rebotes.`);
-    }
-    // Espaciados, no en ráfaga.
-    await sleep(3000 + Math.floor(Math.random() * 5000));
-  }
-  console.log(`Listo: ${sent} enviados.`);
+  const { batch, waitingDemo } = pickSendBatch(await dueContacts(now), await listDemoJobs(), now, budget);
+  console.log(`${batch.length} por enviar (tope restante ${budget}; ${waitingDemo} esperan su demo).`);
+  const result = await sendOutreachBatch({ resend: new Resend(config.apiKey), config, batch, log: (line) => console.log(`  ${line}`) });
+  if (result.stopped) throw new Error(`Detenido: ${result.stopped}. Enviados: ${result.sent}.`);
+  console.log(`Listo: ${result.sent} enviados.`);
 }
 
 // ─── status / mark ────────────────────────────────────────────

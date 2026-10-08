@@ -1,5 +1,5 @@
 import { normalizeEmail, verifySvixSignature } from "@/lib/outreach";
-import { outreachDbConfigured, suppressEmail, type SuppressionReason } from "@/lib/outreach-db";
+import { ensureOutreachTables, outreachDbConfigured, suppressEmail, type SuppressionReason } from "@/lib/outreach-db";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -47,6 +47,7 @@ export async function POST(request: Request) {
   if (!recipients.length) return Response.json({ ignored: "no recipient" });
   if (!outreachDbConfigured()) return new Response("Database not configured", { status: 503 });
   try {
+    await ensureOutreachTables();
     for (const to of recipients) {
       // Puede venir como «Nombre <correo>».
       const email = normalizeEmail(/<([^>]+)>/.exec(to)?.[1] ?? to);

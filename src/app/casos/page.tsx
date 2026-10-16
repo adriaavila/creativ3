@@ -18,16 +18,16 @@ export const metadata: Metadata = {
 };
 
 const NAV = [
-  { href: "/#soluciones", label: "Soluciones" },
-  { href: "/#metodo", label: "Cómo trabajamos" },
-  { href: "/#inversion", label: "Inversión" },
+  { href: "/#trabajo", label: "Trabajo" },
+  { href: "/casos", label: "Casos" },
+  { href: "/#indice", label: "Índice" },
 ];
 
 export default function CasosPage() {
   return (
     <div className="allok">
       <div className="allok-void pb-[clamp(56px,8vw,96px)]">
-        <SiteHeader nav={NAV} cta={{ href: "/#diagnostico", label: "Agenda un diagnóstico" }} />
+        <SiteHeader nav={NAV} cta={{ href: "/#contacto", label: "Contacto" }} />
         <div className="mx-auto max-w-[1000px] px-5 pt-10 text-center sm:px-10 sm:pt-14">
           <p className="mono text-[var(--on-void-60)]">{LIVE_SYSTEMS} sistemas en producción</p>
           <h1 className="hero mt-6 text-balance !text-[clamp(2.4rem,6vw,5rem)]">El trabajo habla primero.</h1>

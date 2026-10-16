@@ -1,0 +1,233 @@
+/*
+ * La vitrina: la portada que enseña el trabajo y no vende nada.
+ * Negro para abrir, papel para el índice, cielo para cerrar (docs/design).
+ * Todo vive bajo `.vitrina`; nada de aquí pinta fuera de la portada.
+ */
+
+.vitrina {
+  --void: #07080a;
+  --void-2: #0e1013;
+  --cream: #f3f1ec;
+  --cream-60: rgba(243, 241, 236, 0.62);
+  --cream-35: rgba(243, 241, 236, 0.35);
+  --cream-12: rgba(243, 241, 236, 0.12);
+  --paper: #efece5;
+  --ink: #0b0c0e;
+  --ink-60: rgba(11, 12, 14, 0.62);
+  --ink-15: rgba(11, 12, 14, 0.14);
+  --live: #3ddc84;
+
+  background: var(--void);
+  color: var(--cream);
+  font-family: var(--font-grotesk), "Helvetica Neue", Helvetica, Arial, sans-serif;
+  color-scheme: dark;
+}
+
+body:has(.vitrina) {
+  background-color: #07080a;
+}
+
+.vitrina ::selection {
+  background: rgb(180 16 101);
+  color: #fff;
+}
+
+.vitrina .v-mono {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.vitrina .v-serif {
+  font-family: var(--font-serif), Georgia, serif;
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: -0.02em;
+}
+
+.vitrina .v-display {
+  font-weight: 700;
+  letter-spacing: -0.055em;
+  line-height: 0.86;
+}
+
+/* ---------- El muro ---------- */
+
+.v-wall-stage {
+  perspective: 1600px;
+  perspective-origin: 50% 30%;
+}
+
+.v-wall {
+  --rx: 0deg;
+  --ry: 0deg;
+  transform-style: preserve-3d;
+  transform: rotateX(calc(32deg + var(--rx))) rotateY(var(--ry)) rotateZ(-16deg) scale(1.35) translateY(-6%);
+  will-change: transform;
+}
+
+@media (max-width: 640px) {
+  .v-wall {
+    transform: rotateX(calc(28deg + var(--rx))) rotateY(var(--ry)) rotateZ(-16deg) scale(2.1) translateY(-4%);
+  }
+}
+
+.v-wall-col {
+  animation: v-rise var(--dur, 60s) linear infinite;
+  will-change: transform;
+}
+
+.v-wall-col[data-dir="down"] {
+  animation-name: v-fall;
+}
+
+@keyframes v-rise {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(0, -50%, 0); }
+}
+
+@keyframes v-fall {
+  from { transform: translate3d(0, -50%, 0); }
+  to { transform: translate3d(0, 0, 0); }
+}
+
+.v-tile {
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08), 0 30px 60px -20px rgba(0, 0, 0, 0.9);
+  background: #15171b;
+}
+
+.v-wall-shade {
+  background:
+    radial-gradient(ellipse 70% 55% at 50% 52%, rgba(7, 8, 10, 0.78) 0%, rgba(7, 8, 10, 0.35) 55%, transparent 80%),
+    linear-gradient(180deg, rgba(7, 8, 10, 0.75) 0%, transparent 22%, transparent 62%, #07080a 100%);
+}
+
+/* Un velo del cielo detrás del titular: el único color de la portada. */
+.v-aura {
+  background:
+    radial-gradient(40% 50% at 30% 60%, rgba(255, 154, 61, 0.35), transparent 70%),
+    radial-gradient(45% 55% at 70% 40%, rgba(180, 16, 101, 0.38), transparent 70%),
+    radial-gradient(50% 60% at 50% 50%, rgba(27, 63, 150, 0.45), transparent 75%);
+  filter: blur(60px);
+  animation: v-breathe 12s ease-in-out infinite alternate;
+}
+
+@keyframes v-breathe {
+  from { transform: scale(1) translate3d(-2%, 0, 0); opacity: 0.75; }
+  to { transform: scale(1.12) translate3d(2%, -2%, 0); opacity: 1; }
+}
+
+/* ---------- Cielo ---------- */
+
+.v-sky {
+  position: relative;
+  isolation: isolate;
+  background: linear-gradient(96deg, rgb(3 18 63) 0%, rgb(27 63 150) 26%, #67277d 58%, rgb(180 16 101) 82%, #8f4a58 100%);
+  color: #fff;
+}
+
+.v-sky::before,
+.v-sky::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  pointer-events: none;
+  filter: blur(42px);
+}
+
+.v-sky::before {
+  inset: 10% auto auto -5%;
+  width: 55%;
+  height: 80%;
+  background: radial-gradient(closest-side, rgb(255 154 61 / 0.7), transparent);
+}
+
+.v-sky::after {
+  inset: auto -5% -10% auto;
+  width: 50%;
+  height: 70%;
+  background: radial-gradient(closest-side, rgb(255 227 194 / 0.45), transparent);
+}
+
+.v-sky-text {
+  background: linear-gradient(96deg, #ff9a3d 0%, #ff6aa8 35%, #b98cff 65%, #6aa8ff 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* ---------- Grano ---------- */
+
+.v-grain::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.07;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+}
+
+/* ---------- Marquesina ---------- */
+
+.v-marquee {
+  animation: v-slide 40s linear infinite;
+}
+
+@keyframes v-slide {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(-50%, 0, 0); }
+}
+
+/* ---------- Cursor ---------- */
+
+.v-cursor {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 80;
+  pointer-events: none;
+  mix-blend-mode: difference;
+}
+
+@media (pointer: coarse) {
+  .v-cursor,
+  .v-preview {
+    display: none !important;
+  }
+}
+
+/* ---------- Pulso de «en vivo» ---------- */
+
+.v-live-dot {
+  position: relative;
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: var(--live);
+}
+
+.v-live-dot::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: inherit;
+  animation: v-ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+@keyframes v-ping {
+  75%, 100% { transform: scale(2.6); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .v-wall-col,
+  .v-aura,
+  .v-marquee,
+  .v-live-dot::after {
+    animation: none !important;
+  }
+}

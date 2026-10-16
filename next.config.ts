@@ -18,7 +18,7 @@ const nextConfig: NextConfig = {
       // precio. Desde 2026-10 el producto vive en /agente-whatsapp y la
       // portada vende proyectos; esto se queda por los enlaces vivos.
       { source: "/crm", destination: "/agente-whatsapp", permanent: true },
-      { source: "/cotizar", destination: "/#diagnostico", permanent: false },
+      { source: "/cotizar", destination: "/#contacto", permanent: false },
       // allok Desk fue el producto anterior; /desk daba 404 y /es/desk seguía vivo.
       { source: "/desk", destination: "/agente-whatsapp", permanent: true },
       { source: "/:locale(es|en)/desk", destination: "/agente-whatsapp", permanent: true },

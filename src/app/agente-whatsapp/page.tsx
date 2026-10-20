@@ -14,10 +14,12 @@ import AllokLogo from "@/components/brand/AllokLogo";
 import OkDot from "@/components/brand/OkDot";
 import NightOrbit from "@/components/allok/NightOrbit";
 import { CloseMark, NightSky, NightTicker, StepGlyph } from "@/components/allok/Ambient";
+import { TrajoSum } from "@/components/allok/SeoBlocks";
+import { LEARNS_FAQ, OUTCOME, VALUE_FAQ } from "@/lib/seo-pages";
 
-const TITLE = "Agente de WhatsApp con IA para tu negocio";
+const TITLE = "Agente de WhatsApp con IA que aprende de tus chats";
 const DESCRIPTION =
-  `allok conecta tu WhatsApp con agentes que contestan, califican y agendan por ti. Mensualidad fija de US$${FROM_PRICE}: la cuenta es de tu empresa y Meta te cobra los mensajes al costo.`;
+  `allok aprende tus precios y tu forma de contestar de tus propios chats, agenda por ti y te dice cuánto te trajo. Desde US$${FROM_PRICE} al mes; Meta te cobra los mensajes al costo.`;
 
 export const metadata: Metadata = {
   title: TITLE,
@@ -48,7 +50,7 @@ const ASSISTED_STEPS = [
   {
     n: "02",
     title: "Lo dejamos andando",
-    body: "Conectamos tu número de siempre y cargamos tu agente con tus precios y servicios. La cuenta queda a nombre de tu empresa: es tuya, no nuestra.",
+    body: "Conectamos tu número de siempre y tu agente aprende de dos o tres chats tuyos: tus precios, tus respuestas y tu tono. La cuenta queda a nombre de tu empresa: es tuya, no nuestra.",
     aside: "Sin cambiar de número",
   },
   {
@@ -64,20 +66,20 @@ const ASSISTED_STEPS = [
 const SELF_SERVE_STEPS = [
   {
     n: "01",
-    title: "Creas tu cuenta",
-    body: "Con tu correo, en un par de minutos.",
-    aside: "Dos minutos",
+    title: "Conectas tu WhatsApp",
+    body: "Creas tu cuenta con tu correo y eliges tu número en la ventana de Meta. La cuenta queda a nombre de tu empresa: es tuya, no nuestra.",
+    aside: "Sin cambiar de número",
   },
   {
     n: "02",
-    title: "Conectas tu WhatsApp",
-    body: "Eliges tu número en la ventana de Meta. La cuenta queda a nombre de tu empresa: es tuya, no nuestra.",
-    aside: "Sin cambiar de número",
+    title: "Le pasas tus chats",
+    body: "Exportas dos o tres conversaciones con clientes y las subes. Aprende tus precios, lo que siempre te preguntan y cómo lo contestas tú.",
+    aside: "Unos minutos",
   },
   {
     n: "03",
     title: "Pruebas y activas",
-    body: "Le cuentas tu negocio, lo pruebas como si fueras un cliente y lo pones a atender cuando te guste cómo responde.",
+    body: "Le escribes como si fueras un cliente y lo pones a atender cuando te guste cómo responde. Desde ese día te dice cuánto te trajo.",
     aside: "Y se apaga igual de fácil",
   },
 ] as const;
@@ -99,8 +101,11 @@ const SECTORS = [
  * - cancelar: portal de Stripe (`api/saas/billing/portal`, al final del periodo).
  * - inventar: «lo que no esté aquí, no lo inventa» (`components/agencia/tu-negocio.tsx`).
  * - encendido: el agente nace en pausa (`server/agent/default-profile.ts`).
+ * - chats y plata: `LEARNS_FAQ` y `VALUE_FAQ` en `lib/seo-pages.ts` (vocero-crm #73).
  */
 const FAQS: { q: string; a: string; link?: { href: string; label: string } }[] = [
+  LEARNS_FAQ,
+  VALUE_FAQ,
   {
     q: "¿Tengo que cambiar de número?",
     a: "No. Conectas el número que ya usas, por la vía oficial de Meta. Si lo tienes en la app de WhatsApp Business, la sigues usando en tu celular como siempre.",
@@ -163,8 +168,8 @@ export default function AgenteWhatsapp() {
             </div>
 
             <p className="lede mt-8 max-w-[44ch] text-[var(--ink-60)]">
-              allok contesta con lo que de verdad vendes, pregunta lo que hay que
-              preguntar y agenda la cita. Tú ves lo que pasó y decides cuándo entrar.
+              Aprende de tus propios chats cómo vendes y cómo contestas, atiende tu
+              WhatsApp y agenda la cita. Y te dice cuánto te trajo, en plata.
             </p>
 
             <div className="mt-9 flex flex-wrap gap-3">
@@ -255,6 +260,20 @@ export default function AgenteWhatsapp() {
               ))}
             </dl>
           </Rise>
+
+          {/* Lo que te trajo: la misma cuenta que hace Inicio en la app (vocero-crm #73). */}
+          <Rise>
+            <div className="mt-20 grid items-end gap-8 border-t border-white/10 pt-14 md:grid-cols-[minmax(0,1fr)_minmax(0,.8fr)]">
+              <div>
+                <p className="mono text-[var(--on-void-60)]">Lo que te trajo</p>
+                <h2 className="statement mt-4 max-w-[16ch]">Cuenta en plata, no en mensajes.</h2>
+                <p className="mt-5 max-w-[48ch] text-[15.5px] leading-relaxed text-white/55 text-pretty">
+                  {OUTCOME.money.body} Sin ese dato, cuenta las citas y no les inventa precio.
+                </p>
+              </div>
+              <TrajoSum className="md:pb-2" />
+            </div>
+          </Rise>
         </div>
       </section>
 
@@ -265,7 +284,7 @@ export default function AgenteWhatsapp() {
             <h2 className="statement max-w-[13ch]">Tres pasos y queda andando.</h2>
             <p className="text-[15.5px] leading-relaxed text-[var(--ink-60)] text-pretty">
               {selfServe
-                ? "No instalas nada ni programas nada. Le explicas tu negocio como a un empleado nuevo y allok hace el resto."
+                ? "No instalas nada ni llenas formularios largos. Le pasas chats que ya contestaste y aprende de ahí, como un empleado nuevo que lee cómo atiendes."
                 : "No instalas nada ni programas nada. Nos explicas tu negocio como a un empleado nuevo y nosotros hacemos el resto."}
             </p>
           </div>

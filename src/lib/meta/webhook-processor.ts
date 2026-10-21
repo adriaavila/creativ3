@@ -5,25 +5,43 @@ import {
   upsertConversation,
 } from "@/lib/whatsapp-inbox-db";
 import { normalizeWhatsAppPhone } from "@/lib/phone";
-import { markWhatsAppConnectionStatusByWaba } from "@/lib/whatsapp-connections-db";
+import { findWabaOwner, markWhatsAppConnectionStatusByWaba } from "@/lib/whatsapp-connections-db";
 import { normalizeMetaWebhook } from "@/lib/meta/cloud-whatsapp-provider";
 import type { WhatsAppNormalizedEvent } from "@/lib/whatsapp-provider";
 import {
   claimMetaWebhookEvents,
+  deferMetaWebhookEvent,
   markMetaWebhookEventFailed,
   markMetaWebhookEventProcessed,
 } from "@/lib/meta/webhook-events-db";
+import {
+  accountUpdateAlertText,
+  classifyAccountUpdate,
+  PARTNER_ADDED_GRACE_MS,
+  type AccountUpdateAlert,
+} from "@/lib/meta/account-update-alerts";
+import { sendTelegramAlert } from "@/lib/telegram-alert";
 
 export async function processMetaWebhookQueue(limit = 10) {
   const events = await claimMetaWebhookEvents(limit);
   let processed = 0;
   let failed = 0;
+  // Cuándo vuelve a tocar un PARTNER_ADDED que se quedó esperando, si hay alguno.
+  let recheckAt: number | null = null;
 
   for (const event of events) {
     try {
       const normalized = normalizeMetaWebhook(event.payload);
+      const alerts = normalized.map(classifyAccountUpdate).filter((alert) => alert !== null);
+      const due = event.receivedAt.getTime() + PARTNER_ADDED_GRACE_MS;
+      if (alerts.some((alert) => alert.kind === "partner_added") && Date.now() < due) {
+        await deferMetaWebhookEvent(event.id, new Date(due));
+        recheckAt = Math.max(recheckAt ?? 0, due);
+        continue;
+      }
       let persisted = 0;
       for (const item of normalized) persisted += await persistNormalizedEvent(item);
+      for (const alert of alerts) await alertAccountUpdate(alert);
       await markMetaWebhookEventProcessed(event.id);
       processed += 1;
       console.info(JSON.stringify({
@@ -46,7 +64,14 @@ export async function processMetaWebhookQueue(limit = 10) {
     }
   }
 
-  return { claimed: events.length, processed, failed };
+  return { claimed: events.length, processed, failed, recheckAt };
+}
+
+async function alertAccountUpdate(alert: AccountUpdateAlert) {
+  const text = accountUpdateAlertText(alert, await findWabaOwner(alert.wabaId));
+  if (!text) return;
+  const sent = await sendTelegramAlert(text);
+  console.warn(JSON.stringify({ event: "whatsapp_account_alert", kind: alert.kind, waba_id: alert.wabaId, sent }));
 }
 
 async function persistNormalizedEvent(event: WhatsAppNormalizedEvent): Promise<number> {

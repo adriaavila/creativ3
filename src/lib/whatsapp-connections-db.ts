@@ -407,6 +407,19 @@ export async function markWhatsAppConnectionDisconnected(
   `;
 }
 
+/** Quién tiene el WABA según allok.fun: el CRM al que se entregó o, si no, el cliente. Null = no lo conoce. */
+export async function findWabaOwner(wabaId: string): Promise<{ owner: string | null } | null> {
+  const sql = getSql();
+  const rows = await sql`
+    SELECT COALESCE(token_metadata #>> '{crm_handover,provider}', client) AS owner
+    FROM whatsapp_connections
+    WHERE waba_id = ${wabaId} AND status != 'deauthorized'
+    ORDER BY updated_at DESC
+    LIMIT 1
+  `;
+  return rows[0] ? { owner: rows[0].owner ? String(rows[0].owner) : null } : null;
+}
+
 export async function markWhatsAppConnectionStatusByWaba(wabaId: string, status: string) {
   const sql = getSql();
   await sql`

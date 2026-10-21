@@ -121,6 +121,16 @@ function booking(sector: string): string {
   return kind === "academia" ? "aparta el lugar a quien quiere inscribirse" : "agenda la cita";
 }
 
+/**
+ * La promesa de resultado (vocero-crm #73): aprende de 2 o 3 chats exportados
+ * y el resumen diario cuenta las citas que agendó y cuánto valen. Sin cifras:
+ * los números son los de cada negocio.
+ */
+function outcome(sector: string): string {
+  const counted = sectorKind(sector) === "academia" ? "cuántos lugares apartó" : "cuántas citas agendó";
+  return `aprende en unos minutos de dos o tres chats que ustedes ya contestaron, y cada día les dice ${counted} y cuánto les trajo`;
+}
+
 function step1(c: OutreachContactForEmail, link: string): { subject: string; body: string } {
   const name = displayName(c.businessName);
   const hook = offerHook(c.offer);
@@ -134,7 +144,7 @@ function step1(c: OutreachContactForEmail, link: string): { subject: string; bod
           : `Tomé lo que ${name} publica en su web (servicios, horarios, dónde están) y armé con eso un agente de WhatsApp que contesta como ustedes. Puede probarlo aquí, sin registrarse:`,
         link,
         `Pregúntele lo que suelen preguntar sus ${audience(c.sector)}. Si algo lo contesta mal, me sirve saberlo.`,
-        `Si le gustaría tenerlo en el WhatsApp de ${name}, basta con responder este correo.`,
+        `Conectado al WhatsApp de ${name}, además ${outcome(c.sector)}. Si le interesa, basta con responder este correo.`,
       ].join("\n\n"),
     };
   }
@@ -143,7 +153,7 @@ function step1(c: OutreachContactForEmail, link: string): { subject: string; bod
     body: [
       `Hola, equipo de ${name}:`,
       `${hook ? `Vi en su web lo que ofrecen («${hook}»). ` : ""}Casi todo lo que llega al WhatsApp de un negocio como el suyo son las mismas preguntas: cuánto cuesta, qué horarios tienen, si hay lugar esta semana.`,
-      `Hago allok, un agente que contesta eso en su WhatsApp con sus precios y horarios reales, y ${booking(c.sector)}. Aquí se ve cómo funciona:`,
+      `Hago allok, un agente que contesta eso en su WhatsApp con sus precios y horarios reales, y ${booking(c.sector)}. No hay que escribirle nada: ${outcome(c.sector)}. Aquí se ve cómo funciona:`,
       link,
       `Si quiere, le armo uno con la información de ${name} para que lo pruebe antes de decidir nada. Basta con responder este correo.`,
     ].join("\n\n"),

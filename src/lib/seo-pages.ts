@@ -93,6 +93,40 @@ const SHARED_SETUP_FAQ: Faq = {
   a: `Sí. La puesta en marcha cuesta desde ${SETUP}, una sola vez: cargamos tu agente con tus precios y servicios, armamos tus etapas de venta y conectamos WhatsApp con Meta de punta a punta.`,
 };
 
+/**
+ * La promesa de resultado, igual en todas las páginas del agente: arranca con
+ * tus propios chats y te dice cuánto te trajo. Cada frase dice solo lo que la
+ * app hace hoy (vocero-crm #73):
+ * - chats: «Desde tus chats» en Tu negocio lee 2 o 3 chats exportados (.txt o
+ *   el .zip del iPhone) en el navegador; al servidor llega «Negocio:/Cliente:»
+ *   sin nombres, teléfonos ni correos. Saca precios, hasta cinco preguntas con
+ *   la respuesta que dio el negocio y el tono; el dueño revisa antes de guardar.
+ * - plata: «Lo que te trajo tu agente» en Inicio y en el resumen de las 19:00
+ *   cuenta las citas que agendó el agente × lo que el dueño dice que le deja
+ *   una cita, más las ventas cerradas. Sin ese dato, cuenta citas sin precio.
+ * Ninguna cifra de resultados: los números son los de cada negocio.
+ */
+export const OUTCOME = {
+  chats: {
+    title: "Aprende de tus chats",
+    body: "Exportas dos o tres conversaciones con clientes desde WhatsApp y las subes. En unos minutos saca tus precios, las preguntas que más te hacen con la respuesta que tú diste y tu forma de escribir. Revisas lo que aprendió antes de guardarlo.",
+  },
+  money: {
+    title: "Te dice cuánto te trajo",
+    body: "En tu Inicio y en el resumen de las 7 de la noche ves las citas que agendó tu agente y las ventas que cerraste. Le dices una vez cuánto te deja una cita y allok hace la cuenta.",
+  },
+} as const;
+
+export const LEARNS_FAQ: Faq = {
+  q: "¿Tengo que escribirle todo mi negocio?",
+  a: "No. En WhatsApp abres el chat con un cliente, tocas Exportar chat (sin archivos) y lo subes; con dos o tres basta. allok saca tus precios, tus respuestas y tu tono, y tú corriges lo que haga falta antes de guardar. Los nombres y teléfonos de tus clientes no se envían: solo el texto de la conversación.",
+};
+
+export const VALUE_FAQ: Faq = {
+  q: "¿Cómo sé si me está sirviendo?",
+  a: "Por lo que te trae, no por los mensajes que manda. En tu Inicio y en el resumen diario ves cuántas citas agendó y, si le dices cuánto te deja una cita, cuánto valen, junto con las ventas que cerraste. Si no le das ese dato, cuenta las citas y no les inventa precio.",
+};
+
 export const COMPARISONS: ComparisonPage[] = [
   {
     kind: "comparison",
@@ -268,6 +302,8 @@ export const VERTICALS: VerticalPage[] = [
       ACTIVATE_FAQ,
       HANDOFF_FAQ,
       SHARED_PRICE_FAQ,
+      LEARNS_FAQ,
+      VALUE_FAQ,
     ],
     cta: "signup",
   },
@@ -309,6 +345,8 @@ export const VERTICALS: VerticalPage[] = [
       ACTIVATE_FAQ,
       HANDOFF_FAQ,
       SHARED_PRICE_FAQ,
+      LEARNS_FAQ,
+      VALUE_FAQ,
     ],
     cta: "signup",
   },
@@ -348,6 +386,8 @@ export const VERTICALS: VerticalPage[] = [
       ACTIVATE_FAQ,
       HANDOFF_FAQ,
       SHARED_PRICE_FAQ,
+      LEARNS_FAQ,
+      VALUE_FAQ,
     ],
     cta: "signup",
   },
@@ -387,6 +427,8 @@ export const VERTICALS: VerticalPage[] = [
       ACTIVATE_FAQ,
       HANDOFF_FAQ,
       SHARED_PRICE_FAQ,
+      LEARNS_FAQ,
+      VALUE_FAQ,
     ],
     cta: "signup",
   },
@@ -426,6 +468,8 @@ export const VERTICALS: VerticalPage[] = [
       ACTIVATE_FAQ,
       HANDOFF_FAQ,
       SHARED_PRICE_FAQ,
+      LEARNS_FAQ,
+      VALUE_FAQ,
     ],
     cta: "rei",
   },
@@ -465,6 +509,8 @@ export const VERTICALS: VerticalPage[] = [
       ACTIVATE_FAQ,
       HANDOFF_FAQ,
       SHARED_PRICE_FAQ,
+      LEARNS_FAQ,
+      VALUE_FAQ,
     ],
     cta: "signup",
   },

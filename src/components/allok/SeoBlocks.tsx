@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import { STATES } from "@/lib/brand";
 import { faqJsonLd, jsonLdHtml } from "@/lib/seo";
-import { COMPARISONS, VERTICALS, priceLine, seoCta, seoPath, type Faq, type SeoPage } from "@/lib/seo-pages";
+import { COMPARISONS, OUTCOME, VERTICALS, priceLine, seoCta, seoPath, type Faq, type SeoPage } from "@/lib/seo-pages";
 import SiteHeader from "./SiteHeader";
 
 /**
@@ -85,6 +85,50 @@ export function SeoFaq({ faqs }: { faqs: Faq[] }) {
       </div>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdHtml(faqJsonLd(faqs)) }} />
     </section>
+  );
+}
+
+/**
+ * La promesa de resultado de las páginas por sector: arranca con tus chats y
+ * te dice cuánto te trajo. El texto vive en `OUTCOME` (seo-pages.ts); la
+ * cuenta va sin números porque los números son los de cada negocio.
+ */
+export function SeoOutcome() {
+  return (
+    <section className="mx-auto max-w-[1200px] px-5 pt-20 sm:px-10 sm:pt-28">
+      <div className="allok-on-ink grid gap-10 rounded-[26px] bg-[var(--ink)] px-7 py-12 text-[var(--cloud)] sm:px-12 sm:py-14 md:grid-cols-2">
+        <div>
+          <p className="mono text-[var(--on-void-60)]">01 · Para empezar</p>
+          <h2 className="display-sm mt-4 text-[clamp(1.5rem,2.4vw,2rem)]">{OUTCOME.chats.title}</h2>
+          <p className="mt-3 text-[15.5px] leading-relaxed text-white/60 text-pretty">{OUTCOME.chats.body}</p>
+        </div>
+        <div>
+          <p className="mono text-[var(--on-void-60)]">02 · Cada día</p>
+          <h2 className="display-sm mt-4 text-[clamp(1.5rem,2.4vw,2rem)]">{OUTCOME.money.title}</h2>
+          <p className="mt-3 text-[15.5px] leading-relaxed text-white/60 text-pretty">{OUTCOME.money.body}</p>
+          <TrajoSum className="mt-6" />
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/** La cuenta de «lo que te trajo», en palabras: la misma que hace la app. */
+export function TrajoSum({ className = "" }: { className?: string }) {
+  const rows = [
+    ["", "citas que agendó tu agente × lo que te deja una cita"],
+    ["+", "ventas que cerraste"],
+    ["=", "lo que te trajo"],
+  ] as const;
+  return (
+    <ul className={`mono grid gap-1.5 text-[13px] leading-snug ${className}`}>
+      {rows.map(([op, label]) => (
+        <li key={label} className={`flex gap-3 ${op === "=" ? "border-t border-white/15 pt-2 text-[var(--ok)]" : "text-white/70"}`}>
+          <span aria-hidden="true" className="w-3 shrink-0 text-center">{op}</span>
+          {label}
+        </li>
+      ))}
+    </ul>
   );
 }
 

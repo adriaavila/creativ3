@@ -4,6 +4,9 @@ import { normalizeMetaWebhook } from "@/lib/meta/cloud-whatsapp-provider";
 import {
   accountUpdateAlertText,
   classifyAccountUpdate,
+  deferUntil,
+  hasPartnerAdded,
+  PARTNER_ADDED_GRACE_MS,
   type WabaOwner,
 } from "@/lib/meta/account-update-alerts";
 import { sendTelegramAlert } from "@/lib/telegram-alert";
@@ -76,6 +79,20 @@ test("el resto de account_update y los mensajes no avisan", () => {
     } }] }],
   }), null);
   assert.equal(alertFor({ object: "page" }), null);
+});
+
+test("un PARTNER_ADDED espera su plazo en la cola; lo demás se procesa ya", () => {
+  const classify = (payload: unknown) =>
+    normalizeMetaWebhook(payload).map(classifyAccountUpdate).filter((alert) => alert !== null);
+  const receivedAt = new Date("2026-10-20T01:39:46Z");
+  const due = new Date(receivedAt.getTime() + PARTNER_ADDED_GRACE_MS);
+
+  assert.deepEqual(deferUntil(classify(PARTNER_ADDED), receivedAt, receivedAt.getTime() + 300), due);
+  assert.equal(deferUntil(classify(PARTNER_ADDED), receivedAt, due.getTime()), null);
+  assert.equal(deferUntil(classify(PARTNER_REMOVED), receivedAt, receivedAt.getTime()), null);
+
+  assert.equal(hasPartnerAdded(normalizeMetaWebhook(PARTNER_ADDED)), true);
+  assert.equal(hasPartnerAdded(normalizeMetaWebhook(PARTNER_REMOVED)), false);
 });
 
 test("PARTNER_REMOVED marca la conexión por el WABA real, no por el entry.id", () => {

@@ -1,6 +1,8 @@
 import { after, NextRequest, NextResponse } from "next/server";
 import { enqueueMetaWebhookEvent } from "@/lib/meta/webhook-events-db";
 import { processMetaWebhookQueue } from "@/lib/meta/webhook-processor";
+import { hasPartnerAdded, PARTNER_ADDED_GRACE_MS } from "@/lib/meta/account-update-alerts";
+import { normalizeMetaWebhook } from "@/lib/meta/cloud-whatsapp-provider";
 import { verifyHexHmac } from "@/lib/webhook-signature";
 
 /** Un PARTNER_ADDED se revisa dentro de esta misma invocación (PARTNER_ADDED_GRACE_MS). */
@@ -62,13 +64,14 @@ export async function POST(req: NextRequest) {
   try {
     const queued = await enqueueMetaWebhookEvent(rawBody, payload);
     after(async () => {
-      const { recheckAt } = await processMetaWebhookQueue(5);
-      if (!recheckAt) return;
-      // Nada más drena la cola (el cron de n8n está estacionado), así que esta
-      // invocación espera al PARTNER_ADDED y lo revisa. Si muere antes, la fila
-      // sigue pendiente y la toma el próximo webhook o un drenado a mano.
-      await new Promise((resolve) => setTimeout(resolve, Math.max(0, recheckAt - Date.now()) + 5_000));
       await processMetaWebhookQueue(5);
+      if (!hasPartnerAdded(normalizeMetaWebhook(payload))) return;
+      // Nada más drena la cola (el cron de n8n está estacionado), así que la
+      // invocación que recibió el PARTNER_ADDED espera su plazo y lo revisa. Si
+      // muere antes, la fila sigue pendiente y la toma el próximo webhook o un
+      // drenado a mano.
+      await new Promise((resolve) => setTimeout(resolve, PARTNER_ADDED_GRACE_MS + 5_000));
+      await processMetaWebhookQueue(25);
     });
     return NextResponse.json({
       ok: true,

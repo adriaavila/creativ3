@@ -49,8 +49,9 @@ sent and the log shows `whatsapp_account_alert` with `sent: false`.
 
 - `PARTNER_REMOVED` / `PARTNER_APP_UNINSTALLED`: "Meta desconectó el WABA …"
   with Meta's reason and the CRM slug, when `whatsapp_connections` has it.
-- `PARTNER_ADDED`: the row waits 4 minutes in the queue, then alerts if
-  `whatsapp_connections` still has no live row for that WABA. allok.fun cannot
+- `PARTNER_ADDED`: the row waits 4 minutes in the queue, then alerts unless
+  `whatsapp_connections` saved that WABA from 15 minutes before the event on
+  (every signup rewrites `connected_at`, so an old row does not count). allok.fun cannot
   see the CRMs' own tables, so a signup done directly in a CRM always alerts;
   the message says to ignore it if the number is already in the CRM. The wait
   happens inside the webhook invocation (`maxDuration` 300 s) because nothing

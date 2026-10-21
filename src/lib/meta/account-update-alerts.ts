@@ -20,6 +20,20 @@ export type WabaOwner = { owner: string | null } | null;
  */
 export const PARTNER_ADDED_GRACE_MS = 4 * 60_000;
 
+/** Una conexión guardada desde este margen antes del PARTNER_ADDED cuenta como esta alta. */
+export const PARTNER_ADDED_MATCH_MS = 15 * 60_000;
+
+/** Hasta cuándo dejar el evento en la cola: un PARTNER_ADDED antes de su plazo. Null = ya toca. */
+export function deferUntil(alerts: AccountUpdateAlert[], receivedAt: Date, now = Date.now()): Date | null {
+  const due = receivedAt.getTime() + PARTNER_ADDED_GRACE_MS;
+  return alerts.some((alert) => alert.kind === "partner_added") && now < due ? new Date(due) : null;
+}
+
+/** True si el payload trae un PARTNER_ADDED: la invocación que lo recibió es la que espera a revisarlo. */
+export function hasPartnerAdded(normalized: WhatsAppNormalizedEvent[]): boolean {
+  return normalized.some((event) => classifyAccountUpdate(event)?.kind === "partner_added");
+}
+
 const DISCONNECTS = new Set(["PARTNER_REMOVED", "PARTNER_APP_UNINSTALLED"]);
 
 export function classifyAccountUpdate(event: WhatsAppNormalizedEvent): AccountUpdateAlert | null {

@@ -407,13 +407,21 @@ export async function markWhatsAppConnectionDisconnected(
   `;
 }
 
-/** Quién tiene el WABA según allok.fun: el CRM al que se entregó o, si no, el cliente. Null = no lo conoce. */
-export async function findWabaOwner(wabaId: string): Promise<{ owner: string | null } | null> {
+/**
+ * Quién tiene el WABA según allok.fun: el CRM al que se entregó o, si no, el
+ * cliente. Null = no lo conoce. Con `connectedSince`, sólo cuenta una conexión
+ * guardada desde entonces (cada alta pisa connected_at).
+ */
+export async function findWabaOwner(
+  wabaId: string,
+  connectedSince?: Date,
+): Promise<{ owner: string | null } | null> {
   const sql = getSql();
   const rows = await sql`
     SELECT COALESCE(token_metadata #>> '{crm_handover,provider}', client) AS owner
     FROM whatsapp_connections
     WHERE waba_id = ${wabaId} AND status != 'deauthorized'
+      AND connected_at >= COALESCE(${connectedSince?.toISOString() ?? null}::timestamptz, '-infinity')
     ORDER BY updated_at DESC
     LIMIT 1
   `;
@@ -425,7 +433,7 @@ export async function markWhatsAppConnectionStatusByWaba(wabaId: string, status:
   await sql`
     UPDATE whatsapp_connections
     SET status = ${status}, updated_at = now()
-    WHERE waba_id = ${wabaId}
+    WHERE waba_id = ${wabaId} AND status != 'deauthorized'
   `;
 }
 

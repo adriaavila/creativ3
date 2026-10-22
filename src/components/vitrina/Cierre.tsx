@@ -1,11 +1,17 @@
 import Link from "next/link";
 import { PIEZAS } from "@/lib/vitrina";
+import { SEO_PAGES, seoPath } from "@/lib/seo-pages";
 
 const CORREO = "hi@allok.fun";
 
-/** El cielo, una vez, al final: solo una forma de escribir. */
-export default function Cierre() {
+/**
+ * El cielo, una vez, al final: las dos maneras de trabajar con allok, el
+ * agente o un proyecto a medida, y los caminos a las páginas de cada negocio.
+ */
+export default function Cierre({ cta, precio }: { cta: { href: string; label: string }; precio: number }) {
   const nombres = PIEZAS.map((p) => p.name);
+  const sectores = SEO_PAGES.filter((p) => p.kind === "vertical");
+  const alternativas = SEO_PAGES.filter((p) => p.kind === "comparison");
   return (
     <footer id="contacto" className="v-sky overflow-hidden">
       <div className="v-mono overflow-hidden border-b border-white/15 py-4 text-[11px] text-white/75" aria-hidden="true">
@@ -21,22 +27,66 @@ export default function Cierre() {
       <div className="mx-auto max-w-[1500px] px-4 pb-10 pt-24 sm:px-10 sm:pt-36">
         <p className="v-mono text-[11px] text-white/75">Contacto</p>
         <p className="v-display mt-6 text-[clamp(2.8rem,9vw,9rem)]">
-          ¿Construimos
+          ¿Empezamos
           <br />
-          <span className="v-serif">algo bonito?</span>
+          <span className="v-serif">esta noche?</span>
         </p>
-        <a
-          href={`mailto:${CORREO}`}
-          data-cursor="Escribir"
-          className="group mt-12 inline-flex items-center gap-4 border-b-2 border-white/40 pb-2 text-[clamp(1.6rem,4.5vw,3.6rem)] font-semibold tracking-[-0.03em] transition-colors hover:border-white"
-        >
-          {CORREO}
-          <span aria-hidden="true" className="transition-transform duration-500 group-hover:translate-x-2 group-hover:-translate-y-2">
-            ↗
-          </span>
-        </a>
 
-        <div className="mt-28 flex flex-col gap-8 border-t border-white/20 pt-8 text-sm sm:flex-row sm:items-end sm:justify-between">
+        <div className="mt-14 grid gap-10 sm:mt-20 lg:grid-cols-2 lg:gap-16">
+          <div>
+            <p className="v-mono text-[11px] text-white/70">Tu agente · US${precio} al mes</p>
+            <a
+              href={cta.href}
+              data-cursor="Empezar"
+              className="group mt-4 inline-flex items-center gap-4 border-b-2 border-white/40 pb-2 text-[clamp(1.6rem,4vw,3.4rem)] font-semibold tracking-[-0.03em] transition-colors hover:border-white"
+            >
+              {cta.label}
+              <span aria-hidden="true" className="transition-transform duration-500 group-hover:-translate-y-2 group-hover:translate-x-2">
+                ↗
+              </span>
+            </a>
+          </div>
+          <div>
+            <p className="v-mono text-[11px] text-white/70">Un proyecto a medida · desde US$10.000</p>
+            <a
+              href={`mailto:${CORREO}`}
+              data-cursor="Escribir"
+              className="group mt-4 inline-flex items-center gap-4 border-b-2 border-white/40 pb-2 text-[clamp(1.6rem,4vw,3.4rem)] font-semibold tracking-[-0.03em] transition-colors hover:border-white"
+            >
+              {CORREO}
+              <span aria-hidden="true" className="transition-transform duration-500 group-hover:-translate-y-2 group-hover:translate-x-2">
+                ↗
+              </span>
+            </a>
+          </div>
+        </div>
+
+        <nav aria-label="Para tu negocio" className="mt-24 grid gap-6 border-t border-white/20 pt-8 text-sm sm:grid-cols-2 lg:grid-cols-[auto_1fr]">
+          <p className="v-mono text-[10px] text-white/70 lg:pt-0.5">Para tu negocio</p>
+          <ul className="flex flex-wrap gap-x-6 gap-y-3 text-white/85">
+            <li>
+              <Link href="/agente-whatsapp" className="hover:text-white">
+                Agente de WhatsApp con IA
+              </Link>
+            </li>
+            {sectores.map((p) => (
+              <li key={p.slug}>
+                <Link href={seoPath(p)} className="hover:text-white">
+                  {p.kind === "vertical" ? p.sector : p.title}
+                </Link>
+              </li>
+            ))}
+            {alternativas.map((p) => (
+              <li key={p.slug}>
+                <Link href={seoPath(p)} className="hover:text-white">
+                  {p.kind === "comparison" ? `Alternativa a ${p.competitor}` : p.title}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
+
+        <div className="mt-10 flex flex-col gap-8 border-t border-white/20 pt-8 text-sm sm:flex-row sm:items-end sm:justify-between">
           <nav aria-label="Más" className="flex flex-wrap gap-x-6 gap-y-3 text-white/85">
             <Link href="/casos" className="hover:text-white">Casos</Link>
             <Link href="/work" className="hover:text-white">Archivo</Link>

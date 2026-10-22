@@ -6,14 +6,14 @@ import { useState } from "react";
 import AllokLogo from "@/components/brand/AllokLogo";
 
 const NAV = [
+  { href: "#agente", label: "Agente" },
+  { href: "#pregunta", label: "Pregúntale" },
+  { href: "#empieza", label: "Precio" },
   { href: "#trabajo", label: "Trabajo" },
-  { href: "#por-dentro", label: "Por dentro" },
-  { href: "#indice", label: "Índice" },
-  { href: "#estudio", label: "Estudio" },
 ];
 
 /** Una cápsula de vidrio que flota sobre todo y se esconde al bajar rápido. */
-export default function Cabecera() {
+export default function Cabecera({ cta }: { cta: { href: string; label: string } }) {
   const { scrollY } = useScroll();
   const [hidden, setHidden] = useState(false);
   const [open, setOpen] = useState(false);
@@ -43,10 +43,10 @@ export default function Cabecera() {
             ))}
           </nav>
           <a
-            href="#contacto"
+            href={cta.href}
             className="hidden min-h-10 items-center rounded-full bg-[var(--cream)] px-4 text-sm font-semibold text-[var(--ink)] transition-transform hover:-translate-y-px md:inline-flex"
           >
-            Contacto
+            {cta.label}
           </a>
           <button
             type="button"
@@ -60,7 +60,7 @@ export default function Cabecera() {
         </div>
         {open ? (
           <nav id="menu-movil" aria-label="Principal" className="flex flex-col px-3 pb-3 md:hidden">
-            {[...NAV, { href: "#contacto", label: "Contacto" }].map((n) => (
+            {[...NAV, cta].map((n) => (
               <a key={n.href} href={n.href} onClick={() => setOpen(false)} className="border-t border-white/10 px-2 py-4 text-2xl font-semibold tracking-[-0.03em]">
                 {n.label}
               </a>

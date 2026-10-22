@@ -1,0 +1,93 @@
+/*
+ * allok · los valores de la marca, en un solo archivo.
+ *
+ * Este archivo vive IGUAL en dos repos: adriaavila/creativ3
+ * (src/app/allok-tokens.css, allok.fun) y adriaavila/vocero-crm
+ * (src/app/allok-tokens.css, la app). Una prueba en cada repo compara su
+ * huella: si cambias un valor aquí, copia el archivo entero al otro repo y
+ * actualiza la huella en las dos pruebas el mismo día.
+ *
+ * Solo primitivos con prefijo `--allok-`: no pinta nada por sí mismo. Cada
+ * superficie (.vitrina, .allok, .allok-ops, [data-saas]) lee de aquí con sus
+ * propios nombres. Rei y la instancia Vocero sin marca no lo usan.
+ *
+ * Las reglas, en una línea cada una:
+ *   un negro (noche), un blanco (papel);
+ *   el color dice estado, nunca adorna;
+ *   la acción es papel sobre noche o tinta sobre papel;
+ *   el cielo, una vez por página; dusk es el único acento de texto;
+ *   el verde de WhatsApp pinta burbujas y no es de la marca.
+ */
+:root {
+  /* Noche: el fondo y sus escalones. La jerarquía la da el escalón. */
+  --allok-noche: #0b0d0e;
+  --allok-noche-2: #111416;
+  --allok-noche-3: #171b1e;
+  --allok-noche-4: #1d2225;
+
+  /* Papel: el texto sobre noche y la superficie clara. */
+  --allok-papel: #f5f4f0;
+  --allok-papel-2: #ebe9e3;
+  --allok-papel-60: rgba(245, 244, 240, 0.62); /* apoyo sobre noche, 7,1:1 */
+  --allok-papel-38: rgba(245, 244, 240, 0.38); /* solo relleno o texto grande */
+  --allok-papel-12: rgba(245, 244, 240, 0.12); /* bordes sobre noche */
+  --allok-papel-07: rgba(245, 244, 240, 0.07); /* reglas de pelo sobre noche */
+
+  /* Tinta: el texto sobre papel. Es el mismo valor que noche. */
+  --allok-tinta: #0b0d0e;
+  --allok-tinta-60: #5b6167; /* apoyo sobre papel, pasa AA */
+  --allok-tinta-40: #8a9097; /* decoración: 3,2:1, nunca texto chico */
+  --allok-tinta-15: rgba(11, 13, 14, 0.15);
+  --allok-tinta-09: rgba(11, 13, 14, 0.09);
+
+  /* Estado (src/lib/brand.ts, STATES). `dot` pinta y se lee sobre noche;
+     `ink` es el mismo estado como texto sobre papel; `soft`, su píldora. */
+  --allok-ok: #20e58d;
+  --allok-ok-ink: #0a7a48;
+  --allok-ok-soft: #e2f9ee;
+  --allok-atendiendo: #5b8cff;
+  --allok-atendiendo-ink: #2348cc;
+  --allok-atendiendo-soft: #e7edff;
+  --allok-atencion: #ffb020;
+  --allok-atencion-ink: #7a5600;
+  --allok-atencion-soft: #fdf0db;
+  --allok-pausado: #8a9097;
+  --allok-pausado-ink: #5a6066;
+  --allok-pausado-soft: #ededee;
+  /* Un fallo no es un estado de la marca: algo que no salió o que se borra. */
+  --allok-error: #e5484d;
+  --allok-error-ink: #b42318;
+
+  /* El cielo: el único color libre, una vez por página. */
+  --allok-sky-stops:
+    rgb(3 18 63) 0%,
+    rgb(27 63 150) 26%,
+    #67277d 58%,
+    rgb(180 16 101) 82%,
+    #8f4a58 100%;
+  --allok-sky-night: rgb(3 18 63);
+  --allok-lit-dawn: rgb(255 154 61);
+  --allok-lit-dusk: rgb(255 227 194);
+  --allok-on-sky: rgb(247 244 239);
+  /* Dusk: enlaces dentro de un párrafo sobre papel y la selección. */
+  --allok-dusk: #b41065;
+
+  /* WhatsApp, no allok. */
+  --allok-wa-out: #d9fdd3;
+  --allok-wa-out-noche: #12483a;
+
+  /* Forma. */
+  --allok-r-chip: 8px;
+  --allok-r-field: 12px;
+  --allok-r-card: 16px;
+  --allok-r-panel: 22px;
+  --allok-r-pill: 999px;
+  --allok-tap: 44px;
+
+  /* Movimiento: una curva, la presión es la respuesta táctil. */
+  --allok-ease: cubic-bezier(0.23, 1, 0.32, 1);
+  --allok-dur-fast: 160ms;
+  --allok-dur-base: 200ms;
+  --allok-dur-slow: 300ms;
+  --allok-press: 0.97;
+}

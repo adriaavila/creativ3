@@ -1,6 +1,24 @@
 # El sistema de diseño de allok.fun
 
-Actualizado 2026-09-23.
+Actualizado 2026-10-22.
+
+## Un solo archivo de valores
+
+Desde el 2026-10-22 los valores de la marca viven en
+`src/app/allok-tokens.css`: un negro (`--allok-noche`), un blanco
+(`--allok-papel`), los estados de `src/lib/brand.ts`, el cielo, `--allok-dusk`,
+la escala de esquinas y la curva. Son primitivos con prefijo `--allok-` y no
+pintan nada solos: cada superficie (`.allok`, `.allok-ops`, y en el CRM
+`[data-saas="true"]`) los lee con sus propios nombres.
+
+El archivo es **idéntico** en `vocero-crm/src/app/allok-tokens.css`. Las dos
+pruebas (`src/lib/allok-tokens.test.ts` aquí, `tests/unit/allok-tokens.test.ts`
+allá) comparan su huella y fallan si se separan: un cambio aquí se copia allá
+el mismo día, con la huella nueva en las dos.
+
+La propuesta completa (qué se unifica y en qué orden) está en
+https://claude.ai/artifact/4gUeLRp6n98GgTJKtd5NS1. Lo que sigue en este
+documento describe lo que hay hoy en cada superficie.
 
 El sitio tiene **dos voces** y **tres superficies**, y ninguna se mezcla con
 otra dentro de la misma página:
@@ -212,14 +230,17 @@ demás mide al menos 44 px de alto:
 
 ## Tipografía
 
-Tres caras, ya cargadas por `next/font` en `src/app/layout.tsx`:
+Tres caras:
 
-- **Comfortaa** (`--font-comfortaa`) — la voz de la marca. Sólo `.display` y
-  `.display-sm`. Redonda y geométrica; por debajo de ~15px deja de leerse, así
-  que **nunca en cuerpo de texto**.
-- **Geist** (`--font-grotesk`) — todo el cuerpo, en toda la casa.
+- **Geist** (`--font-grotesk`) — cada palabra, en toda la casa, también los
+  titulares: el display es peso y tracking, nunca otra cara.
+- **Instrument Serif** itálica (`--font-serif`, hoy cargada solo en la
+  portada) — una palabra por titular en la vitrina. Nunca un párrafo.
 - **JetBrains Mono** (`--font-jetbrains`) — `.mono`: 11px, `letter-spacing:.14em`,
   mayúsculas. Etiquetas, numeración, navegación del pie. Nunca frases largas.
+
+Comfortaa está retirada. Archivo Black sigue solo en `.rig` (el portafolio)
+hasta que ese bloque pase a la voz de la vitrina.
 
 | Clase | Uso |
 |---|---|
@@ -345,9 +366,8 @@ El `pb` de la portada y el `-mt` del objeto se mueven juntos, con el `pb` unos
 | `.statement` | una frase que ocupa una sección entera — `clamp(1.9rem, 4.6vw, 4rem)` |
 | `.lede` | el párrafo bajo el titular — `clamp(1.0625rem, 1.35vw, 1.3125rem)`, interlineado 1.55 |
 
-Comfortaa a tamaño de cartel pide el tracking más cerrado que aguanta antes de
-que las panzas de las letras se toquen; por eso `-0.042em` y no el `-0.03em`
-de `.display`.
+El titular de portada lleva el tracking más cerrado (`-0.042em`) que el
+`-0.03em` de `.display`: a tamaño de cartel la grotesca se abre.
 
 ---
 

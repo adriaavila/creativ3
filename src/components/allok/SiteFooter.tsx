@@ -21,7 +21,7 @@ const COLUMNS = [
     title: "Productos",
     links: [
       { href: "/agente-whatsapp", label: "Agente de WhatsApp" },
-      { href: "/rei", label: "REI · edición inmobiliaria" },
+      { href: "/rei", label: "Rei · edición inmobiliaria" },
       { href: "/vocero", label: "allok a tu medida" },
     ],
   },

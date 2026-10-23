@@ -6,9 +6,9 @@ import SiteHeader from "@/components/allok/SiteHeader";
 import SiteFooter from "@/components/allok/SiteFooter";
 import MetaCostCalculator from "@/components/rei/MetaCostCalculator";
 
-const TITLE = "REI — el CRM de WhatsApp para inmobiliarias";
+const TITLE = "Rei: el CRM de WhatsApp para inmobiliarias";
 const DESCRIPTION =
-  `REI es allok con el pipeline de una corredora: responde, califica y agenda visitas en el WhatsApp de siempre. Mismos planes desde US$${FROM_PRICE} al mes, y los mensajes te los cobra Meta al costo.`;
+  `Rei es allok con el pipeline de una corredora: responde, califica y agenda visitas en el WhatsApp de siempre. Mismos planes desde US$${FROM_PRICE} al mes, y los mensajes te los cobra Meta al costo.`;
 
 export const metadata: Metadata = {
   title: TITLE,
@@ -19,7 +19,7 @@ export const metadata: Metadata = {
 };
 
 const DEMO_MESSAGE =
-  "Hola, vengo de allok.fun. Quiero probar REI para mi inmobiliaria.";
+  "Hola, vengo de allok.fun. Quiero probar Rei para mi inmobiliaria.";
 
 const STEPS = [
   ["Responde", "Contesta en segundos con la ficha real de la propiedad, a cualquier hora y en tu número de siempre."],
@@ -62,7 +62,7 @@ export default function ReiPage() {
             atendida y contada.
           </h1>
           <p className="lede mx-auto mt-7 max-w-[600px] text-[var(--on-void-60)]">
-            REI es{" "}
+            Rei es{" "}
             <Link href="/agente-whatsapp" className="text-[var(--on-void)] underline underline-offset-4">
               allok
             </Link>{" "}
@@ -102,7 +102,7 @@ export default function ReiPage() {
         <div className="mx-auto max-w-[640px] text-center">
           <h2 className="statement">Los mismos planes de allok.</h2>
           <p className="mt-4 text-[17px] leading-relaxed text-[var(--ink-60)] text-pretty">
-            REI no tiene precio aparte: es el producto de la casa con el
+            Rei no tiene precio aparte: es el producto de la casa con el
             pipeline inmobiliario puesto. La cuenta de WhatsApp queda a nombre
             de tu empresa y Meta te factura el consumo directo, al costo.
           </p>

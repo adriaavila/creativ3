@@ -4,7 +4,7 @@
  *
  * Un destino es una fila, no una rama en el código ni una variable de entorno.
  * Todos se entregan igual: allok mueve el webhook de esa WABA en Meta y, si el
- * destino tiene endpoint de provisión, le empuja las credenciales antes. REI
+ * destino tiene endpoint de provisión, le empuja las credenciales antes. Rei
  * CRM no es especial; es la primera fila.
  */
 import { neon, type NeonQueryFunction } from "@neondatabase/serverless";
@@ -88,7 +88,7 @@ export function matchesDestinationSubscription(
 }
 
 /**
- * La referencia del número dentro de la app destino (en REI, su
+ * La referencia del número dentro de la app destino (en Rei, su
  * `organization_id`). Opaca para allok: sólo viaja en el paquete de provisión.
  */
 export function parseExternalRef(value: unknown): string | null {
@@ -167,7 +167,7 @@ export async function listDestinations(): Promise<DestinationView[]> {
  * Los secretos descifrados, sólo para la petición que entrega un número.
  *
  * Si no hay fila, se intenta armar el destino desde el entorno: la bandeja de
- * allok siempre, y REI mientras siga configurado por variables. Guardar la fila
+ * allok siempre, y Rei mientras siga configurado por variables. Guardar la fila
  * gana sobre el entorno.
  */
 export async function getDestinationSecrets(slug: string): Promise<DestinationSecrets | null> {
@@ -206,7 +206,7 @@ function builtInDestination(slug: string): DestinationSecrets | null {
 
   return {
     slug,
-    label: "REI CRM",
+    label: "Rei CRM",
     webhookUrl,
     verifyToken,
     provisionUrl: baseUrl,

@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex,nofollow" />
+    <meta name="description" content="allok: diseño, software e IA para negocios reales. Prototipo visual, no publicado." />
+    <title>allok · Open systems</title>
+    <link rel="preload" href="assets/geist.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#trabajo">Saltar al trabajo</a>
+    <main id="app"></main>
+
+    <div class="lightbox" id="lightbox" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Vista del proyecto">
+      <button class="lightbox__close" type="button" aria-label="Cerrar vista">×</button>
+      <figure><img id="lightbox-image" alt="" /><figcaption id="lightbox-caption"></figcaption></figure>
+    </div>
+
+    <nav class="switcher" aria-label="Variantes del prototipo">
+      <button id="prev" type="button" aria-label="Variante anterior">←</button>
+      <span aria-live="polite"><b id="variant-name">A · Open Systems</b><small>Prototipo · no publicado</small></span>
+      <button id="next" type="button" aria-label="Siguiente variante">→</button>
+      <a href="concepts.html">Ver imágenes ↗</a>
+    </nav>
+    <script src="app.js"></script>
+  </body>
+</html>

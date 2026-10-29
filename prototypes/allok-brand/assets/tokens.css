@@ -1,0 +1,9 @@
+:root {
+  --allok-ink: #0B0D0E;
+  --allok-cloud: #F7F8F8;
+  --allok-blue: #315CFF;
+  --allok-steel: #697278;
+  --allok-font: Geist, "Helvetica Neue", Arial, sans-serif;
+  --allok-motion: 200ms cubic-bezier(.2,.75,.25,1);
+}
+@media(prefers-reduced-motion:reduce) { :root { --allok-motion: 0ms; } }

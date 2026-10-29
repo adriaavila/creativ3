@@ -1,0 +1,21 @@
+# Brand overview prompt
+
+Generated with the built-in image generation tool. The overview is a concept presentation, not a production application. Exact reusable logos are provided separately as SVG paths and transparent PNGs. The generator used rendered references of those native vector assets.
+
++Create one exceptionally designed premium brand identity overview board for 'allok', an AI-native design and software studio for Latin American businesses. This is a professional proposed brand system, not a SaaS dashboard or website page. Use the attached wordmark and symbol references as the exact identity: the rounded custom lowercase allok wordmark has a single-storey a, two tall l stems, an open circular o completed by a separated round dot at its lower-right, and a geometric k. The detached dot belongs in the lower-right gap of o. Preserve this distinctive readable lowercase wordmark consistently. The standalone symbol is exactly that open loop with closing dot, not a Q, smile, loading spinner, C, infinity sign or sparkle. Do not invent a different logo.
+
+Strategy: allok means all systems OK. It turns operational friction into clear working systems. Core line in exact Spanish: 'De problema a sistema.' Secondary exact line 'Diseño, software e IA.' Stable identity, confident design craft, calm engineered optimism. Brand serves real business owners, not AI hobbyists.
+
+Canvas: horizontal 16:10 or 4:3, very high fidelity, immaculate editorial 3 by 3 grid, consistent broad gutters on a graphite outer canvas. Nine disciplined panels with deliberate visual rhythm, generous negative space, not a busy moodboard. No decorative section numbering or mono labels. Palette STRICTLY Electric Blue #315CFF, Ink #0B0D0E, Cloud #F7F8F8 and neutral Steel #697278. Exact blue, no cyan or purple gradients. Typography is refined Geist-like grotesk, normal and medium weights, short sparse large readable text. Marketing words never italic. No cream.
+
+Panel top left: hero logo cover, solid electric blue, large exact white custom allok wordmark centered with one tiny bottom line 'Diseño, software e IA.'
+Panel top middle: white on ink enlarged standalone loop symbol with generous air and crisp geometry, no words. The dot and ring same white.
+Panel top right: Cloud palette specimen, four large flat rectangular swatches, small labels only 'Ink', 'Cloud', 'Blue', 'Steel'.
+Panel middle left: Cloud typographic campaign poster, exact large black headline 'De problema' line 1 'a sistema.' line 2, very small allok wordmark at foot. Left aligned, no tiny body text.
+Panel middle middle: closeup of minimal real-looking website header or product card in white on Cloud with actual exact allok logo in black top left, understated rectangular blue action button 'Hablemos', one thin route-line beneath linking an outlined loop to completed loop with dot; label 'Todo conectado.' This is an identity application, not an analytics dashboard; no invented metrics.
+Panel middle right: typography specimen on Ink, large white 'Aa' and restrained alphabet line 'Geist' beneath. Minimal airy composition.
+Panel bottom left: premium matte cobalt business card and white card, subtly overlapping on gray paper, exact white/black allok wordmark crisply embossed, email 'hi@allok.fun'. Believable photographed tactile paper, no excessive gloss.
+Panel bottom middle: macro graphic language poster in black and cobalt: extreme crop of the same open circle shape with the closing dot visible, large confident flat blue and white arcs, subtle print grain, one small white 'allok.fun'. Entirely derived from the brand geometry, no unrelated art.
+Panel bottom right: clean app-icon family showing one blue square app icon with modest rounded corners and the white loop symbol, plus tiny monochrome symbol examples on Cloud. Equal mark/dot consistency across scales. No random symbols.
+
+No robot, stock people, random office, chrome blob, gradient, sparkle, fabricated testimonial, outcome metric, live status, decorative badges, fake text, lorem ipsum, trademark claim, pricing, photos unrelated to business identity, pill CTAs, branded merchandise clutter. The entire board should feel like a senior identity designer's finished case study: coherent, reductive, confident, carefully typeset. Keep text sparse. Logo accuracy across every application is critical.

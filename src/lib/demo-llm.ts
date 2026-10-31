@@ -3,10 +3,15 @@
  * OpenAI). Fetch a secas, sin SDK: el sitio no tenía ninguna llamada a un
  * modelo y una dependencia para un POST no se justifica.
  *
- * Credencial: `AI_GATEWAY_API_KEY`, o el `VERCEL_OIDC_TOKEN` que Vercel pone
- * solo en sus funciones. Sin ninguna, `isDemoLlmConfigured()` es false y la
- * ruta del chat contesta la línea de respaldo.
+ * Credencial: `AI_GATEWAY_API_KEY`, o el token OIDC de Vercel. En una función
+ * de Vercel ese token NO está en `process.env`: llega en la cabecera
+ * `x-vercel-oidc-token` de cada petición, y `getVercelOidcTokenSync()` lo lee de
+ * ahí (o de `VERCEL_OIDC_TOKEN` en local, tras `vercel env pull`). Sin
+ * ninguna, `isDemoLlmConfigured()` es false y la ruta del chat contesta la
+ * línea de respaldo.
  */
+
+import { getVercelOidcTokenSync } from "@vercel/oidc";
 
 const DEFAULT_GATEWAY_BASE_URL = "https://ai-gateway.vercel.sh/v1";
 
@@ -22,9 +27,17 @@ export const DEFAULT_DEMO_MODEL = "openai/gpt-4.1-mini";
 export type LlmMessage = { role: "system" | "user" | "assistant"; content: string };
 
 function credential(): string | null {
-  return process.env.AI_GATEWAY_API_KEY?.trim() || process.env.VERCEL_OIDC_TOKEN?.trim() || null;
+  const key = process.env.AI_GATEWAY_API_KEY?.trim();
+  if (key) return key;
+  try {
+    return getVercelOidcTokenSync().trim() || null;
+  } catch {
+    // Ni cabecera ni `VERCEL_OIDC_TOKEN`: fuera de Vercel, o OIDC apagado en el proyecto.
+    return null;
+  }
 }
 
+/** Se pregunta dentro de la petición: en Vercel el token OIDC vive en sus cabeceras. */
 export function isDemoLlmConfigured(): boolean {
   return credential() !== null;
 }

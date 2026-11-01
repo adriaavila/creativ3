@@ -5,7 +5,7 @@
  */
 export const INVITE_PHRASE = "Hola, vengo de allok.fun. Quiero probar el agente en mi WhatsApp.";
 /** El link que abre el WhatsApp de allok (…3684) con la frase que despierta al agente. Codificado: un espacio corta el link en WhatsApp. */
-export const INVITE_URL = `https://wa.me/584220023684?text=${encodeURIComponent(INVITE_PHRASE)}`;
+export const INVITE_URL = `https://wa.me/13479745199?text=${encodeURIComponent(INVITE_PHRASE)}`;
 
 export const OFFER = {
   product: "Un agente de WhatsApp que contesta, califica y agenda, con el CRM detrás",

@@ -7,7 +7,6 @@ import MetaPixel from "@/components/analytics/MetaPixel";
 import "./globals.css";
 import { siteJsonLd } from "@/lib/seo";
 import { PORTFOLIO_PROJECTS } from "@/lib/projects";
-import { headers } from "next/headers";
 
 const jetbrains = JetBrains_Mono({
   weight: ["300", "400", "500"],
@@ -91,16 +90,25 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function RootLayout({
+// La casa habla español; el inglés es la excepción: el portafolio y `/en`.
+const ENGLISH_SECTIONS = ["en", "portfolio", "work", "lab", "writing", "projects"];
+
+export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // Nadie pone esta cabecera hoy (no hay middleware), así que el valor por
-  // defecto es el que sale en todas las páginas — y la casa habla español.
-  const locale = (await headers()).get("x-allok-locale") === "en" ? "en" : "es";
+  // Leer la petición aquí (headers/cookies) vuelve dinámico todo el sitio:
+  // cada visita sería una función en Vercel. El HTML sale en español y este
+  // script corrige `lang` antes de pintar en las secciones en inglés.
+  // ponytail: un crawler sin JS ve `lang="es"` en /portfolio; si importa,
+  // separar en route groups (es)/(en) con un root layout cada uno.
+  const setLang = `if(${JSON.stringify(ENGLISH_SECTIONS)}.includes(location.pathname.split("/")[1]))document.documentElement.lang="en"`;
   return (
-    <html lang={locale} className={`${jetbrains.variable} ${geist.variable} ${archivo.variable}`}>
+    <html lang="es" suppressHydrationWarning className={`${jetbrains.variable} ${geist.variable} ${archivo.variable}`}>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: setLang }} />
+      </head>
       <body className="relative min-h-screen overflow-x-hidden antialiased">
         <script
           type="application/ld+json"

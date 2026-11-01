@@ -251,13 +251,19 @@ export function normalizeMetaWebhook(payload: unknown): WhatsAppNormalizedEvent[
           continue;
         }
 
+        // In account_update the entry id is the partner business, not the WABA:
+        // Meta puts the WABA in waba_info and the why in disconnection_info.
+        const wabaInfo = isRecord(value.waba_info) ? value.waba_info : {};
+        const disconnection = isRecord(value.disconnection_info) ? value.disconnection_info : {};
         events.push({
           ...base,
+          wabaId: optionalString(wabaInfo.waba_id) ?? base.wabaId,
           type: "connection.updated",
           occurredAt: normalizeTimestamp(value.timestamp) ?? entryTimestamp,
           update,
           state: update === "PARTNER_REMOVED" ? "disconnected" : undefined,
-          reason: optionalString(value.reason),
+          reason: optionalString(disconnection.reason ?? value.reason),
+          initiatedBy: optionalString(disconnection.initiated_by),
         });
         continue;
       }

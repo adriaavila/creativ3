@@ -474,7 +474,7 @@ export async function subscribeWabaToApp(
   graphVersion: string,
   /**
    * Manda los webhooks de ESTE WABA a otra URL en vez de a la callback de la
-   * app. Es lo que permite que un cliente que trabaja en otra app (REI CRM)
+   * app. Es lo que permite que un cliente que trabaja en otra app (Rei CRM)
    * reciba sus mensajes directo, sin que allok quede de puente en el camino
    * caliente. Meta valida la URL con un GET hub.challenge antes de aceptar,
    * así que el verify token tiene que ser el de esa app, no el de allok.

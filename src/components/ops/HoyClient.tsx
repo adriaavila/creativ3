@@ -69,7 +69,7 @@ const OUTCOMES: { id: Outcome; label: string; done: string }[] = [
 const SOURCES = ["aliado", "referido", "reunión", "growth", "otro"] as const;
 const OFFERS = [
   { id: "vocero", label: "Vocero" },
-  { id: "rei", label: "REI" },
+  { id: "rei", label: "Rei" },
   { id: "agencia", label: "Agencia" },
 ] as const;
 

@@ -22,7 +22,7 @@ export function SeoHero({ page }: { page: SeoPage }) {
   const cta = seoCta(page);
   return (
     <div className="allok-void pb-[170px]">
-      <SiteHeader nav={NAV} cta={{ href: cta.href, label: page.cta === "rei" ? "Ver REI" : cta.label }} />
+      <SiteHeader nav={NAV} cta={{ href: cta.href, label: page.cta === "rei" ? "Ver Rei" : cta.label }} />
       <div className="mx-auto max-w-[980px] px-5 pt-10 text-center sm:px-10 sm:pt-16">
         <p className="mono text-[var(--on-void-60)]">{page.kicker}</p>
         <h1 className="hero mt-7 text-balance !text-[clamp(2.25rem,6vw,5.25rem)]">{page.h1}</h1>
@@ -141,7 +141,7 @@ export function SeoClosing({ page, title }: { page: SeoPage; title: string }) {
         <h2 className="hero text-balance !text-[clamp(2rem,4.6vw,3.75rem)]">{title}</h2>
         <p className="mx-auto mt-5 max-w-[620px] text-[17px] leading-relaxed text-pretty">
           {page.cta === "rei"
-            ? "REI tiene los mismos planes que allok, con las etapas y el vocabulario de una corredora."
+            ? "Rei tiene los mismos planes que allok, con las etapas y el vocabulario de una corredora."
             : priceLine()}
         </p>
         <CtaLink href={cta.href} className="allok-btn allok-btn-solid mt-8">

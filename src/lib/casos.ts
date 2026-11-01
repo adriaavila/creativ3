@@ -165,7 +165,7 @@ export const CASOS: Caso[] = [
   },
   {
     slug: "rei",
-    client: "REI",
+    client: "Rei",
     sector: "Administración de edificios",
     solutions: ["plataformas", "ventas", "operacion"],
     headline: "Todo el edificio en un solo lugar: cobranzas, gastos, residentes y documentos.",
@@ -178,10 +178,10 @@ export const CASOS: Caso[] = [
     ],
     outcome: "Una vista compartida de la propiedad, de la administración a la experiencia del residente.",
     projectIds: ["rei-fm"],
-    cover: { src: "/projects/rei-fm/01-desktop.jpg", alt: "Portada de REI", label: "El producto", kind: "desktop" },
+    cover: { src: "/projects/rei-fm/01-desktop.jpg", alt: "Portada de Rei", label: "El producto", kind: "desktop" },
     gallery: [
-      { src: "/projects/rei-fm/02-desktop-scroll.jpg", alt: "El panel de REI con el edificio en contexto", label: "El edificio en contexto", kind: "desktop" },
-      { src: "/projects/rei-fm/03-mobile.jpg", alt: "REI en el celular", label: "En el celular", kind: "mobile" },
+      { src: "/projects/rei-fm/02-desktop-scroll.jpg", alt: "El panel de Rei con el edificio en contexto", label: "El edificio en contexto", kind: "desktop" },
+      { src: "/projects/rei-fm/03-mobile.jpg", alt: "Rei en el celular", label: "En el celular", kind: "mobile" },
     ],
   },
   {

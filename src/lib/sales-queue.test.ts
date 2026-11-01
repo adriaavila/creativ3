@@ -111,7 +111,7 @@ test("un pago pedido no se des-pide: hablar después lo deja pedido, y un no con
   assert.deepEqual(stats, { conversations: 1, asked: 1, paid: 0 });
 });
 
-test("REI y agencia no heredan el precio de Vocero", () => {
+test("Rei y agencia no heredan el precio de Vocero", () => {
   for (const offerAngle of ["rei", "agencia"]) {
     for (const stage of ["first", "interested"] as const) {
       assert.doesNotMatch(messageFor(stage, lead({ offerAngle })), /US\$/);

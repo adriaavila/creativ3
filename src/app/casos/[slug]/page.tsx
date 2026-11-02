@@ -25,9 +25,9 @@ export async function generateMetadata({ params }: PageProps<"/casos/[slug]">): 
 }
 
 const NAV = [
-  { href: "/#soluciones", label: "Soluciones" },
+  { href: "/#trabajo", label: "Trabajo" },
   { href: "/casos", label: "Casos" },
-  { href: "/#metodo", label: "Cómo trabajamos" },
+  { href: "/#indice", label: "Índice" },
 ];
 
 export default async function CasoPage({ params }: PageProps<"/casos/[slug]">) {
@@ -43,7 +43,7 @@ export default async function CasoPage({ params }: PageProps<"/casos/[slug]">) {
   return (
     <div className="allok">
       <div className="allok-void pb-[clamp(200px,24vw,320px)]">
-        <SiteHeader nav={NAV} cta={{ href: "/#diagnostico", label: "Agenda un diagnóstico" }} />
+        <SiteHeader nav={NAV} cta={{ href: "/#contacto", label: "Contacto" }} />
         <div className="mx-auto max-w-[1000px] px-5 pt-10 text-center sm:px-10 sm:pt-14">
           <p className="mono text-[var(--on-void-60)]">
             <Link href="/casos" className="inline-flex min-h-11 items-center underline underline-offset-4">
@@ -151,14 +151,14 @@ export default async function CasoPage({ params }: PageProps<"/casos/[slug]">) {
       <section className="px-5 pb-[clamp(72px,10vw,140px)] sm:px-10">
         <div className="allok-on-ink mx-auto grid max-w-[1240px] items-center gap-8 rounded-[30px] bg-[var(--ink)] px-7 py-14 text-[var(--cloud)] sm:px-14 md:grid-cols-[minmax(0,1fr)_auto]">
           <div>
-            <h2 className="hero !text-[clamp(1.9rem,3.6vw,3rem)]">¿Tu negocio tiene un problema parecido?</h2>
+            <h2 className="hero !text-[clamp(1.9rem,3.6vw,3rem)]">Hay más de donde salió este.</h2>
             <p className="lede mt-5 max-w-[46ch] text-[var(--on-void-60)]">
-              Empieza por un diagnóstico sin costo. Te decimos qué haríamos primero y cuánto costaría.
+              Todo el trabajo está en la portada, con capturas reales y enlaces para abrirlo en vivo.
             </p>
           </div>
           <div className="grid gap-3 md:justify-self-end">
-            <Link href="/#diagnostico" className="allok-btn bg-[var(--ok)] font-semibold text-[var(--ink)]">
-              Agenda un diagnóstico
+            <Link href="/#indice" className="allok-btn bg-[var(--ok)] font-semibold text-[var(--ink)]">
+              Ver todo el trabajo
             </Link>
             <Link href={`/casos/${next.slug}`} className="allok-btn border border-[rgba(245,244,240,.28)] text-[var(--cloud)]">
               Siguiente caso: {next.client}

@@ -161,7 +161,7 @@ test("/rei sigue en una conversación por WhatsApp aunque el autoservicio esté 
 });
 
 test("el cierre de la home: encendido ofrece el registro y deja WhatsApp de segunda opción; apagado no cambia", () => {
-  const talk = "https://wa.me/584220023684?text=hola";
+  const talk = "https://wa.me/13479745199?text=hola";
   withSelfServe(undefined, () => {
     const off = closingOffer(talk);
     assert.equal(off.line, "Desde US$99 al mes. Nos cuentas tu negocio por WhatsApp y nosotros lo dejamos andando.");

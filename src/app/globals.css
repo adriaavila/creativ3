@@ -1,5 +1,7 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+/* Los valores de la marca, compartidos con vocero-crm (ver el archivo). */
+@import "./allok-tokens.css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -64,12 +66,7 @@
 
 :root {
   /* Un solo cielo. El ángulo lo pone quien lo usa. */
-  --sky-stops:
-    rgb(3 18 63) 0%,
-    rgb(27 63 150) 26%,
-    #67277d 58%,
-    rgb(180 16 101) 82%,
-    #8f4a58 100%;
+  --sky-stops: var(--allok-sky-stops);
 
   /* ── allok ────────────────────────────────────────────────────
      One dark system, one accent, shared by the public site and the
@@ -155,39 +152,6 @@
   --ring: var(--lima);
   --destructive: var(--status-lost);
   --radius: var(--r-lg);
-}
-
-/* Agency homepage: the restored light editorial system is intentionally
-   scoped so the dark WhatsApp product and Ops UI keep their own tokens. */
-.studio {
-  --studio-surface: #f3f3f3;
-  --studio-hairline: #ebebeb;
-  --studio-muted-text: #6b6b6b;
-  --studio-shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 8px 24px rgba(0, 0, 0, 0.06);
-  --studio-accent: #c5f04a;
-  color-scheme: light;
-}
-
-.studio-mark {
-  background-image: linear-gradient(
-    to top,
-    transparent 0.08em,
-    var(--studio-accent) 0.08em,
-    var(--studio-accent) 0.42em,
-    transparent 0.42em
-  );
-  box-decoration-break: clone;
-  -webkit-box-decoration-break: clone;
-}
-
-.studio-marquee-mask {
-  mask-image: linear-gradient(90deg, transparent 0, black 6%, black 94%, transparent 100%);
-  -webkit-mask-image: linear-gradient(90deg, transparent 0, black 6%, black 94%, transparent 100%);
-}
-
-@keyframes project-marquee {
-  from { transform: translateX(0); }
-  to { transform: translateX(-50%); }
 }
 
 @layer base {
@@ -360,7 +324,7 @@
 }
 /* ═══════════════════════════════════════════════════════════════════
    THE RIG — Swiss industrial print substrate for the portfolio.
-   Scoped, like `.studio` above, so the dark /ops product keeps its own
+   Scoped, so the dark /ops product keeps its own
    tokens. Carbon on unbleached paper, one hazard accent, 90° corners.
    The sky is the only colour on the page, and it arrives in plates.
    ═══════════════════════════════════════════════════════════════════ */
@@ -764,21 +728,21 @@ html:has(.rig) ::selection { background: var(--hazard); color: var(--paper); }
 /* ═══════════════════════════════════════════════════════════════════
    REI — la superficie del CRM de WhatsApp. Usa el mismo cielo que las
    planchas del portafolio, pero como clima de la página entera en vez de
-   una ventana recortada en el papel. Scoped como `.rig` y `.studio`, para
+   una ventana recortada en el papel. Scoped como `.rig`, para
    que el portafolio y el producto no se pisen los tokens.
    ═══════════════════════════════════════════════════════════════════ */
 .allok {
   --paper: #f7f8f8;
   --paper-2: #f1f2f2;
-  --ink: #0b0d0e;
-  --ink-60: #5b6167;
-  --ink-40: #8a9097;
+  --ink: var(--allok-tinta);
+  --ink-60: var(--allok-tinta-60);
+  --ink-40: var(--allok-tinta-40);
   --line: rgba(11, 13, 14, 0.1);
-  --sky-night: rgb(3 18 63);
-  --dusk: #b41065;
-  --lit-dawn: rgb(255 154 61);
-  --lit-dusk: rgb(255 227 194);
-  --on-sky: rgb(247 244 239);
+  --sky-night: var(--allok-sky-night);
+  --dusk: var(--allok-dusk);
+  --lit-dawn: var(--allok-lit-dawn);
+  --lit-dusk: var(--allok-lit-dusk);
+  --on-sky: var(--allok-on-sky);
 
   color-scheme: light;
   background: var(--paper);
@@ -1022,24 +986,24 @@ html:has(.rig) ::selection { background: var(--hazard); color: var(--paper); }
      se distinguen mal, así que se separan por uso. allok pinta estado; WhatsApp
      pinta burbujas. Nunca al revés. */
   --cloud: #f7f8f8;
-  --ok: #20e58d;
-  --ok-ink: #0a7a48;
+  --ok: var(--allok-ok);
+  --ok-ink: var(--allok-ok-ink);
   --signal: #315cff;
-  --signal-ink: #2348cc;
+  --signal-ink: var(--allok-atendiendo-ink);
 
-  --st-activo: #20e58d;      --st-activo-ink: #0a7a48;      --st-activo-soft: #e2f9ee;
-  --st-atendiendo: #5b8cff;  --st-atendiendo-ink: #2348cc;  --st-atendiendo-soft: #e7edff;
-  --st-atencion: #ffb020;    --st-atencion-ink: #7a5600;    --st-atencion-soft: #fdf0db;
-  --st-pausado: #8a9097;     --st-pausado-ink: #5a6066;     --st-pausado-soft: #ededee;
+  --st-activo: var(--allok-ok);              --st-activo-ink: var(--allok-ok-ink);              --st-activo-soft: var(--allok-ok-soft);
+  --st-atendiendo: var(--allok-atendiendo);  --st-atendiendo-ink: var(--allok-atendiendo-ink);  --st-atendiendo-soft: var(--allok-atendiendo-soft);
+  --st-atencion: var(--allok-atencion);      --st-atencion-ink: var(--allok-atencion-ink);      --st-atencion-soft: var(--allok-atencion-soft);
+  --st-pausado: var(--allok-pausado);        --st-pausado-ink: var(--allok-pausado-ink);        --st-pausado-soft: var(--allok-pausado-soft);
 
   --wa-out: #25d366;
 
-  --void: #0b0d0e;
+  --void: var(--allok-noche);
   --void-2: #101315;
-  --on-void: #f5f4f0;
-  --on-void-60: rgba(245, 244, 240, 0.62);
-  --on-void-40: rgba(245, 244, 240, 0.38);
-  --hair-void: rgba(245, 244, 240, 0.12);
+  --on-void: var(--allok-papel);
+  --on-void-60: var(--allok-papel-60);
+  --on-void-40: var(--allok-papel-38);
+  --hair-void: var(--allok-papel-12);
 }
 
 .allok-void {
@@ -1622,25 +1586,25 @@ html:has(.rig) ::selection { background: var(--hazard); color: var(--paper); }
   --ground-3: #e9ebec;
   --ground-4: #dfe2e4;
 
-  --ink: #0b0d0e;
+  --ink: var(--allok-tinta);
   /* Pasa AA en los cuatro escalones: 5,89 · 5,59 · 5,24 · 4,82. */
-  --ink-60: #5b6167;
+  --ink-60: var(--allok-tinta-60);
   /* `--ink-40` NO pasa AA para texto pequeño (3,22 sobre blanco). Es tinta de
      DECORACIÓN — separadores, números de orden, marcas de agua. Una etiqueta
      que hay que leer va en `--ink-60`. */
-  --ink-40: #8a9097;
+  --ink-40: var(--allok-tinta-40);
 
   /* Tinta y relleno son cosas distintas aunque compartan el valor. Dentro de
      `.on-ink` la tinta se aclara; el relleno no se mueve nunca, porque es lo
      que crea el trozo oscuro. Pintar con `--ink` y luego voltearlo deja una
      cabecera de papel con texto blanco encima. */
-  --ink-fill: #0b0d0e;
+  --ink-fill: var(--allok-tinta);
 
-  --hairline: rgba(11, 13, 14, 0.09);
-  --rule: rgba(11, 13, 14, 0.15);
+  --hairline: var(--allok-tinta-09);
+  --rule: var(--allok-tinta-15);
 
   /* El negro de portada y su tinta, para las pantallas que abren en oscuro. */
-  --void: #0b0d0e;
+  --void: var(--allok-noche);
   --on-void: #f7f8f8;
 
   /* La acción principal, en tinta sobre Cloud (y en Cloud dentro de
@@ -1694,10 +1658,10 @@ html:has(.rig) ::selection { background: var(--hazard); color: var(--paper); }
 
   /* Los estados, los mismos de `.allok` y de `STATES` en src/lib/brand.ts.
      La cola de ventas de `/ops` los usa como etiqueta: color + palabra. */
-  --st-activo-ink: #0a7a48;      --st-activo-soft: #e2f9ee;
-  --st-atendiendo-ink: #2348cc;  --st-atendiendo-soft: #e7edff;
-  --st-atencion-ink: #7a5600;    --st-atencion-soft: #fdf0db;
-  --st-pausado-ink: #5a6066;     --st-pausado-soft: #ededee;
+  --st-activo-ink: var(--allok-ok-ink);              --st-activo-soft: var(--allok-ok-soft);
+  --st-atendiendo-ink: var(--allok-atendiendo-ink);  --st-atendiendo-soft: var(--allok-atendiendo-soft);
+  --st-atencion-ink: var(--allok-atencion-ink);      --st-atencion-soft: var(--allok-atencion-soft);
+  --st-pausado-ink: var(--allok-pausado-ink);        --st-pausado-soft: var(--allok-pausado-soft);
 
   color-scheme: light;
   font-family: var(--font-grotesk), "Helvetica Neue", Helvetica, Arial, sans-serif;
@@ -1717,7 +1681,7 @@ html:has(.rig) ::selection { background: var(--hazard); color: var(--paper); }
  */
 .allok-ops.on-ink,
 .allok-ops .on-ink {
-  --ground: #111416;
+  --ground: var(--allok-noche-2);
   --ground-2: #16191b;
   --ground-3: #1c2023;
   --ground-4: #262a2d;

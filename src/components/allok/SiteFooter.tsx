@@ -9,12 +9,12 @@ import { Lockup } from "./Marks";
  */
 const COLUMNS = [
   {
-    title: "Soluciones",
+    title: "Trabajo",
     links: [
-      { href: "/#soluciones", label: "Qué resolvemos" },
+      { href: "/#trabajo", label: "Trabajo seleccionado" },
       { href: "/casos", label: "Casos" },
-      { href: "/#metodo", label: "Cómo trabajamos" },
-      { href: "/#diagnostico", label: "Diagnóstico" },
+      { href: "/#indice", label: "Índice completo" },
+      { href: "/#contacto", label: "Contacto" },
     ],
   },
   {

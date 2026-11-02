@@ -1,5 +1,5 @@
 export const CONTACT_EMAIL = "hi@allok.fun";
-export const WHATSAPP_NUMBER = "584220023684";
+export const WHATSAPP_NUMBER = "13479745199";
 
 export const DEFAULT_WHATSAPP_MESSAGE =
   "Hola, vengo de allok.fun. Quiero mejorar cómo vende u opera mi negocio con allok.";

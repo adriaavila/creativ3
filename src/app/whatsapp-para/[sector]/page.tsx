@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import SiteFooter from "@/components/allok/SiteFooter";
 import { CloseMark } from "@/components/allok/Ambient";
-import { SeoClosing, SeoFaq, SeoHero, SeoRelated } from "@/components/allok/SeoBlocks";
+import { SeoClosing, SeoFaq, SeoHero, SeoOutcome, SeoRelated } from "@/components/allok/SeoBlocks";
 import { VERTICALS, seoMetadata } from "@/lib/seo-pages";
 
 /** Sólo los sectores que existen; cualquier otro da 404. */
@@ -76,6 +76,7 @@ export default async function VerticalPage({ params }: PageProps<"/whatsapp-para
         </div>
       </section>
 
+      <SeoOutcome />
       <SeoFaq faqs={page.faqs} />
       <SeoRelated current={page} />
       <SeoClosing

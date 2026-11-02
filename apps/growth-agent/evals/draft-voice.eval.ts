@@ -12,7 +12,7 @@ export default defineEval({
         "Solo el texto del mensaje, no llames create_draft.",
     );
     t.succeeded();
-    t.messageIncludes(/wa\.me\/584220023684\?text=/);
+    t.messageIncludes(/wa\.me\/13479745199\?text=/);
     t.judge(
       "Is the message all of: (1) an invitation to try the agent as if they were a client, not a sales pitch " +
         "with prices; (2) references a concrete observed signal about the business; (3) invents NO metrics, " +

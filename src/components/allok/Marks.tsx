@@ -10,7 +10,7 @@ import type { SystemState } from "@/lib/brand";
  * ícono de app. Nunca los dos juntos: serían dos puntos de estado.
  *
  * Con un producto delante —`allok × rei`— la casa baja de peso y manda el
- * producto: quien compra REI le compra a allok, pero en esa página habla REI.
+ * producto: quien compra Rei le compra a allok, pero en esa página habla Rei.
  */
 export type Product = "rei" | "vocero";
 

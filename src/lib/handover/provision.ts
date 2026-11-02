@@ -24,7 +24,7 @@ export type ProvisionResult = {
 export async function pushCredentials(input: {
   url: string;
   secret: string;
-  /** La referencia del número dentro de esa app (en REI, su organization_id). */
+  /** La referencia del número dentro de esa app (en Rei, su organization_id). */
   externalRef: string | null;
   client: string;
   businessId: string | null;

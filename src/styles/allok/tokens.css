@@ -1,0 +1,114 @@
+/* allok — generated from tokens.json by scripts/build-allok-ds.mjs. Do not edit. */
+@font-face { font-family: "Geist"; src: url("/allok/Geist-Variable.woff2") format("woff2"); font-weight: 100 900; font-style: normal; font-display: swap; }
+.ak,
+.ak[data-theme="cloud"],
+.ak [data-theme="cloud"] {
+  --ink: #0b0d0e;
+  --cloud: #f7f8f8;
+  --blue: #315cff;
+  --steel: #697278;
+  --steel-deep: #586168;
+  --ground: #f7f8f8;
+  --ground-2: #e9edef;
+  --text: #0b0d0e;
+  --text-muted: #697278;
+  --text-muted-2: #586168;
+  --line: #d9dddf;
+  --line-strong: #0b0d0e;
+  --accent: #315cff;
+  --on-accent: #ffffff;
+  --focus: #315cff;
+  --demo: #7a5600;
+  --demo-ground: #fdf0db;
+}
+
+.ak[data-theme="ink"],
+.ak [data-theme="ink"] {
+  --ground: #0b0d0e;
+  --ground-2: #16191b;
+  --text: #f7f8f8;
+  --text-muted: #9da6ab;
+  --text-muted-2: #9da6ab;
+  --line: rgba(255,255,255,0.25);
+  --line-strong: #f7f8f8;
+  --accent: #315cff;
+  --on-accent: #ffffff;
+  --focus: #315cff;
+}
+
+.ak[data-theme="blue"],
+.ak [data-theme="blue"] {
+  --ground: #315cff;
+  --ground-2: #315cff;
+  --text: #ffffff;
+  --text-muted: #ffffff;
+  --text-muted-2: #ffffff;
+  --line: rgba(255,255,255,0.35);
+  --line-strong: #ffffff;
+  --accent: #0b0d0e;
+  --on-accent: #ffffff;
+  --focus: #ffffff;
+}
+
+.ak {
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 28px;
+  --space-7: 36px;
+  --space-8: 48px;
+  --space-9: 72px;
+  --space-10: 140px;
+  --space-11: 170px;
+  --radius-0: 0px;
+  --radius-control: 4px;
+  --radius-window: 10px;
+  --radius-icon: 23.4%;
+  --radius-full: 999px;
+  --size-target: 44px;
+  --size-header: 84px;
+  --size-wordmark-min: 96px;
+  --size-mark-min: 20px;
+  --size-measure: 470px;
+  --duration-instant: 100ms;
+  --duration-quick: 200ms;
+  --duration-base: 400ms;
+  --duration-slow: 700ms;
+  --duration-story: 1200ms;
+  --duration-stagger: 60ms;
+  --ease-out: cubic-bezier(0.2, 0.75, 0.25, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-settle: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-in: cubic-bezier(0.55, 0, 1, 0.45);
+  --ease-linear: linear;
+  --travel-1: 8px;
+  --travel-2: 24px;
+  --travel-3: 48px;
+  --font-sans: Geist, "Helvetica Neue", Arial, sans-serif;
+}
+
+.ak .statement { font-family: var(--font-sans); font-size: 208px; line-height: 0.83; letter-spacing: -0.05em; font-weight: 600; }
+
+.ak .display { font-family: var(--font-sans); font-size: 144px; line-height: 0.85; letter-spacing: -0.05em; font-weight: 500; }
+
+.ak .headline { font-family: var(--font-sans); font-size: 104px; line-height: 0.9; letter-spacing: -0.05em; font-weight: 600; }
+
+.ak .title { font-family: var(--font-sans); font-size: 72px; line-height: 0.9; letter-spacing: -0.05em; font-weight: 500; }
+
+.ak .subhead { font-family: var(--font-sans); font-size: 40px; line-height: 1.15; letter-spacing: -0.04em; font-weight: 400; }
+
+.ak .heading { font-family: var(--font-sans); font-size: 24px; line-height: 1.1; letter-spacing: -0.03em; font-weight: 500; }
+
+.ak .lead { font-family: var(--font-sans); font-size: 26.4px; line-height: 1.35; font-weight: 400; }
+
+.ak .body { font-family: var(--font-sans); font-size: 16px; line-height: 1.45; font-weight: 400; }
+
+.ak .body-sm { font-family: var(--font-sans); font-size: 15px; line-height: 1.45; font-weight: 400; }
+
+.ak .control { font-family: var(--font-sans); font-size: 13px; line-height: 1; font-weight: 600; }
+
+.ak .caption { font-family: var(--font-sans); font-size: 12px; line-height: 1.45; font-weight: 400; }
+
+.ak .label { font-family: var(--font-sans); font-size: 11px; line-height: 1.4; letter-spacing: 0.04em; font-weight: 400; }

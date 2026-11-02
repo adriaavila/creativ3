@@ -1,0 +1,338 @@
+/* allok — the CSS system. Built from the concept's brand.css and assets/tokens.css (29 Oct 2026) onto this
+   system's tokens. No JS bundle: every component is markup + these classes. Themes are set per section with
+   data-theme="cloud" | "ink" | "blue"; components only read the semantic tokens. */
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+@media (prefers-reduced-motion: reduce) {
+  :root { --duration-instant: 0ms; --duration-quick: 0ms; --duration-base: 0ms; --duration-slow: 0ms; --duration-story: 0ms; --duration-stagger: 0ms; }
+}
+
+.ak, [data-theme] { background: var(--ground); color: var(--text); }
+.ak { font-family: var(--font-sans); -webkit-font-smoothing: antialiased; font-synthesis: none; }
+.ak *, .ak *::before, .ak *::after { box-sizing: border-box; }
+.ak :focus-visible, .is-focus { outline: 2px solid var(--focus); outline-offset: 4px; }
+
+/* ── Type: the generated classes carry the ceilings; these add the responsive clamps and the rules. ── */
+.statement { font-size: clamp(4rem, 11vw, 13rem); text-wrap: balance; margin: 0; }
+.display { font-size: clamp(3.5rem, 8vw, 9rem); text-wrap: balance; margin: 0; }
+.headline { font-size: clamp(2.5rem, 5.4vw, 6.5rem); text-wrap: balance; margin: 0; }
+.title { font-size: clamp(2.3rem, 4vw, 4.5rem); text-wrap: balance; margin: 0; }
+.subhead { font-size: clamp(1.3rem, 2.3vw, 2.5rem); margin: 0; }
+.heading { margin: 0; }
+.lead { font-size: clamp(1.15rem, 1.8vw, 1.65rem); color: var(--text-muted); max-width: var(--size-measure); text-wrap: pretty; margin: 0; }
+.body, .body-sm { text-wrap: pretty; margin: 0; }
+.label { text-transform: uppercase; color: var(--text-muted); margin: 0; }
+.caption { color: var(--text-muted); font-variant-numeric: tabular-nums; margin: 0; }
+.outcome { color: var(--accent); }
+.tnum { font-variant-numeric: tabular-nums; }
+
+/* ── Arrows are text. They move 2px in their direction on hover, nothing else does. ── */
+.arw { display: inline-block; font-size: 17px; line-height: 1; font-weight: 400;
+  transition-property: transform; transition-duration: var(--duration-quick); transition-timing-function: var(--ease-out); }
+.is-hover .arw-r { transform: translateX(2px); } .is-hover .arw-ne { transform: translate(2px, -2px); } .is-hover .arw-up { transform: translateY(-2px); } .is-hover .arw-down { transform: translateY(2px); }
+@media (hover: hover) and (pointer: fine) {
+  a:hover .arw-r, button:hover .arw-r { transform: translateX(2px); }
+  a:hover .arw-ne, button:hover .arw-ne { transform: translate(2px, -2px); }
+  a:hover .arw-up, button:hover .arw-up { transform: translateY(-2px); }
+  a:hover .arw-down, button:hover .arw-down { transform: translateY(2px); }
+}
+
+/* ── Wordmark and mark: inline geometry of the masters, in currentColor. ── */
+.wordmark { display: inline-block; width: var(--size-wordmark-min); color: var(--text); line-height: 0; }
+.wordmark svg, .mark svg { display: block; width: 100%; height: auto; overflow: visible; }
+.mark { display: inline-block; width: 40px; color: var(--text); line-height: 0; }
+
+/* ── Button: rectangular, three kinds. ── */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: var(--space-3); min-height: var(--size-target); min-width: var(--size-target);
+  padding: 15px 18px; border: 0; border-radius: var(--radius-control); font: 600 13px/1 var(--font-sans); letter-spacing: 0; text-decoration: none; white-space: nowrap; cursor: pointer;
+  transition-property: transform, opacity; transition-duration: var(--duration-instant); transition-timing-function: var(--ease-out); }
+.btn:active, .btn.is-pressed { transform: translateY(1px); }
+.btn-primary { background: var(--accent); color: var(--on-accent); }
+.btn-solid { background: var(--text); color: var(--ground); }
+.btn-link { color: var(--text); padding: 9px 0; border-radius: 0;
+  background: linear-gradient(var(--line-strong), var(--line-strong)) no-repeat 0 100% / 100% 1px; }
+/* The underline wipes out to the right and comes back from the left. */
+@keyframes ak-wipe { 0% { background-position: 100% 100%; background-size: 100% 1px; } 45% { background-position: 100% 100%; background-size: 0 1px; }
+  55% { background-position: 0 100%; background-size: 0 1px; } 100% { background-position: 0 100%; background-size: 100% 1px; } }
+.btn-link.is-hover, .closer-foot a.is-hover { animation: ak-wipe var(--duration-base) var(--ease-out); }
+@media (hover: hover) and (pointer: fine) { .btn-link:hover, .closer-foot a:hover { animation: ak-wipe var(--duration-base) var(--ease-out); } }
+.btn[aria-disabled="true"], .btn:disabled { opacity: .4; pointer-events: none; }
+.kbd { display: inline-grid; place-items: center; min-width: 22px; height: 22px; padding: 0 6px; border: 1px solid var(--line); border-radius: var(--radius-control);
+  font: 500 11px/1 var(--font-sans); color: var(--text-muted); }
+
+/* ── Section: the concept's two-column grid; band: a full-width field with the page gutters. ── */
+.band { padding: clamp(72px, 8vw, 120px) clamp(20px, 5vw, 72px); }
+.section { display: grid; grid-template-columns: minmax(190px, .5fr) minmax(0, 1.5fr); gap: clamp(30px, 8vw, 140px);
+  padding: clamp(90px, 12vw, 170px) clamp(20px, 8vw, 140px); border-bottom: 1px solid var(--line); }
+.section-title .label + .headline { margin-top: var(--space-7); }
+.section-title .headline + p { margin-top: 25px; max-width: 280px; color: var(--text-muted); line-height: 1.5; }
+.tiles { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4); }
+.tile { display: flex; flex-direction: column; justify-content: space-between; min-height: 210px; padding: var(--space-6); background: var(--ground-2); color: var(--text); }
+
+/* ── Header ── */
+.header { height: var(--size-header); padding: 0 clamp(20px, 5vw, 72px); display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 20px;
+  border-bottom: 1px solid var(--line); background: var(--ground); color: var(--text); }
+.header .wordmark { width: var(--size-wordmark-min); }
+.header-find { display: inline-flex; align-items: center; gap: 10px; min-height: var(--size-target); padding: 0 4px; color: var(--text-muted); font: 400 13px/1 var(--font-sans); text-decoration: none; background: none; border: 0; cursor: pointer; }
+.header-find .slash { color: var(--accent); font-weight: 500; font-size: 15px; }
+.header-end { justify-self: end; display: flex; align-items: center; gap: 12px; }
+.header-icon { display: none; place-items: center; width: var(--size-target); height: var(--size-target); padding: 0; border: 1px solid var(--line); border-radius: var(--radius-control);
+  background: none; color: var(--accent); font: 500 18px/1 var(--font-sans); cursor: pointer; }
+.header.is-compact { height: 72px; grid-template-columns: 1fr auto; }
+.header.is-compact .header-find { display: none; }
+.header.is-compact .header-icon { display: inline-grid; }
+.header.is-compact .header-end .btn-link { display: none; }
+
+/* ── Hero: open on Cloud with one line. ── */
+.hero { padding: clamp(72px, 9vw, 120px) clamp(20px, 5vw, 72px) clamp(72px, 8vw, 110px); border-bottom: 1px solid var(--line); }
+.hero .statement, .hero .display { margin-top: var(--space-7); }
+.hero-foot { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 340px); gap: 48px; align-items: end; margin-top: var(--space-7); }
+.hero-foot .route { justify-items: end; }
+.hero-foot .route-caption { text-align: right; }
+.hero-foot > .btn { justify-self: end; }
+
+/* ── Route: the open loop, the line, the mark. ── */
+.route { display: grid; justify-items: center; gap: var(--space-4); color: var(--text); }
+.route svg { display: block; width: 100%; max-width: 360px; height: auto; overflow: visible; }
+.route-start { fill: none; stroke: var(--text-muted); stroke-width: 2; stroke-linecap: round; }
+.route-path, .route-head { fill: none; stroke: var(--text); stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+.route-loop { fill: none; stroke: currentColor; stroke-width: 12; stroke-linecap: round; }
+.route-dot { fill: currentColor; }
+.route-caption { margin: 0; font: 400 15px/1.45 var(--font-sans); color: var(--text-muted); text-align: center; }
+.route-path, .route-loop { stroke-dasharray: 1 2; stroke-dashoffset: 0; }
+.route-dot { transform-box: fill-box; transform-origin: center; }
+/* How it draws: data-reveal="route", in the Motion layer below. */
+
+/* ── Field: a section ground carrying one crop of the loop. ── */
+.field { position: relative; overflow: hidden; background: var(--ground); color: var(--text); }
+.field > :not(.crop) { position: relative; z-index: 1; }
+.crop { position: absolute; z-index: 0; pointer-events: none; color: var(--crop, var(--accent)); }
+.crop path { fill: none; stroke: currentColor; stroke-width: 12; stroke-linecap: round; }
+.crop circle { fill: currentColor; }
+
+/* ── Status: the lifecycle, as a word and a shape. Never a colour. ── */
+.status { display: inline-flex; align-items: center; gap: var(--space-2); font: 500 13px/1.2 var(--font-sans); color: var(--text); white-space: nowrap; }
+.status::before { content: ""; flex: none; width: 8px; height: 8px; border-radius: var(--radius-full); }
+.status.live::before { background: currentColor; transition: transform var(--duration-base) var(--ease-settle) calc(var(--i, 0) * var(--duration-stagger) + var(--duration-base)); }
+.status.building::before { box-shadow: inset 0 0 0 1.5px currentColor; }
+.status.archived { color: var(--text-muted); }
+.status.archived::before { height: 1.5px; border-radius: 0; background: currentColor; }
+.is-new { font-weight: 600; color: var(--text); }
+.demo-label { display: inline-block; padding: 9px 11px; font: 400 10px/1.3 var(--font-sans); color: var(--demo); background: var(--demo-ground); }
+
+/* ── Window: the frame around a capture of real work. ── */
+.window { overflow: hidden; border-radius: var(--radius-window); border: 1px solid var(--line); background: var(--ground); color: var(--text); }
+.window-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: var(--size-target); padding: 0 0 0 14px; border-bottom: 1px solid var(--line);
+  font: 400 12px/1 var(--font-sans); color: var(--text-muted); }
+.window-bar .demo-label { align-self: stretch; display: flex; align-items: center; }
+.window-end { align-self: stretch; display: flex; }
+/* Pause / Play: every demo that runs has one. */
+.run-toggle { display: inline-flex; align-items: center; justify-content: center; min-width: var(--size-target); padding: 0 14px; border: 0; border-left: 1px solid var(--line);
+  background: none; color: var(--text-muted); font: 500 12px/1 var(--font-sans); cursor: pointer; }
+.run-toggle[hidden] { display: none; }
+.window img { display: block; width: 100%; height: auto; }
+
+/* ── Inside a build's own UI: chips. Selected inverts, never turns blue. ── */
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { display: inline-flex; align-items: center; min-height: 36px; padding: 0 14px; border: 1px solid var(--line); border-radius: var(--radius-control);
+  font: 500 14px/1 var(--font-sans); color: var(--text); background: var(--ground);
+  transition-property: background-color, color, border-color; transition-duration: var(--duration-instant); transition-timing-function: var(--ease-out); }
+.chip.on { background: var(--text); color: var(--ground); border-color: var(--text); }
+
+/* ── Showcase: the work, big; the words, after. ── */
+.show { padding: clamp(56px, 7vw, 110px) clamp(20px, 5vw, 72px); }
+.show-stage { display: grid; place-items: center; padding: clamp(20px, 5vw, 72px); background: var(--ground-2); }
+[data-theme="blue"] .show-stage { padding: 0; background: none; }
+.show-stage .window { width: 100%; max-width: 1040px; }
+.show-cap { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 20px 40px; align-items: end; margin-top: clamp(24px, 3vw, 40px); }
+.show-name { margin: 0; font: 500 clamp(2.3rem, 4vw, 4.5rem)/.9 var(--font-sans); letter-spacing: -.05em; }
+.show-line { margin: 14px 0 0; max-width: 34ch; font: 400 clamp(1.15rem, 1.8vw, 1.65rem)/1.35 var(--font-sans); color: var(--text-muted); text-wrap: pretty; }
+.show-meta { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 10px 24px; }
+.show-meta .caption { color: var(--text-muted); }
+
+/* ── Principles: what every build has to pass. ── */
+.principles { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line-strong); }
+.principles li { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr); gap: 10px 40px; align-items: baseline; padding: 26px 0; border-bottom: 1px solid var(--line); }
+.principles b { font: 500 clamp(1.5rem, 2.6vw, 2.5rem)/1.1 var(--font-sans); letter-spacing: -.04em; color: var(--text); text-wrap: balance; }
+.principles span { max-width: 44ch; font: 400 16px/1.5 var(--font-sans); color: var(--text-muted); text-wrap: pretty; }
+
+/* ── Log: every build, newest first, the next date reserved. ── */
+.log-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 12px 24px; margin-bottom: var(--space-6); }
+.log { border-top: 1px solid var(--line-strong); }
+.log-row { display: grid; grid-template-columns: 112px minmax(0, 1fr) 150px 96px; gap: 24px; align-items: baseline; padding: 17px 0;
+  border-bottom: 1px solid var(--line); color: var(--text); text-decoration: none; }
+.log-date { font: 400 12px/1.45 var(--font-sans); color: var(--text-muted); font-variant-numeric: tabular-nums; }
+.log-what { display: grid; gap: 4px; min-width: 0; }
+.log-name { font: 500 24px/1.1 var(--font-sans); letter-spacing: -0.03em; text-underline-offset: 5px; text-decoration-thickness: 1px; }
+.log-line { font: 400 15px/1.45 var(--font-sans); color: var(--text-muted); }
+.log-code { justify-self: end; display: inline-flex; align-items: center; gap: 8px; font: 600 13px/1 var(--font-sans); color: var(--text); white-space: nowrap; }
+.log-row.slot .log-name { color: var(--text-muted); }
+@media (hover: hover) and (pointer: fine) { a.log-row:hover .log-name { text-decoration-line: underline; } }
+
+/* ── CommandBar: for the ones who come back. ── */
+.cmd { width: 100%; max-width: 560px; font-family: var(--font-sans); }
+.cmd-field { display: flex; align-items: center; gap: 12px; min-height: 52px; box-shadow: inset 0 -1px 0 var(--line-strong); }
+.cmd-field .slash { font: 500 18px/1 var(--font-sans); color: var(--accent); }
+[data-theme="ink"] .cmd-field .slash, [data-theme="blue"] .cmd-field .slash { color: var(--text); }
+.cmd-field input, .cmd-field .input { flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; color: var(--text); font: 400 16px/1.2 var(--font-sans); }
+.cmd-field .ph { color: var(--text-muted); }
+.cmd-field .caret { display: inline-block; width: 1.5px; height: 18px; margin-left: 1px; vertical-align: -3px; background: var(--text); }
+.cmd-list { list-style: none; margin: 10px 0 0; padding: 6px; background: var(--ground-2); display: grid; gap: 2px; }
+.cmd-row { display: grid; grid-template-columns: 12px auto minmax(0, 1fr) auto; align-items: center; gap: 12px; min-height: var(--size-target); padding: 0 12px;
+  color: var(--text); text-decoration: none; }
+.cmd-row .status { gap: 0; font-size: 0; }
+.cmd-row .slug { font: 500 15px/1.2 var(--font-sans); white-space: nowrap; }
+.cmd-row .host, .cmd-row .p, .cmd-row .k { color: var(--text-muted-2); }
+.cmd-row .p { font: 400 14px/1.3 var(--font-sans); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cmd-row .k { font: 400 12px/1 var(--font-sans); }
+.cmd-row.active { background: var(--text); color: var(--ground); }
+.cmd-row.active .host, .cmd-row.active .p, .cmd-row.active .k { color: var(--ground); opacity: .72; }
+.cmd-row.active .status { color: var(--ground); }
+@media (hover: hover) and (pointer: fine) { .cmd-row:not(.active):hover { box-shadow: inset 0 0 0 1px var(--line); } }
+
+/* ── PostCard: the launch post, 432 base, exported ×2.5. The work is the image. ── */
+.post { position: relative; overflow: hidden; flex: none; width: 432px; aspect-ratio: 4 / 5; padding: var(--space-6); display: flex; flex-direction: column;
+  background: var(--ground); color: var(--text); font-family: var(--font-sans); }
+.post.square { aspect-ratio: 1; }
+.post > :not(.crop) { position: relative; z-index: 1; }
+.post-top { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+.post-top .label, .post-top .caption, .post-foot .caption { color: var(--text); }
+.post-shot { margin: var(--space-5) calc(-1 * var(--space-6)) 0 0; }
+.post-shot .window { border-right: 0; border-top-right-radius: 0; border-bottom-right-radius: 0; }
+.post-body { display: grid; gap: 10px; max-width: 320px; margin-top: auto; }
+.post-name { margin: 0; font: 500 64px/.9 var(--font-sans); letter-spacing: -0.05em; color: var(--accent); }
+.post-line { margin: 0; font: 400 18px/1.35 var(--font-sans); letter-spacing: -0.01em; text-wrap: pretty; }
+.post-foot { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-top: 28px; font: 600 13px/1 var(--font-sans); }
+.post.square .post-name { font-size: 52px; }
+
+/* ── Closer: Ink, one sentence, one button, then the footer line. ── */
+.closer { padding: clamp(90px, 12vw, 170px) clamp(20px, 5vw, 72px) 0; }
+.closer .headline { margin-top: var(--space-7); }
+.closer .lead { margin-top: 25px; }
+.closer .btn { margin-top: 44px; }
+.closer-foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 28px; margin-top: clamp(90px, 12vw, 170px); padding: 28px 0;
+  border-top: 1px solid var(--line); font: 400 12px/1.45 var(--font-sans); color: var(--text-muted); }
+.closer-foot a { display: inline-flex; align-items: center; gap: 6px; min-height: var(--size-target); color: var(--text); text-decoration: none;
+  background: linear-gradient(var(--line-strong), var(--line-strong)) no-repeat 0 100% / 100% 1px; }
+.closer .tick { margin-top: 18px; }
+.closer-foot nav { display: flex; flex-wrap: wrap; gap: 4px 24px; }
+
+/* ── Chat: a conversation inside a demo capture. ── */
+.chat { display: grid; gap: 8px; padding: 20px; }
+.chat-day { justify-self: center; padding: 2px 0 6px; font: 400 12px/1 var(--font-sans); color: var(--text-muted); font-variant-numeric: tabular-nums; }
+.msg { max-width: 84%; padding: 10px 14px 8px; border-radius: var(--radius-control); background: var(--ground-2); color: var(--text); font: 400 15px/1.4 var(--font-sans); }
+.msg.out { justify-self: end; background: var(--text); color: var(--ground); }
+.msg time { display: block; margin-top: 4px; font-size: 11px; font-variant-numeric: tabular-nums; color: var(--text-muted-2); }
+.msg.out time { color: var(--ground); opacity: .72; }
+
+/* ── Motion: every motion closes a loop. motion.js puts .motion on <html> (never with reduced motion) and
+   .is-in / .is-on on elements; these rules do the moving. Durations, curves and travel are tokens. ── */
+.motion [data-reveal] { transition-property: opacity, transform, clip-path; transition-duration: var(--duration-base);
+  transition-timing-function: var(--ease-out); transition-delay: calc(var(--i, 0) * var(--duration-stagger) + var(--d, 0ms)); }
+.motion [data-reveal]:not(.is-in) { opacity: 0; transform: translateY(var(--travel-2)); }
+.motion [data-reveal="row"]:not(.is-in) { transform: translateY(var(--travel-1)); }
+.motion [data-reveal="fade"]:not(.is-in) { transform: none; }
+.motion [data-reveal="none"]:not(.is-in), .motion [data-reveal="rise"]:not(.is-in),
+.motion [data-reveal="route"]:not(.is-in), .motion [data-reveal="close"]:not(.is-in) { opacity: 1; transform: none; }
+/* The capture rises, grows from 96 % and unclips. */
+.motion [data-reveal="window"] { transition-duration: var(--duration-base), var(--duration-slow), var(--duration-slow); }
+.motion [data-reveal="window"]:not(.is-in) { transform: translateY(var(--travel-3)) scale(.96); clip-path: inset(4% round var(--radius-window)); }
+.motion [data-reveal="window"].is-in { clip-path: inset(0 round var(--radius-window)); }
+/* The stage wipes up from its bottom edge. */
+.motion [data-reveal="stage"] { transition-duration: var(--duration-slow); }
+.motion [data-reveal="stage"]:not(.is-in) { opacity: 1; transform: none; clip-path: inset(100% 0 0 0); }
+.motion [data-reveal="stage"].is-in { clip-path: inset(0); }
+/* The blue field grows out of the capture to full bleed: the page's one big move. */
+.motion [data-reveal="field"] { transition-duration: var(--duration-story); transition-timing-function: var(--ease-in-out); }
+.motion [data-reveal="field"]:not(.is-in) { opacity: 1; transform: none; clip-path: inset(9% 6%); }
+.motion [data-reveal="field"].is-in { clip-path: inset(0); }
+/* Type: each line rises from behind its own edge. */
+.rise { display: block; clip-path: inset(-.25em -100vw -.2em -100vw); } /* a mask just around the line; layout untouched */
+.rise > * { display: block; }
+.motion [data-reveal="rise"] .rise > * { transition: transform var(--duration-slow) var(--ease-out);
+  transition-delay: calc(var(--l, 0) * var(--duration-stagger) * 1.5 + var(--i, 0) * var(--duration-stagger) + var(--d, 0ms)); }
+.motion [data-reveal="rise"]:not(.is-in) .rise > * { transform: translateY(150%); }
+/* The outcome's period is the dot: it lands last. */
+.land { display: inline-block; }
+.motion [data-reveal] .land { transition: transform var(--duration-base) var(--ease-settle), opacity var(--duration-instant) linear;
+  transition-delay: calc(var(--duration-slow) + var(--duration-stagger) * 2 + var(--d, 0ms)); }
+.motion [data-reveal]:not(.is-in) .land { opacity: 0; transform: translateY(-.35em) scale(0); }
+/* The route draws: the open loop, the line, the mark closing, the dot landing. */
+.motion [data-reveal="route"] .route-start { transition: opacity var(--duration-base) var(--ease-out); }
+.motion [data-reveal="route"] .route-path { transition: stroke-dashoffset var(--duration-slow) var(--ease-in-out), opacity var(--duration-instant) linear; }
+.motion [data-reveal="route"] .route-head { transition: opacity var(--duration-instant) linear calc(var(--duration-slow) - var(--duration-quick)); }
+.motion [data-reveal="route"] .route-loop { transition: stroke-dashoffset var(--duration-base) var(--ease-in-out), opacity var(--duration-instant) linear;
+  transition-delay: calc(var(--duration-slow) - var(--duration-quick) - var(--duration-stagger)); }
+.motion [data-reveal="route"] .route-dot { transition: transform var(--duration-base) var(--ease-settle) calc(var(--duration-slow) + var(--duration-quick) - var(--duration-stagger)); }
+.motion [data-reveal="route"]:not(.is-in) .route-start, .motion [data-reveal="route"]:not(.is-in) .route-head { opacity: 0; }
+.motion [data-reveal="route"]:not(.is-in) .route-path, .motion [data-reveal="route"]:not(.is-in) .route-loop { stroke-dashoffset: 1; opacity: 0; }
+.motion [data-reveal="route"]:not(.is-in) .route-dot { transform: scale(0); }
+/* Close, the signature: the arc draws, the dot lands. Once. */
+.close-arc { fill: none; stroke: currentColor; stroke-width: 12; stroke-linecap: round; stroke-dasharray: 1 2; stroke-dashoffset: 0; }
+.close-dot { fill: currentColor; transform-box: fill-box; transform-origin: center; }
+.motion [data-reveal="close"] .close-arc { transition: stroke-dashoffset var(--duration-slow) var(--ease-in-out), opacity var(--duration-instant) linear; transition-delay: var(--d, 0ms); }
+.motion [data-reveal="close"] .close-dot { transition: transform var(--duration-base) var(--ease-settle) calc(var(--duration-slow) + var(--d, 0ms)); }
+.motion [data-reveal="close"]:not(.is-in) .close-arc { stroke-dashoffset: 1; opacity: 0; }
+.motion [data-reveal="close"]:not(.is-in) .close-dot { transform: scale(0); }
+/* The live dot lands when its row arrives. */
+.motion [data-reveal]:not(.is-in) .status.live::before { transform: scale(0); }
+
+/* Run: a demo's steps. A step that isn't on yet isn't there. */
+.motion [data-run] [data-step] { transition-property: opacity, transform; transition-duration: var(--duration-base); transition-timing-function: var(--ease-out); }
+.motion [data-run] [data-step]:not([data-add]):not(.is-on):not(.is-typing) { opacity: 0; transform: translateY(var(--travel-1)); }
+.motion [data-run] .step-up[data-step]:not([data-add]):not(.is-on):not(.is-typing) { transform: translateY(var(--travel-2)); }
+.motion [data-run] .step-rise[data-step] { transition-duration: var(--duration-base), var(--duration-slow); }
+.motion [data-run] .step-rise[data-step]:not([data-add]):not(.is-on):not(.is-typing) { transform: translateY(var(--travel-3)) scale(.96); }
+.motion [data-run].is-rewinding [data-step]:not([data-add]) { opacity: 0; transition-duration: var(--duration-quick); transition-timing-function: var(--ease-in); }
+/* Paused by the visitor, or waiting for its turn: the frame holds. */
+.is-paused, .is-paused *, .is-holding, .is-holding * { animation-play-state: paused !important; }
+/* Typing: a short beat before a message lands. */
+@keyframes ak-typing { from { opacity: .45; } }
+.msg { position: relative; }
+.motion .msg.is-typing { color: transparent; background: none; }
+.motion .msg.is-typing > * { visibility: hidden; }
+.motion .msg.is-typing::after { content: ""; position: absolute; top: 0; left: 0; width: 56px; height: 36px; border-radius: var(--radius-control);
+  background: radial-gradient(circle 3px at 17px 50%, var(--text-muted-2) 90%, #0000), radial-gradient(circle 3px at 28px 50%, var(--text-muted-2) 90%, #0000),
+    radial-gradient(circle 3px at 39px 50%, var(--text-muted-2) 90%, #0000), var(--ground-2);
+  animation: ak-typing var(--duration-slow) var(--ease-in-out) infinite alternate; }
+.motion .msg.out.is-typing::after { left: auto; right: 0;
+  background: radial-gradient(circle 3px at 17px 50%, var(--ground) 90%, #0000), radial-gradient(circle 3px at 28px 50%, var(--ground) 90%, #0000),
+    radial-gradient(circle 3px at 39px 50%, var(--ground) 90%, #0000), var(--text); }
+
+/* Scroll: the header steps aside going down and comes back going up; it never shrinks or changes color. */
+.header[data-hide-on-scroll] { position: sticky; top: 0; z-index: 20; transition: transform var(--duration-base) var(--ease-out); }
+.motion .header.is-hidden { transform: translateY(-101%); }
+/* The reading line: the principle nearest the middle of the screen is lit. */
+.principles b { transition: color var(--duration-base) var(--ease-out); }
+.motion .is-reading > li:not(.is-lit) b { color: var(--text-muted); }
+/* Depth: a capture drifts up to 24 px against its stage. */
+.motion [data-parallax] { translate: 0 var(--drift, 0px); }
+/* Tick: the countdown's digits roll in as they change. */
+.tick-unit { display: inline-block; font-variant-numeric: tabular-nums; }
+@keyframes ak-roll { from { opacity: 0; transform: translateY(-.55em); } }
+.motion .tick-unit.is-rolling { animation: ak-roll var(--duration-base) var(--ease-out); }
+/* Replays (spec cards). */
+.motion .is-replaying { opacity: 0; transition: opacity var(--duration-quick) var(--ease-in); }
+.motion .is-reset, .motion .is-reset *, .motion .is-reset::before, .motion .is-reset *::before { transition: none !important; }
+
+/* ── Below 760px ── */
+@media (max-width: 760px) {
+  .header { height: 72px; grid-template-columns: 1fr auto; }
+  .header-find { display: none; }
+  .header-icon { display: inline-grid; }
+  .header-end .btn-link { display: none; }
+  .section { display: block; padding: 78px 20px; }
+  .section-title { margin-bottom: var(--space-8); }
+  .tiles { gap: var(--space-2); }
+  .tile { min-height: 150px; padding: 16px; }
+  .hero-foot { grid-template-columns: 1fr; gap: 36px; }
+  .header > :empty { display: none; }
+  .hero-foot .route { justify-items: start; }
+  .hero-foot .route-caption { text-align: left; }
+  .hero-foot > .btn { justify-self: start; }
+  .log-row { grid-template-columns: minmax(0, 1fr) auto; gap: 8px 16px; }
+  .log-date { order: 3; } .log-code { order: 4; }
+  .closer-foot { flex-direction: column; align-items: flex-start; }
+  .show-cap { grid-template-columns: 1fr; }
+  .show-meta { justify-content: flex-start; }
+  .principles li { grid-template-columns: 1fr; }
+}

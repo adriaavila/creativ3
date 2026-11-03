@@ -42,4 +42,7 @@
 .ak .ficha-sheet {inset: 0;}
 .ak .header-end .btn-primary {padding: 15px 14px;}
 }
+.ak .manos {position: relative; height: clamp(240px, 30vw, 460px); margin: clamp(8px, 2vw, 24px) calc(-1 * clamp(20px, 5vw, 72px)) clamp(16px, 3vw, 40px); overflow: hidden;}
+.ak .manos canvas {display: block;}
+.ak .manos[data-sin-webgl] {display: none;}
 

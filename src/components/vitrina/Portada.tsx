@@ -1,10 +1,11 @@
 import { Outcome, Rise, vars } from "@/components/ak/Brand";
 import { CUENTAS } from "@/lib/vitrina";
+import Manos from "./Manos";
 
-/** La apertura: una frase que sube línea por línea, su punto aterriza, y una oración debajo. */
+/** La apertura, en Ink: una frase que sube línea por línea, dos manos que se alcanzan, y una oración debajo. */
 export default function Portada() {
   return (
-    <section id="inicio" className="hero" data-theme="cloud" data-stagger aria-label="Portada">
+    <section id="inicio" className="hero" data-theme="ink" data-stagger aria-label="Portada">
       <p className="label" data-reveal="fade">allok · estudio de Adrián Avila</p>
       <h1 className="display" data-reveal="rise" style={vars({ "--d": "120ms" })}>
         <Rise>Cosas reales,</Rise>
@@ -12,6 +13,7 @@ export default function Portada() {
           <Outcome>hechas con obsesión</Outcome>
         </Rise>
       </h1>
+      <Manos />
       <div className="hero-foot">
         <p className="lead" data-reveal style={vars({ "--d": "520ms" })}>
           Webs, productos y agentes de IA para negocios de verdad.{" "}

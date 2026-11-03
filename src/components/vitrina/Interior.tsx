@@ -35,7 +35,7 @@ export default function Interior({ onOpen }: { onOpen: (id: string) => void }) {
           <Rise>Por</Rise>
           <Rise line={1}>dentro.</Rise>
         </h2>
-        <p data-reveal>Lo que el cliente nunca ve: los sistemas con los que un negocio se opera todos los días.</p>
+        <p data-reveal>Lo que tus clientes nunca ven: las pantallas con las que se opera un negocio todos los días.</p>
       </div>
       <div className="tiles" data-stagger>
         {CUADROS.map((c, i) => (
@@ -45,9 +45,34 @@ export default function Interior({ onOpen }: { onOpen: (id: string) => void }) {
             className="tile tile-shot"
             onClick={() => onOpen(c.id)}
             aria-label={`${c.name}: ${c.label}`}
+            aria-describedby={`por-dentro-${i}`}
             data-reveal="row"
           >
-            <Ventana src={c.src} alt={c.alt} sizes="(max-width: 760px) 46vw, 34vw" ratio={c.mobile ? 16 / 10 : 16 / 10} reveal={false} />
+            {/* La de celular, entera y en su proporción, dentro del mismo hueco 16/10: recortada no se leería como un celular. */}
+            {c.mobile ? (
+              <span className="tile-celular">
+                <Ventana
+                  src={c.src}
+                  alt={c.alt}
+                  sizes="(max-width: 760px) 16vw, 10vw"
+                  ratio={c.ratio || 390 / 844}
+                  reveal={false}
+                  enBoton
+                  imgId={`por-dentro-${i}`}
+                />
+              </span>
+            ) : (
+              // Dos por fila: casi media pantalla en el celular, un tercio largo en la tableta
+              // (la sección va a lo ancho) y un cuarto en la columna ancha del escritorio.
+              <Ventana
+                src={c.src}
+                alt={c.alt}
+                sizes="(max-width: 760px) 46vw, (max-width: 1100px) 38vw, 26vw"
+                reveal={false}
+                enBoton
+                imgId={`por-dentro-${i}`}
+              />
+            )}
             <span className="tile-cap">
               <span className="heading">{c.name}</span>
               <span className="caption">{c.label}</span>

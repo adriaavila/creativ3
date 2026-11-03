@@ -2,9 +2,13 @@
 
 import { useMemo, useState } from "react";
 import { Rise } from "@/components/ak/Brand";
-import { DISCIPLINAS, PIEZAS, type Disciplina } from "@/lib/vitrina";
+import { DISCIPLINAS, ESTADO, PIEZAS, claseEstado, type Disciplina } from "@/lib/vitrina";
 
-/** Todo el trabajo, en una lista que abre con una regla. Al tocar una fila, se abre su ficha. */
+/**
+ * Todo el trabajo, en /trabajo: una lista que abre con una regla y se filtra por disciplina. Al tocar una fila, se abre su ficha.
+ * Los filtros son botones que se quedan apretados (`aria-pressed`), no pestañas: no hay paneles, solo la misma lista más corta,
+ * y cuántos quedan se anuncia.
+ */
 export default function Indice({ onOpen }: { onOpen: (id: string) => void }) {
   const [filtro, setFiltro] = useState<Disciplina | "todo">("todo");
   const lista = useMemo(
@@ -15,31 +19,29 @@ export default function Indice({ onOpen }: { onOpen: (id: string) => void }) {
   return (
     <section id="indice" aria-labelledby="indice-titulo" className="section" data-theme="cloud" data-stagger>
       <div className="section-title">
-        <p className="label" data-reveal="fade">Índice</p>
+        <p className="label" data-reveal="fade">
+          Todo
+        </p>
         <h2 id="indice-titulo" className="headline" data-reveal="rise">
-          <Rise>Índice</Rise>
-          <Rise line={1}>completo.</Rise>
+          <Rise>Los {PIEZAS.length},</Rise>
+          <Rise line={1}>uno por uno.</Rise>
         </h2>
       </div>
       <div data-reveal>
-        <div role="tablist" aria-label="Filtrar por disciplina" className="chips indice-filtros">
+        <div role="group" aria-label="Filtrar por disciplina" className="chips indice-filtros">
           {DISCIPLINAS.map((d) => {
             const n = d.id === "todo" ? PIEZAS.length : PIEZAS.filter((p) => p.disciplinas.includes(d.id as Disciplina)).length;
             const on = filtro === d.id;
             return (
-              <button
-                key={d.id}
-                type="button"
-                role="tab"
-                aria-selected={on}
-                onClick={() => setFiltro(d.id)}
-                className={on ? "chip on" : "chip"}
-              >
+              <button key={d.id} type="button" aria-pressed={on} onClick={() => setFiltro(d.id)} className={on ? "chip on" : "chip"}>
                 {d.label} <span className="tnum indice-n">{n}</span>
               </button>
             );
           })}
         </div>
+        <p className="sr-only" aria-live="polite">
+          {lista.length === 1 ? "1 trabajo" : `${lista.length} trabajos`}
+        </p>
         <ol className="log">
           {lista.map((p) => (
             <li key={p.id}>
@@ -51,7 +53,7 @@ export default function Indice({ onOpen }: { onOpen: (id: string) => void }) {
                     {p.tipo} · {p.linea}
                   </span>
                 </span>
-                {p.liveUrl ? <span className="status live">En vivo</span> : <span className="status archived">Privado</span>}
+                <span className={claseEstado(p.status)}>{ESTADO[p.status]}</span>
                 <span className="log-code">
                   Abrir <span className="arw arw-r" aria-hidden="true">→</span>
                 </span>

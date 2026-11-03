@@ -5,20 +5,63 @@
 .ak .show-open {display: block; width: 100%; max-width: 1040px; padding: 0; border: 0; background: none; cursor: pointer; text-align: left;}
 .ak .show-cap .label + .show-name {margin-top: var(--space-3);}
 .ak .section-intro {display: block; border-bottom: 0; padding: clamp(90px, 12vw, 170px) clamp(20px, 5vw, 72px) clamp(40px, 5vw, 72px);}
+.ak .section-intro .section-title .headline + p {max-width: 46ch;}
+.ak .hero-acciones {display: grid; justify-items: end; gap: var(--space-3); text-align: right;}
+.ak .historia-head {display: grid; gap: var(--space-4); margin-bottom: clamp(24px, 3vw, 40px);}
+.ak .historia-escena {max-width: 30ch; text-wrap: balance;}
+.ak .historia .show-line {max-width: 52ch; font: 400 clamp(1rem, 1.2vw, 1.125rem)/1.55 var(--font-sans);}
+.ak .historia-nota {margin-top: var(--space-3);}
+.ak .show-open.is-phone {display: flex; justify-content: center; gap: clamp(16px, 3vw, 40px); max-width: none;}
+.ak .show-open.is-phone .window {flex: 0 1 auto; width: min(100%, 340px); min-width: 0;}
+.ak span.window, .ak span.window-shot {display: block;}
+.ak .agente-texto {margin-bottom: clamp(24px, 3vw, 40px);}
+.ak .agente-demo {display: block; place-items: normal;}
+.ak .agente-enlace {margin-top: var(--space-6);}
+.ak .demo {display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr) auto; align-items: end; gap: var(--space-4) var(--space-6); max-width: 1040px; margin-top: var(--space-5);}
+.ak .demo .cmd-field {gap: var(--space-4);}
+.ak .demo .cmd-field .label {flex: none;}
+.ak .demo .cmd-field:focus-within {outline: 2px solid var(--focus); outline-offset: 4px;}
+.ak .demo input::placeholder {color: var(--text-muted); opacity: 1;}
+.ak .demo .btn {min-height: 52px; min-width: 10.5rem;}
+.ak .demo .btn[aria-disabled="true"] {opacity: 1;}
+.ak .demo-nota {grid-column: 1 / -1; max-width: 62ch; min-height: 2.9em; color: var(--text-muted);}
+.ak .demo-nota > p {margin: 0;}
+.ak .demo-error {color: var(--text); font-weight: 500;}
+.ak .demo-error a {color: inherit; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px;}
+.ak .otras-grupo + .otras-grupo {margin-top: var(--space-8);}
+.ak .otras-grupo > .label {margin-bottom: var(--space-4);}
+.ak .otras-todo {margin-top: var(--space-7);}
+.ak .sobre-mi {display: grid; gap: var(--space-6); justify-items: start;}
+.ak .sobre-mi .body {max-width: 62ch; font: 400 clamp(1rem, 1.2vw, 1.125rem)/1.55 var(--font-sans); color: var(--text-muted);}
+.ak .section-stack {display: block;}
+.ak .section-stack .section-title {margin-bottom: clamp(48px, 6vw, 96px);}
+.ak .principles .ok {display: flex; align-items: center; gap: var(--space-2); max-width: none; margin-top: var(--space-3); font: 500 14px/1.3 var(--font-sans); color: var(--text);}
+.ak .principles .ok svg {flex: none; width: var(--size-mark-min); height: auto; color: var(--accent); overflow: visible;}
+.ak .empezar-pie {display: grid; gap: var(--space-6); justify-items: start; max-width: 62ch; margin-top: clamp(48px, 6vw, 72px);}
+.ak .empezar-pie .body {font: 400 clamp(1rem, 1.2vw, 1.125rem)/1.55 var(--font-sans); color: var(--text-muted);}
+.ak .empezar-pie .lead {max-width: none;}
+.ak .empezar-agente {display: grid; gap: var(--space-2); justify-items: start;}
+.ak .archivo-intro {padding-bottom: clamp(72px, 8vw, 110px);}
+.ak .archivo-intro .display {margin-top: var(--space-7);}
+.ak .archivo-intro .lead {margin-top: var(--space-6);}
 .ak .tile-shot {gap: var(--space-4); justify-content: flex-start; min-height: 0; border: 0; text-align: left; font: inherit; cursor: pointer;}
 .ak .tile-cap {display: grid; gap: 4px;}
 .ak .tile-shot .caption {color: var(--text-muted-2);}
-.ak .estudio-texto {max-width: 26ch; text-wrap: pretty;}
-.ak .cifras {display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--space-8) var(--space-4); margin: var(--space-9) 0 0; padding-top: var(--space-6); border-top: 1px solid var(--line-strong);}
-.ak .cifras > div {display: grid; gap: var(--space-3);}
-.ak .cifras dd {margin: 0;}
+.ak .tile-celular {display: flex; justify-content: center; aspect-ratio: 16 / 10;}
+.ak .tile-celular .window {flex: none; height: 100%;}
+.ak .tile-celular .window-shot {width: auto; height: 100%;}
 .ak .indice-filtros {margin-bottom: var(--space-6);}
 .ak .indice-filtros .chip {min-height: var(--size-target); cursor: pointer; font: 500 13px/1 var(--font-sans); transition: background-color var(--duration-instant) var(--ease-out), color var(--duration-instant) var(--ease-out);}
 .ak .indice-n {margin-left: 6px; color: inherit; opacity: .7;}
 .ak ol.log {margin: 0; padding: 0; list-style: none; border-top: 1px solid var(--line-strong);}
 .ak button.log-row {width: 100%; border: 0; border-bottom: 1px solid var(--line); background: none; color: inherit; font: inherit; text-align: left; cursor: pointer;}
 .ak button.log-row:hover .log-name {text-decoration-line: underline;}
+@media (min-width: 761px) {
+.ak button.log-row {grid-template-columns: 56px minmax(0, 1fr) 150px 96px;}
+}
 .ak .closer .headline + .btn {margin-top: 44px;}
+.ak .cierre-correo {margin-top: var(--space-4);}
+.ak .cierre-correo a {padding: 12px 0; color: var(--text); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px;}
 .ak .ficha {position: fixed; inset: 0; z-index: 70;}
 .ak .ficha-scrim {position: absolute; inset: 0; border: 0; background: rgba(11,13,14,.72); cursor: pointer;}
 .ak .ficha-sheet {position: absolute; inset: 12px 0 0; overflow-y: auto; overscroll-behavior: contain; background: var(--ground); color: var(--text);}
@@ -36,8 +79,27 @@
 .ak .ficha-siguiente {display: block; width: 100%; padding: clamp(56px, 7vw, 110px) clamp(20px, 5vw, 72px); border: 0; text-align: left; font: inherit; cursor: pointer;}
 .ak .ficha-siguiente-nombre {display: flex; align-items: center; justify-content: space-between; gap: 24px; margin-top: var(--space-3);}
 .ak .ficha-flecha {font-size: clamp(2rem, 5vw, 4rem);}
+.ak section[id], .ak article[id], .ak footer[id], .ak main[id] {scroll-margin-top: var(--size-header);}
+.ak .saltar {position: absolute; top: var(--space-3); left: clamp(20px, 5vw, 72px); z-index: 30; transform: translateY(-200%);}
+.ak .saltar:focus-visible {transform: none;}
+@media (max-width: 1200px) {
+.ak .historia .show-cap {grid-template-columns: minmax(0, 1fr);}
+.ak .historia .show-meta {justify-content: flex-start;}
+}
+@media (max-width: 1100px) {
+.ak .section {display: block;}
+.ak .section:not(.section-intro) .section-title {margin-bottom: clamp(48px, 6vw, 96px);}
+}
+@media (max-width: 900px) {
+.ak .demo {grid-template-columns: minmax(0, 1fr);}
+.ak .demo .cmd-field .label {min-width: 7em;}
+}
 @media (max-width: 760px) {
-.ak .cifras {grid-template-columns: 1fr 1fr;}
+.ak .hero-acciones {justify-items: start; text-align: left;}
+.ak .show-open.is-phone .window {width: min(100%, 300px);}
+.ak .show-open.is-phone > :nth-child(n + 2) {display: none;}
+.ak .demo .btn {width: 100%;}
+.ak .demo-nota {min-height: 4.35em;}
 .ak .ficha-grid {grid-template-columns: 1fr;}
 .ak .ficha-sheet {inset: 0;}
 .ak .header-end .btn-primary {padding: 15px 14px;}

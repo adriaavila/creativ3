@@ -1,27 +1,46 @@
 "use client";
 
 import Link from "next/link";
-import { AnimatePresence, motion } from "motion/react";
+import { AnimatePresence, MotionConfig, motion, useReducedMotion } from "motion/react";
 import { useEffect, useRef } from "react";
-import { PIEZAS } from "@/lib/vitrina";
+import { ESTADO, PIEZAS, type Pieza } from "@/lib/vitrina";
 import { Ventana } from "./Marcos";
 
-const ESTADO: Record<string, string> = {
-  launched: "En producción",
-  improving: "En evolución",
-  demo: "Demo",
-  prototype: "Prototipo",
+// Lo que abre el botón, dicho con el mismo estado que muestra la ficha al lado.
+const ABRIR: Record<Pieza["status"], string> = {
+  launched: "Abrir la web",
+  improving: "Abrir la web",
+  demo: "Abrir la demo",
+  prototype: "Abrir el prototipo",
 };
 
 /**
- * La ficha de una pieza, a pantalla completa sobre la portada: la historia,
- * sus capturas y, cuando existe, el enlace para abrirla viva.
+ * La ficha de una pieza, a pantalla completa sobre la portada o /trabajo: la
+ * historia, sus capturas y, cuando existe, el enlace para abrirla.
  */
 export default function Ficha({ id, onClose, onGo }: { id: string | null; onClose: () => void; onGo: (id: string) => void }) {
   const i = PIEZAS.findIndex((p) => p.id === id);
   const pieza = i >= 0 ? PIEZAS[i] : undefined;
+  const abierta = Boolean(pieza);
   const scroller = useRef<HTMLDivElement>(null);
   const closeBtn = useRef<HTMLButtonElement>(null);
+  // Con «reducir movimiento», la hoja aparece sin subir: solo el fundido, como pide el sistema. MotionConfig
+  // apaga la subida, y sin el desplazamiento de partida la hoja tampoco nace corrida sus primeros cuadros.
+  const subir = !useReducedMotion();
+
+  // Mientras está abierta, la página de atrás no recibe el foco (es un diálogo modal); al cerrarla, el
+  // foco vuelve a lo que la abrió. Va antes del efecto que enfoca «Cerrar», para recordar el origen, y
+  // depende de si está abierta, no de cuál: «Siguiente» no la reinicia.
+  useEffect(() => {
+    if (!abierta) return;
+    const origen = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const fondo = Array.from(document.querySelectorAll<HTMLElement>(".ak > header, .ak > main, .ak > footer"));
+    for (const e of fondo) e.inert = true;
+    return () => {
+      for (const e of fondo) e.inert = false;
+      origen?.focus({ preventScroll: true });
+    };
+  }, [abierta]);
 
   useEffect(() => {
     if (!pieza) return;
@@ -50,97 +69,99 @@ export default function Ficha({ id, onClose, onGo }: { id: string | null; onClos
   const EASE_OUT = [0.2, 0.75, 0.25, 1] as const;
 
   return (
-    <AnimatePresence>
-      {pieza ? (
-        <motion.div
-          key="ficha"
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="ficha-titulo"
-          className="ficha"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0, transition: { duration: 0.2 } }}
-          transition={{ duration: 0.4, ease: EASE_OUT }}
-        >
-          <button type="button" aria-label="Cerrar" className="ficha-scrim" onClick={onClose} tabIndex={-1} />
+    <MotionConfig reducedMotion="user">
+      <AnimatePresence>
+        {pieza ? (
           <motion.div
-            ref={scroller}
-            className="ficha-sheet"
-            data-theme="cloud"
-            initial={{ y: 48, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            exit={{ y: 24, opacity: 0, transition: { duration: 0.2, ease: [0.55, 0, 1, 0.45] } }}
-            transition={{ duration: 0.7, ease: EASE_OUT }}
+            key="ficha"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="ficha-titulo"
+            className="ficha"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0, transition: { duration: 0.2 } }}
+            transition={{ duration: 0.4, ease: EASE_OUT }}
           >
-            <div className="ficha-top">
-              <span className="label">{pieza.tipo}</span>
-              <button ref={closeBtn} type="button" onClick={onClose} className="btn btn-link">
-                Cerrar <span aria-hidden="true">✕</span>
-              </button>
-            </div>
-
-            <div className="ficha-head">
-              <h2 id="ficha-titulo" className="display">
-                {pieza.name}
-              </h2>
-              <div className="ficha-grid">
-                <div>
-                  <p className="subhead">{pieza.linea}</p>
-                  <p className="body ficha-historia">{pieza.historia}</p>
-                  <div className="ficha-acciones">
-                    {pieza.liveUrl ? (
-                      <a href={pieza.liveUrl} target="_blank" rel="noopener noreferrer" className="btn btn-primary">
-                        Abrirla en vivo <span className="arw arw-ne" aria-hidden="true">↗</span>
-                      </a>
-                    ) : null}
-                    {pieza.casoHref ? (
-                      <Link href={pieza.casoHref} className="btn btn-link">
-                        Leer el caso completo <span className="arw arw-r" aria-hidden="true">→</span>
-                      </Link>
-                    ) : null}
-                  </div>
-                </div>
-                <dl className="ficha-datos">
-                  <div>
-                    <dt className="label">Año</dt>
-                    <dd className="tnum">{pieza.year}</dd>
-                  </div>
-                  <div>
-                    <dt className="label">Estado</dt>
-                    <dd>{ESTADO[pieza.status] ?? pieza.status}</dd>
-                  </div>
-                  <div className="ficha-stack">
-                    <dt className="label">Hecho con</dt>
-                    <dd className="chips">
-                      {pieza.stack.map((s) => (
-                        <span key={s} className="chip">
-                          {s}
-                        </span>
-                      ))}
-                    </dd>
-                  </div>
-                </dl>
+            <button type="button" aria-label="Cerrar" className="ficha-scrim" onClick={onClose} tabIndex={-1} />
+            <motion.div
+              ref={scroller}
+              className="ficha-sheet"
+              data-theme="cloud"
+              initial={{ y: subir ? 48 : 0, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: subir ? 24 : 0, opacity: 0, transition: { duration: 0.2, ease: [0.55, 0, 1, 0.45] } }}
+              transition={{ duration: 0.7, ease: EASE_OUT }}
+            >
+              <div className="ficha-top">
+                <span className="label">{pieza.tipo}</span>
+                <button ref={closeBtn} type="button" onClick={onClose} className="btn btn-link">
+                  Cerrar <span aria-hidden="true">✕</span>
+                </button>
               </div>
-            </div>
 
-            <div className="ficha-galeria">
-              <Galeria key={pieza.id} images={pieza.images} url={pieza.liveUrl} />
-            </div>
+              <div className="ficha-head">
+                <h2 id="ficha-titulo" className="display">
+                  {pieza.name}
+                </h2>
+                <div className="ficha-grid">
+                  <div>
+                    <p className="subhead">{pieza.linea}</p>
+                    <p className="body ficha-historia">{pieza.historia}</p>
+                    <div className="ficha-acciones">
+                      {pieza.liveUrl ? (
+                        <a href={pieza.liveUrl} target="_blank" rel="noopener noreferrer" className="btn btn-primary">
+                          {ABRIR[pieza.status]} <span className="arw arw-ne" aria-hidden="true">↗</span>
+                        </a>
+                      ) : null}
+                      {pieza.casoHref ? (
+                        <Link href={pieza.casoHref} className="btn btn-link">
+                          Leer el caso completo <span className="arw arw-r" aria-hidden="true">→</span>
+                        </Link>
+                      ) : null}
+                    </div>
+                  </div>
+                  <dl className="ficha-datos">
+                    <div>
+                      <dt className="label">Año</dt>
+                      <dd className="tnum">{pieza.year}</dd>
+                    </div>
+                    <div>
+                      <dt className="label">Estado</dt>
+                      <dd>{ESTADO[pieza.status]}</dd>
+                    </div>
+                    <div className="ficha-stack">
+                      <dt className="label">Hecho con</dt>
+                      <dd className="chips">
+                        {pieza.stack.map((s) => (
+                          <span key={s} className="chip">
+                            {s}
+                          </span>
+                        ))}
+                      </dd>
+                    </div>
+                  </dl>
+                </div>
+              </div>
 
-            {siguiente ? (
-              <button type="button" onClick={() => onGo(siguiente.id)} className="ficha-siguiente" data-theme="ink">
-                <span className="label">Siguiente</span>
-                <span className="ficha-siguiente-nombre">
-                  <span className="headline">{siguiente.name}</span>
-                  <span className="arw arw-r ficha-flecha" aria-hidden="true">→</span>
-                </span>
-              </button>
-            ) : null}
+              <div className="ficha-galeria">
+                <Galeria key={pieza.id} images={pieza.images} url={pieza.liveUrl} />
+              </div>
+
+              {siguiente ? (
+                <button type="button" onClick={() => onGo(siguiente.id)} className="ficha-siguiente" data-theme="ink">
+                  <span className="label">Siguiente</span>
+                  <span className="ficha-siguiente-nombre">
+                    <span className="headline">{siguiente.name}</span>
+                    <span className="arw arw-r ficha-flecha" aria-hidden="true">→</span>
+                  </span>
+                </button>
+              ) : null}
+            </motion.div>
           </motion.div>
-        </motion.div>
-      ) : null}
-    </AnimatePresence>
+        ) : null}
+      </AnimatePresence>
+    </MotionConfig>
   );
 }
 

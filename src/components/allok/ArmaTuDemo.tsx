@@ -1,50 +1,14 @@
 "use client";
 
-import { useEffect, useState, type FormEvent } from "react";
-import { useRouter } from "next/navigation";
+import { useArmarDemo } from "./useArmarDemo";
 
 /**
- * «Arma tu demo» en la portada: el dueño pega su web y en ~30 segundos le
- * escribe a un agente que ya conoce su negocio (`/demo/<slug>?tuya=1`), antes
- * de crear cuenta. Lo pesado vive en `/api/demo/crear`.
+ * «Arma tu demo» en /agente-whatsapp: el dueño pega su web y en ~30 segundos
+ * le escribe a un agente que ya conoce su negocio. La lógica vive en
+ * `useArmarDemo`, que comparte con la demo de la portada; aquí, solo el marcado.
  */
-
-const STEPS = ["Abriendo tu web…", "Leyendo tus servicios y precios…", "Enseñándole a tu agente…", "Casi listo…"];
-
 export default function ArmaTuDemo() {
-  const router = useRouter();
-  const [name, setName] = useState("");
-  const [website, setWebsite] = useState("");
-  const [busy, setBusy] = useState(false);
-  const [step, setStep] = useState(0);
-  const [error, setError] = useState<string | null>(null);
-
-  // La espera se cuenta: cada paso se ve unos segundos, el último se queda.
-  useEffect(() => {
-    if (!busy) return;
-    const id = window.setInterval(() => setStep((s) => Math.min(s + 1, STEPS.length - 1)), 7000);
-    return () => window.clearInterval(id);
-  }, [busy]);
-
-  async function submit(event: FormEvent) {
-    event.preventDefault();
-    if (busy) return;
-    setError(null);
-    setStep(0);
-    setBusy(true);
-    const res = await fetch("/api/demo/crear", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ name, website }),
-    }).catch(() => null);
-    const data = (await res?.json().catch(() => null)) as { slug?: string; error?: { message?: string } } | null;
-    if (res?.ok && data?.slug) {
-      router.push(`/demo/${data.slug}?tuya=1`);
-      return;
-    }
-    setBusy(false);
-    setError(data?.error?.message ?? "No pudimos armar la demo ahora. Prueba de nuevo en un momento.");
-  }
+  const { name, setName, website, setWebsite, busy, paso, error, submit } = useArmarDemo();
 
   return (
     <form onSubmit={submit} className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)_auto] sm:items-end" aria-describedby="arma-demo-nota">
@@ -88,7 +52,7 @@ export default function ArmaTuDemo() {
             {error}
           </span>
         ) : busy ? (
-          STEPS[step]
+          paso
         ) : (
           "Sin cuenta y sin tarjeta. Lee solo lo público de tu web y no inventa lo que no está ahí."
         )}

@@ -77,7 +77,8 @@ export const metadata: Metadata = {
         url: "/opengraph-image",
         width: 1200,
         height: 630,
-        alt: "allok — software que atiende, vende y deja registro",
+        // Describe la imagen (app/opengraph-image.tsx): la frase de la portada.
+        alt: "allok · Hago el software con el que trabaja tu negocio",
       },
     ],
   },

@@ -22,7 +22,8 @@ export default function WhatsappClickTracker() {
       track("whatsapp_opened", {
         path: location.pathname,
         cta: (link?.textContent ?? "").trim().slice(0, 40),
-        prefill: prefill.replace(/^Hola, vengo de allok\.fun\.\s*/, "").slice(0, 60),
+        // El saludo, con o sin «Adrián.» (la portada y /trabajo le escriben a él), no dice qué CTA fue.
+        prefill: prefill.replace(/^Hola,\s*(?:Adrián\.\s*)?vengo de allok\.fun\.\s*/i, "").slice(0, 60),
       });
     };
     document.addEventListener("click", onClick, { capture: true });

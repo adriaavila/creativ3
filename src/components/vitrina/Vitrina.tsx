@@ -1,56 +1,42 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-import { PIEZAS } from "@/lib/vitrina";
 import Cabecera from "./Cabecera";
-import Estudio from "./Estudio";
 import Ficha from "./Ficha";
-import Indice from "./Indice";
-import Interior from "./Interior";
-import Laminas from "./Laminas";
-import Portada from "./Portada";
-
-const HASH = "#pieza=";
+import Historias from "./Historias";
+import Otras from "./Otras";
+import { useFicha } from "./useFicha";
 
 /**
- * La portada entera. Guarda una sola cosa: qué ficha está abierta, y la
- * escribe en la URL (`#pieza=rei-fm`) para que se pueda compartir.
+ * La portada entera: quién, el trabajo contado desde el problema del dueño,
+ * el resto del trabajo, quién lo hace y cómo se empieza. Guarda una sola
+ * cosa, qué ficha está abierta (`useFicha`, igual que /trabajo). Lo que no
+ * abre fichas llega ya pintado del servidor: la portada, el agente con su
+ * demo, lo que va después de las otras (`children`: Sobre mí y Cómo
+ * empezamos) y el cierre.
  */
-export default function Vitrina({ children }: { children: React.ReactNode }) {
-  const [abierta, setAbierta] = useState<string | null>(null);
-
-  useEffect(() => {
-    const leer = () => {
-      const h = window.location.hash;
-      const id = h.startsWith(HASH) ? decodeURIComponent(h.slice(HASH.length)) : null;
-      setAbierta(id && PIEZAS.some((p) => p.id === id) ? id : null);
-    };
-    leer();
-    window.addEventListener("hashchange", leer);
-    return () => window.removeEventListener("hashchange", leer);
-  }, []);
-
-  const abrir = useCallback((id: string) => {
-    setAbierta(id);
-    history.replaceState(null, "", `${HASH}${id}`);
-  }, []);
-
-  const cerrar = useCallback(() => {
-    setAbierta(null);
-    history.replaceState(null, "", window.location.pathname + window.location.search);
-  }, []);
+export default function Vitrina({
+  portada,
+  agente,
+  children,
+  cierre,
+}: {
+  portada: React.ReactNode;
+  agente: React.ReactNode;
+  children: React.ReactNode;
+  cierre: React.ReactNode;
+}) {
+  const { abierta, abrir, cerrar } = useFicha();
 
   return (
     <>
-      <Cabecera />
-      <main>
-        <Portada />
-        <Laminas onOpen={abrir} />
-        <Interior onOpen={abrir} />
-        <Estudio />
-        <Indice onOpen={abrir} />
+      <Cabecera portada />
+      <main id="contenido">
+        {portada}
+        <Historias onOpen={abrir} agente={agente} />
+        <Otras onOpen={abrir} />
+        {children}
       </main>
-      {children}
+      {cierre}
       <Ficha id={abierta} onClose={cerrar} onGo={abrir} />
     </>
   );

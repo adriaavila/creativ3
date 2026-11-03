@@ -20,7 +20,7 @@ export const metadata: Metadata = {
 const NAV = [
   { href: "/#trabajo", label: "Trabajo" },
   { href: "/casos", label: "Casos" },
-  { href: "/#indice", label: "Índice" },
+  { href: "/trabajo", label: "Todo el trabajo" },
 ];
 
 export default function CasosPage() {

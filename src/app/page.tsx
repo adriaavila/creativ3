@@ -1,19 +1,20 @@
 import type { Metadata } from "next";
-import Script from "next/script";
-import MotionInit from "@/components/ak/MotionInit";
+import Shell from "@/components/ak/Shell";
+import Agente from "@/components/vitrina/Agente";
 import Cierre from "@/components/vitrina/Cierre";
+import Empezar from "@/components/vitrina/Empezar";
+import Portada from "@/components/vitrina/Portada";
+import SobreMi from "@/components/vitrina/SobreMi";
 import Vitrina from "@/components/vitrina/Vitrina";
 import { CUENTAS } from "@/lib/vitrina";
-import "@/styles/allok/tokens.css";
-import "@/styles/allok/allok.css";
-import "@/styles/allok/site.css";
 
-// La portada, con el sistema de diseño de allok («All business OK.»): CSS
-// plano bajo `.ak` y un solo script, motion.js. El resto del sitio conserva
-// sus estilos. El CSS se regenera con `node scripts/build-allok-ds.mjs`.
+// La portada: el trabajo contado desde el problema del dueño, quién lo hace,
+// cómo se empieza y una sola salida, WhatsApp. El marco (CSS, motion.js) lo
+// comparte con /trabajo en `Shell`. Las secciones que no abren fichas se
+// pintan aquí, en el servidor, y `Vitrina` solo las coloca.
 
-const TITLE = "allok · el trabajo de Adrián Avila";
-const DESCRIPTION = `Webs, sistemas y agentes de IA para negocios de verdad: tú das el ok y la IA hace el resto. ${CUENTAS.piezas} piezas, ${CUENTAS.enVivo} de ellas vivas para abrir.`;
+const TITLE = "allok · Software para tu negocio, de Adrián Avila";
+const DESCRIPTION = `Webs, sistemas para el día a día y agentes que contestan tu WhatsApp, para negocios de Latinoamérica. Precio cerrado antes de empezar y ${CUENTAS.piezas} trabajos que puedes abrir.`;
 
 export const metadata: Metadata = {
   title: { absolute: TITLE },
@@ -23,21 +24,13 @@ export const metadata: Metadata = {
   twitter: { card: "summary_large_image", title: TITLE, description: DESCRIPTION },
 };
 
-// Sistema, Build §1: .motion en <html> antes de pintar, para que nada parpadee
-// antes de esconderse; si motion.js no llega en 3 s, se quita y todo se ve.
-const MOTION_GUARD =
-  "(function(h){if(!(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)&&'IntersectionObserver' in window){h.classList.add('motion');setTimeout(function(){if(!window.AllokMotion)h.classList.remove('motion')},3000)}})(document.documentElement)";
-
 export default function Home() {
   return (
-    <div className="ak" data-theme="cloud" id="top">
-      <script dangerouslySetInnerHTML={{ __html: MOTION_GUARD }} />
-      <link rel="preload" href="/allok/Geist-Variable.woff2" as="font" type="font/woff2" crossOrigin="" />
-      <Vitrina>
-        <Cierre />
+    <Shell>
+      <Vitrina portada={<Portada />} agente={<Agente />} cierre={<Cierre />}>
+        <SobreMi />
+        <Empezar />
       </Vitrina>
-      <Script src="/allok/motion.js" strategy="afterInteractive" />
-      <MotionInit />
-    </div>
+    </Shell>
   );
 }

@@ -1,0 +1,45 @@
+/* allok — scoped under .ak by scripts/build-allok-ds.mjs. Do not edit. */
+.ak .window-shot {position: relative; width: 100%; background: var(--ground-2);}
+.ak .window-shot img {object-fit: cover; object-position: top;}
+.ak .window-bar {font: 400 12px/1 var(--font-sans); color: var(--text-muted);}
+.ak .show-open {display: block; width: 100%; max-width: 1040px; padding: 0; border: 0; background: none; cursor: pointer; text-align: left;}
+.ak .show-cap .label + .show-name {margin-top: var(--space-3);}
+.ak .section-intro {display: block; border-bottom: 0; padding: clamp(90px, 12vw, 170px) clamp(20px, 5vw, 72px) clamp(40px, 5vw, 72px);}
+.ak .tile-shot {gap: var(--space-4); justify-content: flex-start; min-height: 0; border: 0; text-align: left; font: inherit; cursor: pointer;}
+.ak .tile-cap {display: grid; gap: 4px;}
+.ak .tile-shot .caption {color: var(--text-muted-2);}
+.ak .estudio-texto {max-width: 26ch; text-wrap: pretty;}
+.ak .cifras {display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--space-8) var(--space-4); margin: var(--space-9) 0 0; padding-top: var(--space-6); border-top: 1px solid var(--line-strong);}
+.ak .cifras > div {display: grid; gap: var(--space-3);}
+.ak .cifras dd {margin: 0;}
+.ak .indice-filtros {margin-bottom: var(--space-6);}
+.ak .indice-filtros .chip {min-height: var(--size-target); cursor: pointer; font: 500 13px/1 var(--font-sans); transition: background-color var(--duration-instant) var(--ease-out), color var(--duration-instant) var(--ease-out);}
+.ak .indice-n {margin-left: 6px; color: inherit; opacity: .7;}
+.ak ol.log {margin: 0; padding: 0; list-style: none; border-top: 1px solid var(--line-strong);}
+.ak button.log-row {width: 100%; border: 0; border-bottom: 1px solid var(--line); background: none; color: inherit; font: inherit; text-align: left; cursor: pointer;}
+.ak button.log-row:hover .log-name {text-decoration-line: underline;}
+.ak .closer .headline + .btn {margin-top: 44px;}
+.ak .ficha {position: fixed; inset: 0; z-index: 70;}
+.ak .ficha-scrim {position: absolute; inset: 0; border: 0; background: rgba(11,13,14,.72); cursor: pointer;}
+.ak .ficha-sheet {position: absolute; inset: 12px 0 0; overflow-y: auto; overscroll-behavior: contain; background: var(--ground); color: var(--text);}
+.ak .ficha-top {position: sticky; top: 0; z-index: 2; display: flex; align-items: center; justify-content: space-between; gap: 20px; min-height: var(--size-header); padding: 0 clamp(20px, 5vw, 72px); background: var(--ground); border-bottom: 1px solid var(--line);}
+.ak .ficha-head {padding: clamp(48px, 7vw, 110px) clamp(20px, 5vw, 72px) 0; max-width: 1440px; margin: 0 auto;}
+.ak .ficha-grid {display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: clamp(30px, 6vw, 96px); margin-top: var(--space-7);}
+.ak .ficha-historia {margin-top: var(--space-6); max-width: 60ch; color: var(--text-muted);}
+.ak .ficha-acciones {display: flex; flex-wrap: wrap; align-items: center; gap: 12px 24px; margin-top: var(--space-7);}
+.ak .ficha-datos {display: grid; grid-template-columns: 1fr 1fr; align-content: start; gap: var(--space-6); margin: 0; padding-top: var(--space-6); border-top: 1px solid var(--line-strong);}
+.ak .ficha-datos dd {margin: 6px 0 0; font: 400 16px/1.45 var(--font-sans);}
+.ak .ficha-stack {grid-column: 1 / -1;}
+.ak .ficha-galeria {display: flex; flex-wrap: wrap; justify-content: center; gap: var(--space-8) var(--space-6); max-width: 1440px; margin: 0 auto; padding: clamp(48px, 7vw, 110px) clamp(20px, 5vw, 72px);}
+.ak .ficha-fig {margin: 0; width: 100%; display: grid; gap: var(--space-3);}
+.ak .ficha-fig.is-phone {width: min(70vw, 290px);}
+.ak .ficha-siguiente {display: block; width: 100%; padding: clamp(56px, 7vw, 110px) clamp(20px, 5vw, 72px); border: 0; text-align: left; font: inherit; cursor: pointer;}
+.ak .ficha-siguiente-nombre {display: flex; align-items: center; justify-content: space-between; gap: 24px; margin-top: var(--space-3);}
+.ak .ficha-flecha {font-size: clamp(2rem, 5vw, 4rem);}
+@media (max-width: 760px) {
+.ak .cifras {grid-template-columns: 1fr 1fr;}
+.ak .ficha-grid {grid-template-columns: 1fr;}
+.ak .ficha-sheet {inset: 0;}
+.ak .header-end .btn-primary {padding: 15px 14px;}
+}
+

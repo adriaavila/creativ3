@@ -4,11 +4,11 @@
 // Sources (copied as-is from the design system artifact, never edited here):
 //   src/styles/allok/tokens.json   the tokens
 //   src/styles/allok/bundle.css    the component stylesheet
-//   src/styles/allok/home.src.css  the home demos' styles (from the Home card)
+//   src/styles/allok/site.src.css  the few layout rules the home adds on top
 // Output (generated, committed, do not edit):
 //   src/styles/allok/tokens.css    tokens compiled to custom properties + type classes
 //   src/styles/allok/allok.css     bundle.css with every selector scoped under `.ak`
-//   src/styles/allok/home.css      home.src.css, scoped the same way
+//   src/styles/allok/site.css      site.src.css, scoped the same way
 //
 // Why scoped: the rest of allok.fun (/agente-whatsapp, /ops, the funnel) runs on
 // Tailwind and already defines --ink, .btn-like names and its own fonts. Under
@@ -135,8 +135,8 @@ export function scopeCss(css) {
 
 const tokens = compileTokens(JSON.parse(readFileSync(join(dir, "tokens.json"), "utf8")));
 const allok = scopeCss(readFileSync(join(dir, "bundle.css"), "utf8"));
-const home = scopeCss(readFileSync(join(dir, "home.src.css"), "utf8"));
-const targets = [["tokens.css", tokens], ["allok.css", allok], ["home.css", home]];
+const site = scopeCss(readFileSync(join(dir, "site.src.css"), "utf8"));
+const targets = [["tokens.css", tokens], ["allok.css", allok], ["site.css", site]];
 
 if (process.argv.includes("--check")) {
   const stale = targets.filter(([f, c]) => {
@@ -149,5 +149,5 @@ if (process.argv.includes("--check")) {
   console.log("allok design system: outputs up to date");
 } else {
   for (const [f, c] of targets) writeFileSync(join(dir, f), c);
-  console.log("allok design system: wrote tokens.css, allok.css and home.css");
+  console.log("allok design system: wrote tokens.css, allok.css and site.css");
 }

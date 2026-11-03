@@ -1,0 +1,60 @@
+/* allok.fun's home: the few rules the system's cards leave to the page.
+   Only tokens; square surfaces; no shadows, no gradients. Scoped into site.css. */
+
+/* A real capture inside .window */
+.window-shot { position: relative; width: 100%; background: var(--ground-2); }
+.window-shot img { object-fit: cover; object-position: top; }
+.window-bar { font: 400 12px/1 var(--font-sans); color: var(--text-muted); }
+
+/* A capture that opens its sheet */
+.show-open { display: block; width: 100%; max-width: 1040px; padding: 0; border: 0; background: none; cursor: pointer; text-align: left; }
+.show-cap .label + .show-name { margin-top: var(--space-3); }
+.section-intro { display: block; border-bottom: 0; padding: clamp(90px, 12vw, 170px) clamp(20px, 5vw, 72px) clamp(40px, 5vw, 72px); }
+
+/* Por dentro: captures as tiles */
+.tile-shot { gap: var(--space-4); justify-content: flex-start; min-height: 0; border: 0; text-align: left; font: inherit; cursor: pointer; }
+.tile-cap { display: grid; gap: 4px; }
+.tile-shot .caption { color: var(--text-muted-2); }
+
+/* El estudio */
+.estudio-texto { max-width: 26ch; text-wrap: pretty; }
+.cifras { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--space-8) var(--space-4); margin: var(--space-9) 0 0; padding-top: var(--space-6); border-top: 1px solid var(--line-strong); }
+.cifras > div { display: grid; gap: var(--space-3); }
+.cifras dd { margin: 0; }
+
+/* Índice */
+.indice-filtros { margin-bottom: var(--space-6); }
+.indice-filtros .chip { min-height: var(--size-target); cursor: pointer; font: 500 13px/1 var(--font-sans); transition: background-color var(--duration-instant) var(--ease-out), color var(--duration-instant) var(--ease-out); }
+.indice-n { margin-left: 6px; color: inherit; opacity: .7; }
+ol.log { margin: 0; padding: 0; list-style: none; border-top: 1px solid var(--line-strong); }
+button.log-row { width: 100%; border: 0; border-bottom: 1px solid var(--line); background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+button.log-row:hover .log-name { text-decoration-line: underline; }
+
+/* Cierre */
+.closer .headline + .btn { margin-top: 44px; }
+
+/* La ficha */
+.ficha { position: fixed; inset: 0; z-index: 70; }
+.ficha-scrim { position: absolute; inset: 0; border: 0; background: rgba(11,13,14,.72); cursor: pointer; }
+.ficha-sheet { position: absolute; inset: 12px 0 0; overflow-y: auto; overscroll-behavior: contain; background: var(--ground); color: var(--text); }
+.ficha-top { position: sticky; top: 0; z-index: 2; display: flex; align-items: center; justify-content: space-between; gap: 20px; min-height: var(--size-header); padding: 0 clamp(20px, 5vw, 72px); background: var(--ground); border-bottom: 1px solid var(--line); }
+.ficha-head { padding: clamp(48px, 7vw, 110px) clamp(20px, 5vw, 72px) 0; max-width: 1440px; margin: 0 auto; }
+.ficha-grid { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: clamp(30px, 6vw, 96px); margin-top: var(--space-7); }
+.ficha-historia { margin-top: var(--space-6); max-width: 60ch; color: var(--text-muted); }
+.ficha-acciones { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 24px; margin-top: var(--space-7); }
+.ficha-datos { display: grid; grid-template-columns: 1fr 1fr; align-content: start; gap: var(--space-6); margin: 0; padding-top: var(--space-6); border-top: 1px solid var(--line-strong); }
+.ficha-datos dd { margin: 6px 0 0; font: 400 16px/1.45 var(--font-sans); }
+.ficha-stack { grid-column: 1 / -1; }
+.ficha-galeria { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--space-8) var(--space-6); max-width: 1440px; margin: 0 auto; padding: clamp(48px, 7vw, 110px) clamp(20px, 5vw, 72px); }
+.ficha-fig { margin: 0; width: 100%; display: grid; gap: var(--space-3); }
+.ficha-fig.is-phone { width: min(70vw, 290px); }
+.ficha-siguiente { display: block; width: 100%; padding: clamp(56px, 7vw, 110px) clamp(20px, 5vw, 72px); border: 0; text-align: left; font: inherit; cursor: pointer; }
+.ficha-siguiente-nombre { display: flex; align-items: center; justify-content: space-between; gap: 24px; margin-top: var(--space-3); }
+.ficha-flecha { font-size: clamp(2rem, 5vw, 4rem); }
+
+@media (max-width: 760px) {
+  .cifras { grid-template-columns: 1fr 1fr; }
+  .ficha-grid { grid-template-columns: 1fr; }
+  .ficha-sheet { inset: 0; }
+  .header-end .btn-primary { padding: 15px 14px; }
+}

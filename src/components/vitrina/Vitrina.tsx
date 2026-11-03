@@ -3,13 +3,12 @@
 import { useCallback, useEffect, useState } from "react";
 import { PIEZAS } from "@/lib/vitrina";
 import Cabecera from "./Cabecera";
-import Cursor from "./Cursor";
 import Estudio from "./Estudio";
 import Ficha from "./Ficha";
 import Indice from "./Indice";
 import Interior from "./Interior";
 import Laminas from "./Laminas";
-import Muro from "./Muro";
+import Portada from "./Portada";
 
 const HASH = "#pieza=";
 
@@ -42,11 +41,10 @@ export default function Vitrina({ children }: { children: React.ReactNode }) {
   }, []);
 
   return (
-    <div className="vitrina relative">
-      <Cursor />
+    <>
       <Cabecera />
       <main>
-        <Muro />
+        <Portada />
         <Laminas onOpen={abrir} />
         <Interior onOpen={abrir} />
         <Estudio />
@@ -54,6 +52,6 @@ export default function Vitrina({ children }: { children: React.ReactNode }) {
       </main>
       {children}
       <Ficha id={abierta} onClose={cerrar} onGo={abrir} />
-    </div>
+    </>
   );
 }

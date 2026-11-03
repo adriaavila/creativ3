@@ -3,9 +3,9 @@ import type { PortfolioProject, ProjectImage } from './projects';
 export type ProjectDate = { value: string; precision: 'day' | 'year'; source: 'repository' | 'portfolio' | 'launch' };
 export type ProjectStory = { problem: string; contribution: string; outcome: string };
 
-// Repository beginnings verified with GitHub on 2026-09-06. These are NOT launch dates.
+// Repository beginnings verified with GitHub on 2026-09-06 (cuadra on 2026-11-03). These are NOT launch dates.
 const REPOSITORY_DATES: Record<string, string> = {
-  'nea-agent': '2026-08-08', 'vocero-crm': '2026-08-10',
+  cuadra: '2026-08-20', 'nea-agent': '2026-08-08', 'vocero-crm': '2026-08-10',
   'ainetworking-canada': '2026-07-16', samer: '2026-07-17',
   'santorini': '2026-07-19', shopea: '2026-06-22', 'dream-drop': '2026-06-08',
   'waha-fisio-agent': '2026-06-22', 'parley-mundial': '2026-05-21',

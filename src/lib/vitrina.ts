@@ -36,11 +36,18 @@ export type Pieza = {
 
 const ES: Record<string, { tipo: string; linea: string; historia: string; tint: string }> = {
   "rei-fm": {
-    tipo: "Plataforma inmobiliaria",
+    tipo: "Administración de edificios",
     linea: "Tu edificio, administrado.",
     historia:
-      "Marketplace, CRM, administración de edificios, portal de residentes y documentos leídos con IA bajo supervisión. Junta en un solo lugar lo que una operación inmobiliaria suele tener repartido en cinco herramientas.",
-    tint: "#1f4d3a",
+      "Cobranza por unidad, gastos con respaldo y el cierre del mes con sus informes, para edificios y condominios de Bolivia y Venezuela. Rei lee la foto o el PDF de cada factura y propone el registro; nada entra al cierre sin que el administrador lo apruebe. Cada residente ve su saldo y cómo pagar desde un enlace propio, sin instalar nada.",
+    tint: "#205743",
+  },
+  cuadra: {
+    tipo: "Punto de venta bimoneda",
+    linea: "Dos monedas en una venta y el cierre sin hojas de cálculo.",
+    historia:
+      "Punto de venta para negocios venezolanos: cobra en dólares o bolívares en la misma venta, divide el pago entre ocho métodos y guarda la tasa de cada cobro. Si se va el internet, la venta queda en el equipo y se sincroniza sola. El cierre compara el efectivo esperado con el contado, y el contador entra con acceso de consulta para exportar los libros del período.",
+    tint: "#0f766e",
   },
   vistacampo: {
     tipo: "Sitio institucional",
@@ -51,10 +58,10 @@ const ES: Record<string, { tipo: string; linea: string; historia: string; tint: 
   },
   samer: {
     tipo: "Constructora",
-    linea: "Los compradores ven su edificio crecer sin llamar a nadie.",
+    linea: "El comprador compara terreno, precio y entrega antes de pedir la visita.",
     historia:
-      "Sitio de una constructora con catálogo de proyectos y avance de obra por desarrollo. Convierte los dos años de silencio entre la firma y la entrega en una razón para volver.",
-    tint: "#7a2a1c",
+      "Sitio de venta de una constructora de Tarija: el condominio Santorini, los departamentos de Verona y construcción en terreno propio. Cada casa se filtra por terreno, precio y fecha de entrega, y se recorre por dentro en siete paradas con los renders oficiales. Para pedir la visita, WhatsApp se abre con el mensaje listo.",
+    tint: "#b05a33",
   },
   kawsay: {
     tipo: "Café de especialidad",
@@ -100,10 +107,10 @@ const ES: Record<string, { tipo: string; linea: string; historia: string; tint: 
   },
   "ainetworking-canada": {
     tipo: "Comunidad de IA",
-    linea: "Lanzaron con la plataforma adentro, no con una lista de espera.",
+    linea: "De no saber por dónde empezar a un plan de seis meses.",
     historia:
-      "Sitio público y plataforma de miembros para una organización de IA en Canadá: hubs, postulaciones, eventos, nueve canales y un tablero de colaboración. Quien se registra encuentra con quién hablar el mismo día.",
-    tint: "#1b3a7a",
+      "Sitio bilingüe y plataforma de miembros para una comunidad sin fines de lucro de IA en Canadá. Tres rutas (entender, liderar, construir) terminan en un plan propio de seis meses, y un navegador recomienda por dónde empezar sin pedir cuenta. Suma un calendario de eventos de IA de todo el país, reservas para webinars y sesiones de consulta.",
+    tint: "#071f4b",
   },
   avepane: {
     tipo: "Organización social",
@@ -159,8 +166,8 @@ const ES: Record<string, { tipo: string; linea: string; historia: string; tint: 
   },
 };
 
-/** El orden en que entran a escena las piezas grandes. */
-export const DESTACADAS = ["rei-fm", "vistacampo", "samer", "kawsay", "parley-mundial", "integra", "viaja-ven", "dream-drop"];
+/** El orden en que entran a escena las piezas grandes: lo más reciente primero, y Rei en el campo azul. */
+export const DESTACADAS = ["rei-fm", "cuadra", "samer", "ainetworking-canada", "dream-drop", "vistacampo"];
 
 const DISCIPLINA: Record<string, Disciplina[]> = {
   web: ["web"],
@@ -198,6 +205,7 @@ const ETIQUETA: Record<string, string> = {
   "Mobile service discovery": "En el celular",
   Desktop: "En la pantalla grande",
   Scroll: "Más abajo",
+  "Point of sale": "Punto de venta",
 };
 
 const casoPorProyecto = new Map(CASOS.flatMap((c) => c.projectIds.map((id) => [id, `/casos/${c.slug}`] as const)));

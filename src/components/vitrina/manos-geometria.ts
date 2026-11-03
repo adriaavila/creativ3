@@ -36,13 +36,6 @@ function rng(seed: number) {
   };
 }
 
-/** Turns the direction d toward p by `ang` radians, in the plane they span. */
-function rotToward(d: V3, p: V3, ang: number): V3 {
-  const perp = sub(p, mul(d, dot(p, d)));
-  const l = len(perp);
-  if (l < 1e-6 || ang === 0) return d;
-  return norm(add(mul(d, Math.cos(ang)), mul(perp, Math.sin(ang) / l)));
-}
 
 export type Pose = {
   /** Curl per joint of the index finger, in radians. */
@@ -73,10 +66,17 @@ const PALMWARD = norm([0, -0.5, -1]);
 function fingerNodes(base: V3, dir: V3, lengths: number[], curls: number[], r: number, toward: V3 = PALMWARD): Node[] {
   const nodes: Node[] = [{ c: base, ra: r * 1.15, rb: r }];
   let p = base;
-  let d = norm(dir);
+  // Every joint curls in the same plane, the one from the finger's direction
+  // toward the palm, so a deep curl keeps tucking under instead of bending back.
+  const d0 = norm(dir);
+  const side = sub(toward, mul(d0, dot(toward, d0)));
+  const perp = len(side) < 1e-6 ? d0 : norm(side);
+  let bent = 0;
+  let d = d0;
   let rr = r;
   lengths.forEach((l, i) => {
-    d = rotToward(d, toward, curls[i] ?? 0);
+    bent += curls[i] ?? 0;
+    d = norm(add(mul(d0, Math.cos(bent)), mul(perp, Math.sin(bent))));
     if (i === lengths.length - 1) {
       // One more node near the end keeps the fingertip round, not pointed.
       nodes.push({ c: add(p, mul(d, l * 0.78)), ra: rr * 0.95, rb: rr * 0.85 });
@@ -109,7 +109,9 @@ function skeleton(pose: Pose): Skeleton {
   ];
   const chains: Chain[] = fingers.map((f) => {
     const palm: Node[] = [
-      { c: [0.05, f.y * 0.5, 0], ra: 0.06, rb: 0.058 },
+      // Far enough past the wrist, and close enough to the arm's axis, that the
+      // surface never folds back on itself where the hand meets the arm.
+      { c: [0.08, f.y * 0.42, 0], ra: 0.06, rb: 0.058 },
       { c: [0.25, f.y * 0.85, 0], ra: 0.052, rb: 0.056 },
     ];
     const nodes = [...arm, ...palm, ...fingerNodes(f.base, f.dir, f.lengths, f.curls, f.r)];
@@ -120,7 +122,7 @@ function skeleton(pose: Pose): Skeleton {
   const t1 = add(t0, mul(norm([0.65, 0.42, -0.1]), 0.13));
   const thumb: Node[] = [
     ...arm,
-    { c: [0.05, 0.06, 0], ra: 0.068, rb: 0.062 },
+    { c: [0.07, 0.05, 0], ra: 0.068, rb: 0.062 },
     { c: t0, ra: 0.06, rb: 0.054 },
     { c: t1, ra: 0.05, rb: 0.046 },
     ...fingerNodes(t1, [0.9, 0.2, -0.06], [0.12, 0.09], pose.thumb, 0.046, norm([1, -0.4, -0.6])).slice(1),
@@ -325,10 +327,13 @@ export function humanHand(pose: Pose, fibers: number, seed: number, mirror = fal
     const bow = (rand() - 0.5) * 0.06;
     const id = 0.3 + rand() * 0.7;
     const N = 18;
-    let prev = xf(backOfPalm(x0, 0.15, 0.004));
+    // Near the wrist the hand is narrower: start and end inside its outline.
+    const top = Math.min(0.15, 0.1 + 0.4 * x0);
+    const bottom = -Math.min(0.15, 0.1 + 0.4 * x1);
+    let prev = xf(backOfPalm(x0, top, 0.004));
     for (let j = 1; j <= N; j++) {
       const t = j / N;
-      const y = 0.15 - 0.3 * t;
+      const y = lerp(top, bottom, t);
       const q = xf(backOfPalm(lerp(x0, x1, t) + bow * Math.sin(Math.PI * t), y, 0.004));
       out.seg(prev, q, palmS, palmS, id);
       prev = q;
@@ -355,14 +360,20 @@ export function machineHand(pose: Pose, traces: number, seed: number, mirror = t
   // Chips on the back of the hand: [center x, center y, width, height], before the tilt.
   const chips: [number, number, number, number][] = [
     [0.22, 0.03, 0.15, 0.11],
-    [0.06, -0.075, 0.08, 0.06],
-    [0.08, 0.075, 0.06, 0.045],
+    [0.06, -0.09, 0.08, 0.06],
+    [0.08, 0.09, 0.06, 0.045],
   ];
   const PIN = 0.014;
+  const inChip = (h: V3) => chips.some(([cx, cy, w, hh]) => Math.abs(h[0] - cx) < w / 2 + PIN && Math.abs(h[1] - cy) < hh / 2 + PIN);
+  // A trace on the back of the hand that reaches a chip ends at its pin;
+  // along the hand's edges it runs on underneath, like an inner layer.
   const onChip = (q: V3) => {
     const h = inv(q);
-    if (h[2] < 0.02) return false;
-    return chips.some(([cx, cy, w, hh]) => Math.abs(h[0] - cx) < w / 2 + PIN && Math.abs(h[1] - cy) < hh / 2 + PIN);
+    return h[2] >= 0.02 && inChip(h);
+  };
+  // But no pad ever sits inside a chip's outline.
+  const pad = (q: V3, s: number, id: number) => {
+    if (!inChip(inv(q))) pads.point(q, s, id);
   };
 
   const LANES = 14;
@@ -392,7 +403,7 @@ export function machineHand(pose: Pose, traces: number, seed: number, mirror = t
     let prev = onSurface(first, angle(lane, first.palm), 1.01);
     if (onChip(prev)) continue;
     let ps = first.s;
-    pads.point(prev, ps, id);
+    pad(prev, ps, id);
     let steer = 0;
     for (let i = start + 1; i <= end; i++) {
       const p = samples[i]!;
@@ -409,11 +420,11 @@ export function machineHand(pose: Pose, traces: number, seed: number, mirror = t
       // A trace that reaches a chip ends at its pin.
       if (onChip(q)) break;
       lines.seg(prev, q, ps, p.s, id);
-      if (bent && steer === 0) pads.point(q, p.s, id);
+      if (bent && steer === 0) pad(q, p.s, id);
       prev = q;
       ps = p.s;
     }
-    pads.point(prev, ps, id);
+    pad(prev, ps, id);
   }
 
   // A ring at every joint: a band open at the back, where nobody looks.
@@ -472,4 +483,12 @@ export function machineHand(pose: Pose, traces: number, seed: number, mirror = t
   }
   const wrist = sampleAt(mid, 2).s;
   return { lines: lines.done(wrist), pads: pads.done(wrist) };
+}
+
+/** Both hands, as the hero draws them: denser on a wide screen, lighter on a phone. */
+export type Manos = { human: Lines; machine: Lines; pads: Lines };
+
+export function construirManos(small: boolean): Manos {
+  const machine = machineHand(MAQUINA, small ? 220 : 340, 11);
+  return { human: humanHand(HUMANA, small ? 380 : 560, 7), machine: machine.lines, pads: machine.pads };
 }

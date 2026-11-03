@@ -62,4 +62,12 @@ button.log-row:hover .log-name { text-decoration-line: underline; }
 /* The hero's hands: a full-bleed strip between the line and the lead. */
 .manos { position: relative; height: clamp(240px, 30vw, 460px); margin: clamp(8px, 2vw, 24px) calc(-1 * clamp(20px, 5vw, 72px)) clamp(16px, 3vw, 40px); overflow: hidden; }
 .manos canvas { display: block; }
-.manos[data-sin-webgl] { display: none; }
+/* Without WebGL (or without JavaScript) the strip keeps its place and the mark closes in it alone. */
+.manos-marca { display: none; width: clamp(44px, 4.4vw, 64px); color: var(--text); }
+.manos-marca svg { display: block; width: 100%; height: auto; }
+.manos[data-sin-webgl] { display: grid; place-items: center; }
+.manos[data-sin-webgl] .manos-marca { display: block; }
+@media (scripting: none) {
+  .manos { display: grid; place-items: center; }
+  .manos-marca { display: block; }
+}

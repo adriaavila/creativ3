@@ -25,8 +25,17 @@ export default function Cabecera() {
     const seguir = () => {
       raf = 0;
       // Sticky at the top: its edge is always its height, even while it slides away.
-      const debajo = document.elementsFromPoint(window.innerWidth / 2, h.offsetHeight + 1).find((e) => !h.contains(e));
-      const tema = debajo?.closest<HTMLElement>("[data-theme]")?.dataset.theme;
+      // An open sheet (Ficha) doesn't count: under it the header keeps the page's theme.
+      const debajo = document
+        .elementsFromPoint(window.innerWidth / 2, h.offsetHeight + 1)
+        .find((e) => !h.contains(e) && !e.closest(".ficha"));
+      // The section's theme, not a window's inside it (a Cloud capture on a
+      // blue sheet): the outermost one below the page's own.
+      let tema: string | undefined;
+      for (let t = debajo?.closest<HTMLElement>("[data-theme]"); t; t = t.parentElement?.closest<HTMLElement>("[data-theme]")) {
+        if (tema && t.classList.contains("ak")) break;
+        tema = t.dataset.theme;
+      }
       if (tema && h.dataset.theme !== tema) h.dataset.theme = tema;
     };
     const pedir = () => {

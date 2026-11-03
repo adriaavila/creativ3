@@ -1,5 +1,5 @@
 {
-  "syncedAt": "2026-08-01",
+  "syncedAt": "2026-11-03",
   "projects": {
     "shopea": {
       "images": [
@@ -273,17 +273,23 @@
         {
           "src": "/projects/samer/01-desktop.jpg",
           "alt": "SAMER — Desktop",
-          "label": "Desktop"
+          "label": "Desktop",
+          "width": 2880,
+          "height": 1800
         },
         {
           "src": "/projects/samer/02-desktop-scroll.jpg",
           "alt": "SAMER — Scroll",
-          "label": "Scroll"
+          "label": "Scroll",
+          "width": 2880,
+          "height": 1800
         },
         {
           "src": "/projects/samer/03-mobile.jpg",
           "alt": "SAMER — Mobile",
-          "label": "Mobile"
+          "label": "Mobile",
+          "width": 780,
+          "height": 1688
         }
       ]
     },
@@ -351,17 +357,23 @@
         {
           "src": "/projects/ainetworking-canada/01-desktop.jpg",
           "alt": "AiNetworking Canada — Desktop",
-          "label": "Desktop"
+          "label": "Desktop",
+          "width": 2880,
+          "height": 1800
         },
         {
           "src": "/projects/ainetworking-canada/02-desktop-scroll.jpg",
           "alt": "AiNetworking Canada — Scroll",
-          "label": "Scroll"
+          "label": "Scroll",
+          "width": 2880,
+          "height": 1800
         },
         {
           "src": "/projects/ainetworking-canada/03-mobile.jpg",
           "alt": "AiNetworking Canada — Mobile",
-          "label": "Mobile"
+          "label": "Mobile",
+          "width": 780,
+          "height": 1688
         }
       ]
     },
@@ -387,6 +399,31 @@
     "waha-fisio-agent": {
       "githubPushedAt": "2026-08-01T22:02:04Z",
       "githubUpdatedLabel": "1 ago 2026"
+    },
+    "cuadra": {
+      "images": [
+        {
+          "src": "/projects/cuadra/01-desktop.jpg",
+          "alt": "Cuadra — Desktop",
+          "label": "Desktop",
+          "width": 2880,
+          "height": 1800
+        },
+        {
+          "src": "/projects/cuadra/02-desktop-scroll.jpg",
+          "alt": "Cuadra — Scroll",
+          "label": "Scroll",
+          "width": 2880,
+          "height": 1800
+        },
+        {
+          "src": "/projects/cuadra/03-mobile.jpg",
+          "alt": "Cuadra — Mobile",
+          "label": "Mobile",
+          "width": 780,
+          "height": 1688
+        }
+      ]
     }
   }
 }

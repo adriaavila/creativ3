@@ -54,7 +54,7 @@ export const CURATED_IMAGES: Record<string, ProjectImage[]> = {
   mistica: [
     { src: '/projects/mistica/dashboard.png', alt: 'Mística mobile dashboard with attendance and payment summaries', label: 'A daily operating picture' },
     { src: '/projects/mistica/home.png', alt: 'Mística home screen with upcoming classes', label: 'Today’s classes and activity' },
-    { src: '/projects/mistica/cobros.png', alt: 'Mística collections screen', label: 'Payment follow-up in context' },
+    { src: '/projects/mistica/cobros-sin-nombres.png', alt: 'Mística collections screen', label: 'Payment follow-up in context' },
   ],
 };
 

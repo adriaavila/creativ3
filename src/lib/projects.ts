@@ -381,7 +381,7 @@ const RAW_PORTFOLIO_PROJECTS: PortfolioProject[] = [
         label: "Home",
       },
       {
-        src: "/projects/mistica/cobros.png",
+        src: "/projects/mistica/cobros-sin-nombres.png",
         alt: "Mística billing module",
         label: "Billing",
       },

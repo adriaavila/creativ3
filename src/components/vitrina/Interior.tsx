@@ -17,7 +17,7 @@ const ORDEN: [string, string, string][] = [
   ["pausa", "/projects/pausa/03-mobile.jpg", "Chequeo diario"],
   ["almacen-vc", "/projects/almacen-vc/02-desktop-scroll.jpg", "Almacén por área"],
   ["soapy", "/projects/soapy/reports.jpg", "Reportes"],
-  ["mistica", "/projects/mistica/cobros.png", "Cobros con vencimiento"],
+  ["mistica", "/projects/mistica/cobros-sin-nombres.png", "Cobros con vencimiento"],
 ];
 
 const CUADROS: Cuadro[] = ORDEN.flatMap(([id, src, label]) => {

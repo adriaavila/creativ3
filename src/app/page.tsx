@@ -13,7 +13,7 @@ import "@/styles/allok/site.css";
 // sus estilos. El CSS se regenera con `node scripts/build-allok-ds.mjs`.
 
 const TITLE = "allok · el trabajo de Adrián Avila";
-const DESCRIPTION = `Webs, productos y agentes de IA hechos para negocios reales. ${CUENTAS.piezas} piezas con capturas reales, ${CUENTAS.enVivo} de ellas vivas para abrir.`;
+const DESCRIPTION = `Webs, sistemas y agentes de IA para negocios de verdad: tú das el ok y la IA hace el resto. ${CUENTAS.piezas} piezas, ${CUENTAS.enVivo} de ellas vivas para abrir.`;
 
 export const metadata: Metadata = {
   title: { absolute: TITLE },

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Rise, WordmarkSvg, vars } from "@/components/ak/Brand";
+import { Outcome, Rise, WordmarkSvg, vars } from "@/components/ak/Brand";
 
 const CORREO = "hi@allok.fun";
 
@@ -9,9 +9,9 @@ export default function Cierre() {
     <footer id="contacto" className="closer" data-theme="ink" data-stagger>
       <p className="label" data-reveal="fade">Contacto</p>
       <h2 className="headline" data-reveal="rise">
-        <Rise>¿Construimos</Rise>
+        <Rise>Cuéntame qué</Rise>
         <Rise line={1}>
-          <span className="outcome">algo bonito?</span>
+          <Outcome>te quita el tiempo</Outcome>
         </Rise>
       </h2>
       <a className="btn btn-primary" href={`mailto:${CORREO}`} data-reveal style={vars({ "--d": "300ms" })}>

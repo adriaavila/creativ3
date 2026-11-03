@@ -51,6 +51,11 @@ export const CURATED_IMAGES: Record<string, ProjectImage[]> = {
     { src: '/projects/integra/02-desktop-scroll.jpg', alt: 'Integra services overview', label: 'Services and capabilities' },
     { src: '/projects/integra/03-mobile.jpg', alt: 'Integra website on mobile', label: 'Mobile service discovery' },
   ],
+  // The scroll capture shows the site's live member and subscriber counters: theirs, not ours to publish.
+  'ainetworking-canada': [
+    { src: '/projects/ainetworking-canada/01-desktop.jpg', width: 2880, height: 1800, alt: 'AiNetworking Canada homepage: an AI networking community across Canada', label: 'Home' },
+    { src: '/projects/ainetworking-canada/03-mobile.jpg', width: 780, height: 1688, alt: 'AiNetworking Canada on mobile', label: 'Mobile' },
+  ],
   mistica: [
     { src: '/projects/mistica/dashboard.png', alt: 'Mística mobile dashboard with attendance and payment summaries', label: 'A daily operating picture' },
     { src: '/projects/mistica/home.png', alt: 'Mística home screen with upcoming classes', label: 'Today’s classes and activity' },

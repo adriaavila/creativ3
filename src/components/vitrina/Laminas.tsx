@@ -5,8 +5,8 @@ import { PIEZAS, PIEZAS_DESTACADAS, type Pieza } from "@/lib/vitrina";
 import { Ventana } from "./Marcos";
 
 /**
- * El trabajo grande, una pieza por sección: la captura primero y a todo el
- * ancho, después el nombre y su línea. La primera va en el campo azul.
+ * El trabajo más reciente, una pieza por sección: la captura primero y a todo
+ * el ancho, después el nombre y su línea. La primera va en el campo azul.
  */
 export default function Laminas({ onOpen }: { onOpen: (id: string) => void }) {
   const total = PIEZAS_DESTACADAS.length;
@@ -16,8 +16,8 @@ export default function Laminas({ onOpen }: { onOpen: (id: string) => void }) {
         <div className="section-title">
           <p className="label" data-reveal="fade">Trabajo</p>
           <h2 id="trabajo-titulo" className="headline" data-reveal="rise">
-            <Rise>Trabajo</Rise>
-            <Rise line={1}>seleccionado.</Rise>
+            <Rise>Lo más</Rise>
+            <Rise line={1}>reciente.</Rise>
           </h2>
           <p data-reveal>
             {total} de {PIEZAS.length} piezas · toca cualquiera para abrirla

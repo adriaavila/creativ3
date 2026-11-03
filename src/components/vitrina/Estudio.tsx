@@ -2,11 +2,11 @@ import { Rise } from "@/components/ak/Brand";
 import { CUENTAS } from "@/lib/vitrina";
 
 const TEXTO =
-  "Soy Adrián. Ingeniero industrial: aprendí a leer un negocio como un sistema, con sus cuellos de botella, su flujo y su desperdicio. Hoy diseño y construyo el software que los arregla, de la primera pantalla al despliegue, con las mismas manos y con agentes de IA haciendo la mitad aburrida.";
+  "Soy Adrián. Ingeniero industrial: aprendí a leer un negocio como un sistema, con sus cuellos de botella, su flujo y su desperdicio. Hoy diseño y construyo el software que los arregla, de la primera pantalla al despliegue. Los agentes de IA hacen la mitad aburrida; el criterio y el ok final siguen siendo míos.";
 
 const CIFRAS = [
   { n: CUENTAS.piezas, label: "piezas en esta página" },
-  { n: CUENTAS.capturas, label: "capturas reales, sin maquetas" },
+  { n: CUENTAS.capturas, label: "pantallas de proyectos reales" },
   { n: CUENTAS.lanzadas, label: "en producción" },
   { n: CUENTAS.tecnologias, label: "tecnologías distintas" },
 ];

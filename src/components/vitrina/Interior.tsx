@@ -8,6 +8,7 @@ type Cuadro = { id: string; name: string; label: string; src: string; alt: strin
 
 // Lo que no se ve desde afuera: los sistemas por dentro, pantalla por pantalla.
 const ORDEN: [string, string, string][] = [
+  ["cuadra", "/projects/cuadra/02-desktop-scroll.jpg", "Una venta en dos monedas"],
   ["soapy", "/projects/soapy/dashboard.jpg", "Tablero del dueño por sucursal"],
   ["mistica", "/projects/mistica/dashboard.png", "Cobranza del mes"],
   ["pace-running", "/projects/pace-running/01-desktop.jpg", "Atletas y planes"],
@@ -16,7 +17,6 @@ const ORDEN: [string, string, string][] = [
   ["taller-samer", "/projects/taller-samer/01-desktop.jpg", "Horas por equipo"],
   ["pausa", "/projects/pausa/03-mobile.jpg", "Chequeo diario"],
   ["almacen-vc", "/projects/almacen-vc/02-desktop-scroll.jpg", "Almacén por área"],
-  ["soapy", "/projects/soapy/reports.jpg", "Reportes"],
   ["mistica", "/projects/mistica/cobros-sin-nombres.png", "Cobros con vencimiento"],
 ];
 

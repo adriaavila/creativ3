@@ -185,6 +185,7 @@ html.lienzo-3d .ak .manos .manos-trazo {opacity: 0.35;}
 html.lienzo-3d .ak .manos[data-capa="trazo"] .manos-trazo {opacity: 1; transition: opacity var(--duration-quick) var(--ease-out);}
 html.lienzo-3d .ak .manos[data-sin-webgl] .manos-trazo {opacity: 1; transition: opacity var(--duration-slow) var(--ease-out);}
 html.lienzo-3d .ak .manos[data-capa="gl"] .manos-trazo {opacity: 0; transition: opacity var(--duration-quick) var(--ease-out);}
+html.lienzo-3d .ak .manos[data-capa="gl"][data-trazando] .manos-trazo {opacity: 0.35;}
 .ak .manos[data-capa="trazo"] canvas {visibility: hidden;}
 .ak .manos[data-sin-webgl] canvas {display: none;}
 @media (scripting: none) {

@@ -214,6 +214,8 @@ function INSTRUMENTO(op) {
         .sort((a, b) => b.duration - a.duration)
         .slice(0, 2)
         .map((x) => `${Math.round(x.duration)} ms ${x.invoker || x.invokerType || "?"}${x.sourceFunctionName ? ` ${x.sourceFunctionName}` : ""}${x.sourceURL ? ` (${String(x.sourceURL).replace(location.origin, "")}${x.sourceCharPosition >= 0 ? `:${x.sourceCharPosition}` : ""})` : ""}`),
+      // Cada script del cuadro con su momento, para saber cuánto corrió la página en una ventana dada.
+      s: [...(e.scripts || [])].map((x) => ({ t: x.startTime, d: x.duration, de: `${x.invoker || x.invokerType || "?"}${x.sourceFunctionName ? ` ${x.sourceFunctionName}` : ""}` })),
     }),
   );
 
@@ -235,7 +237,9 @@ function INSTRUMENTO(op) {
     { once: true },
   );
   document.addEventListener("click", (e) => e2e.clics.push({ t: ahora(), epoch: performance.timeOrigin + ahora(), el: nodo(e.target) }), true);
-  document.addEventListener("pointerup", (e) => (e2e.arriba = { t: ahora(), x: e.clientX, y: e.clientY, tipo: e.pointerType }), true);
+  // Los cuadros que el punto lleva mirando cuando se levanta el dedo: así se sabe en qué cuadro apareció.
+  let vueltas = 0;
+  document.addEventListener("pointerup", (e) => (e2e.arriba = { t: ahora(), x: e.clientX, y: e.clientY, tipo: e.pointerType, vuelta: vueltas }), true);
 
   // El punto del visitante: desde que baja el dedo en la tira, cada cuadro mira si .manos-punto ya se ve.
   document.addEventListener(
@@ -243,11 +247,14 @@ function INSTRUMENTO(op) {
     (e) => {
       if (!(e.target instanceof Element) || !e.target.closest(".manos") || e2e.punto) return;
       const fin = ahora() + 1000;
+      vueltas = 0;
       const mirar = () => {
+        vueltas++;
         const p = document.querySelector(".manos-punto");
         const r = p && p.getBoundingClientRect();
         const ve = !!p && r.width > 0.5 && r.height > 0.5 && (!p.checkVisibility || p.checkVisibility({ opacityProperty: true, visibilityProperty: true, checkOpacity: true, checkVisibilityCSS: true })) && Number(getComputedStyle(p).opacity) > 0.5;
-        if (ve) return (e2e.punto = { t: ahora() });
+        // cuadro: 1 es el primer cuadro después del pointerup.
+        if (ve) return (e2e.punto = { t: ahora(), cuadro: e2e.arriba ? vueltas - e2e.arriba.vuelta : null });
         if (ahora() < fin) raf0.call(window, mirar);
       };
       raf0.call(window, mirar);
@@ -999,7 +1006,7 @@ async function clicBarra(p, a) {
   }
 }
 
-/** [toque] Tocar el centro de la tira después de la entrada: el punto en 50 ms, el lazo cerrado en 2.3 s, la respuesta. */
+/** [toque] Tocar el centro de la tira después de la entrada: el punto en el cuadro siguiente (50 ms), el lazo cerrado en 2.3 s, la respuesta. */
 async function toque(p) {
   const { page, etiqueta } = await p.abrir({ vista: "390" });
   await ir(page);
@@ -1012,10 +1019,29 @@ async function toque(p) {
   const c = await lib(page, "centroManos");
   if (!c) return p.linea(false, `${etiqueta} la tira`, "no hay .manos");
   await tocar(page, c.x, c.y);
-  const d = await hasta(() => page.evaluate(() => (window.__e2e.arriba && window.__e2e.punto ? { arriba: window.__e2e.arriba.t, punto: window.__e2e.punto.t } : null)), { ms: 1200, cada: 25 });
+  const d = await hasta(() => page.evaluate(() => (window.__e2e.arriba && window.__e2e.punto ? { arriba: window.__e2e.arriba.t, punto: window.__e2e.punto.t, cuadro: window.__e2e.punto.cuadro } : null)), { ms: 1200, cada: 25 });
   const arriba = d ? d.arriba : await page.evaluate(() => window.__e2e.arriba && window.__e2e.arriba.t);
   const dt = d ? Math.round(d.punto - d.arriba) : null;
-  p.linea(dt !== null && dt <= 50, `${etiqueta} .manos-punto a la vista tras el toque`, dt === null ? "no se vio .manos-punto en 1 s" : `${dt} ms tras el pointerup <= 50`);
+  // Lo que el sitio garantiza es el primer cuadro después del pointerup. En SwiftShader el lienzo WebGL se pinta
+  // por software y el compositor puede tardar 40 a 80 ms en dar ese cuadro sin que la página haga nada. Pasados
+  // los 50 ms, la culpa es del sitio si sus scripts ocuparon el hilo más de un cuadro (16 ms) entre el pointerup
+  // y el punto: lo dicen los cuadros largos (LoAF), que llegan al observador un rato después, así que se esperan.
+  const aTiempo = dt !== null && dt <= 50;
+  if (d && !aTiempo) await dormir(400);
+  const v =
+    d && !aTiempo
+      ? await page.evaluate(([a, b]) => {
+          const e = window.__e2e;
+          const dentro = e.loaf
+            .flatMap((f) => f.s || [])
+            .map((x) => ({ ...x, o: Math.min(b, x.t + x.d) - Math.max(a, x.t) }))
+            .filter((x) => x.o > 0);
+          return { ms: Math.round(dentro.reduce((n, x) => n + x.o, 0)), de: dentro.map((x) => `${Math.round(x.o)} ms ${x.de}`), total: e.loaf.length };
+        }, [d.arriba, d.punto])
+      : null;
+  const ok = !!d && d.cuadro === 1 && (aTiempo || v.ms <= 16);
+  const por = !d ? "" : d.cuadro !== 1 ? "el punto tenía que salir en el primero" : aTiempo ? "<= 50" : v.ms > 16 ? `la página corrió ${v.ms} ms entre el toque y el punto: ${v.de.join(" | ")}` : `> 50 ms con ${v.ms} ms de scripts de la página entre el toque y el punto (${v.total} cuadros largos en la carga): lo tardó el compositor`;
+  p.linea(ok, `${etiqueta} .manos-punto a la vista en el primer cuadro tras el toque`, dt === null ? "no se vio .manos-punto en 1 s" : `cuadro ${d.cuadro ?? "?"} después del pointerup, a ${dt} ms: ${por}`);
   const t = await hasta(async () => {
     const x = await tiempoAtributo(page, "data-cerrado", "#inicio");
     return x !== null && x >= 0 ? x : null;

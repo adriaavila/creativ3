@@ -191,7 +191,11 @@ export type Estado = "entrando" | "espera" | "respondiendo" | "cerrado";
 export type AvisosEscena = Avisos & {
   /** The first frame of the entrance is on screen. */
   alEntrar?: () => void;
-  /** The drawing has passed its half: the sketch under it can leave. */
+  /**
+   * The drawing has reached the hands (70 %; on a phone the first half is
+   * forearm, faded and masked, so half would leave a blank): the sketch under
+   * it can leave.
+   */
   alTrazar?: () => void;
   /** The entrance is over: the hands wait, still. */
   alEsperar?: () => void;
@@ -466,7 +470,7 @@ export function montar(
       camera.position.set(0, AIM, enc.z * (1 + 0.06 * (1 - easeOut(seg(te, ENTRADA.dolly[0], ENTRADA.dolly[1])))));
       camera.lookAt(0, AIM, 0);
       renderer.render(scene, camera);
-      if (!trazado && hd > 0.5) {
+      if (!trazado && hd > 0.7) {
         trazado = true;
         avisos.alTrazar?.();
       }

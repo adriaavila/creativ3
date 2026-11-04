@@ -143,6 +143,7 @@ export default function Manos({ children }: { children: ReactNode }) {
     const ponerCapa = (c: "trazo" | "gl") => {
       capa = c;
       el.dataset.capa = c;
+      if (c === "trazo") delete el.dataset.trazando;
     };
     // The scene takes the stage once it has drawn and the sketch is still.
     const mostrarGl = () => {
@@ -251,10 +252,13 @@ export default function Manos({ children }: { children: ReactNode }) {
     const avisos: AvisosEscena = {
       alEntrar: () => {
         if (estado !== "espera" || trazoMoviendo || cerrado) return;
+        // The canvas shows from the entrance's first frame; the sketch stays under it until the hands are drawn.
+        el.dataset.trazando = "";
         ponerCapa("gl");
         poner("entrando");
       },
       alTrazar: () => {
+        delete el.dataset.trazando;
         glDibujado = true;
         mostrarGl();
       },

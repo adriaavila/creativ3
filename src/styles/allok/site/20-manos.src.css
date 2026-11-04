@@ -111,11 +111,13 @@
 
 /* The hero's sketch while WebGL loads: 35 %, the waiting state. It rises when it
    answers a tap itself (data-capa="trazo") or stands in for WebGL (data-sin-webgl,
-   700 ms), and leaves once the scene has drawn half its lines (data-capa="gl"). */
+   700 ms), stays under the scene's first lines (data-trazando: on a phone they are
+   the faded forearms) and leaves once the hands are drawn (data-capa="gl"). */
 html.lienzo-3d .manos .manos-trazo { opacity: 0.35; }
 html.lienzo-3d .manos[data-capa="trazo"] .manos-trazo { opacity: 1; transition: opacity var(--duration-quick) var(--ease-out); }
 html.lienzo-3d .manos[data-sin-webgl] .manos-trazo { opacity: 1; transition: opacity var(--duration-slow) var(--ease-out); }
 html.lienzo-3d .manos[data-capa="gl"] .manos-trazo { opacity: 0; transition: opacity var(--duration-quick) var(--ease-out); }
+html.lienzo-3d .manos[data-capa="gl"][data-trazando] .manos-trazo { opacity: 0.35; }
 .manos[data-capa="trazo"] canvas { visibility: hidden; }
 .manos[data-sin-webgl] canvas { display: none; }
 

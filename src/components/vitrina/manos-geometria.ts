@@ -646,7 +646,7 @@ export function encuadre(width: number, height: number, pose: Variante = POSE): 
     espera: compact ? 0.54 : 0.56,
     shut: 2 * Math.sqrt(reach * reach - LIFT * LIFT),
     lift,
-    giro: compact ? -Math.sign(lift) * DIAGONAL : 0,
+    giro: compact ? DIAGONAL : 0,
     z: Math.max(vista.alto / (2 * half), vista.ancho / (2 * half * aspect)),
     px: Math.min(width / vista.ancho, height / vista.alto),
   };

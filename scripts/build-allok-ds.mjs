@@ -5,10 +5,11 @@
 //   src/styles/allok/tokens.json   the tokens
 //   src/styles/allok/bundle.css    the component stylesheet
 //   src/styles/allok/site.src.css  the few layout rules the home adds on top
+//   src/styles/allok/site/*.src.css one file per part of the home, read in name order after it
 // Output (generated, committed, do not edit):
 //   src/styles/allok/tokens.css    tokens compiled to custom properties + type classes
 //   src/styles/allok/allok.css     bundle.css with every selector scoped under `.ak`
-//   src/styles/allok/site.css      site.src.css, scoped the same way
+//   src/styles/allok/site.css      site.src.css + site/*.src.css, scoped the same way
 //
 // Why scoped: the rest of allok.fun (/agente-whatsapp, /ops, the funnel) runs on
 // Tailwind and already defines --ink, .btn-like names and its own fonts. Under
@@ -17,7 +18,7 @@
 //
 //   node scripts/build-allok-ds.mjs          write the outputs
 //   node scripts/build-allok-ds.mjs --check  exit 1 if the outputs are stale
-import { readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -78,6 +79,9 @@ function scopeSelector(sel) {
     return s;
   // motion.js puts .motion on <html>: keep it outside the scope.
   if (s.startsWith(".motion ")) return `.motion ${SCOPE} ${s.slice(".motion ".length)}`;
+  // A class or attribute set on <html> before first paint (html.lienzo-3d): <html> stays outside the scope too.
+  const enHtml = /^html([.[:][^\s]*)\s+(.+)$/.exec(s);
+  if (enHtml) return `html${enHtml[1]} ${SCOPE} ${enHtml[2]}`;
   if (s.startsWith("[data-theme")) return `${SCOPE}${s.split(" ")[0]}${s.includes(" ") ? s.slice(s.indexOf(" ")) : ""}, ${SCOPE} ${s}`;
   return `${SCOPE} ${s}`;
 }
@@ -135,7 +139,9 @@ export function scopeCss(css) {
 
 const tokens = compileTokens(JSON.parse(readFileSync(join(dir, "tokens.json"), "utf8")));
 const allok = scopeCss(readFileSync(join(dir, "bundle.css"), "utf8"));
-const site = scopeCss(readFileSync(join(dir, "site.src.css"), "utf8"));
+// Each part of the home keeps its rules in its own file, so they can change apart; the order of the names is the cascade order.
+const partes = existsSync(join(dir, "site")) ? readdirSync(join(dir, "site")).filter((f) => f.endsWith(".src.css")).sort() : [];
+const site = scopeCss([join(dir, "site.src.css"), ...partes.map((f) => join(dir, "site", f))].map((f) => readFileSync(f, "utf8")).join("\n"));
 const targets = [["tokens.css", tokens], ["allok.css", allok], ["site.css", site]];
 
 if (process.argv.includes("--check")) {

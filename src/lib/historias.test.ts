@@ -68,3 +68,25 @@ test("ESTADO nombra cada estado de PIEZAS, sin «En vivo», «Privado» ni «En 
   for (const p of PIEZAS) assert.ok(ESTADO[p.status], `${p.id}: sin palabra para ${p.status}`);
   for (const palabra of Object.values(ESTADO)) assert.doesNotMatch(palabra, /en vivo|privado|en producción/i);
 });
+
+test("en la portada, cada trabajo cabe en una línea corta y dice de quién es", () => {
+  const palabras = (t: string) => t.split(/\s+/).filter((w) => /[\p{L}\p{N}]/u.test(w)).length;
+  for (const h of HISTORIAS) {
+    assert.ok(palabras(h.linea) <= 8, `${h.id}: «${h.linea}» pasa de ocho palabras`);
+    assert.ok(!h.linea.includes("—"), `${h.id} con raya`);
+    assert.equal(h.tag === "Mío", h.origen === "Producto propio", `${h.id}: la etiqueta no coincide con su origen`);
+    assert.equal(h.nombre, PIEZAS.find((p) => p.id === h.id)?.name, h.id);
+  }
+  assert.deepEqual(
+    HISTORIAS.map((h) => h.glifo),
+    ["casa", "unidades", "recibo", "carriles"],
+  );
+});
+
+test("una captura con datos de ejemplo lo dice en la portada, y Mística solo enseña las de nombres tapados", () => {
+  const rei = HISTORIAS.find((h) => h.id === "rei-fm");
+  assert.ok(rei?.nota && rei.notaCorta, "REI perdió su aviso de datos de ejemplo");
+  const mistica = HISTORIAS.find((h) => h.id === "mistica");
+  assert.ok(mistica);
+  for (const c of mistica.capturas) assert.ok(c.src.endsWith("-sin-nombres.png"), c.src);
+});

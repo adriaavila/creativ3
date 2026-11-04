@@ -27,6 +27,16 @@ export type Historia = {
   /** La pieza de `PIEZAS` que cuenta: de ahí salen su nombre, su estado y su ficha. */
   id: string;
   n: string;
+  /** El nombre de la pieza en `PIEZAS`, el mismo que va en la frase de WhatsApp. */
+  nombre: string;
+  /** La línea de la portada: lo que cambió para el dueño, en ocho palabras o menos. */
+  linea: string;
+  /** «Cliente» si es el trabajo de un negocio; «Mío» si es producto propio. Sale de `origen`. */
+  tag: "Cliente" | "Mío";
+  /** El dibujo de línea que acompaña al nombre en la portada. */
+  glifo: "casa" | "unidades" | "recibo" | "carriles";
+  /** En la portada, bajo la captura, cuando lo que se ve no es de un cliente real. */
+  notaCorta?: string;
   donde: string;
   origen: "Cliente" | "Producto propio";
   /** La situación del dueño, en segunda persona. */
@@ -63,9 +73,11 @@ function captura(src: string, alt: string): Captura {
 }
 
 // En el orden en que la portada las cuenta; el número sale de ese orden.
-const CUATRO: Omit<Historia, "n">[] = [
+const CUATRO: Omit<Historia, "n" | "nombre" | "tag">[] = [
   {
     id: "samer",
+    linea: "Lo que preguntan, ya en su web.",
+    glifo: "casa",
     donde: "Constructora en Tarija, Bolivia",
     origen: "Cliente",
     escena: "Cada interesado te pregunta lo mismo por WhatsApp: cuánto cuesta, cuánto mide el terreno, cuándo se entrega.",
@@ -85,6 +97,9 @@ const CUATRO: Omit<Historia, "n">[] = [
   },
   {
     id: "rei-fm",
+    linea: "La cuota de cada vecino, sin perseguirlo.",
+    glifo: "unidades",
+    notaCorta: "Datos de ejemplo",
     donde: "Administración de edificios · Bolivia y Venezuela",
     origen: "Producto propio",
     escena: "Cada mes, perseguir a cada vecino por su cuota y cuadrar a mano las facturas del edificio.",
@@ -105,6 +120,8 @@ const CUATRO: Omit<Historia, "n">[] = [
   },
   {
     id: "cuadra",
+    linea: "Dólares y bolívares, aunque se caiga internet.",
+    glifo: "recibo",
     donde: "Punto de venta para comercios de Venezuela",
     origen: "Producto propio",
     escena: "Te pagan una parte en dólares y otra en bolívares, y justo cuando hay gente esperando se cae el internet.",
@@ -125,6 +142,8 @@ const CUATRO: Omit<Historia, "n">[] = [
   },
   {
     id: "mistica",
+    linea: "Una escuela de natación: quién vino, quién debe.",
+    glifo: "carriles",
     donde: "Escuela de natación",
     origen: "Cliente",
     escena: "Las clases, la asistencia y los pagos viven en lugares distintos, y saber quién debe qué es una tarde de revisar listas.",
@@ -149,7 +168,12 @@ const CUATRO: Omit<Historia, "n">[] = [
   },
 ];
 
-export const HISTORIAS: Historia[] = CUATRO.map((h, i) => ({ ...h, n: String(i + 1).padStart(2, "0") }));
+export const HISTORIAS: Historia[] = CUATRO.map((h, i) => ({
+  ...h,
+  n: String(i + 1).padStart(2, "0"),
+  nombre: PIEZAS.find((p) => p.id === h.id)?.name ?? h.id,
+  tag: h.origen === "Cliente" ? "Cliente" : "Mío",
+}));
 
 /** El agente de allok: el mismo ritmo, sin captura. En su escenario va la demo con la web del dueño. */
 export const AGENTE = {

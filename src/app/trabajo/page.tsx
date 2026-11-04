@@ -1,11 +1,15 @@
 import type { Metadata } from "next";
 import Shell from "@/components/ak/Shell";
 import Archivo from "@/components/vitrina/Archivo";
-import Cierre from "@/components/vitrina/Cierre";
+import Empezar from "@/components/vitrina/Empezar";
+import PieTrabajo from "@/components/vitrina/PieTrabajo";
+import SobreMi from "@/components/vitrina/SobreMi";
 import { CUENTAS } from "@/lib/vitrina";
 
 // Todo el trabajo en una sola página, con el mismo marco que la portada. La
-// portada cuenta cuatro historias; esta lista las piezas una por una.
+// portada es la pieza «Te toca» y casi no tiene texto; lo largo vive aquí:
+// las piezas una por una, quién las hace (#sobre-mi), cómo se empieza
+// (#empezar) y el pie con los enlaces y el colofón.
 
 const TITLE = "Todo el trabajo · allok";
 const DESCRIPTION = `Los ${CUENTAS.piezas} trabajos de allok: webs, sistemas y agentes de IA, con capturas reales y su estado. ${CUENTAS.lanzadas} ya están en uso.`;
@@ -24,8 +28,9 @@ export const metadata: Metadata = {
 export default function Trabajo() {
   return (
     <Shell>
-      <Archivo>
-        <Cierre />
+      <Archivo pie={<PieTrabajo />}>
+        <SobreMi />
+        <Empezar />
       </Archivo>
     </Shell>
   );

@@ -10,7 +10,15 @@ import { useRouter } from "next/navigation";
 
 const STEPS = ["Abriendo tu web…", "Leyendo tus servicios y precios…", "Enseñándole a tu agente…", "Casi listo…"];
 
-export function useArmarDemo() {
+type Opciones = {
+  /**
+   * Lo que pasa entre el sí de la API y la redirección (la portada cierra su
+   * lazo antes de irse). Se espera; sin él, se va en el acto.
+   */
+  antesDeIr?: () => Promise<void> | void;
+};
+
+export function useArmarDemo({ antesDeIr }: Opciones = {}) {
   const router = useRouter();
   const [name, setName] = useState("");
   const [website, setWebsite] = useState("");
@@ -41,6 +49,7 @@ export function useArmarDemo() {
     }).catch(() => null);
     const data = (await res?.json().catch(() => null)) as { slug?: string; error?: { code?: string; message?: string } } | null;
     if (res?.ok && data?.slug) {
+      await antesDeIr?.();
       router.push(`/demo/${data.slug}?tuya=1`);
       return;
     }

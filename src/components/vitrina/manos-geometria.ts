@@ -48,12 +48,31 @@ export type Pose = {
   tilt: number;
   /** Forearm droop: positive comes in from below. */
   arm: number;
+  /** Turn around the forearm's axis, in radians: positive shows the palm and turns it up. */
+  roll?: number;
 };
 
 /** The human hand: the index reaching, the other fingers relaxed and curling. */
 export const HUMANA: Pose = { index: [0.04, 0.12, 0.1], others: [0.55, 0.8, 0.55], thumb: [0.15, 0.25], tilt: 0.08, arm: 0.02 };
+/** On a phone the hand is a few dozen pixels wide: curled fingers bunch into a brush, open ones read as a hand. */
+export const HUMANA_COMPACTA: Pose = { ...HUMANA, others: [0.25, 0.35, 0.25] };
 /** The machine hand: almost straight, sure of where it goes. */
 export const MAQUINA: Pose = { index: [0.0, 0.03, 0.02], others: [0.2, 0.25, 0.18], thumb: [0.08, 0.1], tilt: -0.03, arm: -0.07 };
+
+// v2, only for the stills Adri compares before he approves it: his index
+// higher and active (straight, the other fingers folded back so it leads),
+// and the machine with its palm up, receiving. The thumb stays clear of the
+// index: the human hand never makes the OK ring.
+const HUMANA_V2: Pose = { index: [-0.04, 0.03, 0.02], others: [0.75, 1.05, 0.7], thumb: [0.3, 0.32], tilt: 0.16, arm: -0.03 };
+const HUMANA_V2_COMPACTA: Pose = { ...HUMANA_V2, others: [0.45, 0.6, 0.4] };
+const MAQUINA_V2: Pose = { ...MAQUINA, others: [0.3, 0.35, 0.25], tilt: 0.02, roll: 1.9 };
+
+/** Which pose the hands take. v1 is the fresco Adri approved; v2 waits for his yes. */
+export type Variante = "v1" | "v2";
+export const POSE: Variante = "v1";
+/** The machine's ink. `acero`: Steel lines, no glints on chips or pads, Blue only on the closing arc. Waits for his yes too. */
+export type Tinta = "azul" | "acero";
+export const TINTA_MAQUINA: Tinta = "azul";
 
 /** A point of the skeleton: center, half width (along y) and half thickness (along z). */
 type Node = { c: V3; ra: number; rb: number };
@@ -129,19 +148,26 @@ function skeleton(pose: Pose): Skeleton {
   ];
   chains.push({ nodes: thumb, weight: 0.2, band: 0.8, joints: [5, 6] });
 
-  // Tilt the whole hand around the wrist, then move the index tip to the origin.
+  // Turn the hand around the forearm (v2 only), tilt it around the wrist,
+  // then move the index tip to the origin.
   const c = Math.cos(pose.tilt);
   const s = Math.sin(pose.tilt);
+  const cr = Math.cos(pose.roll ?? 0);
+  const sr = Math.sin(pose.roll ?? 0);
   const rot = (v: V3): V3 => {
     const d = sub(v, W);
-    return add(W, [d[0] * c - d[1] * s, d[0] * s + d[1] * c, d[2]]);
+    const y = d[1] * cr - d[2] * sr;
+    const z = d[1] * sr + d[2] * cr;
+    return add(W, [d[0] * c - y * s, d[0] * s + y * c, z]);
   };
   const index = chains[0]!.nodes;
   const tip = rot(index[index.length - 1]!.c);
   const xf = (v: V3) => sub(rot(v), tip);
   const inv = (v: V3): V3 => {
     const d = sub(add(v, tip), W);
-    return add(W, [d[0] * c + d[1] * s, -d[0] * s + d[1] * c, d[2]]);
+    const x = d[0] * c + d[1] * s;
+    const y = -d[0] * s + d[1] * c;
+    return add(W, [x, y * cr + d[2] * sr, -y * sr + d[2] * cr]);
   };
   return { chains: chains.map((ch) => ({ ...ch, nodes: ch.nodes.map((n) => ({ ...n, c: xf(n.c) })) })), xf, inv };
 }
@@ -234,7 +260,43 @@ const backOfPalm = (x: number, y: number, lift = 0.012): V3 => {
  * for the lines of a chip, which take the other color; `wrist` is the `s` of
  * the wrist, where the forearm starts fading out.
  */
-export type Lines = { pos: Float32Array; s: Float32Array; rnd: Float32Array; kind: Float32Array; count: number; wrist: number };
+/**
+ * One hand's segments (or points) for the GPU. `centro` and `radio` are its
+ * bounding sphere, worked out where the hand is built (the worker): three.js
+ * needs the centre to sort the transparent lines and would otherwise walk
+ * every vertex in the scene's first frame, on the main thread.
+ */
+export type Lines = {
+  pos: Float32Array;
+  s: Float32Array;
+  rnd: Float32Array;
+  kind: Float32Array;
+  count: number;
+  wrist: number;
+  centro: [number, number, number];
+  radio: number;
+};
+
+/** The bounding sphere three.js would compute (BufferGeometry.computeBoundingSphere): the box's centre, the farthest vertex. */
+function esfera(pos: Float32Array): { centro: [number, number, number]; radio: number } {
+  const min = [Infinity, Infinity, Infinity];
+  const max = [-Infinity, -Infinity, -Infinity];
+  for (let i = 0; i < pos.length; i += 3) {
+    for (let k = 0; k < 3; k++) {
+      const v = pos[i + k]!;
+      if (v < min[k]!) min[k] = v;
+      if (v > max[k]!) max[k] = v;
+    }
+  }
+  if (!pos.length) return { centro: [0, 0, 0], radio: 0 };
+  const centro: [number, number, number] = [(min[0]! + max[0]!) / 2, (min[1]! + max[1]!) / 2, (min[2]! + max[2]!) / 2];
+  let r2 = 0;
+  for (let i = 0; i < pos.length; i += 3) {
+    const dx = pos[i]! - centro[0], dy = pos[i + 1]! - centro[1], dz = pos[i + 2]! - centro[2];
+    r2 = Math.max(r2, dx * dx + dy * dy + dz * dz);
+  }
+  return { centro, radio: Math.sqrt(r2) };
+}
 
 class Builder {
   private pos: number[] = [];
@@ -257,7 +319,8 @@ class Builder {
   }
   done(wrist: number): Lines {
     const f = (a: number[]) => new Float32Array(a);
-    return { pos: f(this.pos), s: f(this.s), rnd: f(this.rnd), kind: f(this.kind), count: this.s.length, wrist };
+    const pos = f(this.pos);
+    return { pos, s: f(this.s), rnd: f(this.rnd), kind: f(this.kind), count: this.s.length, wrist, ...esfera(pos) };
   }
 }
 
@@ -488,7 +551,79 @@ export function machineHand(pose: Pose, traces: number, seed: number, mirror = t
 /** Both hands, as the hero draws them: denser on a wide screen, lighter on a phone. */
 export type Manos = { human: Lines; machine: Lines; pads: Lines };
 
-export function construirManos(small: boolean): Manos {
-  const machine = machineHand(MAQUINA, small ? 220 : 340, 11);
-  return { human: humanHand(HUMANA, small ? 380 : 560, 7), machine: machine.lines, pads: machine.pads };
+/**
+ * The same seeds (7 and 11) on every screen, so the hands are always the
+ * same hands; a phone gets fewer lines and the open human hand.
+ */
+export function construirManos(small: boolean, pose: Variante = POSE): Manos {
+  const v2 = pose === "v2";
+  const humana = v2 ? (small ? HUMANA_V2_COMPACTA : HUMANA_V2) : small ? HUMANA_COMPACTA : HUMANA;
+  const machine = machineHand(v2 ? MAQUINA_V2 : MAQUINA, small ? 170 : 340, 11);
+  return { human: humanHand(humana, small ? 300 : 560, 7), machine: machine.lines, pads: machine.pads };
+}
+
+// ── Where everything sits ────────────────────────────────────────────────
+// The scene (manos-escena.ts) frames the hands with these numbers and
+// scripts/manos-trazo.ts projects the 2D sketch with the very same ones, so
+// the pencil drawing lands under the fibers.
+
+/** Field of view of the camera, vertical, in degrees. */
+export const FOV = 30;
+/** The camera looks a little under the fingertips: the arms come in from below. */
+export const AIM = -0.07;
+/** How far apart the fingertips sit in height, like two people reaching. */
+const LIFT = 0.035;
+/** Each group's turn (x, y, z), so the arms come toward the viewer from either side. */
+export const GIRO_HUMANA: V3 = [0.1, 0.26, 0];
+export const GIRO_MAQUINA: V3 = [0.1, -0.26, 0];
+/** The least the camera keeps in view on the plane of the fingertips: 2.1 units of width and 1.12 of height. */
+export const VISTA = { ancho: 2.1, alto: 1.12 } as const;
+/**
+ * The mark's proportions, as shares of its outer diameter (Brand, on the 80
+ * grid: 60 across, the ring's centre line at r 24, the dot r 6 at 45°). The
+ * scene's shader, the sketch and the visitor's dot all land on these.
+ */
+export const LAZO = { anillo: 0.4, punto: 0.1 } as const;
+
+export type Encuadre = {
+  /** A phone-sized strip: the lighter hands and the bigger mark. */
+  compact: boolean;
+  /** The mark's outer diameter, in units. */
+  size: number;
+  /** The mark quad's scale (the ring is 0.75 of it). */
+  mark: number;
+  /** Gap between the fingertips while the hands wait, and once the loop closes. */
+  open: number;
+  shut: number;
+  /** Height of the human fingertip (the machine's is the opposite). */
+  lift: number;
+  /** Camera distance with the dolly done. */
+  z: number;
+  /** CSS pixels per unit on the plane of the fingertips. */
+  px: number;
+};
+
+/**
+ * The framing for a strip of `width` × `height` CSS pixels. The camera fits
+ * about 1.12 units of height and never less than 2.1 of width: on a phone
+ * the hands run from wrist to wrist, on a desktop the arms leave the frame.
+ * The mark fits between the fingertips with a little more than its clear
+ * space (Brand: the o's inner radius, 0.6 of its outer one).
+ */
+export function encuadre(width: number, height: number, pose: Variante = POSE): Encuadre {
+  const compact = width < 760;
+  const size = compact ? 0.2 : 0.15;
+  const reach = size / 2 + 0.8 * (size / 2) + 0.005;
+  const half = Math.tan((FOV * Math.PI) / 360);
+  const aspect = width / (height || 1);
+  return {
+    compact,
+    size,
+    mark: size * (32 / 30),
+    open: compact ? 0.9 : 1.3,
+    shut: 2 * Math.sqrt(reach * reach - LIFT * LIFT),
+    lift: pose === "v2" ? LIFT : -LIFT,
+    z: Math.max(VISTA.alto / (2 * half), VISTA.ancho / (2 * half * aspect)),
+    px: Math.min(width / VISTA.ancho, height / VISTA.alto),
+  };
 }

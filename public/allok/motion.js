@@ -23,7 +23,11 @@
   if (w.AllokMotion) return;
   var html = d.documentElement;
   var REDUCE = !!(w.matchMedia && w.matchMedia('(prefers-reduced-motion: reduce)').matches);
-  var MOVE = !REDUCE && 'IntersectionObserver' in w;
+  /* allok.fun: the page's 3 s guard (Shell.tsx) already gave up on this script and showed everything.
+     Arriving late, it never puts .motion back: what is on screen gets .is-in with no transition and
+     nothing that was already seen hides a second time. */
+  var LATE = !!w.__akMotionTarde;
+  var MOVE = !REDUCE && !LATE && 'IntersectionObserver' in w;
   if (MOVE) html.classList.add('motion'); else html.classList.remove('motion');
 
   function all(sel, root) { return Array.prototype.slice.call((root || d).querySelectorAll(sel)); }

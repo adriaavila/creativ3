@@ -15,6 +15,8 @@ const eslintConfig = defineConfig([
     "**/.eve/**",
     "**/.output/**",
     "next-env.d.ts",
+    // Generated from public/allok/motion.js (linted) by scripts/build-allok-ds.mjs: minified code is not for review.
+    "public/allok/motion.min.js",
   ]),
 ]);
 

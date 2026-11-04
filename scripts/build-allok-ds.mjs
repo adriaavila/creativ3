@@ -6,10 +6,12 @@
 //   src/styles/allok/bundle.css    the component stylesheet
 //   src/styles/allok/site.src.css  the few layout rules the home adds on top
 //   src/styles/allok/site/*.src.css one file per part of the home, read in name order after it
+//   public/allok/motion.js          the motion script, readable (its comments document every data attribute)
 // Output (generated, committed, do not edit):
 //   src/styles/allok/tokens.css    tokens compiled to custom properties + type classes
 //   src/styles/allok/allok.css     bundle.css with every selector scoped under `.ak`
 //   src/styles/allok/site.css      site.src.css + site/*.src.css, scoped the same way
+//   public/allok/motion.min.js      motion.js minified: the file the pages load (Shell.tsx)
 //
 // Why scoped: the rest of allok.fun (/agente-whatsapp, /ops, the funnel) runs on
 // Tailwind and already defines --ink, .btn-like names and its own fonts. Under
@@ -19,7 +21,8 @@
 //   node scripts/build-allok-ds.mjs          write the outputs
 //   node scripts/build-allok-ds.mjs --check  exit 1 if the outputs are stale
 import { existsSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
-import { dirname, join } from "node:path";
+import { createRequire } from "node:module";
+import { dirname, join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
@@ -137,23 +140,36 @@ export function scopeCss(css) {
   return `/* allok — scoped under ${SCOPE} by scripts/build-allok-ds.mjs. Do not edit. */${out}\n`;
 }
 
+// ── motion.js → motion.min.js ────────────────────────────────────────────
+// The same code without its comments and with short names, through the SWC
+// minifier that ships with Next (no new dependency): about 2.3 KB less gzip in
+// the first JavaScript of every `.ak` page, where the home's budget is 150 KB.
+async function minifyMotion() {
+  const swc = createRequire(import.meta.url)("next/dist/build/swc/index.js");
+  await swc.loadBindings?.();
+  const src = readFileSync(join(root, "public/allok/motion.js"), "utf8");
+  const { code } = await swc.minify(src, { compress: true, mangle: true, module: false });
+  return `/* allok · motion.js, minified by scripts/build-allok-ds.mjs. Do not edit: the source is motion.js. */\n${code}\n`;
+}
+
 const tokens = compileTokens(JSON.parse(readFileSync(join(dir, "tokens.json"), "utf8")));
 const allok = scopeCss(readFileSync(join(dir, "bundle.css"), "utf8"));
 // Each part of the home keeps its rules in its own file, so they can change apart; the order of the names is the cascade order.
 const partes = existsSync(join(dir, "site")) ? readdirSync(join(dir, "site")).filter((f) => f.endsWith(".src.css")).sort() : [];
 const site = scopeCss([join(dir, "site.src.css"), ...partes.map((f) => join(dir, "site", f))].map((f) => readFileSync(f, "utf8")).join("\n"));
-const targets = [["tokens.css", tokens], ["allok.css", allok], ["site.css", site]];
+const motion = await minifyMotion();
+const targets = [[join(dir, "tokens.css"), tokens], [join(dir, "allok.css"), allok], [join(dir, "site.css"), site], [join(root, "public/allok/motion.min.js"), motion]];
 
 if (process.argv.includes("--check")) {
   const stale = targets.filter(([f, c]) => {
-    try { return readFileSync(join(dir, f), "utf8") !== c; } catch { return true; }
+    try { return readFileSync(f, "utf8") !== c; } catch { return true; }
   });
   if (stale.length) {
-    console.error(`stale: ${stale.map(([f]) => f).join(", ")} — run node scripts/build-allok-ds.mjs`);
+    console.error(`stale: ${stale.map(([f]) => relative(root, f)).join(", ")} — run node scripts/build-allok-ds.mjs`);
     process.exit(1);
   }
   console.log("allok design system: outputs up to date");
 } else {
-  for (const [f, c] of targets) writeFileSync(join(dir, f), c);
-  console.log("allok design system: wrote tokens.css, allok.css and site.css");
+  for (const [f, c] of targets) writeFileSync(f, c);
+  console.log("allok design system: wrote tokens.css, allok.css, site.css and motion.min.js");
 }

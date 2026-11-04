@@ -1,55 +1,16 @@
 /* allok.fun's home and /trabajo: the few rules the system's cards leave to the page.
-   Only tokens; square surfaces; no shadows, no gradients. Scoped into site.css. */
+   Only tokens; square surfaces; no shadows, no gradients. Scoped into site.css.
+   The home («Te toca») has its own files in site/, read after this one. */
 
 /* A real capture inside .window */
 .window-shot { position: relative; width: 100%; background: var(--ground-2); }
 .window-shot img { object-fit: cover; object-position: top; }
 .window-bar { font: 400 12px/1 var(--font-sans); color: var(--text-muted); }
 
-/* A capture that opens its sheet */
-.show-open { display: block; width: 100%; max-width: 1040px; padding: 0; border: 0; background: none; cursor: pointer; text-align: left; }
-.show-cap .label + .show-name { margin-top: var(--space-3); }
+/* /trabajo's opening */
 .section-intro { display: block; border-bottom: 0; padding: clamp(90px, 12vw, 170px) clamp(20px, 5vw, 72px) clamp(40px, 5vw, 72px); }
-.section-intro .section-title .headline + p { max-width: 46ch; }
-
-/* Portada: the way out, stacked under the line's right edge */
-.hero-acciones { display: grid; justify-items: end; gap: var(--space-3); text-align: right; }
-
-/* Historias: who and what happens to them, above the capture; what was built, below */
-.historia-head { display: grid; gap: var(--space-4); margin-bottom: clamp(24px, 3vw, 40px); }
-.historia-escena { max-width: 30ch; text-wrap: balance; }
-.historia .show-line { max-width: 52ch; font: 400 clamp(1rem, 1.2vw, 1.125rem)/1.55 var(--font-sans); }
-.historia-nota { margin-top: var(--space-3); }
-/* A phone capture keeps its own ratio in a narrow frame: two side by side, one on a phone.
-   They may shrink, never crop: the ratio stays and the frame gets smaller. */
-.show-open.is-phone { display: flex; justify-content: center; gap: clamp(16px, 3vw, 40px); max-width: none; }
-.show-open.is-phone .window { flex: 0 1 auto; width: min(100%, 340px); min-width: 0; }
 /* Inside a button the frame is made of spans (a button holds only phrasing content) */
 span.window, span.window-shot { display: block; }
-
-/* El agente: what it does, and the demo on its stage, flush left like the rest of the story */
-.agente-texto { margin-bottom: clamp(24px, 3vw, 40px); }
-.agente-demo { display: block; place-items: normal; }
-.agente-enlace { margin-top: var(--space-6); }
-.demo { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr) auto; align-items: end; gap: var(--space-4) var(--space-6); max-width: 1040px; margin-top: var(--space-5); }
-.demo .cmd-field { gap: var(--space-4); }
-.demo .cmd-field .label { flex: none; }
-.demo .cmd-field:focus-within { outline: 2px solid var(--focus); outline-offset: 4px; }
-.demo input::placeholder { color: var(--text-muted); opacity: 1; }
-/* The button keeps its width when its label turns into «Armando…», so nothing beside it moves */
-.demo .btn { min-height: 52px; min-width: 10.5rem; }
-/* Busy is not unavailable: «Armando…» is the one thing saying the demo is on its way, so it keeps full contrast */
-.demo .btn[aria-disabled="true"] { opacity: 1; }
-/* The note holds its height between idle, the steps and an error */
-.demo-nota { grid-column: 1 / -1; max-width: 62ch; min-height: 2.9em; color: var(--text-muted); }
-.demo-nota > p { margin: 0; }
-.demo-error { color: var(--text); font-weight: 500; }
-.demo-error a { color: inherit; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
-
-/* Las otras: one log per discipline */
-.otras-grupo + .otras-grupo { margin-top: var(--space-8); }
-.otras-grupo > .label { margin-bottom: var(--space-4); }
-.otras-todo { margin-top: var(--space-7); }
 
 /* Sobre mí: room for a photo as the first child, later */
 .sobre-mi { display: grid; gap: var(--space-6); justify-items: start; }
@@ -92,23 +53,13 @@ button.log-row:hover .log-name { text-decoration-line: underline; }
   button.log-row { grid-template-columns: 56px minmax(0, 1fr) 150px 96px; }
 }
 
-/* Cierre */
-.closer .headline + .btn { margin-top: 44px; }
-.cierre-correo { margin-top: var(--space-4); }
-.cierre-correo a { padding: 12px 0; color: var(--text); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
-
 /* La ficha */
 .ficha { position: fixed; inset: 0; z-index: 70; }
 .ficha-scrim { position: absolute; inset: 0; border: 0; background: rgba(11,13,14,.72); cursor: pointer; }
 .ficha-sheet { position: absolute; inset: 12px 0 0; overflow-y: auto; overscroll-behavior: contain; background: var(--ground); color: var(--text); }
 .ficha-top { position: sticky; top: 0; z-index: 2; display: flex; align-items: center; justify-content: space-between; gap: 20px; min-height: var(--size-header); padding: 0 clamp(20px, 5vw, 72px); background: var(--ground); border-bottom: 1px solid var(--line); }
-.ficha-head { padding: clamp(48px, 7vw, 110px) clamp(20px, 5vw, 72px) 0; max-width: 1440px; margin: 0 auto; }
-.ficha-grid { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: clamp(30px, 6vw, 96px); margin-top: var(--space-7); }
 .ficha-historia { margin-top: var(--space-6); max-width: 60ch; color: var(--text-muted); }
 .ficha-acciones { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 24px; margin-top: var(--space-7); }
-.ficha-datos { display: grid; grid-template-columns: 1fr 1fr; align-content: start; gap: var(--space-6); margin: 0; padding-top: var(--space-6); border-top: 1px solid var(--line-strong); }
-.ficha-datos dd { margin: 6px 0 0; font: 400 16px/1.45 var(--font-sans); }
-.ficha-stack { grid-column: 1 / -1; }
 .ficha-galeria { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--space-8) var(--space-6); max-width: 1440px; margin: 0 auto; padding: clamp(48px, 7vw, 110px) clamp(20px, 5vw, 72px); }
 .ficha-fig { margin: 0; width: 100%; display: grid; gap: var(--space-3); }
 .ficha-fig.is-phone { width: min(70vw, 290px); }
@@ -123,42 +74,12 @@ section[id], article[id], footer[id], main[id] { scroll-margin-top: var(--size-h
 .saltar { position: absolute; top: var(--space-3); left: clamp(20px, 5vw, 72px); z-index: 30; transform: translateY(-200%); }
 .saltar:focus-visible { transform: none; }
 
-/* Tablets. Beside the actions, a story's text would shrink to a few words per line: it goes on top, the actions under it. */
-@media (max-width: 1200px) {
-  .historia .show-cap { grid-template-columns: minmax(0, 1fr); }
-  .historia .show-meta { justify-content: flex-start; }
-}
 /* In the two columns of .section, the lists and the big lines don't fit a tablet: the title goes on top, as on a phone. */
 @media (max-width: 1100px) {
   .section { display: block; }
   .section:not(.section-intro) .section-title { margin-bottom: clamp(48px, 6vw, 96px); }
 }
-/* The demo's fields stack before the name field gets too narrow for its example */
-@media (max-width: 900px) {
-  .demo { grid-template-columns: minmax(0, 1fr); }
-  .demo .cmd-field .label { min-width: 7em; }
-}
-
 @media (max-width: 760px) {
-  .hero-acciones { justify-items: start; text-align: left; }
-  .show-open.is-phone .window { width: min(100%, 300px); }
-  .show-open.is-phone > :nth-child(n + 2) { display: none; }
-  .demo .btn { width: 100%; }
-  .demo-nota { min-height: 4.35em; }
-  .ficha-grid { grid-template-columns: 1fr; }
   .ficha-sheet { inset: 0; }
   .header-end .btn-primary { padding: 15px 14px; }
-}
-
-/* The hero's hands: a full-bleed strip between the line and the lead. */
-.manos { position: relative; height: clamp(240px, 30vw, 460px); margin: clamp(8px, 2vw, 24px) calc(-1 * clamp(20px, 5vw, 72px)) clamp(16px, 3vw, 40px); overflow: hidden; }
-.manos canvas { display: block; }
-/* Without WebGL (or without JavaScript) the strip keeps its place and the mark closes in it alone. */
-.manos-marca { display: none; width: clamp(44px, 4.4vw, 64px); color: var(--text); }
-.manos-marca svg { display: block; width: 100%; height: auto; }
-.manos[data-sin-webgl] { display: grid; place-items: center; }
-.manos[data-sin-webgl] .manos-marca { display: block; }
-@media (scripting: none) {
-  .manos { display: grid; place-items: center; }
-  .manos-marca { display: block; }
 }

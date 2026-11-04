@@ -8,7 +8,7 @@
  * Aquí viven las piezas puras; `SignupAttribution` las conecta al navegador
  * (localStorage y el clic).
  */
-import { CRM_APP_URL } from "@/lib/plans";
+import { CRM_APP_URL } from "@/lib/crm-app";
 
 /** Lo que se toma de la URL de llegada. Nada fuera de esta lista. */
 export const ATTRIBUTION_PARAMS = [

@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { CASOS, SOLUTIONS, casoBySlug, casoLiveLinks, casoProjects } from "@/lib/casos";
 import SiteHeader from "@/components/allok/SiteHeader";
 import SiteFooter from "@/components/allok/SiteFooter";
+import { prefill } from "@/lib/contact";
 import Rise from "@/components/allok/Rise";
 import Screen from "@/components/allok/Screen";
 
@@ -25,7 +26,7 @@ export async function generateMetadata({ params }: PageProps<"/casos/[slug]">): 
 }
 
 const NAV = [
-  { href: "/#trabajo", label: "Trabajo" },
+  { href: "/#obras", label: "Trabajo" },
   { href: "/casos", label: "Casos" },
   { href: "/trabajo", label: "Todo el trabajo" },
 ];
@@ -167,7 +168,7 @@ export default async function CasoPage({ params }: PageProps<"/casos/[slug]">) {
         </div>
       </section>
 
-      <SiteFooter />
+      <SiteFooter mensaje={prefill()} />
     </div>
   );
 }

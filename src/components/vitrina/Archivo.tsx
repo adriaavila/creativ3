@@ -1,20 +1,24 @@
 "use client";
 
 import { Rise, vars } from "@/components/ak/Brand";
-import { CUENTAS } from "@/lib/vitrina";
+import { CUENTAS, PIEZAS } from "@/lib/vitrina";
 import Cabecera from "./Cabecera";
 import Ficha from "./Ficha";
 import Indice from "./Indice";
 import Interior from "./Interior";
 import { useFicha } from "./useFicha";
 
+const IDS = PIEZAS.map((p) => p.id);
+
 /**
  * /trabajo: todas las piezas, con filtros, y las pantallas de adentro. La
  * portada cuenta cuatro; aquí están todas. La ficha se abre con el mismo
- * `#pieza=` que en la portada.
+ * `#pieza=` que en la portada. `children` son las secciones que siguen al
+ * trabajo (quién lo hace, cómo se empieza), dentro de `main`; `pie`, el
+ * cierre con los enlaces, fuera.
  */
-export default function Archivo({ children }: { children: React.ReactNode }) {
-  const { abierta, abrir, cerrar } = useFicha();
+export default function Archivo({ children, pie }: { children?: React.ReactNode; pie?: React.ReactNode }) {
+  const { abierta, abrir, ir, cerrar } = useFicha(IDS);
 
   return (
     <>
@@ -35,9 +39,10 @@ export default function Archivo({ children }: { children: React.ReactNode }) {
         </section>
         <Indice onOpen={abrir} />
         <Interior onOpen={abrir} />
+        {children}
       </main>
-      {children}
-      <Ficha id={abierta} onClose={cerrar} onGo={abrir} />
+      {pie}
+      <Ficha id={abierta} onClose={cerrar} onGo={ir} />
     </>
   );
 }

@@ -11,7 +11,7 @@ const COLUMNS = [
   {
     title: "Trabajo",
     links: [
-      { href: "/#trabajo", label: "Trabajo" },
+      { href: "/#obras", label: "Trabajo" },
       { href: "/casos", label: "Casos" },
       { href: "/trabajo", label: "Todo el trabajo" },
       { href: "/#contacto", label: "Contacto" },
@@ -36,7 +36,8 @@ const COLUMNS = [
   },
 ] as const;
 
-export default function SiteFooter() {
+/** `mensaje`: la primera frase del WhatsApp. Los casos le escriben a Adrián con la de la portada (`prefill()`). */
+export default function SiteFooter({ mensaje }: { mensaje?: string } = {}) {
   return (
     <footer className="bg-[var(--ink)] px-5 py-12 text-[#f5f4f0] sm:px-10 sm:py-16">
       <div className="mx-auto grid max-w-[1200px] gap-11 lg:grid-cols-[1.25fr_1.75fr]">
@@ -49,7 +50,7 @@ export default function SiteFooter() {
             {CONTACT_EMAIL}
           </a>
           <a
-            href={whatsappUrl()}
+            href={whatsappUrl(mensaje)}
             className="mono inline-flex min-h-11 items-center opacity-70 transition-opacity hover:opacity-100"
           >
             WhatsApp ↗

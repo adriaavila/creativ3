@@ -8,11 +8,16 @@ import "./globals.css";
 import { siteJsonLd } from "@/lib/seo";
 import { PORTFOLIO_PROJECTS } from "@/lib/projects";
 
+// Sin precarga: la portada y /trabajo (el sistema `.ak`) solo pintan con Geist, y precargadas estas dos
+// eran 50 KB que en Slow 4G le quitaban ancho de banda al CSS antes del primer pintado. Las páginas que sí
+// las usan las siguen teniendo (el @font-face y la variable van en <html>): el navegador las pide al
+// encontrar el primer texto que las usa, con `swap` y el respaldo ajustado de next/font.
 const jetbrains = JetBrains_Mono({
   weight: ["300", "400", "500"],
   subsets: ["latin"],
   variable: "--font-jetbrains",
   display: "swap",
+  preload: false,
 });
 
 // The macro voice of the portfolio: one weight, uppercase, set enormous.
@@ -23,6 +28,7 @@ const archivo = Archivo_Black({
   subsets: ["latin"],
   variable: "--font-archivo",
   display: "swap",
+  preload: false,
 });
 
 // The one grotesque, at every size, on the site and in the product.
@@ -77,8 +83,8 @@ export const metadata: Metadata = {
         url: "/opengraph-image",
         width: 1200,
         height: 630,
-        // Describe la imagen (app/opengraph-image.tsx): la frase de la portada.
-        alt: "allok · Hago el software con el que trabaja tu negocio",
+        // Describe la imagen (app/opengraph-image.tsx): el cuadro cerrado de «Te toca».
+        alt: "Te toca, 2026. Adrián Avila.",
       },
     ],
   },

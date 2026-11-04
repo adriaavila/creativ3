@@ -27,7 +27,9 @@ export default function Indice({ onOpen }: { onOpen: (id: string) => void }) {
           <Rise line={1}>uno por uno.</Rise>
         </h2>
       </div>
-      <div data-reveal>
+      {/* La lista mide dos o tres pantallas: con el 15 % de siempre, en un teléfono hacía falta media pantalla de ella a
+          la vista antes de aparecer, y bajo el título quedaba un hueco vacío. Entra apenas asoma. */}
+      <div data-reveal data-threshold="0">
         <div role="group" aria-label="Filtrar por disciplina" className="chips indice-filtros">
           {DISCIPLINAS.map((d) => {
             const n = d.id === "todo" ? PIEZAS.length : PIEZAS.filter((p) => p.disciplinas.includes(d.id as Disciplina)).length;

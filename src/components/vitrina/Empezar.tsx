@@ -32,10 +32,15 @@ const PASOS: { n: string; titulo: string; texto: string; ok?: string }[] = [
   },
 ];
 
+// Las cifras de referencia esperan el visto bueno de Adrián: hasta entonces queda la promesa sin números. Con
+// true vuelve el párrafo con los montos.
+const MOSTRAR_REFERENCIA = false;
+
 /**
- * Cómo se empieza, en Cloud: los cuatro pasos, lo que hace falta del dueño y
- * un precio de referencia, para que nadie escriba a ciegas. El título va
- * arriba y a todo el ancho: en la columna estrecha, «Empezamos» no cabe.
+ * Cómo se empieza, en Cloud, en /trabajo#empezar (salió de la portada): los
+ * cuatro pasos, lo que hace falta del dueño y el precio cerrado antes de
+ * empezar, para que nadie escriba a ciegas. El título va arriba y a todo el
+ * ancho: en la columna estrecha, «Empezamos» no cabe.
  */
 export default function Empezar() {
   return (
@@ -72,10 +77,16 @@ export default function Empezar() {
           <p className="body" data-reveal>
             Lo que necesito de ti: alguien que decida, hablar con quien hace el trabajo todos los días y que tu ok no se demore.
           </p>
-          <p className="lead" data-reveal>
-            Como referencia, un proyecto completo ronda los US$10.000, y operarlo cada mes, US$1.500. El número exacto te lo doy
-            por escrito en el paso 02, antes de empezar.
-          </p>
+          {MOSTRAR_REFERENCIA ? (
+            <p className="lead" data-reveal>
+              Como referencia, un proyecto completo ronda los US$10.000, y operarlo cada mes, US$1.500. El número exacto te lo
+              doy por escrito en el paso 02, antes de empezar.
+            </p>
+          ) : (
+            <p className="lead" data-reveal>
+              Precio cerrado antes de empezar.
+            </p>
+          )}
           <div className="empezar-agente" data-reveal>
             <p className="body">
               ¿Por ahora solo necesitas que tu WhatsApp conteste? El agente de allok ya está listo y se paga por mes.

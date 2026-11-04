@@ -1,36 +1,29 @@
 import type { Metadata } from "next";
 import Shell from "@/components/ak/Shell";
-import Agente from "@/components/vitrina/Agente";
-import Cierre from "@/components/vitrina/Cierre";
-import Empezar from "@/components/vitrina/Empezar";
-import Portada from "@/components/vitrina/Portada";
-import SobreMi from "@/components/vitrina/SobreMi";
 import Vitrina from "@/components/vitrina/Vitrina";
-import { CUENTAS } from "@/lib/vitrina";
 
-// La portada: el trabajo contado desde el problema del dueño, quién lo hace,
-// cómo se empieza y una sola salida, WhatsApp. El marco (CSS, motion.js) lo
-// comparte con /trabajo en `Shell`. Las secciones que no abren fichas se
-// pintan aquí, en el servidor, y `Vitrina` solo las coloca.
+// «Te toca»: la portada es una pieza, las manos que esperan el toque, y casi
+// sin texto. El título se lee como un mensaje suyo cuando alguien pega
+// allok.fun en un chat. La imagen para compartir la pone
+// app/opengraph-image.tsx, el cuadro final de la escena. Sobre mí y Cómo
+// empezamos viven en /trabajo.
 
-const TITLE = "allok · Software para tu negocio, de Adrián Avila";
-const DESCRIPTION = `Webs, sistemas para el día a día y agentes que contestan tu WhatsApp, para negocios de Latinoamérica. Precio cerrado antes de empezar y ${CUENTAS.piezas} trabajos que puedes abrir.`;
+const TITLE = "Hola, soy Adrián · allok";
+const DESCRIPTION = "Webs, sistemas y agentes de WhatsApp para tu negocio. Te contesto yo.";
 
 export const metadata: Metadata = {
   title: { absolute: TITLE },
   description: DESCRIPTION,
   alternates: { canonical: "/" },
-  openGraph: { title: TITLE, description: DESCRIPTION, url: "/", type: "website", locale: "es" },
+  // Un openGraph propio reemplaza entero el del layout: el nombre del sitio va dicho aquí.
+  openGraph: { title: TITLE, description: DESCRIPTION, url: "/", siteName: "allok", type: "website", locale: "es" },
   twitter: { card: "summary_large_image", title: TITLE, description: DESCRIPTION },
 };
 
 export default function Home() {
   return (
     <Shell>
-      <Vitrina portada={<Portada />} agente={<Agente />} cierre={<Cierre />}>
-        <SobreMi />
-        <Empezar />
-      </Vitrina>
+      <Vitrina />
     </Shell>
   );
 }

@@ -5,20 +5,22 @@ import { useEffect, useRef } from "react";
 import { WordmarkSvg } from "@/components/ak/Brand";
 import Escribeme from "./Escribeme";
 
-// Las secciones de la portada. Desde otra página llevan "/" delante.
+// Desde /trabajo y las demás páginas. Sobre mí y Cómo empezamos salieron de la portada y viven en /trabajo; el trabajo
+// de la portada ahora es #obras.
 const NAV = [
-  { href: "#trabajo", label: "Trabajo" },
-  { href: "#sobre-mi", label: "Sobre mí" },
-  { href: "#empezar", label: "Cómo empezamos" },
+  { href: "/#obras", label: "Trabajo" },
+  { href: "/trabajo#sobre-mi", label: "Sobre mí" },
+  { href: "/trabajo#empezar", label: "Cómo empezamos" },
 ];
 
 /**
- * La cabecera del sistema: la marca a la izquierda, los enlaces y la acción a
- * la derecha. Se aparta al bajar, y toma el tema de lo que tiene debajo: Ink
- * sobre la portada, Cloud sobre el trabajo. En el celular quedan la marca y
- * el botón.
+ * La cabecera del sistema en /trabajo: la marca a la izquierda, los enlaces y
+ * la acción a la derecha; se aparta al bajar y toma el tema de lo que tiene
+ * debajo (Ink sobre la apertura, Cloud sobre el trabajo). En el celular
+ * quedan la marca y el botón. La de la portada (solo la marca) es
+ * CabeceraPortada, sin JavaScript.
  */
-export default function Cabecera({ portada = false }: { portada?: boolean }) {
+export default function Cabecera() {
   const ref = useRef<HTMLElement>(null);
 
   useEffect(() => {
@@ -56,32 +58,19 @@ export default function Cabecera({ portada = false }: { portada?: boolean }) {
 
   return (
     <header ref={ref} className="header" data-hide-on-scroll data-theme="ink">
-      {/* Lo primero que alcanza el teclado; fuera de la vista hasta entonces. */}
       <a className="btn btn-primary saltar" href="#contenido">
         Saltar al contenido
       </a>
-      {portada ? (
-        <a className="wordmark" href="#top" aria-label="allok, inicio">
-          <WordmarkSvg />
-        </a>
-      ) : (
-        <Link className="wordmark" href="/" aria-label="allok, inicio">
-          <WordmarkSvg />
-        </Link>
-      )}
+      <Link className="wordmark" href="/" aria-label="allok, inicio">
+        <WordmarkSvg />
+      </Link>
       <span />
       <nav className="header-end" aria-label="Principal">
-        {NAV.map((n) =>
-          portada ? (
-            <a key={n.href} className="btn btn-link" href={n.href}>
-              {n.label}
-            </a>
-          ) : (
-            <Link key={n.href} className="btn btn-link" href={`/${n.href}`}>
-              {n.label}
-            </Link>
-          ),
-        )}
+        {NAV.map((n) => (
+          <Link key={n.href} className="btn btn-link" href={n.href}>
+            {n.label}
+          </Link>
+        ))}
         <Link className="btn btn-link" href="/agente-whatsapp">
           Agente de WhatsApp
         </Link>

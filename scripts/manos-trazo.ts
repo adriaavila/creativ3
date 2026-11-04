@@ -8,19 +8,22 @@
 // It builds the same hands as the scene (construirManos, seeds 7 and 11),
 // keeps about 1 fiber in 12 and 1 trace in 8, and projects them through the
 // scene's own camera and framing (encuadre), so the drawing lands under the
-// fibers. A phone and a desktop strip see the hands from different distances,
-// so there are two buckets, each projected at its reference strip (the hero
-// at 390×844 and at 1440×900); a container query shows the one that fits.
+// fibers. A phone and a desktop strip see the hands from different distances
+// (and on a phone the pair meets on a diagonal), so there are two buckets,
+// each projected at its reference strip (the hero at 390×844 and at
+// 1440×900); a container query shows the one that fits.
 //
 // SVG units are thousandths of a scene unit on the plane of the fingertips,
-// centred on the mark, y down. The viewBox is the least the camera keeps in
-// view (2.1 × 1.12 units around its aim) and `xMidYMid meet` fits it the way
-// the camera does, so that plane lines up at any strip size; lines nearer the
-// camera (the forearms) are exact at the reference size and close elsewhere.
+// centred on the mark, y down. Each bucket is its own <svg>, its viewBox the
+// least the camera keeps in view around its aim (encuadre's vista) and
+// `xMidYMid meet` fitting it the way the camera does, so that plane lines up
+// at any strip size; lines nearer the camera (the forearms) are exact at the
+// reference size and close elsewhere. Each hand is drawn from its fingertip in
+// the frame of the pair's axis, so closing is a slide along x, whatever the turn.
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { Group, PerspectiveCamera, Vector3, type Matrix4 } from "three";
-import { AIM, FOV, GIRO_HUMANA, GIRO_MAQUINA, LAZO, VISTA, construirManos, encuadre, type Lines } from "../src/components/vitrina/manos-geometria";
+import { AIM, FOV, GIRO_HUMANA, GIRO_MAQUINA, LAZO, construirManos, encuadre, type Lines } from "../src/components/vitrina/manos-geometria";
 
 const SALIDA = join(process.cwd(), "src/components/vitrina/ManosTrazo.tsx");
 
@@ -130,17 +133,24 @@ function cubeta({ nombre, w, h, small }: (typeof CUBETAS)[number]) {
   camera.updateMatrixWorld();
   camera.updateProjectionMatrix();
 
-  // The groups as the scene places them, with the hands waiting (open) or closed (shut).
+  // The groups as the scene places them (inside the pair, turned by giro), with the hands waiting or closed (shut).
   const grupo = (giro: readonly [number, number, number], x: number, y: number) => {
+    const pareja = new Group();
+    pareja.rotation.z = e.giro;
     const g = new Group();
     g.rotation.set(...giro);
     g.position.set(x, y, 0);
-    g.updateMatrixWorld();
+    pareja.add(g);
+    pareja.updateMatrixWorld();
     return g.matrixWorld;
   };
   const pose = (gap: number) => ({ human: grupo(GIRO_HUMANA, -gap / 2, e.lift), machine: grupo(GIRO_MAQUINA, gap / 2, -e.lift) });
-  const abierta = pose(e.open);
+  const abierta = pose(e.espera);
   const cerrada = pose(e.shut);
+  // On screen (y down) the pair's axis runs at -giro: a point relative to a
+  // fingertip, turned into the axis frame (x along the axis, toward the machine).
+  const [cos, sin] = [Math.cos(e.giro), Math.sin(e.giro)];
+  const alEje = ([x, y]: P): P => [x * cos - y * sin, x * sin + y * cos];
 
   // Screen → SVG units: thousandths of a unit on the plane z = 0, from the mark, y down.
   const half = { x: w / 2, y: h / 2 };
@@ -186,17 +196,17 @@ function cubeta({ nombre, w, h, small }: (typeof CUBETAS)[number]) {
   // Each hand is drawn from its own fingertip, so closing is a transform about it.
   const origen = new Vector3(0, 0, 0);
   const puntas = { human: proyectar(origen, abierta.human), machine: proyectar(origen, abierta.machine) };
-  const desde = (o: P) => (ls: P[][]) => ls.map((l) => l.map(([x, y]) => [x - o[0], y - o[1]] as P));
+  const desde = (o: P) => (ls: P[][]) => ls.map((l) => l.map(([x, y]) => alEje([x - o[0], y - o[1]])));
   const humana = desde(puntas.human)(dibujar(fibras, abierta.human, corte(m.human)));
   const maquina = desde(puntas.machine)(dibujar(pistas, abierta.machine, corte(m.machine)));
   const juntas = desde(puntas.machine)(dibujar(anillos, abierta.machine, 0));
   const placas = desde(puntas.machine)(dibujar(chips, abierta.machine, 0));
 
-  // Closing moves each hand sideways in the scene. On screen that is exact at
-  // the fingertip (on z = 0) and grows toward the elbow, which is nearer the
-  // camera: a translation plus a horizontal stretch about the fingertip,
-  // fitted to the lines that show in the reference strip.
-  const cierre = ((e.open - e.shut) / 2) * 1000;
+  // Closing moves each hand along the pair's axis in the scene. On screen that
+  // is exact at the fingertip (on z = 0) and grows toward the elbow, which is
+  // nearer the camera: a slide plus a stretch along the axis about the
+  // fingertip, fitted to the lines that show in the reference strip.
+  const cierre = ((e.espera - e.shut) / 2) * 1000;
   const enCaja = (q: P) => Math.abs(q[0]) < (w / 2 / e.px) * 1000 && Math.abs(q[1] + AIM * 1000) < (h / 2 / e.px) * 1000;
   const ajuste = (ls: Linea[], a: Matrix4, c: Matrix4, o: P, mover: number) => {
     let num = 0;
@@ -207,15 +217,18 @@ function cubeta({ nombre, w, h, small }: (typeof CUBETAS)[number]) {
         const p = proyectar(v, a);
         const q = proyectar(v, c);
         if (!enCaja(q)) continue;
-        pares.push([p, q]);
-        num += (p[0] - o[0]) * (q[0] - o[0] - mover);
-        den += (p[0] - o[0]) ** 2;
+        // Both in the axis frame, from the waiting fingertip.
+        const pa = alEje([p[0] - o[0], p[1] - o[1]]);
+        const qa = alEje([q[0] - o[0], q[1] - o[1]]);
+        pares.push([pa, qa]);
+        num += pa[0] * (qa[0] - mover);
+        den += pa[0] ** 2;
       }
     const estira = den ? num / den : 1;
     let peor = 0;
     let solo = 0;
     for (const [p, q] of pares) {
-      peor = Math.max(peor, Math.hypot(o[0] + mover + estira * (p[0] - o[0]) - q[0], p[1] - q[1]) * (e.px / 1000));
+      peor = Math.max(peor, Math.hypot(mover + estira * p[0] - q[0], p[1] - q[1]) * (e.px / 1000));
       solo = Math.max(solo, Math.hypot(p[0] + mover - q[0], p[1] - q[1]) * (e.px / 1000));
     }
     return { estira: +estira.toFixed(4), peor: +peor.toFixed(2), soloTraslado: +solo.toFixed(2) };
@@ -224,8 +237,11 @@ function cubeta({ nombre, w, h, small }: (typeof CUBETAS)[number]) {
   const ajusteMaquina = ajuste(pistas, abierta.machine, cerrada.machine, puntas.machine, -cierre);
 
   const k = (e.size * 1000) / 60;
+  const vb = [-e.vista.ancho * 500, -AIM * 1000 - e.vista.alto * 500, e.vista.ancho * 1000, e.vista.alto * 1000].map((n) => +n.toFixed(3)).join(" ");
   return {
     nombre,
+    vb,
+    giro: +((-e.giro * 180) / Math.PI).toFixed(3),
     cierre: Math.round(cierre),
     puntas: { human: puntas.human.map(Math.round), machine: puntas.machine.map(Math.round) },
     estira: { human: ajusteHumana.estira, machine: ajusteMaquina.estira },
@@ -250,15 +266,17 @@ function cubeta({ nombre, w, h, small }: (typeof CUBETAS)[number]) {
 }
 
 const cubetas = CUBETAS.map(cubeta);
-const vb = [-VISTA.ancho * 500, -AIM * 1000 - VISTA.alto * 500, VISTA.ancho * 1000, VISTA.alto * 1000].map((n) => +n.toFixed(3)).join(" ");
 
-const g = (c: (typeof cubetas)[number]) => `      <g className="trazo-cubeta" data-cubeta="${c.nombre}">
-        <g transform="translate(${c.puntas.human.join(" ")})">
+/** Where a hand's group sits: its fingertip, turned to the pair's axis (no turn on a wide strip). */
+const sitio = (punta: number[], giro: number) => `translate(${punta.join(" ")})${giro ? ` rotate(${giro})` : ""}`;
+
+const g = (c: (typeof cubetas)[number]) => `      <svg className="trazo-cubeta" data-cubeta="${c.nombre}" viewBox="${c.vb}" preserveAspectRatio="xMidYMid meet" overflow="visible">
+        <g transform="${sitio(c.puntas.human, c.giro)}">
           <g className="trazo-humana" style={vars({ "--cierre": "${c.cierre}px", "--estira": ${c.estira.human} })}>
             <path d="${c.humana}" />
           </g>
         </g>
-        <g transform="translate(${c.puntas.machine.join(" ")})">
+        <g transform="${sitio(c.puntas.machine, c.giro)}">
           <g className="trazo-maquina" style={vars({ "--cierre": "${-c.cierre}px", "--estira": ${c.estira.machine} })}>
             <path d="${c.maquina}" />
             <path className="trazo-juntas" d="${c.juntas}" />
@@ -270,21 +288,21 @@ const g = (c: (typeof cubetas)[number]) => `      <g className="trazo-cubeta" da
           <path className="trazo-arco" pathLength={1} d="M23.909 2.092A24 24 0 1 0 2.092 23.909" />
           <circle className="trazo-punto" cx="16.971" cy="16.971" r="6" />
         </g>
-      </g>`;
+      </svg>`;
 
 const tsx = `// Generated by scripts/manos-trazo.ts from manos-geometria.ts (seeds 7 and 11). Do not edit: run \`npx tsx scripts/manos-trazo.ts\`.
 import { vars } from "@/components/ak/Brand";
 
 /**
  * The two hands as a pencil sketch, projected through the scene's camera so
- * it lands under the fibers: one bucket per strip shape (a container query
- * picks it), the hands as groups that translate to close (--cierre), and the
- * mark (Brand's master) open until the controller or CSS closes it
- * (data-lazo: abierto, cerrando, cerrado).
+ * it lands under the fibers: one bucket per strip shape, each its own <svg>
+ * (a container query picks it), the hands as groups that slide along the
+ * pair's axis to close (--cierre), and the mark (Brand's master) open until
+ * the controller or CSS closes it (data-lazo: abierto, cerrando, cerrado).
  */
 export default function ManosTrazo() {
   return (
-    <svg className="manos-trazo" viewBox="${vb}" preserveAspectRatio="xMidYMid meet" aria-hidden="true" data-lazo="abierto">
+    <svg className="manos-trazo" aria-hidden="true" data-lazo="abierto">
 ${cubetas.map(g).join("\n")}
     </svg>
   );

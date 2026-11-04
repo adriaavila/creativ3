@@ -55,9 +55,9 @@ export default function Obra({ historia: h }: { historia: Historia }) {
       <div className="obra-placa">
         <Glifo tipo={h.glifo} />
         <div className="obra-texto">
-          <h3 id={nombre} className="obra-nombre">
+          <h2 id={nombre} className="obra-nombre">
             {h.nombre} <span className="obra-tag">{h.tag}</span>
-          </h3>
+          </h2>
           <p className="obra-linea">{h.linea}</p>
           {h.notaCorta ? <p className="obra-nota">{h.notaCorta}</p> : null}
         </div>

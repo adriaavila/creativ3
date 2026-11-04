@@ -49,7 +49,7 @@ const envelope = (p: number) => {
 };
 
 // The entrance, in seconds: the hands draw on ease-out (1.5 s, the scripted
-// exception), travel in from 1.4 times the open gap on ease-in-out (1.2 s,
+// exception), travel in from 1.4 times the waiting gap on ease-in-out (1.2 s,
 // duration-story) while the camera dollies in 6 %. The answer's timeline is
 // RESPUESTA (manos-trazo.ts), shared with the sketch.
 const ENTRADA = {
@@ -378,7 +378,10 @@ export function montar(
 
     human.rotation.set(...GIRO_HUMANA);
     machine.rotation.set(...GIRO_MAQUINA);
-    scene.add(human, machine);
+    // The pair turns about the camera's axis on a phone (encuadre's giro); the mark stays upright.
+    const pareja = new Group();
+    pareja.add(human, machine);
+    scene.add(pareja);
 
     // The mark, in the text color: Cloud on Ink, Ink on Cloud (Brand, Colors).
     const markGeo = new PlaneGeometry(1, 1);
@@ -404,6 +407,7 @@ export function montar(
     const layout = () => {
       enc = encuadre(width, height);
       mark.scale.setScalar(enc.mark);
+      pareja.rotation.z = enc.giro;
       // A phone draws at 1.5x at most: the lines stay crisp and the fill stays cheap.
       const dpr = Math.min(window.devicePixelRatio || 1, enc.compact ? 1.5 : 2);
       renderer.setPixelRatio(dpr);
@@ -443,11 +447,11 @@ export function montar(
         mat.uniforms.uWaveAmp!.value = envelope(so);
       }
 
-      // The gap: in from 1.4 times open to open, then (the answer) open to shut.
+      // The gap: in from 1.4 times the waiting gap to it, then (the answer) to shut.
       const g =
         estado === "entrando" || estado === "espera"
-          ? lerp(enc.open * 1.4, enc.open, easeInOut(seg(te, ENTRADA.travel[0], ENTRADA.travel[1])))
-          : lerp(enc.open, enc.shut, easeInOut(seg(ta, R.travel[0], R.travel[1])));
+          ? lerp(enc.espera * 1.4, enc.espera, easeInOut(seg(te, ENTRADA.travel[0], ENTRADA.travel[1])))
+          : lerp(enc.espera, enc.shut, easeInOut(seg(ta, R.travel[0], R.travel[1])));
       human.position.set(-g / 2, enc.lift, 0);
       machine.position.set(g / 2, -enc.lift, 0);
 

@@ -43,6 +43,11 @@
   transition: opacity var(--duration-base) var(--ease-out), transform var(--duration-base) var(--ease-out), visibility 0s linear var(--duration-base);
 }
 .portada[data-cerrado] .respuesta { opacity: 1; visibility: visible; transform: none; transition-delay: 0s; }
+/* On a phone the hands meet on a diagonal from the lower left: the hint and then the reply take the empty corner,
+   lower right (the hint's rule is B's, in 20-manos). */
+@media (max-width: 759.98px) {
+  .respuesta { text-align: right; }
+}
 
 /* ── Who answers, like a contact row in WhatsApp: [photo] ● Te contesto yo · 7:42 p. m. en Venezuela [voice]. ── */
 .estado { display: flex; align-items: center; gap: var(--space-3); min-height: var(--space-8); }

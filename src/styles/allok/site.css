@@ -131,6 +131,10 @@
 .ak .manos[data-estado="cerrado"] {cursor: default;}
 .ak .manos > .manos-trazo, .ak .cierre-lazo > .manos-trazo {position: absolute; inset: 0; width: 100%; height: 100%;}
 .ak .manos canvas {position: absolute; inset: 0; z-index: 1; display: block;}
+@container (max-width: 759.98px) {
+.ak .manos > canvas, .ak .manos > .manos-trazo, .ak .cierre-lazo > .manos-trazo {-webkit-mask-image: linear-gradient(to bottom, transparent, #000 12%, #000 82%, transparent);
+    mask-image: linear-gradient(to bottom, transparent, #000 12%, #000 82%, transparent);}
+}
 .ak .manos-pista {position: absolute;
   left: 0;
   right: 0;
@@ -141,6 +145,9 @@
   pointer-events: none;
   transition: opacity var(--duration-quick) var(--ease-in), visibility 0s linear var(--duration-quick);}
 .ak .manos:is([data-estado="respondiendo"], [data-estado="cerrado"]) .manos-pista {opacity: 0; visibility: hidden;}
+@media (max-width: 759.98px) {
+.ak .manos-pista {padding-right: clamp(20px, 5vw, 72px); text-align: right;}
+}
 .ak .manos-punto {position: absolute;
   left: 0;
   top: 0;
@@ -212,6 +219,9 @@ html.lienzo-3d .ak .manos .manos-trazo {opacity: 1;}
   -webkit-user-select: none;
   -webkit-touch-callout: none;
   -webkit-tap-highlight-color: transparent;}
+@media (max-width: 759.98px) {
+.ak .cierre-lazo {height: min(424px, 108vw);}
+}
 .ak .cierre-lazo:focus-visible {outline: 2px solid var(--focus); outline-offset: -4px;}
 .ak .cierre-lazo[data-cerrado] {cursor: default;}
 @media (prefers-reduced-motion: reduce) {
@@ -243,6 +253,9 @@ html.lienzo-3d .ak .manos .manos-trazo {opacity: 1;}
   transform: translateY(var(--travel-1));
   transition: opacity var(--duration-base) var(--ease-out), transform var(--duration-base) var(--ease-out), visibility 0s linear var(--duration-base);}
 .ak .portada[data-cerrado] .respuesta {opacity: 1; visibility: visible; transform: none; transition-delay: 0s;}
+@media (max-width: 759.98px) {
+.ak .respuesta {text-align: right;}
+}
 .ak .estado {display: flex; align-items: center; gap: var(--space-3); min-height: var(--space-8);}
 .ak .estado-foto {flex: none; width: 40px; height: 40px; border-radius: var(--radius-control); object-fit: cover;}
 .ak .estado-linea {min-width: 0; margin: 0; font: 400 15px/1.45 var(--font-sans); color: var(--text-muted);}

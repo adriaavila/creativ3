@@ -385,6 +385,13 @@ html:has(.allok) > body::-webkit-scrollbar-thumb, html .allok ::-webkit-scrollba
   );
 }
 html:has(.allok) > body::-webkit-scrollbar-thumb:hover, html .allok ::-webkit-scrollbar-thumb:hover { background-image: none; background: #b41065; }
+/* The design system's pages (.ak): a thin Steel thumb on nothing, not the
+   lime of the retired design. scrollbar-color covers Chrome 121+, Firefox and
+   Safari 18.2+; the pseudo-elements, older Safari. */
+html:has(.ak) { scrollbar-width: thin; scrollbar-color: #697278 transparent; }
+html:has(.ak) > body::-webkit-scrollbar, html .ak ::-webkit-scrollbar { width: 6px; }
+html:has(.ak) > body::-webkit-scrollbar-track, html .ak ::-webkit-scrollbar-track { background: transparent; }
+html:has(.ak) > body::-webkit-scrollbar-thumb, html .ak ::-webkit-scrollbar-thumb { border-radius: 999px; background: #697278; }
 html .rig :focus-visible { outline-color: var(--hazard); }
 html .rig ::selection { background: var(--hazard); color: var(--paper); }
 

@@ -48,8 +48,6 @@ export type Pose = {
   tilt: number;
   /** Forearm droop: positive comes in from below. */
   arm: number;
-  /** Turn around the forearm's axis, in radians: positive shows the palm and turns it up. */
-  roll?: number;
 };
 
 /** The human hand: the index reaching, the other fingers relaxed and curling. */
@@ -58,21 +56,6 @@ export const HUMANA: Pose = { index: [0.04, 0.12, 0.1], others: [0.55, 0.8, 0.55
 export const HUMANA_COMPACTA: Pose = { ...HUMANA, others: [0.25, 0.35, 0.25] };
 /** The machine hand: almost straight, sure of where it goes. */
 export const MAQUINA: Pose = { index: [0.0, 0.03, 0.02], others: [0.2, 0.25, 0.18], thumb: [0.08, 0.1], tilt: -0.03, arm: -0.07 };
-
-// v2, only for the stills Adri compares before he approves it: his index
-// higher and active (straight, the other fingers folded back so it leads),
-// and the machine with its palm up, receiving. The thumb stays clear of the
-// index: the human hand never makes the OK ring.
-const HUMANA_V2: Pose = { index: [-0.04, 0.03, 0.02], others: [0.75, 1.05, 0.7], thumb: [0.3, 0.32], tilt: 0.16, arm: -0.03 };
-const HUMANA_V2_COMPACTA: Pose = { ...HUMANA_V2, others: [0.45, 0.6, 0.4] };
-const MAQUINA_V2: Pose = { ...MAQUINA, others: [0.3, 0.35, 0.25], tilt: 0.02, roll: 1.9 };
-
-/** Which pose the hands take. v1 is the fresco Adri approved; v2 waits for his yes. */
-export type Variante = "v1" | "v2";
-export const POSE: Variante = "v1";
-/** The machine's ink. `acero`: Steel lines, no glints on chips or pads, Blue only on the closing arc. Waits for his yes too. */
-export type Tinta = "azul" | "acero";
-export const TINTA_MAQUINA: Tinta = "azul";
 
 /** A point of the skeleton: center, half width (along y) and half thickness (along z). */
 type Node = { c: V3; ra: number; rb: number };
@@ -148,17 +131,12 @@ function skeleton(pose: Pose): Skeleton {
   ];
   chains.push({ nodes: thumb, weight: 0.2, band: 0.8, joints: [5, 6] });
 
-  // Turn the hand around the forearm (v2 only), tilt it around the wrist,
-  // then move the index tip to the origin.
+  // Tilt the hand around the wrist, then move the index tip to the origin.
   const c = Math.cos(pose.tilt);
   const s = Math.sin(pose.tilt);
-  const cr = Math.cos(pose.roll ?? 0);
-  const sr = Math.sin(pose.roll ?? 0);
   const rot = (v: V3): V3 => {
     const d = sub(v, W);
-    const y = d[1] * cr - d[2] * sr;
-    const z = d[1] * sr + d[2] * cr;
-    return add(W, [d[0] * c - y * s, d[0] * s + y * c, z]);
+    return add(W, [d[0] * c - d[1] * s, d[0] * s + d[1] * c, d[2]]);
   };
   const index = chains[0]!.nodes;
   const tip = rot(index[index.length - 1]!.c);
@@ -167,7 +145,7 @@ function skeleton(pose: Pose): Skeleton {
     const d = sub(add(v, tip), W);
     const x = d[0] * c + d[1] * s;
     const y = -d[0] * s + d[1] * c;
-    return add(W, [x, y * cr + d[2] * sr, -y * sr + d[2] * cr]);
+    return add(W, [x, y, d[2]]);
   };
   return { chains: chains.map((ch) => ({ ...ch, nodes: ch.nodes.map((n) => ({ ...n, c: xf(n.c) })) })), xf, inv };
 }
@@ -555,11 +533,9 @@ export type Manos = { human: Lines; machine: Lines; pads: Lines };
  * The same seeds (7 and 11) on every screen, so the hands are always the
  * same hands; a phone gets fewer lines and the open human hand.
  */
-export function construirManos(small: boolean, pose: Variante = POSE): Manos {
-  const v2 = pose === "v2";
-  const humana = v2 ? (small ? HUMANA_V2_COMPACTA : HUMANA_V2) : small ? HUMANA_COMPACTA : HUMANA;
-  const machine = machineHand(v2 ? MAQUINA_V2 : MAQUINA, small ? 170 : 340, 11);
-  return { human: humanHand(humana, small ? 300 : 560, 7), machine: machine.lines, pads: machine.pads };
+export function construirManos(small: boolean): Manos {
+  const machine = machineHand(MAQUINA, small ? 170 : 340, 11);
+  return { human: humanHand(small ? HUMANA_COMPACTA : HUMANA, small ? 300 : 560, 7), machine: machine.lines, pads: machine.pads };
 }
 
 // ── Where everything sits ────────────────────────────────────────────────
@@ -630,14 +606,13 @@ export type Encuadre = {
  * the frame. The mark fits between the fingertips with a little more than its
  * clear space (Brand: the o's inner radius, 0.6 of its outer one).
  */
-export function encuadre(width: number, height: number, pose: Variante = POSE): Encuadre {
+export function encuadre(width: number, height: number): Encuadre {
   const compact = width < 760;
   const vista = compact ? VISTA_COMPACTA : VISTA;
   const size = compact ? 0.2 : 0.15;
   const reach = size / 2 + 0.8 * (size / 2) + 0.005;
   const half = Math.tan((FOV * Math.PI) / 360);
   const aspect = width / (height || 1);
-  const lift = pose === "v2" ? LIFT : -LIFT;
   return {
     compact,
     vista,
@@ -645,7 +620,7 @@ export function encuadre(width: number, height: number, pose: Variante = POSE): 
     mark: size * (32 / 30),
     espera: compact ? 0.54 : 0.56,
     shut: 2 * Math.sqrt(reach * reach - LIFT * LIFT),
-    lift,
+    lift: -LIFT,
     giro: compact ? DIAGONAL : 0,
     z: Math.max(vista.alto / (2 * half), vista.ancho / (2 * half * aspect)),
     px: Math.min(width / vista.ancho, height / vista.alto),

@@ -16,7 +16,7 @@ import {
   Sphere,
   Vector3,
 } from "./manos-tres-nucleo";
-import { AIM, FOV, GIRO_HUMANA, GIRO_MAQUINA, LAZO, TINTA_MAQUINA, encuadre, type Encuadre, type Lines, type Manos } from "./manos-geometria";
+import { AIM, FOV, GIRO_HUMANA, GIRO_MAQUINA, LAZO, encuadre, type Encuadre, type Lines, type Manos } from "./manos-geometria";
 import { RESPUESTA, type Avisos, type Destino, type Lazo, type Punto } from "./manos-trazo";
 
 // The hero's piece, «Te toca», in two parts with a still wait between them.
@@ -89,21 +89,20 @@ const LINE_VERT = /* glsl */ `
   }
 `;
 
-// uKind: 1 lets the chips glint in the signal's color; 0 (the Steel ink) draws them like any trace.
+// vKind is 1 on the chips: they glint in the signal's color.
 const LINE_FRAG = /* glsl */ `
   uniform vec3 uColor;
   uniform vec3 uGlow;
   uniform float uOpacity;
   uniform float uLift;
   uniform float uTip;
-  uniform float uKind;
   varying float vAlpha;
   varying float vGlow;
   varying float vDepth;
   varying float vKind;
   varying float vS;
   void main() {
-    float kind = vKind * uKind;
+    float kind = vKind;
     // Fibers bunch up at the fingertips; soften them there so the mark stays the brightest thing.
     float a = max(vAlpha * uOpacity * vDepth * (1.0 - uTip * smoothstep(0.88, 1.0, vS)), kind * vAlpha * 0.7);
     vec3 c = mix(uColor, uGlow, max(vGlow, kind * 0.8));
@@ -307,9 +306,6 @@ export function montar(
     const ground = tone("--ground", "#f7f8f8");
     const dark = ground.x * 0.2126 + ground.y * 0.7152 + ground.z * 0.0722 < 0.4;
     const blending = dark ? AdditiveBlending : NormalBlending;
-    // The machine's ink. Steel waits for Adri's yes (TINTA_MAQUINA): then Blue is only the closing loop.
-    const acero = TINTA_MAQUINA === "acero";
-    const machineInk = acero ? tone("--steel", "#697278") : blue;
 
     const scene = new Scene();
     const camera = new PerspectiveCamera(FOV, 1, 0.1, 50);
@@ -341,7 +337,6 @@ export function montar(
           uOpacity: { value: 0 },
           uLift: { value: lift },
           uTip: { value: tip },
-          uKind: { value: acero ? 0 : 1 },
         },
       });
 
@@ -356,7 +351,7 @@ export function montar(
 
     const machine = new Group();
     const machineGeo = geometry(manos.machine);
-    const machineMat = lineMaterial(manos.machine, machineInk, 0.35, 0);
+    const machineMat = lineMaterial(manos.machine, blue, 0.35, 0);
     const padGeo = geometry(manos.pads);
     const padMat = new ShaderMaterial({
       vertexShader: PAD_VERT,
@@ -369,7 +364,7 @@ export function montar(
         uSize: { value: 2 },
         uWave: { value: -1 },
         uWaveAmp: { value: 0 },
-        uColor: { value: machineInk },
+        uColor: { value: blue },
         uGlow: { value: text },
         uOpacity: { value: 0.9 },
       },
@@ -395,7 +390,7 @@ export function montar(
       transparent: true,
       depthTest: false,
       depthWrite: false,
-      uniforms: { uColor: { value: acero ? blue : text }, uArc: { value: 0 }, uArcA: { value: 0 }, uDot: { value: 0 } },
+      uniforms: { uColor: { value: text }, uArc: { value: 0 }, uArcA: { value: 0 }, uDot: { value: 0 } },
     });
     const mark = new Mesh(markGeo, markMat);
     mark.frustumCulled = false;
@@ -420,9 +415,7 @@ export function montar(
       // less softened at the tips, it reads as a hand and not a brush.
       humanMat.uniforms.uOpacity!.value = Math.min(1, (dark && !enc.compact ? 0.14 : 0.22) * boost);
       humanMat.uniforms.uTip!.value = enc.compact ? 0.3 : 0.45;
-      const machineOpacity = Math.min(1, (dark ? 0.5 : 0.55) * boost);
-      machineMat.uniforms.uOpacity!.value = machineOpacity;
-      padMat.uniforms.uOpacity!.value = acero ? machineOpacity : 0.9;
+      machineMat.uniforms.uOpacity!.value = Math.min(1, (dark ? 0.5 : 0.55) * boost);
       padMat.uniforms.uSize!.value = (enc.compact ? 1.8 : 2.6) * dpr;
     };
 

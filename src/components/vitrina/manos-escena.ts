@@ -4,6 +4,7 @@ import {
   BufferAttribute,
   BufferGeometry,
   Color,
+  DoubleSide,
   Group,
   LineSegments,
   Mesh,
@@ -16,7 +17,7 @@ import {
   Sphere,
   Vector3,
 } from "./manos-tres-nucleo";
-import { AIM, FOV, GIRO_HUMANA, GIRO_MAQUINA, LAZO, encuadre, type Encuadre, type Lines, type Manos } from "./manos-geometria";
+import { AIM, FOV, GIRO_HUMANA, GIRO_MAQUINA, LAZO, encuadre, type Encuadre, type Lines, type Manos, type Solido } from "./manos-geometria";
 import { RESPUESTA, type Avisos, type Destino, type Lazo, type Punto } from "./manos-trazo";
 
 // The hero's piece, «Te toca», in two parts with a still wait between them.
@@ -71,9 +72,14 @@ const LINE_VERT = /* glsl */ `
   uniform float uWave;
   uniform float uWaveAmp;
   uniform float uWrist;
+  uniform vec3 uLuz;
+  uniform float uSombra;
+  uniform float uOscuro;
   varying float vAlpha;
   varying float vGlow;
   varying float vDepth;
+  varying float vArm;
+  varying float vLuz;
   varying float vKind;
   varying float vS;
   void main() {
@@ -84,31 +90,62 @@ const LINE_VERT = /* glsl */ `
     float front = uWave + (aRnd - 0.5) * 0.1;
     vGlow = (1.0 - smoothstep(0.0, 0.07, abs(aS - front))) * uWaveAmp * (0.35 + 0.65 * fract(aRnd * 13.7));
     // Lines farther back are fainter, and the forearm fades out toward the edge.
-    vDepth = (0.25 + 0.75 * smoothstep(-0.16, 0.08, position.z)) * (0.1 + 0.9 * smoothstep(uWrist - 0.16, uWrist + 0.05, aS));
+    vArm = 0.1 + 0.9 * smoothstep(uWrist - 0.16, uWrist + 0.05, aS);
+    vDepth = (0.25 + 0.75 * smoothstep(-0.16, 0.08, position.z)) * vArm;
+    // The light (uLuz, toward it, in view space) on the surface under the line:
+    // half-Lambert, so the side away from it keeps uSombra and never goes black.
+    // On Ink a lit line is a light line; on Cloud a line in shade is a dark one.
+    float lit = step(0.5, dot(normal, normal));
+    vec3 n = normalize(normalMatrix * (normal + (1.0 - lit) * vec3(0.0, 0.0, 1.0)));
+    float l = clamp(dot(n, uLuz) * 0.5 + 0.5, 0.0, 1.0);
+    float luz = mix(uSombra, 1.0, l * l);
+    vLuz = mix(1.0, mix(1.0 + uSombra - luz, luz, uOscuro), lit);
     gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
   }
 `;
 
-// vKind is 1 on the chips: they glint in the signal's color.
+// vKind (KIND in manos-base.ts): 0 a line on the form, lit; 1 a chip, which
+// glints in the signal's color; 2 the contour and the edges, unlit, at uContorno.
 const LINE_FRAG = /* glsl */ `
   uniform vec3 uColor;
   uniform vec3 uGlow;
   uniform float uOpacity;
+  uniform float uContorno;
   uniform float uLift;
   uniform float uTip;
   varying float vAlpha;
   varying float vGlow;
   varying float vDepth;
+  varying float vArm;
+  varying float vLuz;
   varying float vKind;
   varying float vS;
   void main() {
-    float kind = vKind;
-    // Fibers bunch up at the fingertips; soften them there so the mark stays the brightest thing.
-    float a = max(vAlpha * uOpacity * vDepth * (1.0 - uTip * smoothstep(0.88, 1.0, vS)), kind * vAlpha * 0.7);
-    vec3 c = mix(uColor, uGlow, max(vGlow, kind * 0.8));
+    float contorno = step(1.5, vKind);
+    float chip = step(0.5, vKind) - contorno;
+    float base = mix(uOpacity * vDepth * vLuz, uContorno * vArm, contorno);
+    // Lines bunch up at the fingertips; soften them there so the mark stays the brightest thing.
+    float a = max(vAlpha * base * (1.0 - uTip * smoothstep(0.88, 1.0, vS)), chip * vAlpha * 0.7);
+    vec3 c = mix(uColor, uGlow, max(vGlow, chip * 0.8));
     gl_FragColor = vec4(c, clamp(a + vGlow * vAlpha * vDepth * uLift, 0.0, 1.0));
   }
 `;
+
+// A hand's body only writes depth, a hair behind the surface (polygon
+// offset), so the lines on the far side of the hand are hidden.
+const CUERPO_VERT = /* glsl */ `
+  void main() {
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+  }
+`;
+const CUERPO_FRAG = /* glsl */ `
+  void main() {
+    gl_FragColor = vec4(0.0);
+  }
+`;
+
+/** Toward the light, in view space: from above, a little to the left, in front. */
+const LUZ = new Vector3(-0.38, 0.62, 0.69).normalize();
 
 const PAD_VERT = /* glsl */ `
   attribute float aS;
@@ -313,6 +350,7 @@ export function montar(
     const geometry = (l: Lines) => {
       const g = new BufferGeometry();
       g.setAttribute("position", new BufferAttribute(l.pos, 3));
+      g.setAttribute("normal", new BufferAttribute(l.nrm, 3));
       g.setAttribute("aS", new BufferAttribute(l.s, 1));
       g.setAttribute("aRnd", new BufferAttribute(l.rnd, 1));
       g.setAttribute("aKind", new BufferAttribute(l.kind, 1));
@@ -320,7 +358,7 @@ export function montar(
       g.boundingSphere = new Sphere(new Vector3(...l.centro), l.radio);
       return g;
     };
-    const lineMaterial = (l: Lines, color: Vector3, lift: number, tip: number) =>
+    const lineMaterial = (l: Lines, color: Vector3, lift: number) =>
       new ShaderMaterial({
         vertexShader: LINE_VERT,
         fragmentShader: LINE_FRAG,
@@ -335,23 +373,51 @@ export function montar(
           uColor: { value: color },
           uGlow: { value: text },
           uOpacity: { value: 0 },
+          uContorno: { value: 0 },
           uLift: { value: lift },
-          uTip: { value: tip },
+          uTip: { value: l.estilo.punta },
+          uLuz: { value: LUZ },
+          uSombra: { value: l.estilo.sombra },
+          uOscuro: { value: dark ? 1 : 0 },
         },
       });
+
+    // Each hand's body, for the depth buffer: drawn first (it is opaque), in no color.
+    const cuerpoMat = new ShaderMaterial({
+      vertexShader: CUERPO_VERT,
+      fragmentShader: CUERPO_FRAG,
+      side: DoubleSide,
+      colorWrite: false,
+      polygonOffset: true,
+      polygonOffsetFactor: 1,
+      polygonOffsetUnits: 2,
+    });
+    const cuerpoGeos: BufferGeometry[] = [];
+    const cuerpo = (grupo: Group, c: Solido) => {
+      if (!c.idx.length) return;
+      const g = new BufferGeometry();
+      g.setAttribute("position", new BufferAttribute(c.pos, 3));
+      g.setIndex(new BufferAttribute(c.idx, 1));
+      g.boundingSphere = new Sphere(new Vector3(...c.centro), c.radio);
+      cuerpoGeos.push(g);
+      const m = new Mesh(g, cuerpoMat);
+      m.frustumCulled = false;
+      grupo.add(m);
+    };
 
     // Left: the human hand, of fibers. Right: the machine, of traces (mirrored).
     // The signal lights both in the text color, never blue (Motion, Never).
     const human = new Group();
     const humanGeo = geometry(manos.human);
-    const humanMat = lineMaterial(manos.human, text, 0.5, 0.45);
+    const humanMat = lineMaterial(manos.human, text, 0.5);
     const fibers = new LineSegments(humanGeo, humanMat);
     fibers.frustumCulled = false;
     human.add(fibers);
+    cuerpo(human, manos.cuerpos.human);
 
     const machine = new Group();
     const machineGeo = geometry(manos.machine);
-    const machineMat = lineMaterial(manos.machine, blue, 0.35, 0);
+    const machineMat = lineMaterial(manos.machine, blue, 0.35);
     const padGeo = geometry(manos.pads);
     const padMat = new ShaderMaterial({
       vertexShader: PAD_VERT,
@@ -374,6 +440,7 @@ export function montar(
     traces.frustumCulled = false;
     pads.frustumCulled = false;
     machine.add(traces, pads);
+    cuerpo(machine, manos.cuerpos.machine);
 
     human.rotation.set(...GIRO_HUMANA);
     machine.rotation.set(...GIRO_MAQUINA);
@@ -411,11 +478,14 @@ export function montar(
       const dpr = Math.min(window.devicePixelRatio || 1, enc.compact ? 1.5 : 2);
       renderer.setPixelRatio(dpr);
       const boost = dpr >= 1.5 ? 1.35 : 1;
-      // On a phone the human hand is a few dozen pixels wide: brighter and
-      // less softened at the tips, it reads as a hand and not a brush.
-      humanMat.uniforms.uOpacity!.value = Math.min(1, (dark && !enc.compact ? 0.14 : 0.22) * boost);
-      humanMat.uniforms.uTip!.value = enc.compact ? 0.3 : 0.45;
-      machineMat.uniforms.uOpacity!.value = Math.min(1, (dark ? 0.5 : 0.55) * boost);
+      // Each hand says how it is inked (its Estilo, for the density it was built at).
+      for (const [mat, l] of [
+        [humanMat, manos.human],
+        [machineMat, manos.machine],
+      ] as const) {
+        mat.uniforms.uOpacity!.value = Math.min(1, l.estilo.alfa * boost);
+        mat.uniforms.uContorno!.value = Math.min(1, l.estilo.contorno * boost);
+      }
       padMat.uniforms.uSize!.value = (enc.compact ? 1.8 : 2.6) * dpr;
     };
 
@@ -713,8 +783,8 @@ export function montar(
         document.removeEventListener("visibilitychange", play);
         renderer.domElement.removeEventListener("webglcontextlost", lost);
         renderer.domElement.removeEventListener("webglcontextrestored", restored);
-        for (const g of [humanGeo, machineGeo, padGeo, markGeo]) g.dispose();
-        for (const mat of [humanMat, machineMat, padMat, markMat]) mat.dispose();
+        for (const g of [humanGeo, machineGeo, padGeo, markGeo, ...cuerpoGeos]) g.dispose();
+        for (const mat of [humanMat, machineMat, padMat, markMat, cuerpoMat]) mat.dispose();
       },
     };
   }

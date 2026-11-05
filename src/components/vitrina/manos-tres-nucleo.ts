@@ -2,7 +2,7 @@
 // of the first (manos-tres-mates.ts). Each part is its own module from three/src, imported in its own task before
 // the scene (Manos.tsx): three's built file is one function of half a megabyte, and compiling and running it in
 // one go held a 4x slower phone 130 to 250 ms. The scene imports these same modules, so nothing runs twice.
-export { AdditiveBlending, NormalBlending } from "three/src/constants.js";
+export { AdditiveBlending, DoubleSide, NormalBlending } from "three/src/constants.js";
 export { BufferAttribute } from "three/src/core/BufferAttribute.js";
 export { BufferGeometry } from "three/src/core/BufferGeometry.js";
 export { Color } from "three/src/math/Color.js";

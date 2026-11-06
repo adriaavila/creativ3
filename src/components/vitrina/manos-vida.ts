@@ -116,7 +116,11 @@ export type Escenario = {
    * screen, the tab visible, motion welcome, the context alive.
    */
   puede(): boolean;
-  /** A sheet ([aria-modal="true"]) over the hero: the beat waits under it. */
+  /**
+   * A sheet ([aria-modal="true"]) over the hero: no beat and no timer under
+   * it. The scene says when one opens (`cortar`) and when the last one goes
+   * (`destapar`).
+   */
   tapado(): boolean;
   /** Whether the strip is laid out as on a phone (the scene's framing): the beat is shorter there. */
   compacta(): boolean;
@@ -131,8 +135,8 @@ export type Latidos = {
   mirar(): void;
   /**
    * Arms this look's beat, unless one is pending or playing, the look has had
-   * it, or it may not play now: after the answer, or a still frame set from
-   * outside.
+   * it, it may not play now, or a sheet is over the hero (`destapar` arms it
+   * when the sheet goes): after the answer, or a still frame set from outside.
    */
   armar(): void;
   /**
@@ -141,8 +145,19 @@ export type Latidos = {
    * rest.
    */
   callar(): boolean;
-  /** A sheet opened over a beat: it stops, and the look's beat comes after another still. True when one did. */
+  /**
+   * A sheet opened over the hero: no timer waits under it, and a beat playing
+   * stops. True when one did: the hands must be drawn at rest. The look goes
+   * on: its beat, if still owed, comes once the sheet goes (`destapar`).
+   */
   cortar(): boolean;
+  /**
+   * The last sheet over the hero went away: the still starts over, so the
+   * look's beat, if still owed and it may play, comes a whole LATIDO.primero
+   * from now, never sooner from a timer set before the sheet. A beat playing
+   * plays on.
+   */
+  destapar(): void;
   /** One frame of the beat, `dt` seconds on: past its end it is over (and counted). */
   avanzar(dt: number): void;
   /** The beat's clock in seconds, or null when none plays. */
@@ -163,12 +178,11 @@ export function crearLatidos(e: Escenario): Latidos {
     reloj = 0;
   };
   const armar = () => {
-    if (reloj || t !== null || dados >= LATIDO.tope || !e.puede()) return;
+    if (reloj || t !== null || dados >= LATIDO.tope || !e.puede() || e.tapado()) return;
     reloj = poner(() => {
       reloj = 0;
-      if (t !== null || !e.puede()) return;
-      // Under a sheet the beat waits, without a frame, for another still.
-      if (e.tapado()) return armar();
+      // Nothing waits under a sheet (`cortar` drops this timer as one opens): `destapar` starts the still over when it goes.
+      if (t !== null || !e.puede() || e.tapado()) return;
       t = 0;
       e.empezar();
     }, LATIDO.primero * 1000);
@@ -186,11 +200,11 @@ export function crearLatidos(e: Escenario): Latidos {
     },
     armar,
     callar,
-    cortar() {
-      if (t === null) return false;
-      callar();
+    // The same stop as callar; what differs is what follows: the look goes on, and `destapar` takes it up again.
+    cortar: callar,
+    destapar() {
+      parar();
       armar();
-      return true;
     },
     avanzar(dt) {
       if (t === null) return;

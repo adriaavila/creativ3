@@ -541,7 +541,8 @@ export function montar(
     // Frames only while something moves, only while the strip is on screen
     // and the tab is open. A project's sheet (Ficha) covers the hero without
     // moving it off screen: the moves wait under it, looking every 300 ms; a
-    // beat settles at once and waits for another still.
+    // beat settles at once, and the look's beat waits for the sheet to go and
+    // then for a whole still.
     let visible = false;
     // The beat asks for more than a sliver: the strip at least 60 % on screen, as the self-close does (Manos.tsx).
     let presente = false;
@@ -714,6 +715,17 @@ export function montar(
     };
     // Reduced motion turned on mid-look stops a beat at once; turned off, the look gets its beat.
     const alQuieto = () => (quieto.matches ? callar() : latidos.armar());
+    // A sheet seen as it opens and as the last one goes (manos-vida.ts decides
+    // what follows): opening, a beat settles at once (the frame loop would in
+    // its next frame) and no timer waits under it; going, the look's beat, if
+    // still owed, comes a whole still later.
+    let tapada = false;
+    const hojas = new MutationObserver(() => {
+      if (bajoFicha() === tapada) return;
+      tapada = !tapada;
+      if (!tapada) latidos.destapar();
+      else if (latidos.cortar()) draw();
+    });
 
     // The debut goes one step per task, so none of them holds a 4x slower
     // phone up: the programs, compiling since the module arrived, are waited
@@ -783,6 +795,8 @@ export function montar(
         io.observe(el);
         document.addEventListener("visibilitychange", alVer);
         quieto.addEventListener("change", alQuieto);
+        tapada = bajoFicha();
+        hojas.observe(document.body, { subtree: true, childList: true, attributes: true, attributeFilter: ["aria-modal"] });
         // A still scene (mounted closed) draws its frame again, now on the page; a moving one draws in the next frame.
         // The observer's first report starts the look (and, once closed, the wait for its beat).
         if (!mueve()) draw();
@@ -825,6 +839,7 @@ export function montar(
         window.clearTimeout(wait);
         io.disconnect();
         ro.disconnect();
+        hojas.disconnect();
         density?.removeEventListener("change", onDensity);
         document.removeEventListener("visibilitychange", alVer);
         quieto.removeEventListener("change", alQuieto);

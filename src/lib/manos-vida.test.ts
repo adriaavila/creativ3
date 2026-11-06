@@ -211,10 +211,97 @@ test("bajo una ficha espera sin un cuadro, y late cuando se va", () => {
   l.armar();
   r.correr(3 * Q);
   assert.deepEqual(empezados, []);
-  assert.equal(r.pendientes(), 1);
+  assert.equal(r.pendientes(), 0, "un temporizador esperando bajo la ficha");
   s.ficha = false;
+  l.destapar();
   r.correr(Q);
   assert.deepEqual(empezados, [4 * Q]);
+});
+
+test("al irse la ficha la quietud empieza de nuevo: el latido llega una quietud entera después", () => {
+  const { r, s, l, empezados } = escena();
+  s.cerrada = true;
+  l.armar();
+  r.correr(3000);
+  // The sheet opens: the scene cuts, and no timer waits under it.
+  s.ficha = true;
+  assert.equal(l.cortar(), false, "no sonaba ningún latido");
+  assert.equal(r.pendientes(), 0, "un temporizador esperando bajo la ficha");
+  r.correr(17_000);
+  assert.deepEqual(empezados, []);
+  s.ficha = false;
+  l.destapar();
+  r.correr(Q - 1);
+  assert.deepEqual(empezados, [], "llegó antes de una quietud entera");
+  r.correr(1);
+  assert.deepEqual(empezados, [20_000 + Q]);
+});
+
+test("un temporizador de antes de la ficha nunca dispara antes de tiempo", () => {
+  const { r, s, l, empezados } = escena();
+  s.cerrada = true;
+  // Armed at 0, it was due at 7 s; the sheet comes and goes before that, and nobody told the beat it opened.
+  l.armar();
+  r.correr(1000);
+  s.ficha = true;
+  r.correr(3000);
+  s.ficha = false;
+  l.destapar();
+  assert.equal(r.pendientes(), 1);
+  r.correr(Q - 1);
+  assert.deepEqual(empezados, [], "latió con el temporizador de antes de la ficha");
+  r.correr(1);
+  assert.deepEqual(empezados, [4000 + Q]);
+});
+
+test("al irse la ficha no llega nada si la mirada ya tuvo su latido", () => {
+  const { r, s, l, empezados, latir } = escena();
+  s.cerrada = true;
+  l.armar();
+  r.correr(Q);
+  latir();
+  s.ficha = true;
+  assert.equal(l.cortar(), false);
+  r.correr(5000);
+  s.ficha = false;
+  l.destapar();
+  assert.equal(r.pendientes(), 0);
+  r.correr(10 * 60_000);
+  assert.deepEqual(empezados, [Q]);
+});
+
+test("al irse la ficha no se arma nada si no puede latir (la tira fuera de la pantalla): la mirada siguiente lo arma", () => {
+  const { r, s, l, empezados } = escena();
+  s.cerrada = true;
+  l.armar();
+  r.correr(2000);
+  s.ficha = true;
+  l.cortar();
+  s.ve = false;
+  r.correr(5000);
+  s.ficha = false;
+  l.destapar();
+  assert.equal(r.pendientes(), 0);
+  r.correr(60_000);
+  assert.deepEqual(empezados, []);
+  s.ve = true;
+  l.mirar();
+  r.correr(Q);
+  assert.deepEqual(empezados, [67_000 + Q]);
+});
+
+test("destapar con un latido sonando lo deja terminar, y no arma otro", () => {
+  const { r, s, l, empezados, latir } = escena();
+  s.cerrada = true;
+  l.armar();
+  r.correr(Q);
+  l.avanzar(0.5);
+  l.destapar();
+  assert.equal(l.tiempo(), 0.5);
+  assert.equal(r.pendientes(), 0);
+  latir();
+  r.correr(10 * 60_000);
+  assert.deepEqual(empezados, [Q]);
 });
 
 test("callar a medio latido lo termina, y no queda nada armado", () => {
@@ -235,10 +322,17 @@ test("una ficha sobre un latido lo corta, y la mirada lo tiene tras otra quietud
   l.armar();
   r.correr(Q);
   l.avanzar(0.5);
+  s.ficha = true;
   assert.equal(l.cortar(), true);
   assert.equal(l.tiempo(), null);
+  assert.equal(r.pendientes(), 0, "un temporizador esperando bajo la ficha");
+  r.correr(3 * Q);
+  assert.deepEqual(empezados, [Q]);
+  // Cut, it was never counted: the look still has it coming, a whole still after the sheet goes.
+  s.ficha = false;
+  l.destapar();
   r.correr(Q);
-  assert.deepEqual(empezados, [Q, 2 * Q]);
+  assert.deepEqual(empezados, [Q, 5 * Q]);
 });
 
 test("si al vencer ya no puede (fuera de la pantalla, otra pestaña), ni late ni lo intenta otra vez", () => {

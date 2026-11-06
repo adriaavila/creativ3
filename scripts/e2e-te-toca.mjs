@@ -35,11 +35,13 @@
  *   · «1 s after data-cerrado for 2 s»: en esa ventana, ni un cuadro ni un dibujo, tal cual. Después, quien se queda
  *     con la pieza ve su latido (manos-vida.ts): [quieto] mide que llegue tras una quietud de verdad, que sea corto y
  *     uno solo por mirada, y que no pida ni un cuadro fuera de la pantalla (ni con un filo de la tira a la vista), con
- *     la pestaña oculta, bajo una ficha abierta ni con reducir movimiento.
+ *     la pestaña oculta, bajo una ficha abierta ni con reducir movimiento; que una ficha a medio latido lo corte en su
+ *     cuadro de reposo, y que al irse la ficha el latido que se debía llegue tras una quietud entera.
  * Más allá de ACCEPTANCE, [contexto] prueba lo que FALLBACKS y la parte 5 de la spec piden de un contexto perdido.
  * El navegador: PW_CHROMIUM (por defecto /opt/pw-browsers/chromium).
  */
 import { chromium } from "playwright";
+import { createHash } from "node:crypto";
 import { readFileSync, writeFileSync } from "node:fs";
 import { setTimeout as dormir } from "node:timers/promises";
 
@@ -135,7 +137,7 @@ function INSTRUMENTO(op) {
     if (c) s += `.${c.split(/\s+/).slice(0, 3).join(".")}`;
     return s;
   };
-  const e2e = { raf: [], dib: [], attrs: [], cambios: [], lcp: [], pintadas: [], largas: [], loaf: [], ctx: [], clics: [], pilas: [], listos: [], n: 0, carga: null, ocio: null, arriba: null, punto: null };
+  const e2e = { raf: [], dib: [], attrs: [], cambios: [], lcp: [], pintadas: [], largas: [], loaf: [], ctx: [], clics: [], pilas: [], listos: [], hojas: [], n: 0, carga: null, ocio: null, arriba: null, punto: null };
   window.__e2e = e2e;
 
   // Los cuadros que pide la página; los de esta prueba usan raf0 y no cuentan.
@@ -283,6 +285,16 @@ function INSTRUMENTO(op) {
       if (m.type === "attributes") e2e.attrs.push({ t: ahora(), a: m.attributeName, v: m.target.getAttribute(m.attributeName), el: nodo(m.target) });
     }
   }).observe(document, { subtree: true, attributes: true, attributeFilter: ATRIBUTOS });
+  // Con `hojas`, cuándo hay una ficha encima ([aria-modal="true"]) y cuándo se va la última, sea que cambie el atributo
+  // o que entre o salga el nodo (la ficha monta ya con él). Este observador nace antes que los de la página: anota cada
+  // cambio antes de que la escena lo vea y dibuje.
+  if (op.hojas) {
+    let tapada = false;
+    new MutationObserver(() => {
+      const t = ahora();
+      if (!!document.querySelector('[aria-modal="true"]') !== tapada) e2e.hojas.push({ t, abierta: (tapada = !tapada) });
+    }).observe(document, { subtree: true, childList: true, attributes: true, attributeFilter: ["aria-modal"] });
+  }
 
   addEventListener(
     "load",
@@ -1138,9 +1150,10 @@ async function solo(p) {
 // La escena una vez cerrada. La spec pide ningún cuadro ni dibujo de 1 s a 3 s después de data-cerrado. Después, quien
 // se queda con la pieza ve su latido (src/components/vitrina/manos-vida.ts): tras 7 s de quietud, 1.8 s de cuadros en un
 // celular (2.25 s en un escritorio), uno por mirada; y ninguno fuera de la pantalla (ni con apenas un filo de la tira a
-// la vista), con la pestaña oculta, bajo una ficha abierta ni con reducir movimiento. Los topes dejan margen a un
-// SwiftShader cargado; una escena que anime sin parar, que lata antes de tiempo o que vuelva a latir en la misma mirada
-// no cabe en ellos.
+// la vista), con la pestaña oculta, bajo una ficha abierta ni con reducir movimiento. Una ficha no termina la mirada: la
+// que se abre a medio latido lo corta en el acto, en su cuadro de reposo, y al irse, el latido que se debía llega tras
+// otros 7 s de quietud, contados desde que se fue. Los topes dejan margen a un SwiftShader cargado; una escena que anime
+// sin parar, que lata antes de tiempo o que vuelva a latir en la misma mirada no cabe en ellos.
 const LATIDOS = {
   /** La ventana de la spec, en ms después de data-cerrado. */
   spec: [1000, 3000],
@@ -1154,6 +1167,14 @@ const LATIDOS = {
   quietud: 5000,
   /** Latidos en una mirada. */
   porMirada: 1,
+  /** Lo menos que tarda el latido que se debía después de que se va la ficha (son 7 s; el resto, margen para los temporizadores). */
+  destapada: 6500,
+  /** Cuánto se mira la escena después de que se va una ficha: su latido (a los 7 s, de 1.8 s) y quieta al final. */
+  tras: 11000,
+  /** A cuánto de su primer cuadro se abre la ficha que corta un latido: la señal ya brilla, y le queda más de 1 s. */
+  corte: 400,
+  /** Cuánto queda abierta esa ficha. */
+  tapada: 5000,
 };
 /** Ráfagas de cuadros pedidos: los que van a menos de `junta` ms del anterior son la misma. */
 function rafagas(ts, junta = LATIDOS.junta) {
@@ -1199,6 +1220,28 @@ function juzgarCerrada(raf, dib, tc, w1, et, como) {
   lineas.push([sueltos.length === 0, `${et} cerrado: ningún dibujo fuera de sus cuadros`, `${dib.length} dibujos${sueltos.length ? `; sueltos a ${sueltos.slice(0, 5).map((t) => `${Math.round(t - tc)} ms`).join(", ")} de data-cerrado` : ""}`]);
   return lineas;
 }
+/**
+ * El latido que la mirada debía, tras irse la última ficha a `tf` (ms desde la navegación), sobre los cuadros pedidos
+ * (`raf`): uno solo en los LATIDOS.tras ms siguientes, que llega una quietud entera después (>= LATIDOS.destapada) y
+ * dura <= LATIDOS.rafaga, entero (quieta el último LATIDOS.junta de la ventana: no sigue más allá de ella). Devuelve
+ * [ok, medido]; como juzgarCerrada, no toca la página.
+ */
+function juzgarDestapada(raf, tf) {
+  const L = LATIDOS;
+  const rs = rafagas(raf.filter((t) => t >= tf && t <= tf + L.tras));
+  const s = (ms, d = 1) => `${(ms / 1000).toFixed(d)} s`;
+  const quieta = tf + L.tras - (rs.length ? rs[rs.length - 1].fin : tf);
+  const ok = rs.length === 1 && rs[0].ini - tf >= L.destapada && rs[0].fin - rs[0].ini <= L.rafaga && quieta >= L.junta;
+  const medido = rs.length ? `${rs.length === 1 ? "un latido" : `${rs.length} ráfagas`} a ${rs.map((x) => `${s(x.ini - tf, 2)} (${s(x.fin - x.ini)})`).join(", ")} de que se fue; después, ${s(quieta)} sin un cuadro` : `ningún latido en ${L.tras / 1000} s`;
+  return [ok, medido];
+}
+/**
+ * Cuándo se abrió una ficha (`abierta`) o se fue la última (no `abierta`) desde `t` (ms desde la navegación), como lo
+ * anota el instrumento con `hojas`: en el mismo cambio en que lo ve la escena. Null si en 8 s no pasó.
+ */
+const hoja = (page, abierta, t) => hasta(() => page.evaluate(([a, d]) => window.__e2e.hojas.find((x) => x.abierta === a && x.t >= d)?.t ?? null, [abierta, t]), { ms: 8000, cada: 20 });
+const seAbre = (page, t) => hoja(page, true, t);
+const seVa = (page, t) => hoja(page, false, t);
 /** Cuándo llegó #inicio[data-cerrado] (sola, o con un toque si en 9 s no llegó): ms desde la navegación, o null. */
 async function cerrada(page) {
   const lleva = async () => {
@@ -1219,13 +1262,14 @@ async function cerrada(page) {
 /**
  * [quieto] La escena pide cuadros solo mientras algo se mueve: ninguno en la espera; cerrada, ninguno de 1 s a 3 s
  * después de data-cerrado y un latido como mucho en la mirada, tras una quietud de verdad; y ninguno fuera de la
- * pantalla, con un filo de la tira, con la pestaña oculta, bajo una ficha abierta ni con reducir movimiento. La escena
- * cerrada se mide sola (sus tiempos no comparten la CPU); los demás casos van cada uno en su contexto, todos a la vez, y
- * sus líneas salen en este orden.
+ * pantalla, con un filo de la tira, con la pestaña oculta, bajo una ficha abierta ni con reducir movimiento. Una ficha
+ * a medio latido lo corta en su cuadro de reposo, y al irse cualquier ficha el latido que se debía llega tras una
+ * quietud entera. La escena cerrada se mide sola (sus tiempos no comparten la CPU); los demás casos van cada uno en su
+ * contexto, todos a la vez, y sus líneas salen en este orden.
  */
 async function quieto(p) {
   await quietoLatidos(p, p);
-  const casos = [quietoEntrando, ...["fuera", "rendija", "oculta", "ficha"].map((como) => (p, q) => quietoCerrado(p, q, como)), quietoReducido];
+  const casos = [quietoEntrando, ...["fuera", "rendija", "oculta", "ficha"].map((como) => (p, q) => quietoCerrado(p, q, como)), quietoCortado, quietoReducido];
   const colas = casos.map(() => []);
   const hechos = await Promise.allSettled(casos.map((f, i) => f(p, { linea: (...a) => colas[i].push(["linea", a]), info: (...a) => colas[i].push(["info", a]) })));
   for (const cola of colas) for (const [k, a] of cola) p[k](...a);
@@ -1306,10 +1350,11 @@ const SIN = {
  * Cerrada y pasada la respuesta, la tira se va de la pantalla, queda en un filo de 8 px, la pestaña se oculta o una
  * ficha se abre encima: diez segundos sin un cuadro, aunque en ellos tocaba latir (el latido llega a unos 8 s de
  * data-cerrado). Al volver, lo que pida la escena es solo información (el latido de la mirada nueva llega a los 7 s):
- * una escena quieta del todo también cumple.
+ * una escena quieta del todo también cumple. La ficha no: no termina la mirada, así que al irse llega el latido que se
+ * debía, y lo que diga juzgarDestapada es una línea.
  */
 async function quietoCerrado(p, q, como) {
-  const { page, etiqueta } = await p.abrir({ vista: "390", instrumento: { pilas: true } });
+  const { page, etiqueta } = await p.abrir({ vista: "390", instrumento: { pilas: true, hojas: como === "ficha" } });
   await ir(page);
   // La ficha vive en una isla: hasta que hidrata, nadie lee el hash.
   if (como === "ficha") await asentar(page);
@@ -1359,11 +1404,123 @@ async function quietoCerrado(p, q, como) {
     } else location.hash = "";
     return performance.now();
   }, como);
+  if (como === "ficha") {
+    const et = `${etiqueta} ${SIN.ficha.vuelve}: un latido en los ${LATIDOS.tras / 1000} s siguientes, tras >= ${LATIDOS.destapada / 1000} s de quietud, de <= ${LATIDOS.rafaga / 1000} s`;
+    const tf = await seVa(page, t2);
+    if (tf === null) return q.linea(false, et, "la ficha no se fue");
+    await esperarHasta(page, tf + LATIDOS.tras + 30);
+    const r = await page.evaluate(([a, b]) => window.__e2e.raf.filter((t) => t >= a && t <= b), [tf, tf + LATIDOS.tras]);
+    const [ok, medido] = juzgarDestapada(r, tf);
+    return q.linea(ok, et, `${medido} · ${fmtCuenta(await contar(page, tf, tf + LATIDOS.tras))}`);
+  }
   const dt = 10000;
   await esperarHasta(page, t2 + dt + 30);
   const r = await page.evaluate(([a, b]) => window.__e2e.raf.filter((t) => t >= a && t <= b), [t2, t2 + dt]);
   const rs = rafagas(r);
   q.info(`${etiqueta} ${SIN[como].vuelve}: en los ${dt / 1000} s siguientes`, `${fmtCuenta(await contar(page, t2, t2 + dt))}${rs.length ? ` · ráfagas a ${rs.map((x) => `${((x.ini - t2) / 1000).toFixed(1)} s (${((x.fin - x.ini) / 1000).toFixed(1)} s)`).join(", ")}` : ""}`);
+}
+
+/**
+ * Cerrada, una ficha se abre a medio latido: la escena no pide más que un par de cuadros, bajo la ficha no dibuja más
+ * que su cuadro en reposo, y la tira queda en él, el mismo de antes del latido byte a byte. Cortado, el latido no
+ * cuenta: al irse la ficha llega el que la mirada debía, una quietud entera después (juzgarDestapada).
+ */
+async function quietoCortado(p, q) {
+  const { page, etiqueta } = await p.abrir({ vista: "390", instrumento: { pilas: true, hojas: true } });
+  const et = `${etiqueta} cerrado, una ficha a medio latido`;
+  const s = (x) => `${(x / 1000).toFixed(2)} s`;
+  await ir(page);
+  await asentar(page);
+  // El JS de la ficha llega antes, como cuando el puntero pasa por una captura: así se abre en el acto, a medio latido.
+  await page.evaluate((id) => document.querySelector(`[data-abrir-pieza="${id}"]`)?.dispatchEvent(new PointerEvent("pointerover", { bubbles: true })), OBRAS[0].id);
+  const { tc } = await cerrada(page);
+  if (tc === null) return q.linea(false, et, "nunca llegó data-cerrado");
+  // La tira en reposo antes del latido, al final de la ventana de la spec (donde no se dibuja nada).
+  await esperarHasta(page, tc + LATIDOS.spec[1]);
+  const lienzo = () =>
+    page.evaluate(() => {
+      const r = document.querySelector(".manos canvas")?.getBoundingClientRect();
+      return r ? { x: r.x, y: r.y, width: r.width, height: r.height } : null;
+    });
+  const caja = await lienzo();
+  if (!caja) return q.linea(false, et, "no hay .manos canvas");
+  const reposo = await page.screenshot({ clip: caja });
+  // A LATIDOS.corte ms del primer cuadro que pide el latido, la ficha, como en quietoCerrado: con el hash.
+  const ab = await page.evaluate(
+    ([en, tope, id]) =>
+      new Promise((ok) => {
+        const e = window.__e2e;
+        const desde = performance.now();
+        const mirar = () => {
+          const ini = e.raf.find((t) => t > desde);
+          if (ini === undefined) return performance.now() > tope ? ok(null) : setTimeout(mirar, 10);
+          setTimeout(
+            () => {
+              location.hash = `#pieza=${id}`;
+              ok({ ini, t0: performance.now() });
+            },
+            Math.max(0, ini + en - performance.now()),
+          );
+        };
+        mirar();
+      }),
+    [LATIDOS.corte, tc + LATIDOS.ventana, OBRAS[0].id],
+  );
+  if (!ab) return q.linea(false, et, `ningún latido en los ${LATIDOS.ventana / 1000} s después de data-cerrado`);
+  const ta = await seAbre(page, ab.t0);
+  if (ta === null) return q.linea(false, et, "no se abrió ninguna ficha");
+  await esperarHasta(page, ta + LATIDOS.tapada);
+  const t2 = await page.evaluate(() => {
+    location.hash = "";
+    return performance.now();
+  });
+  const tf = await seVa(page, t2);
+  // Bajo la ficha: los cuadros que pidió la escena (los de su trozo de JS, el que pidió el primer cuadro del latido; la
+  // ficha pide los suyos para entrar) y cada dibujo.
+  const m = await page.evaluate(
+    ([ini, a, b]) => {
+      const e = window.__e2e;
+      const de = (e.pilas.find((x) => x && x.t === ini)?.de ?? "").match(/https?:\/\/[^\s)]+?\.js/)?.[0] ?? null;
+      const suyos = e.pilas
+        .filter((x) => x && x.t >= ini && x.t <= b && (!de || x.de.includes(de)))
+        .map((x) => x.t)
+        .sort((x, y) => x - y);
+      return { de, antes: suyos.filter((t) => t < a), despues: suyos.filter((t) => t >= a), raf: e.raf.filter((t) => t >= a && t <= b).length, dib: e.dib.filter((t) => t >= a && t <= b) };
+    },
+    [ab.ini, ta, tf ?? ta + LATIDOS.tapada],
+  );
+  const aTiempo = m.antes.length > 0 && ta - ab.ini <= 1000;
+  q.linea(
+    aTiempo && m.despues.length <= 2,
+    `${et}: la escena pide a lo sumo un par de cuadros más`,
+    `la ficha a ${s(ta - ab.ini)} del primer cuadro del latido (${ms(ta - ab.t0)} ms después de pedirla)${aTiempo ? "" : ": ya no latía"}; antes, ${m.antes.length} cuadros pedidos, el último a ${m.antes.length ? ms(ta - m.antes[m.antes.length - 1]) : "?"} ms de ella; después, ${m.despues.length}${m.de ? "" : " (sin la pila del latido: cuenta cualquier cuadro)"}`,
+  );
+  const d0 = m.dib[0];
+  const sueltos = d0 === undefined ? [] : m.dib.filter((t) => t > d0 + 16);
+  q.linea(
+    d0 !== undefined && d0 - ta <= 500 && sueltos.length === 0,
+    `${et}: bajo la ficha, ningún dibujo después del cuadro en reposo`,
+    d0 === undefined
+      ? "ni el cuadro en reposo"
+      : `el cuadro en reposo a ${ms(d0 - ta)} ms de la ficha (${m.dib.length - sueltos.length} dibujos); ${sueltos.length ? `después, ${sueltos.length} dibujos más, el primero a ${ms(sueltos[0] - ta)} ms` : `después, ${s((tf ?? ta) - d0)} sin un dibujo`} · rAF ${m.raf} bajo la ficha`,
+  );
+  if (tf === null) return q.linea(false, `${et}: la ficha se cierra`, "la ficha no se fue");
+  // La tira, ya sin la ficha (se va en --duration-base) y con la barra de vuelta (200 ms): antes del latido siguiente.
+  await hasta(() => page.evaluate(() => !document.querySelector(".ficha")), { ms: 3000, cada: 20 });
+  await esperarHasta(page, tf + 800);
+  const caja2 = await lienzo();
+  const fin = await page.screenshot({ clip: caja });
+  const quieta = !!caja2 && ["x", "y", "width", "height"].every((k) => caja2[k] === caja[k]);
+  const huella = (b) => createHash("sha256").update(b).digest("hex").slice(0, 12);
+  q.linea(
+    quieta && fin.equals(reposo),
+    `${et}: la tira queda en su cuadro de reposo, el mismo de antes del latido`,
+    `${quieta ? "" : `el lienzo se movió: ${JSON.stringify(caja)} → ${JSON.stringify(caja2)} · `}${fin.equals(reposo) ? `iguales byte a byte (${reposo.length} B, ${huella(reposo)})` : `distintos: ${huella(reposo)} (${reposo.length} B) antes del latido, ${huella(fin)} (${fin.length} B) después`}`,
+  );
+  await esperarHasta(page, tf + LATIDOS.tras + 30);
+  const r = await page.evaluate(([a, b]) => window.__e2e.raf.filter((t) => t >= a && t <= b), [tf, tf + LATIDOS.tras]);
+  const [ok, medido] = juzgarDestapada(r, tf);
+  q.linea(ok, `${et}: al irse, un latido en los ${LATIDOS.tras / 1000} s siguientes, tras >= ${LATIDOS.destapada / 1000} s de quietud, de <= ${LATIDOS.rafaga / 1000} s`, medido);
 }
 
 /** Con reducir movimiento la escena cerrada no late: diez segundos sin un cuadro desde que monta. */

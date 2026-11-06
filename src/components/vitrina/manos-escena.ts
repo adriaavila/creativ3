@@ -210,16 +210,35 @@ const QUAD = {
 };
 
 /**
+ * A color's sRGB channels, from 0 to 1, or null for what isn't a color. The
+ * theme's tokens are hex, read here exactly as three's Color read them. Any
+ * other color the browser knows (rgb(), a name, oklch()…) is painted on one
+ * pixel and read back in sRGB, its alpha left out as three left it out.
+ */
+function canales(valor: string): number[] | null {
+  const hex = /^#([\da-f]{6}|[\da-f]{3})$/i.exec(valor)?.[1];
+  if (hex) return hex.length === 3 ? [...hex].map((c) => parseInt(c, 16) / 15) : [16, 8, 0].map((k) => ((parseInt(hex, 16) >> k) & 255) / 255);
+  if (!CSS.supports("color", valor)) return null;
+  const lienzo = document.createElement("canvas");
+  lienzo.width = lienzo.height = 1;
+  const c = lienzo.getContext("2d", { willReadFrequently: true });
+  if (!c) return null;
+  c.fillStyle = valor;
+  c.fillRect(0, 0, 1, 1);
+  return [...c.getImageData(0, 0, 1, 1).data.subarray(0, 3)].map((b) => b / 255);
+}
+
+/**
  * A theme color as three's Color left it for the shaders: read as sRGB, made
- * linear, then back (convertLinearToSRGB), so the very same floats. The tokens
- * are hex; anything else takes the fallback.
+ * linear, then back (convertLinearToSRGB), so the very same floats. A value
+ * that isn't a color takes the fallback, and says so while developing.
  */
 function tono(valor: string, respaldo: string): [number, number, number] {
-  const hex = /^#([\da-f]{6}|[\da-f]{3})$/i.exec(valor)?.[1] ?? respaldo.slice(1);
-  const rgb =
-    hex.length === 3
-      ? [...hex].map((c) => parseInt(c, 16) / 15)
-      : [16, 8, 0].map((k) => ((parseInt(hex, 16) >> k) & 255) / 255);
+  let rgb = canales(valor);
+  if (!rgb) {
+    if (process.env.NODE_ENV !== "production") console.warn(`manos-escena: «${valor}» no es un color; va ${respaldo}`);
+    rgb = canales(respaldo)!;
+  }
   const [r, g, b] = rgb.map((c) => {
     const lineal = c < 0.04045 ? c * 0.0773993808 : Math.pow(c * 0.9478672986 + 0.0521327014, 2.4);
     return lineal < 0.0031308 ? lineal * 12.92 : 1.055 * Math.pow(lineal, 0.41666) - 0.055;

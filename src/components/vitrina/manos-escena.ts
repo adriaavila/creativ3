@@ -1,22 +1,6 @@
-import { WebGLRenderer } from "three/src/renderers/WebGLRenderer.js";
-import {
-  AdditiveBlending,
-  BufferAttribute,
-  BufferGeometry,
-  Color,
-  Group,
-  LineSegments,
-  Mesh,
-  NormalBlending,
-  PerspectiveCamera,
-  PlaneGeometry,
-  Points,
-  Scene,
-  ShaderMaterial,
-  Sphere,
-  Vector3,
-} from "./manos-tres-nucleo";
-import { AIM, FOV, GIRO_HUMANA, GIRO_MAQUINA, LAZO, encuadre, type Encuadre, type Lines, type Manos } from "./manos-geometria";
+import { AIM, FOV, GIRO_HUMANA, GIRO_MAQUINA, LAZO, encuadre, type Encuadre } from "./manos-encuadre";
+import type { Lines, Manos } from "./manos-geometria";
+import { componer, crearMotor, cuaternion, identidad, mirada, multiplicar, perspectiva, type Uniformes } from "./manos-gl";
 import { RESPUESTA, type Avisos, type Destino, type Lazo, type Punto } from "./manos-trazo";
 
 // The hero's piece, «Te toca», in two parts with a still wait between them.
@@ -27,6 +11,8 @@ import { RESPUESTA, type Avisos, type Destino, type Lazo, type Punto } from "./m
 // allok's mark closes in it (the arc draws, the dot lands); the signal runs on
 // up the machine's arm; and everything holds still. The scene only asks for
 // frames while something changes: none while it waits, none once it closed.
+// It draws with manos-gl.ts, a small WebGL2 renderer that does what three.js
+// did for it, to the pixel.
 
 // The system's curves (tokens.json → easing).
 const easeOut = (t: number) => 1 - Math.pow(1 - t, 3);
@@ -60,22 +46,31 @@ const ENTRADA = {
   end: 1.7,
 } as const;
 
+// The shaders are GLSL ES 3.00. Each draw gets three.js's two matrices under
+// its names (projectionMatrix, modelViewMatrix), and a piece's uniforms are the
+// keys of its `u` in armar: a new uniform is a line here and a key there.
+
 // Each line shows once the drawing passes its place on the hand (aS: 0 at
 // the elbow, 1 at the fingertip). The signal is a band that runs along every
 // line, each a little out of step with the next.
-const LINE_VERT = /* glsl */ `
-  attribute float aS;
-  attribute float aRnd;
-  attribute float aKind;
+const LINE_VERT = /* glsl */ `#version 300 es
+  precision highp float;
+  precision highp int;
+  uniform mat4 modelViewMatrix;
+  uniform mat4 projectionMatrix;
   uniform float uDraw;
   uniform float uWave;
   uniform float uWaveAmp;
   uniform float uWrist;
-  varying float vAlpha;
-  varying float vGlow;
-  varying float vDepth;
-  varying float vKind;
-  varying float vS;
+  in vec3 position;
+  in float aS;
+  in float aRnd;
+  in float aKind;
+  out float vAlpha;
+  out float vGlow;
+  out float vDepth;
+  out float vKind;
+  out float vS;
   void main() {
     float head = uDraw * 1.3 - aRnd * 0.25;
     vAlpha = 1.0 - smoothstep(head - 0.05, head, aS);
@@ -90,35 +85,43 @@ const LINE_VERT = /* glsl */ `
 `;
 
 // vKind is 1 on the chips: they glint in the signal's color.
-const LINE_FRAG = /* glsl */ `
+const LINE_FRAG = /* glsl */ `#version 300 es
+  precision highp float;
+  precision highp int;
   uniform vec3 uColor;
   uniform vec3 uGlow;
   uniform float uOpacity;
   uniform float uLift;
   uniform float uTip;
-  varying float vAlpha;
-  varying float vGlow;
-  varying float vDepth;
-  varying float vKind;
-  varying float vS;
+  in float vAlpha;
+  in float vGlow;
+  in float vDepth;
+  in float vKind;
+  in float vS;
+  out vec4 fragColor;
   void main() {
     float kind = vKind;
     // Fibers bunch up at the fingertips; soften them there so the mark stays the brightest thing.
     float a = max(vAlpha * uOpacity * vDepth * (1.0 - uTip * smoothstep(0.88, 1.0, vS)), kind * vAlpha * 0.7);
     vec3 c = mix(uColor, uGlow, max(vGlow, kind * 0.8));
-    gl_FragColor = vec4(c, clamp(a + vGlow * vAlpha * vDepth * uLift, 0.0, 1.0));
+    fragColor = vec4(c, clamp(a + vGlow * vAlpha * vDepth * uLift, 0.0, 1.0));
   }
 `;
 
-const PAD_VERT = /* glsl */ `
-  attribute float aS;
-  attribute float aRnd;
+const PAD_VERT = /* glsl */ `#version 300 es
+  precision highp float;
+  precision highp int;
+  uniform mat4 modelViewMatrix;
+  uniform mat4 projectionMatrix;
   uniform float uDraw;
   uniform float uSize;
   uniform float uWave;
   uniform float uWaveAmp;
-  varying float vAlpha;
-  varying float vGlow;
+  in vec3 position;
+  in float aS;
+  in float aRnd;
+  out float vAlpha;
+  out float vGlow;
   void main() {
     float head = uDraw * 1.3 - aRnd * 0.25;
     vAlpha = 1.0 - smoothstep(head - 0.05, head, aS);
@@ -129,14 +132,17 @@ const PAD_VERT = /* glsl */ `
   }
 `;
 
-const PAD_FRAG = /* glsl */ `
+const PAD_FRAG = /* glsl */ `#version 300 es
+  precision highp float;
+  precision highp int;
   uniform vec3 uColor;
   uniform vec3 uGlow;
   uniform float uOpacity;
-  varying float vAlpha;
-  varying float vGlow;
+  in float vAlpha;
+  in float vGlow;
+  out vec4 fragColor;
   void main() {
-    gl_FragColor = vec4(mix(uColor, uGlow, vGlow), vAlpha * uOpacity);
+    fragColor = vec4(mix(uColor, uGlow, vGlow), vAlpha * uOpacity);
   }
 `;
 
@@ -146,20 +152,29 @@ const PAD_FRAG = /* glsl */ `
 // units, so the ring sits at 0.75 and the stroke and dot at 0.1875. The arc
 // draws the way the master's path runs, from 5° around the top to 85°; the
 // dot then lands. Never rotated, mirrored or tinted.
-const MARK_VERT = /* glsl */ `
-  varying vec2 vP;
+const MARK_VERT = /* glsl */ `#version 300 es
+  precision highp float;
+  precision highp int;
+  uniform mat4 modelViewMatrix;
+  uniform mat4 projectionMatrix;
+  in vec3 position;
+  in vec2 uv;
+  out vec2 vP;
   void main() {
     vP = uv * 2.0 - 1.0;
     gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
   }
 `;
 
-const MARK_FRAG = /* glsl */ `
+const MARK_FRAG = /* glsl */ `#version 300 es
+  precision highp float;
+  precision highp int;
   uniform vec3 uColor;
   uniform float uArc;
   uniform float uArcA;
   uniform float uDot;
-  varying vec2 vP;
+  in vec2 vP;
+  out vec4 fragColor;
   const float R = 0.75;
   const float W = 0.1875;
   const float A0 = -0.08726646;
@@ -177,9 +192,34 @@ const MARK_FRAG = /* glsl */ `
     float landed = uDot > 0.0 ? 1.0 - smoothstep(-aa, aa, dDot) : 0.0;
     float a = max(arc, landed);
     if (a <= 0.0) discard;
-    gl_FragColor = vec4(uColor, a);
+    fragColor = vec4(uColor, a);
   }
 `;
+
+// The mark's quad: three's PlaneGeometry(1, 1), its corners, uvs and two triangles in its order.
+const QUAD = {
+  position: new Float32Array([-0.5, 0.5, 0, 0.5, 0.5, 0, -0.5, -0.5, 0, 0.5, -0.5, 0]),
+  uv: new Float32Array([0, 1, 1, 1, 0, 0, 1, 0]),
+  indices: new Uint16Array([0, 2, 1, 2, 3, 1]),
+};
+
+/**
+ * A theme color as three's Color left it for the shaders: read as sRGB, made
+ * linear, then back (convertLinearToSRGB), so the very same floats. The tokens
+ * are hex; anything else takes the fallback.
+ */
+function tono(valor: string, respaldo: string): [number, number, number] {
+  const hex = /^#([\da-f]{6}|[\da-f]{3})$/i.exec(valor)?.[1] ?? respaldo.slice(1);
+  const rgb =
+    hex.length === 3
+      ? [...hex].map((c) => parseInt(c, 16) / 15)
+      : [16, 8, 0].map((k) => ((parseInt(hex, 16) >> k) & 255) / 255);
+  const [r, g, b] = rgb.map((c) => {
+    const lineal = c < 0.04045 ? c * 0.0773993808 : Math.pow(c * 0.9478672986 + 0.0521327014, 2.4);
+    return lineal < 0.0031308 ? lineal * 12.92 : 1.055 * Math.pow(lineal, 0.41666) - 0.055;
+  });
+  return [r!, g!, b!];
+}
 
 /** The canvas and WebGL2 context Manos.tsx asked for before loading this module. */
 export type Contexto = { canvas: HTMLCanvasElement; gl: WebGL2RenderingContext };
@@ -201,7 +241,7 @@ export type AvisosEscena = Avisos & {
   /** The context was lost (the canvas is blank until it comes back), or came back. */
   alPerder?: () => void;
   alRecuperar?: () => void;
-  /** The hands could not be built. */
+  /** The hands could not be built, or their programs would not link. */
   alFallar?: () => void;
 };
 
@@ -226,16 +266,13 @@ export function montar(
   { canvas, gl }: Contexto,
   { cerrado = false, punto = null, avisos = {} }: { cerrado?: boolean; punto?: Punto | null; avisos?: AvisosEscena } = {},
 ): Escena | null {
-  let renderer: WebGLRenderer;
-  try {
-    renderer = new WebGLRenderer({ canvas, context: gl, antialias: true, alpha: true, powerPreference: "low-power" });
-  } catch {
+  // The programs start compiling here, on the GPU's side, while the worker is still building the hands.
+  const creado = crearMotor(canvas, gl, { linea: [LINE_VERT, LINE_FRAG], pad: [PAD_VERT, PAD_FRAG], marca: [MARK_VERT, MARK_FRAG] });
+  if (!creado) {
     gl.getExtension("WEBGL_lose_context")?.loseContext();
     return null;
   }
-  renderer.setClearColor(0x000000, 0);
-  // Off in production, as three.js recommends: each check is a synchronous wait on the GPU in the first frame.
-  renderer.debug.checkShaderErrors = process.env.NODE_ENV !== "production";
+  const motor = creado;
   canvas.setAttribute("aria-hidden", "true");
   canvas.style.width = "100%";
   canvas.style.height = "100%";
@@ -248,10 +285,11 @@ export function montar(
   let avisoCierre = cerrado;
   let posado = true;
   let destruido = false;
+  let perdido = false;
   let escena: ReturnType<typeof armar> | null = null;
 
-  // Each step of the mount is its own task (the renderer, then the scene, then
-  // its first frame), so none of them holds the page up for long.
+  // Each step of the mount is its own task (the scene, then each part of its
+  // debut), so none of them holds the page up for long.
   manos.then(
     (m) =>
       window.setTimeout(() => {
@@ -296,129 +334,94 @@ export function montar(
 
     // Colors come from the theme the hero sits on, so Ink and Cloud both work.
     const css = getComputedStyle(el);
-    const tone = (name: string, fallback: string) => {
-      const c = new Color(css.getPropertyValue(name).trim() || fallback);
-      c.convertLinearToSRGB();
-      return new Vector3(c.r, c.g, c.b);
-    };
+    const tone = (name: string, fallback: string) => tono(css.getPropertyValue(name).trim() || fallback, fallback);
     const text = tone("--text", "#0b0d0e");
     const blue = tone("--blue", "#315cff");
     const ground = tone("--ground", "#f7f8f8");
-    const dark = ground.x * 0.2126 + ground.y * 0.7152 + ground.z * 0.0722 < 0.4;
-    const blending = dark ? AdditiveBlending : NormalBlending;
+    const dark = ground[0] * 0.2126 + ground[1] * 0.7152 + ground[2] * 0.0722 < 0.4;
 
-    const scene = new Scene();
-    const camera = new PerspectiveCamera(FOV, 1, 0.1, 50);
-
-    const geometry = (l: Lines) => {
-      const g = new BufferGeometry();
-      g.setAttribute("position", new BufferAttribute(l.pos, 3));
-      g.setAttribute("aS", new BufferAttribute(l.s, 1));
-      g.setAttribute("aRnd", new BufferAttribute(l.rnd, 1));
-      g.setAttribute("aKind", new BufferAttribute(l.kind, 1));
-      // Worked out in the worker (manos-geometria.ts): the first frame doesn't walk every vertex to sort.
-      g.boundingSphere = new Sphere(new Vector3(...l.centro), l.radio);
-      return g;
-    };
-    const lineMaterial = (l: Lines, color: Vector3, lift: number, tip: number) =>
-      new ShaderMaterial({
-        vertexShader: LINE_VERT,
-        fragmentShader: LINE_FRAG,
-        transparent: true,
-        depthWrite: false,
-        blending,
-        uniforms: {
-          uDraw: { value: 0 },
-          uWave: { value: -1 },
-          uWaveAmp: { value: 0 },
-          uWrist: { value: l.wrist },
-          uColor: { value: color },
-          uGlow: { value: text },
-          uOpacity: { value: 0 },
-          uLift: { value: lift },
-          uTip: { value: tip },
-        },
+    // Lines and points, transparent and never writing depth; on a dark ground they add up.
+    const lineas = <U extends Uniformes>(l: Lines, programa: "linea" | "pad", u: U) =>
+      motor.pieza({
+        programa,
+        modo: programa === "linea" ? "lineas" : "puntos",
+        atributos: { position: [l.pos, 3], aS: [l.s, 1], aRnd: [l.rnd, 1], aKind: [l.kind, 1] },
+        u,
+        suma: dark,
+        profundidad: true,
+        orden: 0,
+        // Worked out in the worker (manos-geometria.ts): the first frame doesn't walk every vertex to sort.
+        centro: l.centro,
       });
+    const lineMaterial = (l: Lines, color: readonly number[], lift: number, tip: number) => ({
+      uDraw: 0,
+      uWave: -1,
+      uWaveAmp: 0,
+      uWrist: l.wrist,
+      uColor: color,
+      uGlow: text,
+      uOpacity: 0,
+      uLift: lift,
+      uTip: tip,
+    });
 
     // Left: the human hand, of fibers. Right: the machine, of traces (mirrored).
     // The signal lights both in the text color, never blue (Motion, Never).
-    const human = new Group();
-    const humanGeo = geometry(manos.human);
-    const humanMat = lineMaterial(manos.human, text, 0.5, 0.45);
-    const fibers = new LineSegments(humanGeo, humanMat);
-    fibers.frustumCulled = false;
-    human.add(fibers);
-
-    const machine = new Group();
-    const machineGeo = geometry(manos.machine);
-    const machineMat = lineMaterial(manos.machine, blue, 0.35, 0);
-    const padGeo = geometry(manos.pads);
-    const padMat = new ShaderMaterial({
-      vertexShader: PAD_VERT,
-      fragmentShader: PAD_FRAG,
-      transparent: true,
-      depthWrite: false,
-      blending,
-      uniforms: {
-        uDraw: { value: 0 },
-        uSize: { value: 2 },
-        uWave: { value: -1 },
-        uWaveAmp: { value: 0 },
-        uColor: { value: blue },
-        uGlow: { value: text },
-        uOpacity: { value: 0.9 },
-      },
-    });
-    const traces = new LineSegments(machineGeo, machineMat);
-    const pads = new Points(padGeo, padMat);
-    traces.frustumCulled = false;
-    pads.frustumCulled = false;
-    machine.add(traces, pads);
-
-    human.rotation.set(...GIRO_HUMANA);
-    machine.rotation.set(...GIRO_MAQUINA);
-    // The pair turns about the camera's axis on a phone (encuadre's giro); the mark stays upright.
-    const pareja = new Group();
-    pareja.add(human, machine);
-    scene.add(pareja);
+    const fibers = lineas(manos.human, "linea", lineMaterial(manos.human, text, 0.5, 0.45));
+    const traces = lineas(manos.machine, "linea", lineMaterial(manos.machine, blue, 0.35, 0));
+    const pads = lineas(manos.pads, "pad", { uDraw: 0, uSize: 2, uWave: -1, uWaveAmp: 0, uColor: blue, uGlow: text, uOpacity: 0.9 });
 
     // The mark, in the text color: Cloud on Ink, Ink on Cloud (Brand, Colors).
-    const markGeo = new PlaneGeometry(1, 1);
-    const markMat = new ShaderMaterial({
-      vertexShader: MARK_VERT,
-      fragmentShader: MARK_FRAG,
-      transparent: true,
-      depthTest: false,
-      depthWrite: false,
-      uniforms: { uColor: { value: text }, uArc: { value: 0 }, uArcA: { value: 0 }, uDot: { value: 0 } },
+    // Drawn last and over everything (renderOrder 10, no depth test), always blended as normal.
+    const mark = motor.pieza({
+      programa: "marca",
+      modo: "triangulos",
+      atributos: { position: [QUAD.position, 3], uv: [QUAD.uv, 2] },
+      indices: QUAD.indices,
+      u: { uColor: text, uArc: 0, uArcA: 0, uDot: 0 },
+      suma: false,
+      profundidad: false,
+      orden: 10,
+      centro: [0, 0, 0],
     });
-    const mark = new Mesh(markGeo, markMat);
-    mark.frustumCulled = false;
-    mark.renderOrder = 10;
-    scene.add(mark);
+    const piezas = [fibers, traces, pads, mark];
+
+    // Where everything sits: the pair turns about the camera's axis on a phone
+    // (encuadre's giro) and the mark stays upright. Each hand's turn is fixed;
+    // its place changes every frame.
+    const giroHumana = cuaternion(...GIRO_HUMANA);
+    const giroMaquina = cuaternion(...GIRO_MAQUINA);
+    const quieta = cuaternion(0, 0, 0);
+    const pareja = identidad();
+    const local = identidad();
+    const proyeccion = identidad();
+    const vista = identidad();
 
     // Layout, from the strip's size (encuadre, shared with the sketch): the
     // fingertips sit a little apart in height, like two people reaching, and
     // the mark fits between them with a little more than its clear space.
     let width = 0;
     let height = 0;
+    let dpr = 1;
     let enc: Encuadre = encuadre(1, 1);
     const layout = () => {
       enc = encuadre(width, height);
-      mark.scale.setScalar(enc.mark);
-      pareja.rotation.z = enc.giro;
+      componer(mark.mundo, quieta, 0, 0, 0, enc.mark);
+      componer(pareja, cuaternion(0, 0, enc.giro), 0, 0, 0);
       // A phone draws at 1.5x at most: the lines stay crisp and the fill stays cheap.
-      const dpr = Math.min(window.devicePixelRatio || 1, enc.compact ? 1.5 : 2);
-      renderer.setPixelRatio(dpr);
+      dpr = Math.min(window.devicePixelRatio || 1, enc.compact ? 1.5 : 2);
       const boost = dpr >= 1.5 ? 1.35 : 1;
       // On a phone the human hand is a few dozen pixels wide: brighter and
       // less softened at the tips, it reads as a hand and not a brush.
-      humanMat.uniforms.uOpacity!.value = Math.min(1, (dark && !enc.compact ? 0.14 : 0.22) * boost);
-      humanMat.uniforms.uTip!.value = enc.compact ? 0.3 : 0.45;
-      machineMat.uniforms.uOpacity!.value = Math.min(1, (dark ? 0.5 : 0.55) * boost);
-      padMat.uniforms.uSize!.value = (enc.compact ? 1.8 : 2.6) * dpr;
+      fibers.u.uOpacity = Math.min(1, (dark && !enc.compact ? 0.14 : 0.22) * boost);
+      fibers.u.uTip = enc.compact ? 0.3 : 0.45;
+      traces.u.uOpacity = Math.min(1, (dark ? 0.5 : 0.55) * boost);
+      pads.u.uSize = (enc.compact ? 1.8 : 2.6) * dpr;
     };
 
+    // The canvas is on the page (the debut is over), and everything is on the GPU.
+    let enPagina = false;
+    let subido = false;
     let trazado = false;
     const frame = () => {
       // The entrance's clock, and the answer's: each holds at its end once past it.
@@ -428,20 +431,20 @@ export function montar(
 
       const hd = easeOut(seg(te, ENTRADA.human[0], ENTRADA.human[1]));
       const md = easeOut(seg(te, ENTRADA.machine[0], ENTRADA.machine[1]));
-      humanMat.uniforms.uDraw!.value = hd;
-      machineMat.uniforms.uDraw!.value = md;
-      padMat.uniforms.uDraw!.value = md;
+      fibers.u.uDraw = hd;
+      traces.u.uDraw = md;
+      pads.u.uDraw = md;
 
       // The signal: down the human hand to the fingertip, then, once the mark
       // has closed, on up the machine's arm.
       const si = seg(ta, R.signalIn[0], R.signalIn[1]);
-      humanMat.uniforms.uWave!.value = lerp(manos.human.wrist - 0.3, 1.12, easeInOut(si));
-      humanMat.uniforms.uWaveAmp!.value = envelope(si);
+      fibers.u.uWave = lerp(manos.human.wrist - 0.3, 1.12, easeInOut(si));
+      fibers.u.uWaveAmp = envelope(si);
       const so = seg(ta, R.signalOut[0], R.signalOut[1]);
       const out = lerp(1.12, manos.machine.wrist - 0.3, easeInOut(so));
-      for (const mat of [machineMat, padMat]) {
-        mat.uniforms.uWave!.value = out;
-        mat.uniforms.uWaveAmp!.value = envelope(so);
+      for (const p of [traces, pads]) {
+        p.u.uWave = out;
+        p.u.uWaveAmp = envelope(so);
       }
 
       // The gap: in from 1.4 times the waiting gap to it, then (the answer) to shut.
@@ -449,29 +452,29 @@ export function montar(
         estado === "entrando" || estado === "espera"
           ? lerp(enc.espera * 1.4, enc.espera, easeInOut(seg(te, ENTRADA.travel[0], ENTRADA.travel[1])))
           : lerp(enc.espera, enc.shut, easeInOut(seg(ta, R.travel[0], R.travel[1])));
-      human.position.set(-g / 2, enc.lift, 0);
-      machine.position.set(g / 2, -enc.lift, 0);
+      multiplicar(pareja, componer(local, giroHumana, -g / 2, enc.lift, 0), fibers.mundo);
+      multiplicar(pareja, componer(local, giroMaquina, g / 2, -enc.lift, 0), traces.mundo);
+      pads.mundo.set(traces.mundo);
 
-      markMat.uniforms.uArc!.value = easeInOut(seg(ta, R.arc[0], R.arc[1]));
-      markMat.uniforms.uArcA!.value = seg(ta, R.arc[0], R.arc[0] + 0.1);
+      mark.u.uArc = easeInOut(seg(ta, R.arc[0], R.arc[1]));
+      mark.u.uArcA = seg(ta, R.arc[0], R.arc[0] + 0.1);
       // From the fingertip the dot lands with the settle; from the visitor's
       // finger the overlay did the landing, and the mark takes it over whole.
       const d = seg(ta, R.dot[0], R.dot[1]);
-      markMat.uniforms.uDot!.value = modo === "toque" && estado === "respondiendo" ? (ta >= R.dot[1] ? 1 : 0) : d > 0 ? settle(d) : 0;
+      mark.u.uDot = modo === "toque" && estado === "respondiendo" ? (ta >= R.dot[1] ? 1 : 0) : d > 0 ? settle(d) : 0;
 
       // A small dolly-in while the hands arrive, as captures grow from 96 %.
-      camera.position.set(0, AIM, enc.z * (1 + 0.06 * (1 - easeOut(seg(te, ENTRADA.dolly[0], ENTRADA.dolly[1])))));
-      camera.lookAt(0, AIM, 0);
-      renderer.render(scene, camera);
-      if (!trazado && hd > 0.7) {
+      mirada(vista, AIM, enc.z * (1 + 0.06 * (1 - easeOut(seg(te, ENTRADA.dolly[0], ENTRADA.dolly[1])))));
+      motor.dibujar(piezas, proyeccion, vista);
+      // Only a frame on the page counts: one drawn before the canvas goes in shows nobody anything.
+      if (!trazado && hd > 0.7 && enPagina) {
         trazado = true;
         avisos.alTrazar?.();
       }
     };
 
-    let perdido = false;
     const draw = () => {
-      if (width && height && !perdido) frame();
+      if (width && height && !perdido && subido) frame();
     };
 
     /** Where the mark's dot sits on screen: on the plane of the fingertips, which faces the camera. */
@@ -492,9 +495,8 @@ export function montar(
       height = el.clientHeight;
       if (!width || !height) return;
       layout();
-      renderer.setSize(width, height, false);
-      camera.aspect = width / height;
-      camera.updateProjectionMatrix();
+      motor.medir(width, height, dpr);
+      perspectiva(proyeccion, FOV, width / height, 0.1, 50);
       // Resizing the canvas clears it: draw the current frame again at once.
       if (dibujar) draw();
     };
@@ -596,7 +598,7 @@ export function montar(
     };
     // The clock runs from the moment it is asked to, not from the frame that follows.
     function play() {
-      if (held || raf || !mueve() || !visible || document.hidden || perdido || destruido) return;
+      if (held || raf || !mueve() || !visible || document.hidden || perdido || destruido || !enPagina) return;
       last = performance.now();
       raf = requestAnimationFrame(loop);
     }
@@ -637,24 +639,55 @@ export function montar(
       play();
     });
 
-    // The debut runs three.js code for the first time: in one go it held a 4x
-    // slower phone up for 250 to 330 ms, so it goes one step per task. Each
-    // part's programs compile in turn while the page goes on: where the
-    // browser can say when they are ready (KHR_parallel_shader_compile) the
-    // canvas waits for them; elsewhere it goes on in the next task. Then the
-    // canvas takes the strip's size, each hand is drawn alone off the page
-    // (its first frame uploads its lines and reads its program), the whole
-    // frame is drawn, and the canvas goes in.
-    const enTareas = (lista: (() => void)[], luego: () => void) => {
-      const siguiente = (i: number) =>
+    // The debut goes one step per task, so none of them holds a 4x slower
+    // phone up: the programs, compiling since the module arrived, are waited
+    // for where the browser can say when they are ready
+    // (KHR_parallel_shader_compile; elsewhere checking them waits for them),
+    // then checked one by one; each hand's lines go up to the GPU in a task of
+    // their own; the canvas takes the strip's size and the whole frame is
+    // drawn once off the page; and the canvas goes in. A lost context stops
+    // it, and the context come back runs the GPU's part again. A newer run
+    // (`vuelta`) makes an older one stop.
+    let vuelta = 0;
+    const enTareas = (lista: (() => "otra" | "fin" | void)[], luego: () => void) => {
+      const esta = ++vuelta;
+      const siguiente = (i: number, ms = 0) =>
         window.setTimeout(() => {
-          if (destruido) return;
+          if (destruido || perdido || esta !== vuelta) return;
           if (i === lista.length) return luego();
-          lista[i]!();
-          siguiente(i + 1);
-        }, 0);
+          const r = lista[i]!();
+          if (r === "fin") return;
+          if (r === "otra") siguiente(i, 10);
+          else siguiente(i + 1);
+        }, ms);
       siguiente(0);
     };
+    const enlazar = (programa: "linea" | "pad" | "marca") => () => {
+      const ok = motor.enlazado(programa);
+      if (ok === null) return "fin";
+      if (ok) return;
+      // A program that won't link leaves the strip to its sketch, as a renderer that can't start does.
+      avisos.alFallar?.();
+      return "fin";
+    };
+    const preparar = (luego: () => void) => {
+      subido = false;
+      enTareas(
+        [
+          () => (motor.listos() ? undefined : "otra"),
+          enlazar("linea"),
+          enlazar("pad"),
+          enlazar("marca"),
+          () => motor.subir(fibers),
+          () => {
+            for (const p of [traces, pads, mark]) motor.subir(p);
+            subido = true;
+          },
+        ],
+        luego,
+      );
+    };
+
     let estrenado = false;
     const estrenar = () => {
       if (destruido || estrenado) return;
@@ -664,46 +697,38 @@ export function montar(
       // The strip asked for the scene because it was on screen: the first frame needn't wait for the observer.
       const r = el.getBoundingClientRect();
       visible = r.bottom > 0 && r.top < window.innerHeight && r.right > 0 && r.left < window.innerWidth;
-      enTareas([() => renderer.render(human, camera), () => renderer.render(machine, camera), draw], () => {
-        el.appendChild(renderer.domElement);
+      draw();
+      window.setTimeout(() => {
+        if (destruido) return;
+        enPagina = true;
+        el.appendChild(canvas);
         ro.observe(el);
         io.observe(el);
         document.addEventListener("visibilitychange", play);
         // A still scene (mounted closed) draws its frame again, now on the page; a moving one draws in the next frame.
         if (!mueve()) draw();
         play();
-      });
+      }, 0);
     };
-    enTareas(
-      [human, machine, mark].map((parte) => () => void renderer.compile(parte, camera, scene)),
-      () => {
-        if (renderer.extensions.has("KHR_parallel_shader_compile")) renderer.compileAsync(scene, camera).then(estrenar, estrenar);
-        else estrenar();
-      },
-    );
-
-    // A lost context draws nothing until it is restored: the strip shows its sketch meanwhile.
-    const lost = () => {
-      if (destruido) return;
-      perdido = true;
-      pause();
-      avisos.alPerder?.();
-    };
-    const restored = () => {
-      if (destruido) return;
-      perdido = false;
-      draw();
-      avisos.alRecuperar?.();
-      play();
-    };
-    renderer.domElement.addEventListener("webglcontextlost", lost);
-    renderer.domElement.addEventListener("webglcontextrestored", restored);
+    preparar(estrenar);
 
     return {
       destino,
       draw,
       play,
       pause,
+      /** The context came back: everything goes up to the GPU again, then the frame is drawn as it was. */
+      recuperar() {
+        preparar(() => {
+          if (!estrenado) {
+            avisos.alRecuperar?.();
+            return estrenar();
+          }
+          draw();
+          avisos.alRecuperar?.();
+          play();
+        });
+      },
       dispose() {
         pause();
         window.clearTimeout(wait);
@@ -711,13 +736,31 @@ export function montar(
         ro.disconnect();
         density?.removeEventListener("change", onDensity);
         document.removeEventListener("visibilitychange", play);
-        renderer.domElement.removeEventListener("webglcontextlost", lost);
-        renderer.domElement.removeEventListener("webglcontextrestored", restored);
-        for (const g of [humanGeo, machineGeo, padGeo, markGeo]) g.dispose();
-        for (const mat of [humanMat, machineMat, padMat, markMat]) mat.dispose();
       },
     };
   }
+
+  // A lost context draws nothing until it is restored: the strip shows its
+  // sketch meanwhile. Everything the GPU held went with it, so on its return
+  // the programs compile again and the scene puts its lines back.
+  const lost = (e: Event) => {
+    // Without this the browser never gives the context back.
+    e.preventDefault();
+    if (destruido) return;
+    perdido = true;
+    motor.olvidar();
+    escena?.pause();
+    avisos.alPerder?.();
+  };
+  const restored = () => {
+    if (destruido) return;
+    perdido = false;
+    if (!motor.compilar()) return;
+    if (escena) escena.recuperar();
+    else avisos.alRecuperar?.();
+  };
+  canvas.addEventListener("webglcontextlost", lost);
+  canvas.addEventListener("webglcontextrestored", restored);
 
   return {
     tocar: (x, y) => responder("toque", x, y),
@@ -736,9 +779,9 @@ export function montar(
     destruir() {
       destruido = true;
       escena?.dispose();
-      renderer.dispose();
-      // Frees the context now instead of at garbage collection: browsers only allow a few at once.
-      renderer.forceContextLoss();
+      canvas.removeEventListener("webglcontextlost", lost);
+      canvas.removeEventListener("webglcontextrestored", restored);
+      motor.borrar();
       canvas.remove();
     },
   };

@@ -10,7 +10,7 @@ import "@/styles/allok/site.css";
 
 // Antes de pintar, una vez por documento (MotionInit repite lo mismo si se llega sin recargar):
 // · El lienzo: `lienzo-3d` con WebGL2, sin ahorro de datos y sin equipo flojo (≤ 2 GB y ≤ 4 núcleos);
-//   si no, `lienzo-trazo`, y three.js ni se pide. Va antes de pintar para que ninguna altura cambie.
+//   si no, `lienzo-trazo`, y la escena WebGL ni se pide. Va antes de pintar para que ninguna altura cambie.
 // · `.motion`, para que nada parpadee antes de esconderse (Sistema, Build §1). Si motion.js no llega en
 //   3 s se quita, todo se ve, y `__akMotionTarde` le dice a motion.js que no la vuelva a poner: lo que
 //   ya se vio no se esconde dos veces.

@@ -47,7 +47,7 @@ function pedir(small: boolean): Promise<Geometria> {
 /**
  * A WebGL2 context with the attributes the renderer asks for, or null when
  * the browser has none: asked for first, so a browser without WebGL never
- * downloads three.js or builds the hands.
+ * downloads the scene or builds the hands.
  */
 function contexto(): Contexto | null {
   const canvas = document.createElement("canvas");
@@ -67,24 +67,6 @@ function contexto(): Contexto | null {
   }
 }
 
-/**
- * The extensions three.js turns on as its renderer starts (WebGLExtensions,
- * WebGLCapabilities and the first compile, three 0.186). The first request for
- * each waits on the GPU, 5 to 18 ms on a 4x slower phone and 30 to 45 ms in
- * all: asked for in a task of their own while three.js loads, the renderer
- * finds them on. A stale list only gives that time back.
- */
-const EXTENSIONES = [
-  "EXT_color_buffer_float",
-  "WEBGL_clip_cull_distance",
-  "OES_texture_float_linear",
-  "EXT_color_buffer_half_float",
-  "WEBGL_multisampled_render_to_texture",
-  "WEBGL_render_shared_exponent",
-  "EXT_texture_filter_anisotropic",
-  "KHR_parallel_shader_compile",
-];
-
 type Estado = "espera" | "entrando" | "respondiendo" | "cerrado";
 
 /** How long the hands wait, on screen, before the loop closes on its own. */
@@ -93,10 +75,10 @@ const ESPERA = 2400;
 /**
  * «Te toca»: the hero's two hands, as one button. The pencil sketch is there
  * from the first paint (35 % while WebGL loads, whole without it); once the
- * page is idle the hands are built in a worker while three.js loads, draw
- * themselves in and wait apart. A tap, or 2.4 s on screen, closes the loop
- * between the fingertips. A tap before the scene arrives is answered by the
- * sketch, and the scene then mounts closed.
+ * page is idle the hands are built in a worker while the scene's module
+ * loads, draw themselves in and wait apart. A tap, or 2.4 s on screen, closes
+ * the loop between the fingertips. A tap before the scene arrives is answered
+ * by the sketch, and the scene then mounts closed.
  *
  * The sketch (ManosTrazo, about 12 KB of SVG) comes as `children` from the
  * server: it is already in the HTML, so it never travels again as JavaScript.
@@ -317,7 +299,7 @@ export default function Manos({ children }: { children: ReactNode }) {
         ctx?.gl.getExtension("WEBGL_lose_context")?.loseContext();
         ctx = null;
       };
-      // A finger on the screen (a scroll, a tap on its way) never shares its frames with three.js arriving.
+      // A finger on the screen (a scroll, a tap on its way) never shares its frames with the scene arriving.
       const dedos = new Set<number>();
       let tras = false;
       const abajo = (e: PointerEvent) => dedos.add(e.pointerId);
@@ -336,36 +318,24 @@ export default function Manos({ children }: { children: ReactNode }) {
         }
         ctx = contexto();
         if (!ctx) return sinWebgl();
+        // Both at once: the worker builds the hands while the scene's module (one small chunk) arrives, and the
+        // scene starts compiling its programs in the task after it while the worker is still at it.
         const manos = pedir(el.clientWidth < 760);
-        // three.js arrives in four parts, each run in its own task (manos-tres-nucleo.ts says why), with the
-        // extensions in a task of their own; the renderer starts in the task after the last part.
-        const tarea = () => new Promise<void>((r) => window.setTimeout(r, 0));
-        import("./manos-tres-mates")
-          .then(tarea)
-          .then(() => {
-            for (const nombre of EXTENSIONES) ctx?.gl.getExtension(nombre);
-          })
-          .then(tarea)
-          .then(() => import("./manos-tres-nucleo"))
-          .then(tarea)
-          .then(() => import("./manos-tres-sombras"))
-          .then(tarea)
-          .then(() => import("./manos-escena"))
-          .then(
-            ({ montar }) =>
-              window.setTimeout(() => {
-                if (disposed || !ctx) return;
-                gl = montar(el, manos, ctx, { cerrado: cerrado || trazoMoviendo, punto, avisos });
-                ctx = null;
-                if (!gl) sinWebgl();
-              }, 0),
-            () => {
-              soltar();
-              sinWebgl();
-            },
-          );
+        import("./manos-escena").then(
+          ({ montar }) =>
+            window.setTimeout(() => {
+              if (disposed || !ctx) return;
+              gl = montar(el, manos, ctx, { cerrado: cerrado || trazoMoviendo, punto, avisos });
+              ctx = null;
+              if (!gl) sinWebgl();
+            }, 0),
+          () => {
+            soltar();
+            sinWebgl();
+          },
+        );
       };
-      // Only once the strip is on screen: a visit that starts further down never pays for three.js.
+      // Only once the strip is on screen: a visit that starts further down never pays for the scene.
       const enPantalla = new IntersectionObserver(([e]) => {
         if (!e?.isIntersecting) return;
         enPantalla.disconnect();

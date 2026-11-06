@@ -1,8 +1,8 @@
-// The answer without three.js. The hero's scene (manos-escena.ts) and this
+// The answer without WebGL. The hero's scene (manos-escena.ts) and this
 // file play the same timeline: here CSS moves the pencil sketch
 // (ManosTrazo.tsx) and the visitor's dot flies with WAAPI. It is the hero's
 // twin when there is no WebGL (or before it loads), and the close's whole
-// piece. Nothing here imports three.js, so it can sit in the first bundle.
+// piece. Nothing here needs WebGL, so it can sit in the first bundle.
 
 /**
  * The answer, in seconds, shared with the scene. Every move is one of the

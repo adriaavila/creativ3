@@ -86,23 +86,9 @@
   pointer-events: none;
 }
 .manos-trazo path { fill: none; stroke: currentColor; stroke-width: 0.8; stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
-/* The contour and the edges carry the drawing; the lines that follow the form are its hatching, stronger where
-   the scene's light falls (-luz); the forearms fade in two steps (-lejos, -mas-lejos), as the scene fades them.
-   The machine carries more lines, so it is drawn lighter and the human leads, as in the scene.
-   scripts/manos-trazo.ts weighs the ink by these numbers (TINTA): change both. */
-.manos-trazo .trazo-contorno { stroke-opacity: 0.75; }
-.manos-trazo .trazo-forma-luz { stroke-opacity: 0.5; }
-.manos-trazo .trazo-forma { stroke-opacity: 0.25; }
-.manos-trazo .trazo-lejos { stroke-opacity: 0.3; }
-.manos-trazo .trazo-mas-lejos { stroke-opacity: 0.1; }
-.manos-trazo .trazo-placas { stroke-opacity: 0.45; }
-.manos-trazo .trazo-pads { stroke-width: 2.4; stroke-opacity: 0.6; }
-.manos-trazo .trazo-maquina .trazo-contorno { stroke-opacity: 0.45; }
-.manos-trazo .trazo-maquina .trazo-forma { stroke-opacity: 0.25; }
-.manos-trazo .trazo-maquina .trazo-lejos { stroke-opacity: 0.2; }
-.manos-trazo .trazo-maquina .trazo-mas-lejos { stroke-opacity: 0.08; }
-.manos-trazo .trazo-maquina .trazo-placas { stroke-opacity: 0.4; }
-.manos-trazo .trazo-maquina .trazo-pads { stroke-opacity: 0.5; }
+.manos-trazo .trazo-humana path { stroke-opacity: 0.6; }
+.manos-trazo .trazo-juntas, .manos-trazo .trazo-placas { stroke-opacity: 0.55; }
+.manos-trazo .trazo-pads { stroke-width: 2.4; }
 .trazo-cubeta[data-cubeta="ancho"] { display: none; }
 @container (min-width: 760px) {
   .trazo-cubeta[data-cubeta="compacto"] { display: none; }
@@ -115,7 +101,7 @@
 .trazo-punto { fill: currentColor; transform: scale(0); transform-box: fill-box; transform-origin: center; }
 
 /* Closing (data-lazo, set by manos-trazo.ts) and closed. */
-.manos-trazo:is([data-lazo="cerrando"], [data-lazo="cerrado"]) :is(.trazo-humana, .trazo-maquina) { transform: translateX(var(--cierre)) skewX(var(--sesgo, 0deg)) scaleX(var(--estira)); }
+.manos-trazo:is([data-lazo="cerrando"], [data-lazo="cerrado"]) :is(.trazo-humana, .trazo-maquina) { transform: translateX(var(--cierre)) scaleX(var(--estira)); }
 .manos-trazo:is([data-lazo="cerrando"], [data-lazo="cerrado"]) .trazo-arco { stroke-dashoffset: 0; opacity: 1; }
 .manos-trazo[data-lazo="cerrado"] .trazo-punto, .manos-trazo[data-lazo="cerrando"][data-modo="solo"] .trazo-punto { transform: none; }
 .manos-trazo[data-lazo="cerrando"] :is(.trazo-humana, .trazo-maquina) { transition: transform var(--duration-slow) var(--ease-in-out); }
@@ -138,13 +124,13 @@ html.lienzo-3d .manos[data-capa="gl"][data-trazando] .manos-trazo { opacity: 0.3
 /* Without JavaScript the hero shows how the piece ends; with reduced motion too, still. */
 @media (scripting: none) {
   .manos { display: block; cursor: default; }
-  .manos .manos-trazo :is(.trazo-humana, .trazo-maquina) { transform: translateX(var(--cierre)) skewX(var(--sesgo, 0deg)) scaleX(var(--estira)); }
+  .manos .manos-trazo :is(.trazo-humana, .trazo-maquina) { transform: translateX(var(--cierre)) scaleX(var(--estira)); }
   .manos .manos-trazo .trazo-arco { stroke-dashoffset: 0; opacity: 1; }
   .manos .manos-trazo .trazo-punto { transform: none; }
   .manos-pista { display: none; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .manos .manos-trazo :is(.trazo-humana, .trazo-maquina) { transform: translateX(var(--cierre)) skewX(var(--sesgo, 0deg)) scaleX(var(--estira)); }
+  .manos .manos-trazo :is(.trazo-humana, .trazo-maquina) { transform: translateX(var(--cierre)) scaleX(var(--estira)); }
   .manos .manos-trazo .trazo-arco { stroke-dashoffset: 0; opacity: 1; }
   .manos .manos-trazo .trazo-punto { transform: none; }
   .manos-pista { visibility: hidden; }
@@ -179,7 +165,7 @@ html.lienzo-3d .manos[data-capa="gl"][data-trazando] .manos-trazo { opacity: 0.3
 .cierre-lazo:focus-visible { outline: 2px solid var(--focus); outline-offset: -4px; }
 .cierre-lazo[data-cerrado] { cursor: default; }
 @media (prefers-reduced-motion: reduce) {
-  .cierre-lazo .manos-trazo :is(.trazo-humana, .trazo-maquina) { transform: translateX(var(--cierre)) skewX(var(--sesgo, 0deg)) scaleX(var(--estira)); }
+  .cierre-lazo .manos-trazo :is(.trazo-humana, .trazo-maquina) { transform: translateX(var(--cierre)) scaleX(var(--estira)); }
   .cierre-lazo .manos-trazo .trazo-arco { stroke-dashoffset: 0; opacity: 1; }
   .cierre-lazo .manos-trazo .trazo-punto { transform: none; }
 }

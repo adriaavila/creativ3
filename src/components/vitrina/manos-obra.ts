@@ -8,10 +8,7 @@ import { construirManos } from "./manos-geometria";
 
 self.onmessage = (e: MessageEvent<{ small: boolean }>) => {
   const manos = construirManos(e.data.small);
-  const transfer = [
-    ...[manos.human, manos.machine, manos.pads].flatMap((l) => [l.pos.buffer, l.s.buffer, l.rnd.buffer, l.kind.buffer, l.nrm.buffer]),
-    ...[manos.cuerpos.human, manos.cuerpos.machine].flatMap((c) => [c.pos.buffer, c.idx.buffer]),
-  ];
+  const transfer = [manos.human, manos.machine, manos.pads].flatMap((l) => [l.pos.buffer, l.s.buffer, l.rnd.buffer, l.kind.buffer]);
   self.postMessage(manos, { transfer });
 };
 self.postMessage("listo");

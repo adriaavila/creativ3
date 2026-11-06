@@ -190,11 +190,16 @@ type Opciones<K extends string, U extends Uniformes> = {
 export type Motor<K extends string> = {
   /** A piece to draw with program `programa`; its vertices reach the GPU with `subir`. */
   pieza<U extends Uniformes>(o: Opciones<K, U>): Pieza<U>;
-  /** Whether every program has finished compiling: true at once where the browser can't tell (no KHR_parallel_shader_compile). */
+  /**
+   * Whether every program has finished compiling: true at once where the
+   * browser can't tell (no KHR_parallel_shader_compile), and wherever its
+   * answer is anything but a plain «not yet».
+   */
   listos(): boolean;
   /**
    * Whether the program linked, asked once (where the browser can't tell when
-   * it's ready, this is where it waits for it); null while the context is lost.
+   * it's ready, or hasn't said so in time, this is where it waits for it); null
+   * while the context is lost.
    */
   enlazado(programa: K): boolean | null;
   /** Puts a piece's vertices on the GPU, once per context. */
@@ -218,8 +223,8 @@ const MODOS = { lineas: 0x0001, puntos: 0x0000, triangulos: 0x0004 } as const; /
  * from the moment it's made: or null when the context can't start one.
  */
 export function crearMotor<K extends string>(canvas: HTMLCanvasElement, gl: WebGL2RenderingContext, fuentes: Record<K, readonly [string, string]>): Motor<K> | null {
-  // Asked for before the first compile: Chrome only compiles in parallel once it's on.
-  const paralelo = gl.getExtension("KHR_parallel_shader_compile");
+  // KHR_parallel_shader_compile, asked for by `compilar` on each context.
+  let paralelo: KHR_parallel_shader_compile | null = null;
   const programas = {} as Record<K, Programa>;
   for (const k of Object.keys(fuentes) as K[]) programas[k] = { fuentes: fuentes[k], p: null, shaders: [], ok: null, lugares: new Map() };
   const piezas: Interna[] = [];
@@ -233,6 +238,12 @@ export function crearMotor<K extends string>(canvas: HTMLCanvasElement, gl: WebG
   // while the page goes on, and `enlazado` asks once the hands are here.
   const compilar = () => {
     if (gl.isContextLost()) return false;
+    // Asked for before each context's first compile: Chrome only compiles in
+    // parallel once it's on, and a restored context comes back with every
+    // extension off (the old object's enum then answers null, with an error)
+    // until it is asked for again, as three.js does by building its table of
+    // extensions anew on every restore.
+    paralelo = gl.getExtension("KHR_parallel_shader_compile");
     for (const prog of Object.values<Programa>(programas)) {
       const p = gl.createProgram();
       const vs = gl.createShader(gl.VERTEX_SHADER);
@@ -316,8 +327,13 @@ export function crearMotor<K extends string>(canvas: HTMLCanvasElement, gl: WebG
       piezas.push(p);
       return p as unknown as Pieza<U>;
     },
-    listos: () =>
-      !paralelo || Object.values<Programa>(programas).every((prog) => !prog.p || gl.getProgramParameter(prog.p, paralelo.COMPLETION_STATUS_KHR) === true),
+    listos() {
+      const ext = paralelo;
+      // Only a plain «not yet» (false) waits. Anything else, such as a context
+      // lost meanwhile or a driver's odd answer, goes on to `enlazado`, whose
+      // LINK_STATUS waits for the link and is always right.
+      return !ext || Object.values<Programa>(programas).every((prog) => !prog.p || gl.getProgramParameter(prog.p, ext.COMPLETION_STATUS_KHR) !== false);
+    },
     enlazado,
     subir(pieza) {
       const p = pieza as Interna;

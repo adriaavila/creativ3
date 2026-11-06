@@ -164,9 +164,19 @@
   overflow: visible;
   pointer-events: none;}
 .ak .manos-trazo path {fill: none; stroke: currentColor; stroke-width: 0.8; stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke;}
-.ak .manos-trazo .trazo-humana path {stroke-opacity: 0.6;}
-.ak .manos-trazo .trazo-juntas, .ak .manos-trazo .trazo-placas {stroke-opacity: 0.55;}
-.ak .manos-trazo .trazo-pads {stroke-width: 2.4;}
+.ak .manos-trazo .trazo-contorno {stroke-opacity: 0.75;}
+.ak .manos-trazo .trazo-forma-luz {stroke-opacity: 0.5;}
+.ak .manos-trazo .trazo-forma {stroke-opacity: 0.25;}
+.ak .manos-trazo .trazo-lejos {stroke-opacity: 0.3;}
+.ak .manos-trazo .trazo-mas-lejos {stroke-opacity: 0.1;}
+.ak .manos-trazo .trazo-placas {stroke-opacity: 0.45;}
+.ak .manos-trazo .trazo-pads {stroke-width: 2.4; stroke-opacity: 0.6;}
+.ak .manos-trazo .trazo-maquina .trazo-contorno {stroke-opacity: 0.45;}
+.ak .manos-trazo .trazo-maquina .trazo-forma {stroke-opacity: 0.25;}
+.ak .manos-trazo .trazo-maquina .trazo-lejos {stroke-opacity: 0.2;}
+.ak .manos-trazo .trazo-maquina .trazo-mas-lejos {stroke-opacity: 0.08;}
+.ak .manos-trazo .trazo-maquina .trazo-placas {stroke-opacity: 0.4;}
+.ak .manos-trazo .trazo-maquina .trazo-pads {stroke-opacity: 0.5;}
 .ak .trazo-cubeta[data-cubeta="ancho"] {display: none;}
 @container (min-width: 760px) {
 .ak .trazo-cubeta[data-cubeta="compacto"] {display: none;}
@@ -175,7 +185,7 @@
 .ak .trazo-humana, .ak .trazo-maquina {transform-origin: 0 0;}
 .ak .manos-trazo .trazo-arco {stroke-width: 12; vector-effect: none; stroke-dasharray: 1 2; stroke-dashoffset: 1; opacity: 0;}
 .ak .trazo-punto {fill: currentColor; transform: scale(0); transform-box: fill-box; transform-origin: center;}
-.ak .manos-trazo:is([data-lazo="cerrando"], [data-lazo="cerrado"]) :is(.trazo-humana, .trazo-maquina) {transform: translateX(var(--cierre)) scaleX(var(--estira));}
+.ak .manos-trazo:is([data-lazo="cerrando"], [data-lazo="cerrado"]) :is(.trazo-humana, .trazo-maquina) {transform: translateX(var(--cierre)) skewX(var(--sesgo, 0deg)) scaleX(var(--estira));}
 .ak .manos-trazo:is([data-lazo="cerrando"], [data-lazo="cerrado"]) .trazo-arco {stroke-dashoffset: 0; opacity: 1;}
 .ak .manos-trazo[data-lazo="cerrado"] .trazo-punto, .ak .manos-trazo[data-lazo="cerrando"][data-modo="solo"] .trazo-punto {transform: none;}
 .ak .manos-trazo[data-lazo="cerrando"] :is(.trazo-humana, .trazo-maquina) {transition: transform var(--duration-slow) var(--ease-in-out);}
@@ -190,13 +200,13 @@ html.lienzo-3d .ak .manos[data-capa="gl"][data-trazando] .manos-trazo {opacity: 
 .ak .manos[data-sin-webgl] canvas {display: none;}
 @media (scripting: none) {
 .ak .manos {display: block; cursor: default;}
-.ak .manos .manos-trazo :is(.trazo-humana, .trazo-maquina) {transform: translateX(var(--cierre)) scaleX(var(--estira));}
+.ak .manos .manos-trazo :is(.trazo-humana, .trazo-maquina) {transform: translateX(var(--cierre)) skewX(var(--sesgo, 0deg)) scaleX(var(--estira));}
 .ak .manos .manos-trazo .trazo-arco {stroke-dashoffset: 0; opacity: 1;}
 .ak .manos .manos-trazo .trazo-punto {transform: none;}
 .ak .manos-pista {display: none;}
 }
 @media (prefers-reduced-motion: reduce) {
-.ak .manos .manos-trazo :is(.trazo-humana, .trazo-maquina) {transform: translateX(var(--cierre)) scaleX(var(--estira));}
+.ak .manos .manos-trazo :is(.trazo-humana, .trazo-maquina) {transform: translateX(var(--cierre)) skewX(var(--sesgo, 0deg)) scaleX(var(--estira));}
 .ak .manos .manos-trazo .trazo-arco {stroke-dashoffset: 0; opacity: 1;}
 .ak .manos .manos-trazo .trazo-punto {transform: none;}
 .ak .manos-pista {visibility: hidden;}
@@ -226,7 +236,7 @@ html.lienzo-3d .ak .manos .manos-trazo {opacity: 1;}
 .ak .cierre-lazo:focus-visible {outline: 2px solid var(--focus); outline-offset: -4px;}
 .ak .cierre-lazo[data-cerrado] {cursor: default;}
 @media (prefers-reduced-motion: reduce) {
-.ak .cierre-lazo .manos-trazo :is(.trazo-humana, .trazo-maquina) {transform: translateX(var(--cierre)) scaleX(var(--estira));}
+.ak .cierre-lazo .manos-trazo :is(.trazo-humana, .trazo-maquina) {transform: translateX(var(--cierre)) skewX(var(--sesgo, 0deg)) scaleX(var(--estira));}
 .ak .cierre-lazo .manos-trazo .trazo-arco {stroke-dashoffset: 0; opacity: 1;}
 .ak .cierre-lazo .manos-trazo .trazo-punto {transform: none;}
 }

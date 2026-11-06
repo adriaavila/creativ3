@@ -32,6 +32,10 @@
  *     contexto en SwiftShader (la GPU de software de este entorno) tarda 100-500 ms que un teléfono no tarda; compilar
  *     shaders, parsear la escena y todo lo demás sí cuenta.
  *   · Con una ficha abierta, además de la página se mide la hoja: una ficha fija nunca ensancha la página.
+ *   · «1 s after data-cerrado for 2 s»: en esa ventana, ni un cuadro ni un dibujo, tal cual. Después, quien se queda
+ *     con la pieza ve su latido (manos-vida.ts): [quieto] mide que llegue tras una quietud de verdad, que sea corto y
+ *     uno solo por mirada, y que no pida ni un cuadro fuera de la pantalla (ni con un filo de la tira a la vista), con
+ *     la pestaña oculta, bajo una ficha abierta ni con reducir movimiento.
  * Más allá de ACCEPTANCE, [contexto] prueba lo que FALLBACKS y la parte 5 de la spec piden de un contexto perdido.
  * El navegador: PW_CHROMIUM (por defecto /opt/pw-browsers/chromium).
  */
@@ -1131,72 +1135,248 @@ async function solo(p) {
   }
 }
 
-/** [quieto] La escena no pide cuadros ni dibuja cuando está quieta: en espera, cerrada y fuera de la pantalla. */
+// La escena una vez cerrada. La spec pide ningún cuadro ni dibujo de 1 s a 3 s después de data-cerrado. Después, quien
+// se queda con la pieza ve su latido (src/components/vitrina/manos-vida.ts): tras 7 s de quietud, 1.8 s de cuadros en un
+// celular (2.25 s en un escritorio), uno por mirada; y ninguno fuera de la pantalla (ni con apenas un filo de la tira a
+// la vista), con la pestaña oculta, bajo una ficha abierta ni con reducir movimiento. Los topes dejan margen a un
+// SwiftShader cargado; una escena que anime sin parar, que lata antes de tiempo o que vuelva a latir en la misma mirada
+// no cabe en ellos.
+const LATIDOS = {
+  /** La ventana de la spec, en ms después de data-cerrado. */
+  spec: [1000, 3000],
+  /** Cuánto se mira la escena cerrada: su latido (a unos 8 s de data-cerrado) y más de 20 s de quietud después. */
+  ventana: 30000,
+  /** Cuadros pedidos a menos de esto (ms) son la misma ráfaga. */
+  junta: 1000,
+  /** Lo más que dura el latido en cuadros (dura 1.8 s en un celular, 2.25 s en un escritorio). */
+  rafaga: 3000,
+  /** Lo menos que dura la quietud entre la respuesta y el latido (son 7 s). */
+  quietud: 5000,
+  /** Latidos en una mirada. */
+  porMirada: 1,
+};
+/** Ráfagas de cuadros pedidos: los que van a menos de `junta` ms del anterior son la misma. */
+function rafagas(ts, junta = LATIDOS.junta) {
+  const r = [];
+  for (const t of ts) {
+    const u = r[r.length - 1];
+    if (u && t - u.fin < junta) {
+      u.fin = t;
+      u.n++;
+    } else r.push({ ini: t, fin: t, n: 1 });
+  }
+  return r;
+}
+/**
+ * El juicio de la escena cerrada sobre los cuadros que pidió (`raf`) y los dibujos de WebGL (`dib`) entre data-cerrado
+ * (`tc`) y `w1`, en ms desde la navegación y en orden: una línea por regla, [ok, etiqueta, medido]. No toca la página,
+ * así que también corre sobre trazas inventadas (las que debe rechazar).
+ */
+function juzgarCerrada(raf, dib, tc, w1, et, como) {
+  const L = LATIDOS;
+  const s0 = tc + L.spec[0];
+  const s1 = tc + L.spec[1];
+  const s = (ms) => `${(ms / 1000).toFixed(1)} s`;
+  const lineas = [];
+  // La cola de la respuesta: lo que pide hasta 1 s después de data-cerrado (llega 0.8 s después).
+  const cola = raf.filter((t) => t >= tc && t <= s0);
+  const fin = cola.length ? cola[cola.length - 1] : tc;
+  const nr = raf.filter((t) => t >= s0 && t <= s1).length;
+  const nd = dib.filter((t) => t >= s0 && t <= s1).length;
+  lineas.push([nr === 0 && nd === 0, `${et} cerrado (${como}), de 1 s a 3 s después de data-cerrado`, `rAF ${nr} · dibujos ${nd} · la respuesta pidió su último cuadro a ${Math.round(fin - tc)} ms de data-cerrado`]);
+  // Pasada la ventana de la spec, los latidos: ráfagas de cuadros.
+  const rs = rafagas(raf.filter((t) => t > s1 && t <= w1));
+  const de = (x) => `${s(x.ini - tc)} (${s(x.fin - x.ini)})`;
+  const ultimo = rs.length ? rs[rs.length - 1].fin : fin;
+  lineas.push([rs.length <= L.porMirada, `${et} cerrado: un latido como mucho en la mirada, y después quieta hasta los ${L.ventana / 1000} s`, `${rs.length === 0 ? "ningún latido" : `${rs.length === 1 ? "un latido" : `${rs.length} ráfagas`} a ${rs.map(de).join(", ")} de data-cerrado`}; después, ${s(w1 - ultimo)} sin un cuadro`]);
+  const largas = rs.filter((x) => x.fin - x.ini > L.rafaga);
+  lineas.push([largas.length === 0, `${et} cerrado: el latido dura <= ${L.rafaga / 1000} s`, rs.length ? rs.map((x) => s(x.fin - x.ini)).join(", ") : "no hubo"]);
+  const hueco = rs.length ? rs[0].ini - fin : null;
+  lineas.push([hueco === null || hueco >= L.quietud, `${et} cerrado: >= ${L.quietud / 1000} s de quietud entre la respuesta y el latido`, hueco === null ? "no hubo latido" : s(hueco)]);
+  // Cada dibujo cae en los cuadros de la respuesta o del latido (o en el que los cierra): nada dibuja desde un temporizador.
+  const tramos = [...(cola.length ? [{ ini: cola[0], fin }] : []), ...rs];
+  const sueltos = dib.filter((t) => t >= tc && t <= w1 && !tramos.some((x) => t >= x.ini - 50 && t <= x.fin + 300));
+  lineas.push([sueltos.length === 0, `${et} cerrado: ningún dibujo fuera de sus cuadros`, `${dib.length} dibujos${sueltos.length ? `; sueltos a ${sueltos.slice(0, 5).map((t) => `${Math.round(t - tc)} ms`).join(", ")} de data-cerrado` : ""}`]);
+  return lineas;
+}
+/** Cuándo llegó #inicio[data-cerrado] (sola, o con un toque si en 9 s no llegó): ms desde la navegación, o null. */
+async function cerrada(page) {
+  const lleva = async () => {
+    const x = await tiempoAtributo(page, "data-cerrado", "#inicio");
+    return x !== null && x >= 0 ? x : null;
+  };
+  let tc = await hasta(lleva, { ms: 9000 });
+  let como = "sola";
+  if (tc === null) {
+    const c = await lib(page, "centroManos");
+    if (c) await tocar(page, c.x, c.y);
+    tc = await hasta(lleva, { ms: 4000 });
+    como = "con un toque";
+  }
+  return { tc, como };
+}
+
+/**
+ * [quieto] La escena pide cuadros solo mientras algo se mueve: ninguno en la espera; cerrada, ninguno de 1 s a 3 s
+ * después de data-cerrado y un latido como mucho en la mirada, tras una quietud de verdad; y ninguno fuera de la
+ * pantalla, con un filo de la tira, con la pestaña oculta, bajo una ficha abierta ni con reducir movimiento. La escena
+ * cerrada se mide sola (sus tiempos no comparten la CPU); los demás casos van cada uno en su contexto, todos a la vez, y
+ * sus líneas salen en este orden.
+ */
 async function quieto(p) {
-  {
-    const { page, etiqueta } = await p.abrir({ vista: "390", instrumento: { pilas: true } });
-    await ir(page);
-    const es = await esperarEspera(page);
-    if (es.modo === "ya-cerrado") p.linea(false, `${etiqueta} en espera`, "el lazo se cerró antes de esperar");
-    else {
-      // Del segundo 2 al 3 después del load, salvo que la entrada termine después: entonces el segundo que le sigue.
-      const carga = await page.evaluate(() => window.__e2e.carga);
-      const t0 = Math.max(carga + 2000, (es.t ?? 0) + 300);
-      let t1 = t0 + 1000;
-      await esperarHasta(page, t1 + 30);
-      // Si la tira deja la espera dentro del segundo (se cierra sola antes de tiempo), la ventana termina ahí: lo que
-      // dibuje respondiendo no es la espera. Media ventana como mínimo, o la medida no dice nada.
-      const salio = await page.evaluate(
-        ([a, b]) => {
-          const x = window.__e2e.attrs.find((y) => y.a === "data-estado" && y.el.includes("manos") && y.t > a && y.t <= b);
-          return x ? { t: x.t, v: x.v } : null;
-        },
-        [t0, t1],
-      );
-      if (salio) t1 = salio.t - 20;
-      const c = await contar(page, t0, t1);
-      p.linea(t1 - t0 >= 500 && c.raf === 0 && c.dib === 0, `${etiqueta} en espera (${ms(t0)}-${ms(t1)} ms, ${es.modo})`, `${fmtCuenta(c)}${salio ? ` · la espera terminó a ${ms(salio.t)} ms (data-estado=${salio.v})${t1 - t0 < 500 ? ": menos de 500 ms de espera que medir" : ""}` : ""}`);
-    }
-    let tc = await hasta(async () => {
-      const x = await tiempoAtributo(page, "data-cerrado", "#inicio");
-      return x !== null && x >= 0 ? x : null;
-    }, { ms: 9000 });
-    let como = "solo";
-    if (tc === null) {
-      const c = await lib(page, "centroManos");
-      if (c) await tocar(page, c.x, c.y);
-      tc = await hasta(async () => {
-        const x = await tiempoAtributo(page, "data-cerrado", "#inicio");
-        return x !== null && x >= 0 ? x : null;
-      }, { ms: 4000 });
-      como = "con un toque";
-    }
-    if (tc === null) p.linea(false, `${etiqueta} cerrado`, "nunca llegó data-cerrado");
-    else {
-      const w0 = tc + 1000;
-      const w1 = w0 + 2000;
-      await esperarHasta(page, w1 + 30);
-      const c = await contar(page, w0, w1);
-      p.linea(c.raf === 0 && c.dib === 0, `${etiqueta} cerrado (${como}), de 1 s a 3 s después de data-cerrado`, fmtCuenta(c));
-    }
+  await quietoLatidos(p, p);
+  const casos = [quietoEntrando, ...["fuera", "rendija", "oculta", "ficha"].map((como) => (p, q) => quietoCerrado(p, q, como)), quietoReducido];
+  const colas = casos.map(() => []);
+  const hechos = await Promise.allSettled(casos.map((f, i) => f(p, { linea: (...a) => colas[i].push(["linea", a]), info: (...a) => colas[i].push(["info", a]) })));
+  for (const cola of colas) for (const [k, a] of cola) p[k](...a);
+  const fallo = hechos.find((h) => h.status === "rejected");
+  if (fallo) throw fallo.reason;
+}
+
+/** En espera, ningún cuadro; cerrada y sin tocar nada durante 30 s, lo que dice juzgarCerrada. */
+async function quietoLatidos(p, q) {
+  const { ctx, page, etiqueta } = await p.abrir({ vista: "390", instrumento: { pilas: true } });
+  await ir(page);
+  const es = await esperarEspera(page);
+  if (es.modo === "ya-cerrado") q.linea(false, `${etiqueta} en espera`, "el lazo se cerró antes de esperar");
+  else {
+    // Del segundo 2 al 3 después del load, salvo que la entrada termine después: entonces el segundo que le sigue.
+    const carga = await page.evaluate(() => window.__e2e.carga);
+    const t0 = Math.max(carga + 2000, (es.t ?? 0) + 300);
+    let t1 = t0 + 1000;
+    await esperarHasta(page, t1 + 30);
+    // Si la tira deja la espera dentro del segundo (se cierra sola antes de tiempo), la ventana termina ahí: lo que
+    // dibuje respondiendo no es la espera. Media ventana como mínimo, o la medida no dice nada.
+    const salio = await page.evaluate(
+      ([a, b]) => {
+        const x = window.__e2e.attrs.find((y) => y.a === "data-estado" && y.el.includes("manos") && y.t > a && y.t <= b);
+        return x ? { t: x.t, v: x.v } : null;
+      },
+      [t0, t1],
+    );
+    if (salio) t1 = salio.t - 20;
+    const c = await contar(page, t0, t1);
+    q.linea(t1 - t0 >= 500 && c.raf === 0 && c.dib === 0, `${etiqueta} en espera (${ms(t0)}-${ms(t1)} ms, ${es.modo})`, `${fmtCuenta(c)}${salio ? ` · la espera terminó a ${ms(salio.t)} ms (data-estado=${salio.v})${t1 - t0 < 500 ? ": menos de 500 ms de espera que medir" : ""}` : ""}`);
   }
-  {
-    const { page, etiqueta } = await p.abrir({ vista: "390", instrumento: { pilas: true } });
-    await ir(page);
-    // A media entrada si la hay: es cuando más cuadros pediría.
-    await hasta(() => page.evaluate(() => window.__e2e.attrs.some((x) => x.a === "data-estado" && x.v === "entrando")), { ms: 4000 });
-    const ts = await page.evaluate(() => {
-      const b = document.querySelector(".manos").getBoundingClientRect();
-      window.scrollTo({ top: b.bottom + scrollY + 8, behavior: "instant" });
+  const { tc, como } = await cerrada(page);
+  if (tc === null) return q.linea(false, `${etiqueta} cerrado`, "nunca llegó data-cerrado");
+  const w1 = tc + LATIDOS.ventana;
+  await esperarHasta(page, w1 + 30);
+  const r = await page.evaluate(
+    ([a, b]) => {
+      const e = window.__e2e;
+      const en = (t) => t >= a && t <= b;
+      return { raf: e.raf.filter(en), dib: e.dib.filter(en) };
+    },
+    [tc, w1],
+  );
+  for (const [ok, et, medido] of juzgarCerrada(r.raf, r.dib, tc, w1, etiqueta, como)) q.linea(ok, et, medido);
+  // Quién pidió los cuadros pasada la respuesta: si algo falla, la pila lo dice.
+  const c = await contar(page, tc + LATIDOS.spec[0], w1);
+  q.info(`${etiqueta} cerrado: ${Math.round((c.raf * 60000) / (w1 - tc - LATIDOS.spec[0]))} rAF por minuto pasada la respuesta`, fmtCuenta(c));
+  await ctx.close();
+}
+
+/** Fuera de la pantalla a media entrada (cuando más cuadros pediría): ninguno. */
+async function quietoEntrando(p, q) {
+  const { page, etiqueta } = await p.abrir({ vista: "390", instrumento: { pilas: true } });
+  await ir(page);
+  await hasta(() => page.evaluate(() => window.__e2e.attrs.some((x) => x.a === "data-estado" && x.v === "entrando")), { ms: 4000 });
+  const ts = await page.evaluate(() => {
+    const b = document.querySelector(".manos").getBoundingClientRect();
+    window.scrollTo({ top: b.bottom + scrollY + 8, behavior: "instant" });
+    return performance.now();
+  });
+  const w0 = ts + 1000;
+  const w1 = w0 + 2000;
+  await esperarHasta(page, w1 + 30);
+  const fuera = await page.evaluate(() => document.querySelector(".manos").getBoundingClientRect().bottom <= 0);
+  const c = await contar(page, w0, w1);
+  q.linea(fuera && c.raf === 0 && c.dib === 0, `${etiqueta} con la tira fuera de la pantalla a media entrada (${ms(w0)}-${ms(w1)} ms)`, `${fuera ? "" : "la tira seguía en pantalla · "}${fmtCuenta(c)}`);
+}
+
+const SIN = {
+  fuera: { dice: "con la tira fuera de la pantalla", vuelve: "la tira vuelve a la pantalla" },
+  rendija: { dice: "con solo un filo de la tira en pantalla", vuelve: "la tira vuelve entera" },
+  oculta: { dice: "con la pestaña oculta", vuelve: "la pestaña vuelve a la vista" },
+  ficha: { dice: "bajo una ficha abierta (la tira en pantalla)", vuelve: "la ficha se cierra" },
+};
+
+/**
+ * Cerrada y pasada la respuesta, la tira se va de la pantalla, queda en un filo de 8 px, la pestaña se oculta o una
+ * ficha se abre encima: diez segundos sin un cuadro, aunque en ellos tocaba latir (el latido llega a unos 8 s de
+ * data-cerrado). Al volver, lo que pida la escena es solo información (el latido de la mirada nueva llega a los 7 s):
+ * una escena quieta del todo también cumple.
+ */
+async function quietoCerrado(p, q, como) {
+  const { page, etiqueta } = await p.abrir({ vista: "390", instrumento: { pilas: true } });
+  await ir(page);
+  // La ficha vive en una isla: hasta que hidrata, nadie lee el hash.
+  if (como === "ficha") await asentar(page);
+  const { tc } = await cerrada(page);
+  if (tc === null) return q.linea(false, `${etiqueta} cerrado ${SIN[como].dice}`, "nunca llegó data-cerrado");
+  await esperarHasta(page, tc + 1000);
+  const t0 = await page.evaluate(
+    ([c, id]) => {
+      if (c === "fuera" || c === "rendija") {
+        // Fuera: su borde de abajo, 8 px por encima de la pantalla; un filo: 8 px por debajo del borde de arriba.
+        const b = document.querySelector(".manos").getBoundingClientRect();
+        window.scrollTo({ top: b.bottom + scrollY + (c === "fuera" ? 8 : -8), behavior: "instant" });
+      } else if (c === "oculta") {
+        // Simulada: este Chromium sin ventana no oculta la página al cambiar de pestaña ni al minimizar.
+        Object.defineProperty(document, "hidden", { configurable: true, get: () => true });
+        Object.defineProperty(document, "visibilityState", { configurable: true, get: () => "hidden" });
+        document.dispatchEvent(new Event("visibilitychange"));
+      } else location.hash = `#pieza=${id}`;
       return performance.now();
-    });
-    const w0 = ts + 1000;
-    const w1 = w0 + 2000;
-    await esperarHasta(page, w1 + 30);
-    const fuera = await page.evaluate(() => document.querySelector(".manos").getBoundingClientRect().bottom <= 0);
-    const c = await contar(page, w0, w1);
-    p.linea(fuera && c.raf === 0 && c.dib === 0, `${etiqueta} con la tira fuera de la pantalla (${ms(w0)}-${ms(w1)} ms)`, `${fuera ? "" : "la tira seguía en pantalla · "}${fmtCuenta(c)}`);
-  }
+    },
+    [como, OBRAS[0].id],
+  );
+  if (como === "ficha") await page.waitForSelector('[aria-modal="true"]', { timeout: 8000 }).catch(() => {});
+  const w0 = t0 + 1000;
+  const w1 = w0 + 10000;
+  await esperarHasta(page, w1 + 30);
+  const sigue = await page.evaluate((c) => {
+    const b = document.querySelector(".manos").getBoundingClientRect();
+    const enPantalla = b.bottom > 0 && b.top < innerHeight;
+    if (c === "fuera") return enPantalla ? "la tira seguía en pantalla" : "";
+    if (c === "rendija") {
+      const vista = Math.min(b.bottom, innerHeight) - Math.max(b.top, 0);
+      return vista > 0 && vista <= 16 ? "" : `a la vista quedaban ${Math.round(vista)} px de la tira`;
+    }
+    if (c === "oculta") return document.hidden ? "" : "la pestaña no se ocultó";
+    const ficha = document.querySelector('[aria-modal="true"]');
+    return !ficha ? "no se abrió ninguna ficha" : !enPantalla ? "la tira salió de la pantalla" : "";
+  }, como);
+  const c = await contar(page, w0, w1);
+  q.linea(!sigue && c.raf === 0 && c.dib === 0, `${etiqueta} cerrado ${SIN[como].dice} (${ms(w0)}-${ms(w1)} ms)`, `${sigue ? `${sigue} · ` : ""}${fmtCuenta(c)}`);
+  const t2 = await page.evaluate((c) => {
+    if (c === "fuera" || c === "rendija") window.scrollTo({ top: 0, behavior: "instant" });
+    else if (c === "oculta") {
+      Object.defineProperty(document, "hidden", { configurable: true, get: () => false });
+      Object.defineProperty(document, "visibilityState", { configurable: true, get: () => "visible" });
+      document.dispatchEvent(new Event("visibilitychange"));
+    } else location.hash = "";
+    return performance.now();
+  }, como);
+  const dt = 10000;
+  await esperarHasta(page, t2 + dt + 30);
+  const r = await page.evaluate(([a, b]) => window.__e2e.raf.filter((t) => t >= a && t <= b), [t2, t2 + dt]);
+  const rs = rafagas(r);
+  q.info(`${etiqueta} ${SIN[como].vuelve}: en los ${dt / 1000} s siguientes`, `${fmtCuenta(await contar(page, t2, t2 + dt))}${rs.length ? ` · ráfagas a ${rs.map((x) => `${((x.ini - t2) / 1000).toFixed(1)} s (${((x.fin - x.ini) / 1000).toFixed(1)} s)`).join(", ")}` : ""}`);
+}
+
+/** Con reducir movimiento la escena cerrada no late: diez segundos sin un cuadro desde que monta. */
+async function quietoReducido(p, q) {
+  const { page, etiqueta } = await p.abrir({ vista: "390", reduce: true, instrumento: { pilas: true } });
+  await ir(page);
+  // La escena monta cerrada y se dibuja una vez (sin cuadros); sin WebGL se queda el boceto.
+  const tg = await hasta(() => page.evaluate(() => (document.querySelector(".manos canvas") ? performance.now() : null)), { ms: 8000, cada: 50 });
+  const w0 = (tg ?? (await page.evaluate(() => performance.now()))) + 1000;
+  const w1 = w0 + 10000;
+  await esperarHasta(page, w1 + 30);
+  const c = await contar(page, w0, w1);
+  q.linea(c.raf === 0 && c.dib === 0, `${etiqueta} con reducir movimiento, ${tg === null ? "sin la escena" : "la escena cerrada"} (${ms(w0)}-${ms(w1)} ms)`, fmtCuenta(c));
 }
 
 /** [reducido] Con reducir movimiento: el cuadro final al cargar, cada reveal en su sitio y ningún cuadro pedido. */
@@ -1658,7 +1838,7 @@ const PRUEBAS = {
   prefill: [prefill, 120_000],
   toque: [toque, 60_000],
   solo: [solo, 60_000],
-  quieto: [quieto, 90_000],
+  quieto: [quieto, 180_000],
   reducido: [reducido, 45_000],
   "sin-webgl": [sinWebgl, 60_000],
   contexto: [contexto, 150_000],

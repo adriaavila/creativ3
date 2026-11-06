@@ -2,6 +2,7 @@ import { AIM, FOV, GIRO_HUMANA, GIRO_MAQUINA, LAZO, encuadre, type Encuadre } fr
 import type { Lines, Manos } from "./manos-geometria";
 import { componer, crearMotor, cuaternion, identidad, mirada, multiplicar, perspectiva, type Uniformes } from "./manos-gl";
 import { RESPUESTA, type Avisos, type Destino, type Lazo, type Punto } from "./manos-trazo";
+import { crearLatidos, latido, respuesta, type Munecas } from "./manos-vida";
 
 // The hero's piece, «Te toca», in two parts with a still wait between them.
 // The entrance: a human hand of fibers and a machine hand of circuit traces
@@ -9,10 +10,12 @@ import { RESPUESTA, type Avisos, type Destino, type Lazo, type Punto } from "./m
 // apart. Then nothing moves until the visitor taps (or 2.4 s pass): a signal
 // runs down the human hand to the fingertip while the hands close the gap;
 // allok's mark closes in it (the arc draws, the dot lands); the signal runs on
-// up the machine's arm; and everything holds still. The scene only asks for
-// frames while something changes: none while it waits, none once it closed.
-// It draws with manos-gl.ts, a small WebGL2 renderer that does what three.js
-// did for it, to the pixel.
+// up the machine's arm; and everything holds still. A visitor who stays with
+// the closed piece sees it once more: after a long still, a faint beat of the
+// same signal runs the circuit, once per look (manos-vida.ts). The scene only
+// asks for frames while something changes: none while it waits, none in the
+// stills around the beat. It draws with manos-gl.ts, a small WebGL2 renderer
+// that does what three.js did for it, to the pixel.
 
 // The system's curves (tokens.json → easing).
 const easeOut = (t: number) => 1 - Math.pow(1 - t, 3);
@@ -26,13 +29,6 @@ const clamp01 = (t: number) => Math.min(1, Math.max(0, t));
 /** Where t is between a and b, from 0 to 1. */
 const seg = (t: number, a: number, b: number) => clamp01((t - a) / (b - a));
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
-/** A signal fades in as it leaves and out as it arrives, so it never pops. */
-const envelope = (p: number) => {
-  if (p <= 0 || p >= 1) return 0;
-  const i = clamp01(p / 0.12);
-  const o = clamp01((1 - p) / 0.2);
-  return i * i * (3 - 2 * i) * o * o * (3 - 2 * o);
-};
 
 // The entrance, in seconds: the hands draw on ease-out (1.5 s, the scripted
 // exception), travel in from 1.4 times the waiting gap on ease-in-out (1.2 s,
@@ -444,6 +440,9 @@ export function montar(
       pads.u.uSize = (enc.compact ? 1.8 : 2.6) * dpr;
     };
 
+    // Where the signal starts and ends on each hand (manos-vida.ts).
+    const munecas: Munecas = { humana: manos.human.wrist, maquina: manos.machine.wrist };
+
     // The canvas is on the page (the debut is over), and everything is on the GPU.
     let enPagina = false;
     let subido = false;
@@ -461,15 +460,15 @@ export function montar(
       pads.u.uDraw = md;
 
       // The signal: down the human hand to the fingertip, then, once the mark
-      // has closed, on up the machine's arm.
-      const si = seg(ta, R.signalIn[0], R.signalIn[1]);
-      fibers.u.uWave = lerp(manos.human.wrist - 0.3, 1.12, easeInOut(si));
-      fibers.u.uWaveAmp = envelope(si);
-      const so = seg(ta, R.signalOut[0], R.signalOut[1]);
-      const out = lerp(1.12, manos.machine.wrist - 0.3, easeInOut(so));
+      // has closed, on up the machine's arm. Once closed it rests at 0, unless
+      // the beat runs it once more, fainter (manos-vida.ts).
+      const tl = estado === "cerrado" ? latidos.tiempo() : null;
+      const v = tl === null ? respuesta(seg(ta, R.signalIn[0], R.signalIn[1]), seg(ta, R.signalOut[0], R.signalOut[1]), munecas) : latido(tl, munecas, enc.compact);
+      fibers.u.uWave = v.humana.s;
+      fibers.u.uWaveAmp = v.humana.amp;
       for (const p of [traces, pads]) {
-        p.u.uWave = out;
-        p.u.uWaveAmp = envelope(so);
+        p.u.uWave = v.maquina.s;
+        p.u.uWaveAmp = v.maquina.amp;
       }
 
       // The gap: in from 1.4 times the waiting gap to it, then (the answer) to shut.
@@ -541,14 +540,35 @@ export function montar(
 
     // Frames only while something moves, only while the strip is on screen
     // and the tab is open. A project's sheet (Ficha) covers the hero without
-    // moving it off screen: the scene waits under it, looking every 300 ms.
+    // moving it off screen: the moves wait under it, looking every 300 ms; a
+    // beat settles at once and waits for another still.
     let visible = false;
+    // The beat asks for more than a sliver: the strip at least 60 % on screen, as the self-close does (Manos.tsx).
+    let presente = false;
     let raf = 0;
     let last = 0;
     let wait = 0;
     let held = false;
     let entro = estado !== "entrando";
-    const mueve = () => estado === "entrando" || estado === "respondiendo";
+    const bajoFicha = () => !!document.querySelector('[aria-modal="true"]');
+    const quieto = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+    // The beat (manos-vida.ts) comes from a timer after a real still, so no
+    // frames at all meanwhile, and only once closed, with the strip on screen,
+    // the tab open and motion welcome (reduced motion keeps the closed frame,
+    // still). A look (the strip on screen with the tab shown) has one beat;
+    // coming back on screen or to the tab starts another look.
+    const latidos = crearLatidos({
+      puede: () => estado === "cerrado" && presente && !document.hidden && !held && !perdido && !destruido && !quieto.matches,
+      tapado: bajoFicha,
+      compacta: () => enc.compact,
+      empezar: () => play(),
+    });
+    const mueve = () => estado === "entrando" || estado === "respondiendo" || latidos.tiempo() !== null;
+    /** The look is over: a beat playing stops here, and the hands are drawn at rest at once. */
+    const callar = () => {
+      if (latidos.callar()) draw();
+    };
 
     // What happens as the clocks pass their marks. A pending answer starts
     // the moment the entrance ends, so the hands never stop between the two.
@@ -605,12 +625,18 @@ export function montar(
     const loop = (now: number) => {
       raf = 0;
       if (!visible || document.hidden || perdido || held) return;
-      if (document.querySelector('[aria-modal="true"]')) {
+      if (bajoFicha()) {
+        // A beat settles in this one frame and waits for another still; the moves wait under the sheet.
+        if (latidos.cortar()) return draw();
         window.clearTimeout(wait);
         wait = window.setTimeout(play, 300);
         return;
       }
-      t += paso(Math.max(0, now - last) / 1000);
+      // A beat starts with nothing owed, like each part of the piece.
+      if (latidos.tiempo() === 0) deuda = 0;
+      const dt = paso(Math.max(0, now - last) / 1000);
+      t += dt;
+      latidos.avanzar(dt);
       last = now;
       avanzar();
       draw();
@@ -619,7 +645,9 @@ export function montar(
         avisos.alEntrar?.();
       }
       // A pending answer that started in this frame has already asked for the next one.
-      if (mueve() && !raf) raf = requestAnimationFrame(loop);
+      if (mueve()) {
+        if (!raf) raf = requestAnimationFrame(loop);
+      } else latidos.armar();
     };
     // The clock runs from the moment it is asked to, not from the frame that follows.
     function play() {
@@ -635,11 +663,13 @@ export function montar(
     // Development only: hold any moment, to look at it frame by frame and to
     // render the stills and the link preview. 0 to 1.7 is the entrance, then
     // the answer as it plays on its own (to 3.8); «espera» and «cerrado» are
-    // the two still frames.
+    // the two still frames. Once closed, a second number poses the beat at
+    // that second of it (0 to LATIDO.dura: 1.8 on a phone, 2.25 on a desktop).
     if (process.env.NODE_ENV === "development") {
-      (window as unknown as { __manos?: (cuando: number | "espera" | "cerrado") => void }).__manos = (cuando) => {
+      (window as unknown as { __manos?: (cuando: number | "espera" | "cerrado", pose?: number) => void }).__manos = (cuando, pose) => {
         held = true;
         pause();
+        latidos.callar();
         pendiente = null;
         modo = "solo";
         if (cuando === "espera" || cuando === "cerrado") {
@@ -655,14 +685,35 @@ export function montar(
           estado = "cerrado";
           t = 0;
         }
+        if (estado === "cerrado" && pose !== undefined) latidos.posar(pose);
         draw();
       };
     }
 
-    const io = new IntersectionObserver(([e]) => {
-      visible = !!e?.isIntersecting;
+    // Each report says where the strip is now; several can queue up, and the newest is last.
+    const io = new IntersectionObserver(
+      (es) => {
+        const e = es[es.length - 1];
+        const antes = presente;
+        visible = !!e?.isIntersecting;
+        presente = visible && (e?.intersectionRatio ?? 0) >= 0.6;
+        // Below 60 % on screen the look is over; back above it, a new one begins.
+        if (!presente) callar();
+        else if (!antes) latidos.mirar();
+        play();
+      },
+      { threshold: [0, 0.6] },
+    );
+    const alVer = () => {
+      if (document.hidden) {
+        // Nothing plays in a hidden tab, and no frame waits for its return: it would bring the hidden time back with it, and race to make it up.
+        pause();
+        callar();
+      } else if (presente) latidos.mirar();
       play();
-    });
+    };
+    // Reduced motion turned on mid-look stops a beat at once; turned off, the look gets its beat.
+    const alQuieto = () => (quieto.matches ? callar() : latidos.armar());
 
     // The debut goes one step per task, so none of them holds a 4x slower
     // phone up: the programs, compiling since the module arrived, are waited
@@ -730,8 +781,10 @@ export function montar(
         el.appendChild(canvas);
         ro.observe(el);
         io.observe(el);
-        document.addEventListener("visibilitychange", play);
+        document.addEventListener("visibilitychange", alVer);
+        quieto.addEventListener("change", alQuieto);
         // A still scene (mounted closed) draws its frame again, now on the page; a moving one draws in the next frame.
+        // The observer's first report starts the look (and, once closed, the wait for its beat).
         if (!mueve()) draw();
         play();
       }, 0);
@@ -755,13 +808,26 @@ export function montar(
           play();
         });
       },
+      /** The context is gone: no frames, and a beat playing stops (asentar arms the look's beat again once it is back). */
+      perder() {
+        pause();
+        latidos.callar();
+      },
+      /** A jump to a still state, drawn once: a beat playing stops, and the look's beat, if it is still owed, comes after its still. */
+      asentar() {
+        latidos.callar();
+        draw();
+        latidos.armar();
+      },
       dispose() {
         pause();
+        latidos.callar();
         window.clearTimeout(wait);
         io.disconnect();
         ro.disconnect();
         density?.removeEventListener("change", onDensity);
-        document.removeEventListener("visibilitychange", play);
+        document.removeEventListener("visibilitychange", alVer);
+        quieto.removeEventListener("change", alQuieto);
       },
     };
   }
@@ -775,7 +841,7 @@ export function montar(
     if (destruido) return;
     perdido = true;
     motor.olvidar();
-    escena?.pause();
+    escena?.perder();
     avisos.alPerder?.();
   };
   const restored = () => {
@@ -799,7 +865,7 @@ export function montar(
       modo = "solo";
       avisoCierre = e === "cerrado";
       posado = true;
-      escena?.draw();
+      escena?.asentar();
     },
     estado: () => estado,
     destruir() {

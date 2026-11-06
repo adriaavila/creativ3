@@ -30,7 +30,7 @@
  *     el evento load; cada línea dice también la hora desde la navegación.
  *   · Tareas largas: el tiempo dentro de getContext("webgl*") se descuenta y la línea dice cuánto fue. Crear el
  *     contexto en SwiftShader (la GPU de software de este entorno) tarda 100-500 ms que un teléfono no tarda; compilar
- *     shaders, parsear three.js y todo lo demás sí cuenta.
+ *     shaders, parsear la escena y todo lo demás sí cuenta.
  *   · Con una ficha abierta, además de la página se mide la hoja: una ficha fija nunca ensancha la página.
  * El navegador: PW_CHROMIUM (por defecto /opt/pw-browsers/chromium).
  */
@@ -1172,7 +1172,7 @@ async function reducido(p) {
   p.linea(c.raf === 0, `${etiqueta} rAF en los 2 s después de load`, fmtCuenta(c));
 }
 
-/** [sin-webgl] Sin WebGL: data-sin-webgl, el boceto entero, three.js nunca pedido, y un toque cierra el lazo en 2D. */
+/** [sin-webgl] Sin WebGL: data-sin-webgl, el boceto entero, la escena nunca pedida, y un toque cierra el lazo en 2D. */
 async function sinWebgl(p) {
   const { ctx, page, etiqueta } = await p.abrir({ vista: "390", nav: "sin", instrumento: { sinWebgl: true } });
   const cuerpos = [];
@@ -1182,7 +1182,8 @@ async function sinWebgl(p) {
     if (tipo === "script" || /javascript|ecmascript/.test(ct))
       cuerpos.push(
         res.text().then(
-          (t) => ({ url: res.url(), tiene: t.includes("WebGLRenderer") }),
+          // La escena: three.js (WebGLRenderer) o el renderer propio, que lleva sus shaders (gl_PointSize).
+          (t) => ({ url: res.url(), tiene: t.includes("WebGLRenderer") || t.includes("gl_PointSize") }),
           () => ({ url: res.url(), tiene: null }),
         ),
       );
@@ -1221,7 +1222,7 @@ async function sinWebgl(p) {
   await esperarHasta(page, 6500);
   const lista = await Promise.all(cuerpos);
   const malos = lista.filter((x) => x.tiene);
-  p.linea(malos.length === 0, `${etiqueta} ningún script pedido contiene 'WebGLRenderer'`, `${lista.length} scripts leídos${malos.length ? `; con WebGLRenderer: ${malos.map((m) => m.url.replace(BASE, "")).join(", ")}` : ""}`);
+  p.linea(malos.length === 0, `${etiqueta} ningún script pedido trae la escena ('WebGLRenderer' ni 'gl_PointSize')`, `${lista.length} scripts leídos${malos.length ? `; con la escena: ${malos.map((m) => m.url.replace(BASE, "")).join(", ")}` : ""}`);
 }
 
 /** [sin-js] Sin JavaScript: el H1, el sub, el boceto cerrado, la barra wa.me a la vista y cada captura con su href. */
@@ -1433,7 +1434,7 @@ async function cargaMedida(p, perfil, { visita = false } = {}) {
     comprimido: iniciales.some((r) => /gzip|br|zstd/.test(r.cod || "")),
   };
   if (visita) {
-    // La visita entera: la escena (three.js), la respuesta, cada imagen al bajar. El CPU ya no importa para los bytes.
+    // La visita entera: la escena WebGL, la respuesta, cada imagen al bajar. El CPU ya no importa para los bytes.
     await cdp.send("Emulation.setCPUThrottlingRate", { rate: 1 });
     await hasta(() => lib(page, "atributo", "#inicio", "data-cerrado"), { ms: 10000 });
     await recorrer(page, 0.7, false);

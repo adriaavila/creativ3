@@ -46,6 +46,12 @@ const ENTRADA = {
   end: 1.7,
 } as const;
 
+// How long the debut waits for the browser to say the programs are ready.
+// Past that it asks how each link went, which waits for the link and is always
+// right: a driver that never says so costs one wait, never a 100 Hz timer for
+// the rest of the visit.
+const LISTOS_MS = 2000;
+
 // The shaders are GLSL ES 3.00. Each draw gets three.js's two matrices under
 // its names (projectionMatrix, modelViewMatrix), and a piece's uniforms are the
 // keys of its `u` in armar: a new uniform is a line here and a key there.
@@ -643,11 +649,11 @@ export function montar(
     // phone up: the programs, compiling since the module arrived, are waited
     // for where the browser can say when they are ready
     // (KHR_parallel_shader_compile; elsewhere checking them waits for them),
-    // then checked one by one; each hand's lines go up to the GPU in a task of
-    // their own; the canvas takes the strip's size and the whole frame is
-    // drawn once off the page; and the canvas goes in. A lost context stops
-    // it, and the context come back runs the GPU's part again. A newer run
-    // (`vuelta`) makes an older one stop.
+    // for LISTOS_MS at most, then checked one by one; each hand's lines go up
+    // to the GPU in a task of their own; the canvas takes the strip's size and
+    // the whole frame is drawn once off the page; and the canvas goes in. A
+    // lost context stops it, and the context come back runs the GPU's part
+    // again. A newer run (`vuelta`) makes an older one stop.
     let vuelta = 0;
     const enTareas = (lista: (() => "otra" | "fin" | void)[], luego: () => void) => {
       const esta = ++vuelta;
@@ -672,9 +678,10 @@ export function montar(
     };
     const preparar = (luego: () => void) => {
       subido = false;
+      const tope = performance.now() + LISTOS_MS;
       enTareas(
         [
-          () => (motor.listos() ? undefined : "otra"),
+          () => (motor.listos() || performance.now() > tope ? undefined : "otra"),
           enlazar("linea"),
           enlazar("pad"),
           enlazar("marca"),

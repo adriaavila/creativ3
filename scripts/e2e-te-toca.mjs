@@ -32,6 +32,7 @@
  *     contexto en SwiftShader (la GPU de software de este entorno) tarda 100-500 ms que un teléfono no tarda; compilar
  *     shaders, parsear la escena y todo lo demás sí cuenta.
  *   · Con una ficha abierta, además de la página se mide la hoja: una ficha fija nunca ensancha la página.
+ * Más allá de ACCEPTANCE, [contexto] prueba lo que FALLBACKS y la parte 5 de la spec piden de un contexto perdido.
  * El navegador: PW_CHROMIUM (por defecto /opt/pw-browsers/chromium).
  */
 import { chromium } from "playwright";
@@ -130,7 +131,7 @@ function INSTRUMENTO(op) {
     if (c) s += `.${c.split(/\s+/).slice(0, 3).join(".")}`;
     return s;
   };
-  const e2e = { raf: [], dib: [], attrs: [], cambios: [], lcp: [], pintadas: [], largas: [], loaf: [], ctx: [], clics: [], pilas: [], n: 0, carga: null, ocio: null, arriba: null, punto: null };
+  const e2e = { raf: [], dib: [], attrs: [], cambios: [], lcp: [], pintadas: [], largas: [], loaf: [], ctx: [], clics: [], pilas: [], listos: [], n: 0, carga: null, ocio: null, arriba: null, punto: null };
   window.__e2e = e2e;
 
   // Los cuadros que pide la página; los de esta prueba usan raf0 y no cuentan.
@@ -176,6 +177,54 @@ function INSTRUMENTO(op) {
       return x;
     };
   }
+  // Con `paralelo`, KHR_parallel_shader_compile donde el navegador no la tiene (SwiftShader), como Chromium trata
+  // cualquier extensión: getExtension la enciende y da su objeto; un contexto devuelto la tiene apagada hasta que se
+  // pida otra vez (y da otro objeto), y apagada, su enum recibe lo que da la llamada de verdad: null e INVALID_ENUM.
+  // «chromium»: cada programa contesta «todavía no» a sus 3 primeras preguntas; «nunca»: nunca dice que está listo.
+  // e2e.listos anota cada pregunta y si quedó sin respuesta.
+  const paralelas = new WeakMap();
+  const G2 = window.WebGL2RenderingContext && window.WebGL2RenderingContext.prototype;
+  if (op.paralelo && G2) {
+    const ge = G2.getExtension;
+    G2.getExtension = function (nombre) {
+      if (nombre !== "KHR_parallel_shader_compile") return ge.call(this, nombre);
+      if (this.isContextLost()) return null;
+      if (!paralelas.has(this)) paralelas.set(this, { COMPLETION_STATUS_KHR: 0x91b1 });
+      return paralelas.get(this);
+    };
+    const gs = G2.getSupportedExtensions;
+    G2.getSupportedExtensions = function () {
+      const l = gs.call(this);
+      return l && [...l, "KHR_parallel_shader_compile"];
+    };
+    const veces = new WeakMap();
+    const gp = G2.getProgramParameter;
+    G2.getProgramParameter = function (prog, n) {
+      if (n !== 0x91b1 || this.isContextLost()) return gp.call(this, prog, n);
+      const nula = !paralelas.has(this);
+      e2e.listos.push({ t: ahora(), nula });
+      if (nula) return gp.call(this, prog, n);
+      const k = (veces.get(prog) || 0) + 1;
+      veces.set(prog, k);
+      return op.paralelo === "chromium" ? k > 3 : false;
+    };
+  }
+  // Con `perderAlCompilar`, el contexto se pierde en cuanto compila su primer shader y vuelve esos ms después.
+  if (op.perderAlCompilar && G2) {
+    const cs = G2.compileShader;
+    let una = false;
+    G2.compileShader = function (...a) {
+      if (!una) {
+        una = true;
+        const x = this.getExtension("WEBGL_lose_context");
+        setTimeout(() => {
+          x.loseContext();
+          setTimeout(() => x.restoreContext(), op.perderAlCompilar);
+        }, 0);
+      }
+      return cs.apply(this, a);
+    };
+  }
   // Cada contexto WebGL pedido, con lo que tardó: en SwiftShader crearlo cuesta lo que no cuesta en un teléfono.
   // Con `sinWebgl`, ningún lienzo da un contexto WebGL.
   for (const C of [window.HTMLCanvasElement, window.OffscreenCanvas]) {
@@ -187,6 +236,11 @@ function INSTRUMENTO(op) {
       const t = ahora();
       const r = g.call(this, tipo, ...resto);
       e2e.ctx.push({ t, d: ahora() - t, tipo: String(tipo), ok: !!r });
+      // Devuelto, el contexto vuelve con la extensión apagada: este oyente va antes que los de la página.
+      if (r && op.paralelo && !this.__paralela) {
+        this.__paralela = 1;
+        this.addEventListener("webglcontextrestored", () => paralelas.delete(r));
+      }
       return r;
     };
   }
@@ -219,7 +273,7 @@ function INSTRUMENTO(op) {
     }),
   );
 
-  const ATRIBUTOS = ["data-estado", "data-cerrado", "data-sin-webgl", "data-capa", "data-lazo", "data-visible", "data-sobre-azul", "data-oculta", "aria-modal"];
+  const ATRIBUTOS = ["data-estado", "data-cerrado", "data-sin-webgl", "data-capa", "data-lazo", "data-visible", "data-sobre-azul", "data-oculta", "aria-modal", "data-perdido"];
   new MutationObserver((ms) => {
     for (const m of ms) {
       if (m.type === "attributes") e2e.attrs.push({ t: ahora(), a: m.attributeName, v: m.target.getAttribute(m.attributeName), el: nodo(m.target) });
@@ -1225,6 +1279,103 @@ async function sinWebgl(p) {
   p.linea(malos.length === 0, `${etiqueta} ningún script pedido trae la escena ('WebGLRenderer' ni 'gl_PointSize')`, `${lista.length} scripts leídos${malos.length ? `; con la escena: ${malos.map((m) => m.url.replace(BASE, "")).join(", ")}` : ""}`);
 }
 
+/**
+ * [contexto] Más allá de ACCEPTANCE (FALLBACKS y la parte 5 de la spec): un contexto perdido sube el boceto y uno
+ * devuelto trae otra vez las manos de WebGL. También con KHR_parallel_shader_compile, que SwiftShader no tiene,
+ * emulada como Chromium trata sus extensiones (un contexto devuelto la tiene apagada hasta que se pide de nuevo):
+ * perdido en la espera o al compilar el primer shader, las manos vuelven, ninguna pregunta por sus programas se
+ * queda sin respuesta y ninguna sigue después. Y un driver que nunca dice que los programas están listos no deja la
+ * tira sin manos ni preguntando para siempre.
+ */
+async function contexto(p) {
+  const perder = (page) =>
+    page.evaluate(() => {
+      const c = document.querySelector(".manos canvas");
+      const x = c && c.getContext("webgl2")?.getExtension("WEBGL_lose_context");
+      if (!x) return null;
+      window.__perdida = x;
+      x.loseContext();
+      return performance.now();
+    });
+  const devolver = (page) => page.evaluate(() => (window.__perdida ? (window.__perdida.restoreContext(), performance.now()) : null));
+  // Las manos de WebGL de vuelta: la capa gl sin data-perdido, el lienzo en la tira y algo dibujado después de `t0`.
+  const vuelven = (page, t0, msMax) =>
+    hasta(
+      () =>
+        page.evaluate((a) => {
+          const m = document.querySelector(".manos");
+          return m && m.dataset.capa === "gl" && !("perdido" in m.dataset) && m.querySelector("canvas") && window.__e2e.dib.some((x) => x > a) ? performance.now() : null;
+        }, t0),
+      { ms: msMax },
+    );
+  // Las preguntas por COMPLETION_STATUS_KHR: cuántas, cuántas quedaron sin respuesta y cuántas después de `t`.
+  const preguntas = (page, t) =>
+    page.evaluate((a) => {
+      const l = window.__e2e.listos;
+      return { n: l.length, nulas: l.filter((x) => x.nula).length, despues: l.filter((x) => x.t > a).length };
+    }, t);
+  const fmtPreguntas = (q, desde) => `${q.n} preguntas por COMPLETION_STATUS_KHR, ${q.nulas} sin respuesta, ${q.despues} después de ${desde}`;
+  const KHR = " con KHR_parallel_shader_compile";
+
+  // Perdido en la espera y devuelto: sin la extensión, como es SwiftShader, y con ella.
+  for (const paralelo of [null, "chromium"]) {
+    const { page, etiqueta } = await p.abrir({ vista: "390", instrumento: paralelo ? { paralelo } : {} });
+    const con = paralelo ? KHR : "";
+    await ir(page);
+    const es = await esperarEspera(page);
+    const tp = es.modo === "gl" ? await perder(page) : null;
+    if (tp === null) {
+      p.linea(false, `${etiqueta}${con} perdido en la espera y devuelto`, `las manos no llegaron a esperar (${es.modo}): ${await historia(page)}`);
+      continue;
+    }
+    if (!paralelo) {
+      const sube = await hasta(async () => {
+        const o = await page.evaluate(() => {
+          const m = document.querySelector(".manos");
+          const s = m.querySelector(".manos-trazo");
+          return "perdido" in m.dataset && s ? getComputedStyle(s).opacity : null;
+        });
+        return o === "1" ? o : null;
+      }, { ms: 2000 });
+      p.linea(!!sube, `${etiqueta} perdido en la espera: el boceto sube (data-perdido, opacity 1)`, sube ? "" : `no en 2 s: ${await historia(page)}`);
+    }
+    await dormir(300);
+    const t0 = await devolver(page);
+    const tv = await vuelven(page, t0, 6000);
+    p.linea(tv !== null, `${etiqueta}${con} devuelto: vuelven las manos de WebGL`, tv !== null ? `${ms(tv - t0)} ms después de devolverlo` : `no en 6 s: ${await historia(page)}`);
+    if (paralelo) {
+      await dormir(2000);
+      const q = await preguntas(page, tv ?? t0);
+      p.linea(q.n > 0 && q.nulas === 0 && q.despues === 0, `${etiqueta}${con} ninguna pregunta sin respuesta, ninguna después de volver`, fmtPreguntas(q, tv === null ? "devolverlo" : "volver"));
+    }
+  }
+
+  // Perdido al compilar su primer shader (la escena recién montada, las manos aún en el worker) y devuelto 300 ms
+  // después, con la extensión.
+  {
+    const { page, etiqueta } = await p.abrir({ vista: "390", instrumento: { paralelo: "chromium", perderAlCompilar: 300 } });
+    await ir(page);
+    const tp = await hasta(() => page.evaluate(() => window.__e2e.attrs.find((x) => x.a === "data-perdido" && x.v !== null)?.t ?? null), { ms: 10000 });
+    const tv = tp === null ? null : await vuelven(page, tp, 9000);
+    p.linea(tv !== null, `${etiqueta}${KHR} perdido al compilar y devuelto: vuelven las manos de WebGL`, tp === null ? `no se perdió: ${await historia(page)}` : tv !== null ? `${ms(tv - tp)} ms después de perderlo` : `no en 9 s: ${await historia(page)}`);
+    await dormir(2000);
+    const q = await preguntas(page, tv ?? (await page.evaluate(() => performance.now())) - 2000);
+    p.linea(q.n > 0 && q.nulas === 0 && q.despues === 0, `${etiqueta}${KHR} perdido al compilar: ninguna pregunta sin respuesta, ninguna después de volver`, fmtPreguntas(q, tv === null ? "los 2 s últimos" : "volver"));
+  }
+
+  // Un driver que nunca dice que los programas están listos: la escena deja de esperarlo y las manos entran igual.
+  {
+    const { page, etiqueta } = await p.abrir({ vista: "390", instrumento: { paralelo: "nunca" } });
+    await ir(page);
+    const es = await esperarEspera(page, 16000);
+    p.linea(es.modo === "gl", `${etiqueta} con un driver que nunca dice «listo»: las manos entran igual`, es.modo === "gl" ? `espera a ${ms(es.t)} ms` : `${es.modo}: ${await historia(page)}`);
+    const te = await page.evaluate(() => window.__e2e.attrs.find((x) => x.a === "data-estado" && x.v === "entrando")?.t ?? null);
+    if (te === null) await dormir(2000);
+    const q = await preguntas(page, te ?? (await page.evaluate(() => performance.now())) - 2000);
+    p.linea(q.n > 0 && q.despues === 0, `${etiqueta} con un driver que nunca dice «listo»: nadie pregunta después de la entrada`, fmtPreguntas(q, te === null ? "los 2 s últimos" : "la entrada"));
+  }
+}
+
 /** [sin-js] Sin JavaScript: el H1, el sub, el boceto cerrado, la barra wa.me a la vista y cada captura con su href. */
 async function sinJs(p) {
   const { page, etiqueta } = await p.abrir({ vista: "390", js: false });
@@ -1510,6 +1661,7 @@ const PRUEBAS = {
   quieto: [quieto, 90_000],
   reducido: [reducido, 45_000],
   "sin-webgl": [sinWebgl, 60_000],
+  contexto: [contexto, 150_000],
   "sin-js": [sinJs, 45_000],
   cls: [cls, 150_000],
   desborde: [desborde, 180_000],

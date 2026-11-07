@@ -717,14 +717,20 @@ export function montar(
     const alQuieto = () => (quieto.matches ? callar() : latidos.armar());
     // A sheet seen as it opens and as the last one goes (manos-vida.ts decides
     // what follows): opening, a beat settles at once (the frame loop would in
-    // its next frame) and no timer waits under it; going, the look's beat, if
-    // still owed, comes a whole still later.
+    // its next frame) and no timer waits under it; going, a move that waited
+    // under it goes on at once (the frame loop's 300 ms look stays as a net),
+    // and the look's beat, if still owed, comes a whole still later.
     let tapada = false;
     const hojas = new MutationObserver(() => {
       if (bajoFicha() === tapada) return;
       tapada = !tapada;
-      if (!tapada) latidos.destapar();
-      else if (latidos.cortar()) draw();
+      if (tapada) {
+        if (latidos.cortar()) draw();
+        return;
+      }
+      latidos.destapar();
+      window.clearTimeout(wait);
+      play();
     });
 
     // The debut goes one step per task, so none of them holds a 4x slower

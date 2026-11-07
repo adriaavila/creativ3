@@ -1921,8 +1921,18 @@ async function cargaMedida(p, perfil, { visita = false } = {}) {
     else if (method === "Network.loadingFailed") fin(id, e, false);
     else if (method === "Network.loadingFinished") {
       if (!pedidos.has(id) && e.requestId === w.targetId) {
+        // El script principal del worker: la página lo vio salir y nunca lo ve terminar (su final llega aquí).
+        // Es un solo pedido: se cuenta aquí, y el de la página se borra, que si no la visita nunca se aquieta.
+        const url = w.url.split("#")[0];
+        for (const [k, r] of pedidos) {
+          if (!k.includes(" ") && !r.listo && r.url.split("#")[0] === url) {
+            pedidos.delete(k);
+            vivos--;
+            break;
+          }
+        }
         vivos++;
-        pedidos.set(id, { url: w.url.split("#")[0], tipo: "Worker", bytes: 0, listo: false });
+        pedidos.set(id, { url, tipo: "Worker", bytes: 0, listo: false });
       }
       fin(id, e, true);
     }

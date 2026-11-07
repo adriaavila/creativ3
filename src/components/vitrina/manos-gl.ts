@@ -1,9 +1,3 @@
-/**
- * @license
- * Copyright 2010-2026 Three.js Authors
- * SPDX-License-Identifier: MIT
- */
-
 // The hero's renderer, by hand on WebGL2: the few things three.js did for
 // «Te toca» (manos-escena.ts), done the way three.js 0.186 did them, so not a
 // pixel changes. The matrices are built with the same arithmetic in the same
@@ -24,9 +18,8 @@
 // without premultiplied alpha), each material's depth and culling, and
 // «position» bound to attribute 0 as WebGLProgram binds it. mirada is what
 // Matrix4.lookAt and matrixWorldInverse leave for this one camera, written
-// out. Those parts keep three.js's license: the banner above, as three's own
-// build carries it (the comment that bundlers which keep license comments
-// keep), and its notice, as node_modules/three/LICENSE has it:
+// out. Those portions keep three.js's license (the rest of this file is
+// allok's own); its notice, as node_modules/three/LICENSE has it:
 //
 // The MIT License
 //

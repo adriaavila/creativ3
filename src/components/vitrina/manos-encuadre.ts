@@ -1,5 +1,5 @@
 // Where everything sits. The scene (manos-escena.ts) frames the hands with
-// these numbers and scripts/manos-trazo.ts projects the 2D sketch with the
+// these numbers and scripts/manos-trazo.mts projects the 2D sketch with the
 // very same ones, so the pencil drawing lands under the fibers. Apart from
 // the geometry (manos-geometria.ts re-exports it), so the scene's module
 // arrives without the code that builds the hands, which runs in a worker.

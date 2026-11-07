@@ -537,5 +537,5 @@ export function construirManos(small: boolean): Manos {
 
 // ── Where everything sits ────────────────────────────────────────────────
 // The framing lives in manos-encuadre.ts, so the scene can import it without
-// this file; it is re-exported here for scripts/manos-trazo.ts.
+// this file; it is re-exported here for scripts/manos-trazo.mts.
 export { AIM, FOV, GIRO_HUMANA, GIRO_MAQUINA, LAZO, VISTA, VISTA_COMPACTA, encuadre, type Encuadre } from "./manos-encuadre";

@@ -1849,7 +1849,10 @@ async function atras(p) {
   p.linea(vuelta, `${etiqueta} Atrás: la URL vuelve a / y no queda .ficha`, `${v.url}${v.ficha ? " · la .ficha sigue en el DOM" : ""}`);
 }
 
-/** Una carga medida: red y CPU limitadas, sin caché, cada pedido con su tamaño en la red. */
+/**
+ * Una carga medida: red y CPU limitadas, sin caché, cada pedido con su tamaño en la red. También los del worker de
+ * la geometría (manos-obra.ts), que pide sus propios scripts: la sesión de la página no los ve.
+ */
 async function cargaMedida(p, perfil, { visita = false } = {}) {
   const { ctx, page, etiqueta } = await p.abrir({ vista: "390x2" });
   const cdp = await ctx.newCDPSession(page);
@@ -1860,22 +1863,24 @@ async function cargaMedida(p, perfil, { visita = false } = {}) {
   const pedidos = new Map();
   let vivos = 0;
   let quieto = Date.now();
-  cdp.on("Network.requestWillBeSent", (e) => {
-    if (!pedidos.has(e.requestId)) vivos++;
-    pedidos.set(e.requestId, { url: e.request.url, tipo: e.type, muro: e.wallTime * 1000, bytes: 0, listo: false });
-  });
-  cdp.on("Network.responseReceived", (e) => {
-    const r = pedidos.get(e.requestId);
+  // Cada pedido con su id, y los de un worker con la sesión del worker delante (sus ids no son los de la página).
+  // `tipo` fuerza el tipo: lo que pide un worker cuenta como «Worker».
+  const sale = (id, e, tipo) => {
+    if (!pedidos.has(id)) vivos++;
+    pedidos.set(id, { url: e.request.url, tipo: tipo || e.type, muro: e.wallTime * 1000, bytes: 0, listo: false });
+  };
+  const llega = (id, e, tipo) => {
+    const r = pedidos.get(id);
     if (!r) return;
-    r.tipo = e.type || r.tipo;
+    r.tipo = tipo || e.type || r.tipo;
     r.mime = e.response.mimeType;
     const h = e.response.headers || {};
     r.cod = h["content-encoding"] || h["Content-Encoding"] || "";
     // Lo recibido hasta aquí son las cabeceras: el cuerpo es lo que llega después.
     r.cabeceras = e.response.encodedDataLength || 0;
-  });
-  const fin = (e, ok) => {
-    const r = pedidos.get(e.requestId);
+  };
+  const fin = (id, e, ok) => {
+    const r = pedidos.get(id);
     if (!r || r.listo) return;
     r.listo = true;
     if (ok) {
@@ -1885,8 +1890,48 @@ async function cargaMedida(p, perfil, { visita = false } = {}) {
     vivos--;
     quieto = Date.now();
   };
-  cdp.on("Network.loadingFinished", (e) => fin(e, true));
-  cdp.on("Network.loadingFailed", (e) => fin(e, false));
+  cdp.on("Network.requestWillBeSent", (e) => sale(e.requestId, e));
+  cdp.on("Network.responseReceived", (e) => llega(e.requestId, e));
+  cdp.on("Network.loadingFinished", (e) => fin(e.requestId, e, true));
+  cdp.on("Network.loadingFailed", (e) => fin(e.requestId, e, false));
+  // Los workers: la página se engancha a cada uno que arranca, que espera (waitForDebuggerOnStart) hasta tener su
+  // red escuchada, así ningún pedido suyo pasa sin contar. La sesión CDP de Playwright solo habla con su propio
+  // destino, así que la del worker va envuelta (flatten: false: Target.sendMessageToTarget de ida,
+  // receivedMessageFromTarget de vuelta). Su script principal ya salió cuando el worker se engancha: de él solo
+  // llega el final, con el id del destino. Playwright ve los workers por su lado: uno que no llegó aquí, no se contó.
+  const workers = new Map();
+  const vistos = new Set();
+  page.on("worker", (w) => vistos.add(w.url()));
+  let n = 0;
+  const alWorker = (sesion, method) => cdp.send("Target.sendMessageToTarget", { sessionId: sesion, message: JSON.stringify({ id: ++n, method }) }).catch(() => {});
+  cdp.on("Target.attachedToTarget", async ({ sessionId, targetInfo }) => {
+    if (targetInfo.type === "worker") {
+      workers.set(sessionId, targetInfo);
+      await alWorker(sessionId, "Network.enable");
+    }
+    await alWorker(sessionId, "Runtime.runIfWaitingForDebugger");
+  });
+  cdp.on("Target.receivedMessageFromTarget", ({ sessionId, message }) => {
+    const w = workers.get(sessionId);
+    const { method, params: e } = JSON.parse(message);
+    if (!w || !method?.startsWith("Network.")) return;
+    const id = `${sessionId} ${e.requestId}`;
+    if (method === "Network.requestWillBeSent") sale(id, e, "Worker");
+    else if (method === "Network.responseReceived") llega(id, e, "Worker");
+    else if (method === "Network.loadingFailed") fin(id, e, false);
+    else if (method === "Network.loadingFinished") {
+      if (!pedidos.has(id) && e.requestId === w.targetId) {
+        vivos++;
+        pedidos.set(id, { url: w.url.split("#")[0], tipo: "Worker", bytes: 0, listo: false });
+      }
+      fin(id, e, true);
+    }
+  });
+  // Un worker que se va (terminate) a medio pedido no deja la cuenta esperando.
+  cdp.on("Target.detachedFromTarget", ({ sessionId }) => {
+    for (const [id, r] of pedidos) if (id.startsWith(`${sessionId} `) && !r.listo) fin(id, { encodedDataLength: 0 }, false);
+  });
+  await cdp.send("Target.setAutoAttach", { autoAttach: true, waitForDebuggerOnStart: true, flatten: false });
   await ir(page, HOME, "load");
   // El LCP cuenta hasta el primer toque: se lee con la página ya ociosa.
   const carga = await page.evaluate(() => window.__e2e.carga);
@@ -1933,6 +1978,8 @@ async function cargaMedida(p, perfil, { visita = false } = {}) {
     res.visita = todos.reduce((a, r) => a + r.bytes, 0);
     res.porTipo = Object.fromEntries(Object.entries(porTipo).map(([k, v]) => [k, +(v / KB).toFixed(1)]));
     res.pedidos = todos.length;
+    const contados = new Set([...workers.values()].map((w) => w.url));
+    res.sinContar = [...vistos].filter((u) => !contados.has(u)).map((u) => u.replace(BASE, "").split("#")[0]);
   }
   return res;
 }
@@ -1962,7 +2009,11 @@ async function lcp(p) {
     p.linea(malas.length === 0, `${r.etiqueta} ${r.perfil}: ninguna tarea larga > 100 ms en los 2 s después de load (sin contar crear el contexto WebGL)`, r.largas.length ? `${malas.length ? "" : "solo por el contexto WebGL: "}${r.largas.map(fmt).join(", ")}` : `load a ${s(r.carga)}`);
   }
   p.linea(lenta.jsInicial <= 150 * KB, `${lenta.etiqueta} JS inicial antes del ocio <= 150 KB${lenta.comprimido ? " gz" : " (el servidor NO comprime: bytes sin gzip)"}`, `${(lenta.jsInicial / KB).toFixed(1)} KB en ${lenta.jsLista.length} scripts, ${(lenta.jsConCabeceras / KB).toFixed(1)} KB con sus cabeceras HTTP (ocio a ${s(lenta.ocio)})`, lenta.jsLista);
-  p.linea(rapida.visita <= 650 * KB, `${rapida.etiqueta} la visita entera <= 650 KB transferidos`, `${(rapida.visita / KB).toFixed(1)} KB en ${rapida.pedidos} pedidos (${Object.entries(rapida.porTipo).map(([k, v]) => `${k} ${v}`).join(", ")})`);
+  p.linea(
+    rapida.visita <= 650 * KB && !rapida.sinContar.length,
+    `${rapida.etiqueta} la visita entera <= 650 KB transferidos`,
+    `${(rapida.visita / KB).toFixed(1)} KB en ${rapida.pedidos} pedidos (${Object.entries(rapida.porTipo).map(([k, v]) => `${k} ${v}`).join(", ")})${rapida.sinContar.length ? `; sin contar lo que bajó el worker ${rapida.sinContar.join(", ")}` : ""}`,
+  );
 }
 
 /** [objetivos] Cada enlace y botón visible del celular mide al menos 44 x 44. */

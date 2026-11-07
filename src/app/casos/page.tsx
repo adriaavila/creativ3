@@ -3,6 +3,7 @@ import Link from "next/link";
 import { CASOS, LIVE_SYSTEMS, SOLUTIONS } from "@/lib/casos";
 import SiteHeader from "@/components/allok/SiteHeader";
 import SiteFooter from "@/components/allok/SiteFooter";
+import { prefill } from "@/lib/contact";
 import Rise from "@/components/allok/Rise";
 import Screen from "@/components/allok/Screen";
 
@@ -18,9 +19,9 @@ export const metadata: Metadata = {
 };
 
 const NAV = [
-  { href: "/#trabajo", label: "Trabajo" },
+  { href: "/#obras", label: "Trabajo" },
   { href: "/casos", label: "Casos" },
-  { href: "/#indice", label: "Índice" },
+  { href: "/trabajo", label: "Todo el trabajo" },
 ];
 
 export default function CasosPage() {
@@ -81,7 +82,7 @@ export default function CasosPage() {
         </p>
       </section>
 
-      <SiteFooter />
+      <SiteFooter mensaje={prefill()} />
     </div>
   );
 }

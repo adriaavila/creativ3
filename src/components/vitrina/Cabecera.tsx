@@ -1,73 +1,81 @@
 "use client";
 
 import Link from "next/link";
-import { motion, useMotionValueEvent, useScroll } from "motion/react";
-import { useState } from "react";
-import AllokLogo from "@/components/brand/AllokLogo";
+import { useEffect, useRef } from "react";
+import { WordmarkSvg } from "@/components/ak/Brand";
+import Escribeme from "./Escribeme";
 
+// Desde /trabajo y las demás páginas. Sobre mí y Cómo empezamos salieron de la portada y viven en /trabajo; el trabajo
+// de la portada ahora es #obras.
 const NAV = [
-  { href: "#trabajo", label: "Trabajo" },
-  { href: "#por-dentro", label: "Por dentro" },
-  { href: "#indice", label: "Índice" },
-  { href: "#estudio", label: "Estudio" },
+  { href: "/#obras", label: "Trabajo" },
+  { href: "/trabajo#sobre-mi", label: "Sobre mí" },
+  { href: "/trabajo#empezar", label: "Cómo empezamos" },
 ];
 
-/** Una cápsula de vidrio que flota sobre todo y se esconde al bajar rápido. */
+/**
+ * La cabecera del sistema en /trabajo: la marca a la izquierda, los enlaces y
+ * la acción a la derecha; se aparta al bajar y toma el tema de lo que tiene
+ * debajo (Ink sobre la apertura, Cloud sobre el trabajo). En el celular
+ * quedan la marca y el botón. La de la portada (solo la marca) es
+ * CabeceraPortada, sin JavaScript.
+ */
 export default function Cabecera() {
-  const { scrollY } = useScroll();
-  const [hidden, setHidden] = useState(false);
-  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLElement>(null);
 
-  useMotionValueEvent(scrollY, "change", (y) => {
-    const prev = scrollY.getPrevious() ?? 0;
-    setHidden(y > 600 && y > prev + 4 && !open);
-    if (y < prev - 4) setHidden(false);
-  });
+  useEffect(() => {
+    const h = ref.current;
+    if (!h) return;
+    let raf = 0;
+    const seguir = () => {
+      raf = 0;
+      // Sticky at the top: its edge is always its height, even while it slides away.
+      // An open sheet (Ficha) doesn't count: under it the header keeps the page's theme.
+      const debajo = document
+        .elementsFromPoint(window.innerWidth / 2, h.offsetHeight + 1)
+        .find((e) => !h.contains(e) && !e.closest(".ficha"));
+      // The section's theme, not a window's inside it (a Cloud capture on a
+      // blue sheet): the outermost one below the page's own.
+      let tema: string | undefined;
+      for (let t = debajo?.closest<HTMLElement>("[data-theme]"); t; t = t.parentElement?.closest<HTMLElement>("[data-theme]")) {
+        if (tema && t.classList.contains("ak")) break;
+        tema = t.dataset.theme;
+      }
+      if (tema && h.dataset.theme !== tema) h.dataset.theme = tema;
+    };
+    const pedir = () => {
+      if (!raf) raf = requestAnimationFrame(seguir);
+    };
+    seguir();
+    window.addEventListener("scroll", pedir, { passive: true });
+    window.addEventListener("resize", pedir);
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener("scroll", pedir);
+      window.removeEventListener("resize", pedir);
+    };
+  }, []);
 
   return (
-    <motion.header
-      className="fixed inset-x-0 top-3 z-50 flex justify-center px-3 sm:top-5"
-      animate={{ y: hidden ? -110 : 0 }}
-      transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-    >
-      <div className="flex w-full max-w-[880px] flex-col rounded-[22px] border border-white/10 bg-[rgba(14,15,18,.62)] text-[var(--cream)] shadow-[0_20px_50px_-20px_rgba(0,0,0,.6)] backdrop-blur-xl backdrop-saturate-150">
-        <div className="flex items-center justify-between gap-4 py-2 pl-5 pr-2">
-          <Link href="/" aria-label="allok, inicio" className="inline-flex min-h-11 items-center">
-            <AllokLogo variant="wordmark" on="ink" state="activo" size={17} live />
+    <header ref={ref} className="header" data-hide-on-scroll data-theme="ink">
+      <a className="btn btn-primary saltar" href="#contenido">
+        Saltar al contenido
+      </a>
+      <Link className="wordmark" href="/" aria-label="allok, inicio">
+        <WordmarkSvg />
+      </Link>
+      <span />
+      <nav className="header-end" aria-label="Principal">
+        {NAV.map((n) => (
+          <Link key={n.href} className="btn btn-link" href={n.href}>
+            {n.label}
           </Link>
-          <nav aria-label="Principal" className="hidden items-center gap-1 text-sm md:flex">
-            {NAV.map((n) => (
-              <a key={n.href} href={n.href} className="rounded-full px-3.5 py-2.5 text-[var(--cream-60)] transition-colors hover:bg-white/5 hover:text-[var(--cream)]">
-                {n.label}
-              </a>
-            ))}
-          </nav>
-          <a
-            href="#contacto"
-            className="hidden min-h-10 items-center rounded-full bg-[var(--cream)] px-4 text-sm font-semibold text-[var(--ink)] transition-transform hover:-translate-y-px md:inline-flex"
-          >
-            Contacto
-          </a>
-          <button
-            type="button"
-            className="v-mono min-h-11 rounded-full px-4 text-[11px] md:hidden"
-            aria-expanded={open}
-            aria-controls="menu-movil"
-            onClick={() => setOpen((o) => !o)}
-          >
-            {open ? "Cerrar" : "Menú"}
-          </button>
-        </div>
-        {open ? (
-          <nav id="menu-movil" aria-label="Principal" className="flex flex-col px-3 pb-3 md:hidden">
-            {[...NAV, { href: "#contacto", label: "Contacto" }].map((n) => (
-              <a key={n.href} href={n.href} onClick={() => setOpen(false)} className="border-t border-white/10 px-2 py-4 text-2xl font-semibold tracking-[-0.03em]">
-                {n.label}
-              </a>
-            ))}
-          </nav>
-        ) : null}
-      </div>
-    </motion.header>
+        ))}
+        <Link className="btn btn-link" href="/agente-whatsapp">
+          Agente de WhatsApp
+        </Link>
+        <Escribeme flecha={false}>Escríbeme</Escribeme>
+      </nav>
+    </header>
   );
 }

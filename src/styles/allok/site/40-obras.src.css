@@ -1,0 +1,204 @@
+/* «Te toca» (builder C2 · Obras): the four works (Obras, Obra, MarcoAbierto, Glifo), the 19 (Diecinueve), the agent
+   toy (Agente, DemoAgente), the close and the footer (Cierre, Pie). Read after site.src.css. Phone first; at 1440 the
+   works hang like an exhibition, one per screen. Every drawn line uses one pen (--trazo, 2 px like the system's own
+   route lines), the same in frames, glyphs, the agent's wait and the signature; the 24 px mark keeps its own master
+   geometry. Everything lines up on one column: 88vw on a phone, at most 1040 px. */
+
+.obras, .diecinueve-sala, .agente, .cierre, .pie { --trazo: 2px; --marca: 24px; --columna: min(88vw, 1040px); }
+
+/* ── The works ── */
+.obras { padding-block: var(--space-8) var(--space-9); }
+.obra {
+  --marco-p: var(--space-4);
+  --holgura: var(--space-1);
+  /* The open corner: from the frame's corner to where each line stops, the half pen, the mark's outer radius
+     (30 of its 80 grid) and a breath. The mark sits centred on the corner, its own gap facing out. */
+  --hueco: calc(var(--trazo) / 2 + var(--marca) * 0.375 + var(--holgura));
+  --entre: var(--space-4);
+  /* The frame is 88vw on a phone, at most 1040 px, and never taller than 85 % of the screen (so the 60 %
+     reveal is always reachable and each work fits one screen). */
+  --tope: calc((85vh - 2 * var(--marco-p)) * var(--proporcion, 1.6) + 2 * var(--marco-p));
+  --obra-w: min(var(--columna), var(--tope));
+  padding-block: var(--space-9);
+}
+@supports (height: 1svh) {
+  .obra { --tope: calc((85svh - 2 * var(--marco-p)) * var(--proporcion, 1.6) + 2 * var(--marco-p)); }
+}
+.obra + .obra { padding-top: var(--space-8); }
+.obra-celular {
+  --tope: calc(2 * ((85vh - 2 * var(--marco-p)) * var(--proporcion, 0.6) + 2 * var(--marco-p)) + var(--entre));
+}
+@supports (height: 1svh) {
+  .obra-celular {
+    --tope: calc(2 * ((85svh - 2 * var(--marco-p)) * var(--proporcion, 0.6) + 2 * var(--marco-p)) + var(--entre));
+  }
+}
+.obra-piezas { display: flex; justify-content: center; gap: var(--entre); width: var(--obra-w); margin-inline: auto; }
+.obra-pieza { position: relative; flex: 1 1 0; min-width: 0; padding: var(--marco-p); }
+
+/* The capture: a link to its piece, the whole image in its own ratio, rising 8 px into the frame. */
+.obra-captura { position: relative; display: block; width: 100%; overflow: hidden; background: var(--ground-2); color: inherit; -webkit-tap-highlight-color: transparent; }
+.obra-captura img { object-fit: cover; object-position: top; }
+.obra-captura:focus-visible { outline-offset: var(--space-2); }
+.motion .obra-captura[data-reveal="up"]:not(.is-in) { transform: translateY(var(--travel-1)); }
+
+/* The frame: four edges, each its own stretched SVG, so the pen and the open corner are exact px at any size.
+   Two strokes leave the top-left corner together: the top then the right edge, the left then the bottom one. */
+.marco { position: absolute; inset: 0; pointer-events: none; }
+.marco-lado { position: absolute; display: block; overflow: visible; }
+.marco-lado .trazo { fill: none; stroke: currentColor; stroke-width: 1; stroke-linecap: butt; }
+.marco-arriba { left: 0; top: 0; width: 100%; height: var(--trazo); }
+.marco-izquierda { left: 0; top: 0; width: var(--trazo); height: 100%; }
+.marco-derecha { right: 0; top: 0; width: var(--trazo); height: calc(100% - var(--hueco)); }
+.marco-abajo { left: 0; bottom: 0; width: calc(100% - var(--hueco)); height: var(--trazo); }
+/* Each edge takes its share of the 700 ms and its piece of one ease-in-out (MarcoAbierto computes both), so a
+   half reads as one gesture that does not stop at its corner. */
+.motion .marco[data-reveal="draw"] .marco-lado .trazo {
+  --trazo-d: calc(var(--duration-slow) * var(--trazo-0, 0));
+  transition-duration: calc(var(--duration-slow) * var(--trazo-f, 1)), var(--duration-instant);
+  transition-timing-function: var(--trazo-e, var(--ease-in-out)), linear;
+}
+
+/* The mark that closes the open corner: the master at 24 px, centred on the frame's corner point. Its box is the
+   frame's, so it is revealed together with the frame. */
+.obra-marca { position: absolute; inset: 0; pointer-events: none; }
+.obra-marca svg {
+  position: absolute;
+  right: calc(var(--trazo) / 2 - var(--marca) / 2);
+  bottom: calc(var(--trazo) / 2 - var(--marca) / 2);
+  width: var(--marca);
+  height: var(--marca);
+  overflow: visible;
+}
+
+/* The placard, under the frame and on its left edge: the glyph, then name · tag, the line, REI's note. */
+.obra-placa { display: flex; align-items: flex-start; gap: var(--space-3); width: var(--obra-w); margin: var(--space-5) auto 0; }
+.glifo { flex: none; display: block; width: var(--space-8); height: var(--space-8); overflow: visible; }
+.glifo .trazo { fill: none; stroke: currentColor; stroke-width: var(--trazo); stroke-linecap: round; stroke-linejoin: round; }
+.motion .glifo[data-reveal="draw"] .trazo {
+  --trazo-d: calc(var(--duration-slow) * var(--trazo-0, 0));
+  transition-duration: calc(var(--duration-slow) * var(--trazo-f, 1)), var(--duration-instant);
+}
+.obra-texto { min-width: 0; padding-top: var(--space-1); }
+.obra-nombre { margin: 0; font: 500 20px/1.2 var(--font-sans); letter-spacing: -0.02em; color: var(--text); }
+.obra-tag { font-weight: 400; color: var(--text-muted); letter-spacing: 0; }
+.obra-tag::before { content: "·"; margin-inline: 0.1em 0.4em; }
+.obra-linea { margin: var(--space-1) 0 0; max-width: 34ch; font: 400 16px/1.4 var(--font-sans); color: var(--text-muted); text-wrap: pretty; }
+/* REI's capture is example data: said under it, always, never smaller than 14 px. */
+.obra-nota { margin: var(--space-2) 0 0; font: 400 14px/1.4 var(--font-sans); color: var(--text-muted); }
+
+/* Cuadra: the page's one Blue field. Frame, glyph and mark in Cloud on it; its words in the field's own text. */
+.obra[data-campo] { padding-block: var(--space-10); }
+.obra[data-campo] + .obra { padding-top: var(--space-9); }
+.obra[data-campo] :is(.marco, .glifo, .obra-marca) { color: var(--cloud); }
+.obra[data-campo] .obra-tag, .obra[data-campo] .obra-linea { color: var(--text); }
+
+@media (min-width: 760px) {
+  .obra {
+    --marco-p: clamp(var(--space-5), 2.5vw, var(--space-7));
+    --entre: var(--space-7);
+    padding-block: clamp(var(--space-9), 9vw, var(--space-11));
+  }
+  .obra + .obra { padding-top: clamp(var(--space-9), 7vw, var(--space-10)); }
+  .obra[data-campo] { padding-block: clamp(var(--space-10), 11vw, var(--space-11)); }
+  .obra-placa { margin-top: var(--space-6); gap: var(--space-4); }
+  .obra-nombre { font-size: 24px; letter-spacing: -0.03em; }
+  .obra-linea { font-size: 18px; }
+}
+
+/* ── Los 19: one mark per piece, in the system's status shapes (dot in use, ring growing, dash demo or prototype),
+   spread across the column. They light left to right with the scroll, linear: mark k is lit between --p = k/n and
+   (k+1)/n. --p is registered so a scroll timeline can animate it; its initial value is 1, so without .motion
+   (reduced motion, no JS, motion.js late) every mark is lit. ── */
+@property --p { syntax: "<number>"; inherits: true; initial-value: 1; }
+.diecinueve-sala { padding-block: var(--space-7) var(--space-10); }
+.diecinueve-caja { width: var(--columna); margin-inline: auto; }
+.diecinueve { --marca-d: 10px; display: flex; justify-content: space-between; align-items: center; margin: 0; padding: 0; list-style: none; }
+.diecinueve .marca-estado { position: relative; flex: none; gap: 0; width: var(--marca-d); height: var(--marca-d); }
+.diecinueve .marca-estado::before { width: var(--marca-d); height: var(--marca-d); }
+.diecinueve .marca-estado.building::before { box-shadow: inset 0 0 0 var(--trazo) currentColor; }
+.diecinueve .marca-estado.archived::before { height: var(--trazo); }
+.diecinueve .marca-estado > span { position: absolute; inset: 0; }
+.motion .diecinueve .marca-estado { opacity: calc(0.2 + 0.8 * clamp(0, var(--p) * var(--n) - var(--k), 1)); }
+/* From the moment the row is fully in at the bottom until its middle reaches the middle of the screen. Where this is
+   not supported, DiecinueveLuz sets --p over the same range. */
+@supports (animation-timeline: view()) {
+  .motion .diecinueve {
+    animation-name: diecinueve-luz;
+    animation-duration: auto;
+    animation-timing-function: linear;
+    animation-fill-mode: both;
+    animation-timeline: view();
+    animation-range: entry 100% cover 50%;
+  }
+}
+@keyframes diecinueve-luz { from { --p: 0; } to { --p: 1; } }
+.diecinueve-enlace { margin-top: var(--space-5); font-size: 16px; font-weight: 500; }
+
+/* ── The second toy, on Ink: one line and the demo form. The fields arrive as rows (data-reveal="row"). ── */
+.agente { padding-block: clamp(var(--space-9), 10vw, var(--space-10)); }
+.agente > * { width: var(--columna); margin-inline: auto; }
+.agente-titulo { margin-block: 0; font: 500 clamp(28px, 4.4vw, 56px)/1.05 var(--font-sans); letter-spacing: -0.04em; text-wrap: balance; color: var(--text); }
+.agente-form { position: relative; display: grid; gap: var(--space-4); margin-top: var(--space-7); }
+.agente-campo .label { flex: none; min-width: 6.5em; font-size: 13px; }
+.agente-campo input::placeholder { color: var(--text-muted-2); opacity: 1; }
+.agente-campo:focus-within { outline: 2px solid var(--focus); outline-offset: var(--space-1); }
+.agente-envio { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-4) var(--space-5); margin-top: var(--space-2); }
+
+/* The secondary button: an outline, so the bar stays the page's only Blue solid. Busy («Armando…») is not
+   unavailable: it is what says the demo is on its way, so it keeps full contrast. */
+.btn-outline { background: transparent; color: var(--text); box-shadow: inset 0 0 0 1px var(--line-strong); }
+.btn-outline[aria-disabled="true"] { opacity: 1; }
+.agente .btn-outline { min-height: 52px; min-width: 10.5rem; font-size: 15px; }
+
+/* The wait: one 45° stroke per real step of the hook (400 ms each) toward an empty WhatsApp bubble; the 24 px loop
+   closes inside the bubble only when the API says yes (arc 700, then the dot's 400 ms settle). Before a submit the
+   drawing is not there; after an error it stays as it got, with the loop open. Reduced motion: each state at once. */
+.agente-espera { position: relative; flex: none; width: 112px; height: 40px; color: var(--text); }
+.agente-dibujo { display: block; width: 100%; height: 100%; overflow: visible; }
+.agente-dibujo path { fill: none; stroke: currentColor; stroke-width: var(--trazo); stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 1 2; stroke-dashoffset: 1; opacity: 0; }
+.agente-dibujo path[data-on] { stroke-dashoffset: 0; opacity: 1; }
+.motion .agente-dibujo path { transition: stroke-dashoffset var(--duration-base) var(--ease-in-out), opacity var(--duration-instant) linear; }
+/* Centred in the bubble (its inside runs 56 to 108 across and 6 to 38 down). */
+.agente-marca { position: absolute; left: calc(82px - var(--marca) / 2); top: calc(22px - var(--marca) / 2); width: var(--marca); height: var(--marca); }
+.agente-marca svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.agente-espera:not([data-cerrado]) .close-arc { stroke-dashoffset: 1; opacity: 0; }
+.agente-espera:not([data-cerrado]) .close-dot { transform: scale(0); }
+.motion .agente-espera .close-arc { transition: stroke-dashoffset var(--duration-slow) var(--ease-in-out), opacity var(--duration-instant) linear; }
+.motion .agente-espera .close-dot { transition: transform var(--duration-base) var(--ease-settle) var(--duration-slow); }
+/* The steps are said, not shown: the drawing shows them. */
+.agente-paso { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.agente-error { margin: 0; max-width: 62ch; font: 500 15px/1.45 var(--font-sans); color: var(--text); }
+.agente-error a { display: inline-flex; align-items: center; min-height: var(--size-target); color: inherit; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+
+/* ── The close, on Ink: the open loop, «Te toca.», who, and the price right above where the bar docks. ──
+   No room on top: the agent above is the same Ink, so its padding already parts them, and the strip keeps its own
+   air above the hands (two paddings there left a third of a screen empty). The strip is full bleed, as in the hero. */
+.closer.cierre { padding: 0 0 var(--space-7); }
+.cierre-cuerpo { width: var(--columna); margin-inline: auto; }
+.closer .cierre-titulo { margin-top: var(--space-6); }
+.cierre-quien { display: flex; align-items: center; gap: var(--space-4); margin-top: var(--space-5); }
+.cierre-retrato { flex: none; display: block; width: 64px; height: 64px; border-radius: var(--radius-control); object-fit: cover; }
+.cierre-quien-texto { display: grid; gap: var(--space-2); min-width: 0; }
+.cierre-firma { display: block; width: auto; max-width: 100%; height: var(--space-8); overflow: visible; color: var(--text); }
+.cierre-firma .trazo { fill: none; stroke: currentColor; stroke-width: var(--pluma, 2); stroke-linecap: round; stroke-linejoin: round; }
+.cierre-bio { margin: 0; font: 400 16px/1.4 var(--font-sans); color: var(--text); text-wrap: pretty; }
+.cierre-precio, .cierre-numero { width: var(--columna); margin: var(--space-4) auto 0; font: 400 16px/1.4 var(--font-sans); color: var(--text-muted); }
+.cierre-numero { margin-top: var(--space-1); }
+
+/* ── The footer, after the docked bar: three items, each at least 44 px tall. ── */
+.pie { display: flex; flex-wrap: wrap; align-items: center; column-gap: var(--space-3); padding: var(--space-4) calc((100% - var(--columna)) / 2) calc(var(--space-6) + env(safe-area-inset-bottom, 0px)); border-top: 1px solid var(--line); font: 400 13px/1.2 var(--font-sans); color: var(--text-muted); }
+.pie-item { display: inline-flex; align-items: center; min-height: var(--size-target); }
+a.pie-item { min-width: var(--size-target); color: var(--text); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+.pie-punto { color: var(--text-muted); }
+
+@media (min-width: 760px) {
+  .diecinueve { --marca-d: 12px; }
+  .agente-form { grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr) auto; align-items: end; column-gap: var(--space-6); }
+  .agente-paso, .agente-error { grid-column: 1 / -1; }
+  .cierre-bio { font-size: 18px; }
+  /* The compact bar (48 px, 16 px from the edges) docks over the close's last 64 px: the price ends where the button
+     ends, 16 px from the right, and the close keeps room under it. */
+  .closer.cierre { padding-bottom: calc(var(--space-8) + var(--space-4) + var(--space-6)); }
+  .cierre-precio, .cierre-numero { width: auto; padding-inline: var(--space-4); text-align: right; font-size: 18px; }
+}

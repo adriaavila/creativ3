@@ -138,7 +138,7 @@ export const CASOS: Caso[] = [
     projectIds: ["mistica"],
     cover: { src: "/projects/mistica/dashboard.png", alt: "Tablero de Mística con alumnos, cobranza e ingresos", label: "Tablero", kind: "mobile" },
     gallery: [
-      { src: "/projects/mistica/cobros.png", alt: "Módulo de cobros de Mística", label: "Cobros", kind: "mobile" },
+      { src: "/projects/mistica/cobros-sin-nombres.png", alt: "Módulo de cobros de Mística", label: "Cobros", kind: "mobile" },
       { src: "/projects/mistica/home.png", alt: "Inicio de Mística con las clases del día", label: "Las clases de hoy", kind: "mobile" },
     ],
   },

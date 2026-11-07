@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { CASOS, SOLUTIONS, casoBySlug, casoLiveLinks, casoProjects } from "@/lib/casos";
 import SiteHeader from "@/components/allok/SiteHeader";
 import SiteFooter from "@/components/allok/SiteFooter";
+import { prefill } from "@/lib/contact";
 import Rise from "@/components/allok/Rise";
 import Screen from "@/components/allok/Screen";
 
@@ -25,9 +26,9 @@ export async function generateMetadata({ params }: PageProps<"/casos/[slug]">): 
 }
 
 const NAV = [
-  { href: "/#trabajo", label: "Trabajo" },
+  { href: "/#obras", label: "Trabajo" },
   { href: "/casos", label: "Casos" },
-  { href: "/#indice", label: "Índice" },
+  { href: "/trabajo", label: "Todo el trabajo" },
 ];
 
 export default async function CasoPage({ params }: PageProps<"/casos/[slug]">) {
@@ -153,11 +154,11 @@ export default async function CasoPage({ params }: PageProps<"/casos/[slug]">) {
           <div>
             <h2 className="hero !text-[clamp(1.9rem,3.6vw,3rem)]">Hay más de donde salió este.</h2>
             <p className="lede mt-5 max-w-[46ch] text-[var(--on-void-60)]">
-              Todo el trabajo está en la portada, con capturas reales y enlaces para abrirlo en vivo.
+              Todo el trabajo está en una sola página, con capturas reales y enlaces para abrirlo en vivo.
             </p>
           </div>
           <div className="grid gap-3 md:justify-self-end">
-            <Link href="/#indice" className="allok-btn bg-[var(--ok)] font-semibold text-[var(--ink)]">
+            <Link href="/trabajo" className="allok-btn bg-[var(--ok)] font-semibold text-[var(--ink)]">
               Ver todo el trabajo
             </Link>
             <Link href={`/casos/${next.slug}`} className="allok-btn border border-[rgba(245,244,240,.28)] text-[var(--cloud)]">
@@ -167,7 +168,7 @@ export default async function CasoPage({ params }: PageProps<"/casos/[slug]">) {
         </div>
       </section>
 
-      <SiteFooter />
+      <SiteFooter mensaje={prefill()} />
     </div>
   );
 }

@@ -367,22 +367,33 @@
 body:has(.rig) {
   background-color: var(--paper);
 }
-html:has(.rig) ::-webkit-scrollbar-track { background: var(--paper-2); }
-html:has(.rig) ::-webkit-scrollbar-thumb { background: var(--carbon); }
+/* Not `html:has(.x) <descendant>`: Chrome rechecks that :has() for every node
+   added to any page, and the descendant part restyles the whole document each
+   time (some 50 ms on a slow phone). The page's scrollbar is <body>'s; the rest
+   descends from the class. Same elements. */
+html:has(.rig) > body::-webkit-scrollbar-track, html .rig ::-webkit-scrollbar-track { background: var(--paper-2); }
+html:has(.rig) > body::-webkit-scrollbar-thumb, html .rig ::-webkit-scrollbar-thumb { background: var(--carbon); }
 /* Las páginas de allok arrastran la barra del navegador al cielo: el lima que
    había aquí era del diseño retirado. */
-html:has(.allok) ::-webkit-scrollbar { width: 6px; }
-html:has(.allok) ::-webkit-scrollbar-track { background: rgba(16, 17, 18, 0.06); }
-html:has(.allok) ::-webkit-scrollbar-thumb {
+html:has(.allok) > body::-webkit-scrollbar, html .allok ::-webkit-scrollbar { width: 6px; }
+html:has(.allok) > body::-webkit-scrollbar-track, html .allok ::-webkit-scrollbar-track { background: rgba(16, 17, 18, 0.06); }
+html:has(.allok) > body::-webkit-scrollbar-thumb, html .allok ::-webkit-scrollbar-thumb {
   border-radius: 999px;
   background-image: linear-gradient(
     180deg,
     var(--sky-stops)
   );
 }
-html:has(.allok) ::-webkit-scrollbar-thumb:hover { background-image: none; background: #b41065; }
-html:has(.rig) :focus-visible { outline-color: var(--hazard); }
-html:has(.rig) ::selection { background: var(--hazard); color: var(--paper); }
+html:has(.allok) > body::-webkit-scrollbar-thumb:hover, html .allok ::-webkit-scrollbar-thumb:hover { background-image: none; background: #b41065; }
+/* The design system's pages (.ak): a thin Steel thumb on nothing, not the
+   lime of the retired design. scrollbar-color covers Chrome 121+, Firefox and
+   Safari 18.2+; the pseudo-elements, older Safari. */
+html:has(.ak) { scrollbar-width: thin; scrollbar-color: #697278 transparent; }
+html:has(.ak) > body::-webkit-scrollbar, html .ak ::-webkit-scrollbar { width: 6px; }
+html:has(.ak) > body::-webkit-scrollbar-track, html .ak ::-webkit-scrollbar-track { background: transparent; }
+html:has(.ak) > body::-webkit-scrollbar-thumb, html .ak ::-webkit-scrollbar-thumb { border-radius: 999px; background: #697278; }
+html .rig :focus-visible { outline-color: var(--hazard); }
+html .rig ::selection { background: var(--hazard); color: var(--paper); }
 
 /* ── Macro typography: the structure of the page is the type ── */
 .rig .macro {

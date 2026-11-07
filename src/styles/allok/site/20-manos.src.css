@@ -1,0 +1,171 @@
+/* «Te toca»: the hero's hands (Manos.tsx, manos-escena.ts), their
+   pencil sketch (ManosTrazo.tsx) and the close's open loop (CierreLazo.tsx).
+   The answer's moments mirror RESPUESTA in manos-trazo.ts: hands and arc
+   700 ms, the arc from 600 ms, the dot landing at 1300 ms for 400 ms. */
+
+/* The strip: one button, full bleed, its height reserved before anything loads (CLS 0).
+   No button chrome; vertical swipes still scroll the page. */
+.manos {
+  position: relative;
+  display: block;
+  width: calc(100% + 2 * clamp(20px, 5vw, 72px));
+  height: clamp(320px, 36vw, 460px);
+  margin: var(--space-3) calc(-1 * clamp(20px, 5vw, 72px));
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-0);
+  background: none;
+  color: var(--text);
+  font: inherit;
+  text-align: center;
+  overflow: hidden;
+  container-type: inline-size;
+  cursor: pointer;
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+}
+@media (max-width: 759.98px) {
+  .manos { height: max(260px, 100vh - 420px); height: max(260px, 100svh - 420px); }
+}
+/* The old strip centred its lone mark; the sketch fills it instead, with or without WebGL. */
+.manos[data-sin-webgl] { display: block; }
+.manos:focus-visible { outline: 2px solid var(--focus); outline-offset: -4px; }
+.manos[data-estado="cerrado"] { cursor: default; }
+
+/* Layers, bottom to top: the sketch, the scene, the hint, the visitor's dot. */
+.manos > .manos-trazo, .cierre-lazo > .manos-trazo { position: absolute; inset: 0; width: 100%; height: 100%; }
+.manos canvas { position: absolute; inset: 0; z-index: 1; display: block; }
+/* On a phone the pair meets on a diagonal, and on a short strip its arms cross the strip's top and bottom, which
+   are not the screen's edges: there they fade out instead of being cut flat. A mask, nothing painted. */
+@container (max-width: 759.98px) {
+  .manos > canvas, .manos > .manos-trazo, .cierre-lazo > .manos-trazo {
+    -webkit-mask-image: linear-gradient(to bottom, transparent, #000 12%, #000 82%, transparent);
+    mask-image: linear-gradient(to bottom, transparent, #000 12%, #000 82%, transparent);
+  }
+}
+.manos-pista {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: var(--space-4);
+  z-index: 2;
+  font: 400 15px/1.45 var(--font-sans);
+  color: var(--text-muted);
+  pointer-events: none;
+  transition: opacity var(--duration-quick) var(--ease-in), visibility 0s linear var(--duration-quick);
+}
+.manos:is([data-estado="respondiendo"], [data-estado="cerrado"]) .manos-pista { opacity: 0; visibility: hidden; }
+/* On a phone the pair comes up from the lower left: the hint takes the empty corner, lower right, at the gutter. */
+@media (max-width: 759.98px) {
+  .manos-pista { padding-right: clamp(20px, 5vw, 72px); text-align: right; }
+}
+/* The visitor's dot: the size of the mark's, set by manos-trazo.ts; it shows in the frame after the tap. */
+.manos-punto {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 3;
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-full);
+  background: currentColor;
+  opacity: 0;
+  pointer-events: none;
+}
+.manos-punto[data-visible] { opacity: 1; }
+
+/* The sketch: thin strokes in the text colour, like a pencil underdrawing.
+   The container query picks the bucket projected for the strip's shape. */
+.manos-trazo {
+  --lazo-arco: 600ms;
+  --lazo-punto: 1300ms;
+  overflow: visible;
+  pointer-events: none;
+}
+.manos-trazo path { fill: none; stroke: currentColor; stroke-width: 0.8; stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+.manos-trazo .trazo-humana path { stroke-opacity: 0.6; }
+.manos-trazo .trazo-juntas, .manos-trazo .trazo-placas { stroke-opacity: 0.55; }
+.manos-trazo .trazo-pads { stroke-width: 2.4; }
+.trazo-cubeta[data-cubeta="ancho"] { display: none; }
+@container (min-width: 760px) {
+  .trazo-cubeta[data-cubeta="compacto"] { display: none; }
+  .trazo-cubeta[data-cubeta="ancho"] { display: inline; }
+}
+/* Each hand is drawn from its fingertip: closing moves it there and lets perspective stretch the arm. */
+.trazo-humana, .trazo-maquina { transform-origin: 0 0; }
+/* The mark, Brand's master: the arc draws from 5° around the top, then the dot lands. */
+.manos-trazo .trazo-arco { stroke-width: 12; vector-effect: none; stroke-dasharray: 1 2; stroke-dashoffset: 1; opacity: 0; }
+.trazo-punto { fill: currentColor; transform: scale(0); transform-box: fill-box; transform-origin: center; }
+
+/* Closing (data-lazo, set by manos-trazo.ts) and closed. */
+.manos-trazo:is([data-lazo="cerrando"], [data-lazo="cerrado"]) :is(.trazo-humana, .trazo-maquina) { transform: translateX(var(--cierre)) scaleX(var(--estira)); }
+.manos-trazo:is([data-lazo="cerrando"], [data-lazo="cerrado"]) .trazo-arco { stroke-dashoffset: 0; opacity: 1; }
+.manos-trazo[data-lazo="cerrado"] .trazo-punto, .manos-trazo[data-lazo="cerrando"][data-modo="solo"] .trazo-punto { transform: none; }
+.manos-trazo[data-lazo="cerrando"] :is(.trazo-humana, .trazo-maquina) { transition: transform var(--duration-slow) var(--ease-in-out); }
+.manos-trazo[data-lazo="cerrando"] .trazo-arco { transition: stroke-dashoffset var(--duration-slow) var(--ease-in-out) var(--lazo-arco), opacity var(--duration-instant) linear var(--lazo-arco); }
+/* From the fingertip the dot lands here; from the visitor's finger their dot lands and hands over in one frame. */
+.manos-trazo[data-lazo="cerrando"][data-modo="solo"] .trazo-punto { transition: transform var(--duration-base) var(--ease-settle) var(--lazo-punto); }
+
+/* The hero's sketch while WebGL loads: 35 %, the waiting state. It rises when it
+   answers a tap itself (data-capa="trazo") or stands in for WebGL (data-sin-webgl,
+   700 ms), stays under the scene's first lines (data-trazando: on a phone they are
+   the faded forearms) and leaves once the hands are drawn (data-capa="gl"). */
+html.lienzo-3d .manos .manos-trazo { opacity: 0.35; }
+html.lienzo-3d .manos[data-capa="trazo"] .manos-trazo { opacity: 1; transition: opacity var(--duration-quick) var(--ease-out); }
+html.lienzo-3d .manos[data-sin-webgl] .manos-trazo { opacity: 1; transition: opacity var(--duration-slow) var(--ease-out); }
+html.lienzo-3d .manos[data-capa="gl"] .manos-trazo { opacity: 0; transition: opacity var(--duration-quick) var(--ease-out); }
+html.lienzo-3d .manos[data-capa="gl"][data-trazando] .manos-trazo { opacity: 0.35; }
+.manos[data-capa="trazo"] canvas { visibility: hidden; }
+.manos[data-sin-webgl] canvas { display: none; }
+
+/* Without JavaScript the hero shows how the piece ends; with reduced motion too, still. */
+@media (scripting: none) {
+  .manos { display: block; cursor: default; }
+  .manos .manos-trazo :is(.trazo-humana, .trazo-maquina) { transform: translateX(var(--cierre)) scaleX(var(--estira)); }
+  .manos .manos-trazo .trazo-arco { stroke-dashoffset: 0; opacity: 1; }
+  .manos .manos-trazo .trazo-punto { transform: none; }
+  .manos-pista { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .manos .manos-trazo :is(.trazo-humana, .trazo-maquina) { transform: translateX(var(--cierre)) scaleX(var(--estira)); }
+  .manos .manos-trazo .trazo-arco { stroke-dashoffset: 0; opacity: 1; }
+  .manos .manos-trazo .trazo-punto { transform: none; }
+  .manos-pista { visibility: hidden; }
+  html.lienzo-3d .manos .manos-trazo { opacity: 1; }
+}
+
+/* The close: the same sketch at full strength with the loop open, one tap from closing. */
+.cierre-lazo {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: clamp(220px, 30vw, 380px);
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-0);
+  background: none;
+  color: var(--text);
+  font: inherit;
+  overflow: hidden;
+  container-type: inline-size;
+  cursor: pointer;
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+}
+/* On a phone the sketch meets on a diagonal: the hero's proportions (390 × 424), or its arms are cut flat. */
+@media (max-width: 759.98px) {
+  .cierre-lazo { height: min(424px, 108vw); }
+}
+.cierre-lazo:focus-visible { outline: 2px solid var(--focus); outline-offset: -4px; }
+.cierre-lazo[data-cerrado] { cursor: default; }
+@media (prefers-reduced-motion: reduce) {
+  .cierre-lazo .manos-trazo :is(.trazo-humana, .trazo-maquina) { transform: translateX(var(--cierre)) scaleX(var(--estira)); }
+  .cierre-lazo .manos-trazo .trazo-arco { stroke-dashoffset: 0; opacity: 1; }
+  .cierre-lazo .manos-trazo .trazo-punto { transform: none; }
+}

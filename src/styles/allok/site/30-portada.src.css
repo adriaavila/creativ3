@@ -1,0 +1,171 @@
+/* «Te toca» (builder C1 · Portada): the first screen (#inicio), the header's portada variant, the WhatsApp bar and
+   /trabajo's footer (PieTrabajo). At 360×700: header 0-56, H1 84-179 (56 px), sub 191-239 (17 px, two lines), the
+   strip 251-531 (Manos: its height is B's, reserved), the status row 543-591 (48 px) and the bar at 644-700. Who,
+   what and the button fit on one screen with no scroll; the hero runs on under the bar, so no other ground shows
+   above it. At 1440×900 the status row shares the bottom band with the bar (837-885, 836-884). */
+
+/* ── The header on the home: the wordmark alone. Not sticky (no data-hide-on-scroll): the way out is the bar. ── */
+.header-portada { display: flex; align-items: center; height: calc(var(--size-target) + var(--space-3)); }
+.header-portada .wordmark { display: inline-flex; align-items: center; min-height: var(--size-target); }
+
+/* ── The hero. Its side padding is the strip's bleed (B pulls .manos out by the same clamp). ── */
+.portada { padding: var(--space-6) clamp(20px, 5vw, 72px) var(--space-9); border-bottom: 0; }
+.portada .display { margin: 0; }
+/* Each line rises 24 px from behind its own edge (the .rise mask). CSS only: it runs from the first paint, without
+   waiting for motion.js or React, because the H1 is the LCP. Transform only, never opacity. The second line follows
+   by the 90 ms the system's rise uses. */
+@keyframes portada-sube { from { transform: translateY(var(--travel-2)); } }
+.portada .display .rise > * {
+  animation: portada-sube var(--duration-base) var(--ease-out) both;
+  animation-delay: calc(var(--l, 0) * var(--duration-stagger) * 1.5);
+}
+.portada .sub { margin: var(--space-3) 0 0; max-width: 34ch; font: 400 clamp(17px, 1.6vw, 22px)/1.4 var(--font-sans); color: var(--text-muted); text-wrap: pretty; }
+/* Two phrases that wrap as units, so the break falls between them. Each is its own text block for LCP: one block,
+   the whole sub would outweigh an H1 line still masked at the first paint on a phone. */
+.portada .sub > span { display: inline-block; }
+
+/* The reply sits in the line the hint takes inside the strip, so its height is reserved from the start. It shows
+   once the loop closes (Manos sets data-cerrado on #inicio): it rises 8 px in 400 ms. CSS only. */
+.portada-escena { position: relative; }
+.respuesta {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: var(--space-4);
+  margin: 0;
+  font: 400 clamp(17px, 1.6vw, 22px)/1.4 var(--font-sans);
+  color: var(--text);
+  text-align: center;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(var(--travel-1));
+  transition: opacity var(--duration-base) var(--ease-out), transform var(--duration-base) var(--ease-out), visibility 0s linear var(--duration-base);
+}
+.portada[data-cerrado] .respuesta { opacity: 1; visibility: visible; transform: none; transition-delay: 0s; }
+/* On a phone the hands meet on a diagonal from the lower left: the hint and then the reply take the empty corner,
+   lower right (the hint's rule is B's, in 20-manos). */
+@media (max-width: 759.98px) {
+  .respuesta { text-align: right; }
+}
+
+/* ── Who answers, like a contact row in WhatsApp: [photo] ● Te contesto yo · 7:42 p. m. en Venezuela [voice]. ── */
+.estado { display: flex; align-items: center; gap: var(--space-3); min-height: var(--space-8); }
+.estado-foto { flex: none; width: 40px; height: 40px; border-radius: var(--radius-control); object-fit: cover; }
+.estado-linea { min-width: 0; margin: 0; font: 400 15px/1.45 var(--font-sans); color: var(--text-muted); }
+.estado-quien { color: var(--text); }
+/* The ● is the loop's dot: drawn (the glyph's size and shape change with the font), empty until the loop closes,
+   then it lands with the scene's dot, the same 400 ms settle, once. The space after it is a real one, so the row
+   reads «● Te contesto yo» when copied; with the margin it makes the 8 px gap. */
+.estado-punto {
+  display: inline-block;
+  width: var(--space-2);
+  height: var(--space-2);
+  margin-right: var(--space-1);
+  border-radius: var(--radius-full);
+  background: var(--text);
+  font-size: 0;
+  vertical-align: middle;
+  transform: scale(0);
+  transition: transform var(--duration-base) var(--ease-settle);
+}
+.portada[data-cerrado] .estado-punto { transform: none; }
+/* The clock arrives empty from the server. Until it has the time, «· 7:42 p. m. en Venezuela» waits unseen and the
+   row reads «● Te contesto yo»: no blank where the time goes, and no box sized for the longest time that leaves a
+   one-digit hour with a gap on each side. Nothing visible moves when it appears (the voice note shows only later). */
+.estado-hora { transition: opacity var(--duration-quick) var(--ease-out); }
+.estado-hora:has(.reloj:empty) { visibility: hidden; opacity: 0; }
+.reloj { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.estado-lugar { display: none; }
+/* The voice note, square, at the end of the row; it fades in when the loop closes. */
+.voz {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-width: var(--size-target);
+  min-height: var(--size-target);
+  margin-left: auto;
+  padding: 0 var(--space-3);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control);
+  background: none;
+  color: var(--text);
+  font: 500 13px/1 var(--font-sans);
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity var(--duration-quick) var(--ease-out), visibility 0s linear var(--duration-quick);
+}
+.voz svg { display: block; width: var(--space-3); height: var(--space-3); fill: currentColor; }
+.portada[data-cerrado] .voz { opacity: 1; visibility: visible; transition-delay: 0s; }
+
+/* Reduced motion: the closed frame from the first paint (Manos also closes at mount), and nothing moves. */
+@media (prefers-reduced-motion: reduce) {
+  .portada .display .rise > * { animation: none; }
+  .respuesta { opacity: 1; visibility: visible; transform: none; transition: none; }
+  .estado-punto { transform: none; transition: none; }
+  .estado-hora { transition: none; }
+  .voz { opacity: 1; visibility: visible; transition: none; }
+}
+/* Without JavaScript: the same closed frame, a row with no clock to fill and no voice to play. */
+@media (scripting: none) {
+  .respuesta { opacity: 1; visibility: visible; transform: none; }
+  .estado-punto { transform: none; }
+  .estado-hora, .voz { display: none; }
+  .estado-lugar { display: inline; }
+}
+
+/* From 760 px the name is a step under the system's display size (7vw, not 8vw), so the hands keep their full
+   height and the status row still lands on the first screen of a 1440×900 window. The voice note stays beside the
+   row's text: the right end of that band is the bar's. */
+@media (min-width: 760px) {
+  .header-portada { height: var(--space-9); }
+  .portada { padding-top: clamp(var(--space-6), 2.5vw, var(--space-7)); }
+  .portada .display { font-size: clamp(3.5rem, 7vw, 9rem); }
+  .voz { margin-left: 0; }
+}
+
+/* ── The WhatsApp bar: the last child of .lienzo, sticky at the bottom. It stays on screen all the way down and
+   docks under the close by itself (no JavaScript); nothing above it has overflow hidden/auto or a transform.
+   Phone: full width, 56 px plus the safe area, in the flow, so once docked it covers nothing. ── */
+.barra { position: sticky; bottom: 0; z-index: 40; }
+.barra-wa {
+  display: flex;
+  width: 100%;
+  min-height: calc(var(--size-target) + var(--space-3) + env(safe-area-inset-bottom, 0px));
+  padding: 0 var(--space-5) env(safe-area-inset-bottom, 0px);
+  border-radius: var(--radius-0);
+  font-size: 16px;
+  /* «Bar arrival»: back after a sheet or the keyboard in 200 ms; it leaves at once (data-oculta). */
+  transition: opacity var(--duration-quick) var(--ease-out), transform var(--duration-instant) var(--ease-out);
+}
+.barra-marca { flex: none; display: block; width: calc(var(--size-mark-min) + var(--space-1)); }
+.barra-marca svg { display: block; width: 100%; height: auto; overflow: visible; }
+/* Focus inside the bar, in its own text colour: the system's Blue ring outside would fall off the screen on a phone
+   and vanish on Cuadra's Blue. */
+.barra-wa:focus-visible { outline: 2px solid currentColor; outline-offset: calc(-1 * var(--space-2)); }
+/* Over Cuadra's Blue field: Cloud with Ink text and mark. Never a Blue button on Blue, never two Blue solids. */
+.barra-wa[data-sobre-azul] { background: var(--cloud); color: var(--ink); }
+.barra-wa[data-oculta] { visibility: hidden; opacity: 0; transition: none; }
+/* From 760 px: a compact 48 px button at the bottom right, 16 px from the edges. The sticky box has no height, so
+   no band shows when it docks: the button lands on the close's last 64 px, under its price line. */
+@media (min-width: 760px) {
+  .barra { height: 0; }
+  .barra-wa {
+    position: absolute;
+    right: var(--space-4);
+    bottom: calc(var(--space-4) + env(safe-area-inset-bottom, 0px));
+    width: auto;
+    min-height: var(--space-8);
+    padding: 0 var(--space-5);
+    border-radius: var(--radius-control);
+  }
+}
+
+/* ── /trabajo's footer (PieTrabajo): the home's old close, with the colophon in view. ── */
+.pie-trabajo-correo { margin-top: var(--space-4); }
+.pie-trabajo-correo a { display: inline-flex; align-items: center; min-height: var(--size-target); color: var(--text); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+.pie-trabajo-colofon { flex-basis: 100%; }

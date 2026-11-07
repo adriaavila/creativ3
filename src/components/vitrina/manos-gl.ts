@@ -1,3 +1,9 @@
+/**
+ * @license
+ * Copyright 2010-2026 Three.js Authors
+ * SPDX-License-Identifier: MIT
+ */
+
 // The hero's renderer, by hand on WebGL2: the few things three.js did for
 // «Te toca» (manos-escena.ts), done the way three.js 0.186 did them, so not a
 // pixel changes. The matrices are built with the same arithmetic in the same
@@ -5,6 +11,44 @@
 // the GL state three.js set for it (blending, depth, culling, line width); the
 // transparent pieces go back to front by the same rule; the canvas and the
 // viewport take the same sizes. Everything else three.js carries stays out.
+//
+// Ported from three.js r186, line by line where the numbers must come out the
+// same: multiplicar (Matrix4.multiplyMatrices), cuaternion
+// (Quaternion.setFromEuler, order XYZ), componer (Matrix4.compose),
+// perspectiva (PerspectiveCamera.updateProjectionMatrix with
+// Matrix4.makePerspective), lejos (the depth WebGLRenderer's projectObject
+// sorts by), atras (reversePainterSortStable, in WebGLRenderLists), medir
+// (WebGLRenderer's setPixelRatio and setSize: the canvas floors, the viewport
+// rounds) and, in crearMotor, the GL state of a frame: the clear, the blend
+// functions of WebGLState's setBlending (NormalBlending and AdditiveBlending,
+// without premultiplied alpha), each material's depth and culling, and
+// «position» bound to attribute 0 as WebGLProgram binds it. mirada is what
+// Matrix4.lookAt and matrixWorldInverse leave for this one camera, written
+// out. Those parts keep three.js's license: the banner above, as three's own
+// build carries it (the comment that bundlers which keep license comments
+// keep), and its notice, as node_modules/three/LICENSE has it:
+//
+// The MIT License
+//
+// Copyright © 2010-2026 three.js authors
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
 
 /** A 4x4 matrix, column-major like three's Matrix4.elements, in doubles like them. */
 export type M4 = Float64Array;

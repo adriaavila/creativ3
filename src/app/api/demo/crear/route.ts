@@ -42,12 +42,24 @@ export async function POST(request: Request) {
     return fail(422, "walled_site", `${walled} no deja leer perfiles desde afuera. Pega la web de tu negocio, o crea tu cuenta y pega el texto de tu perfil en «Llénalo por mí».`);
   }
 
-  const existing = await findDemoByWebsite(website).catch(() => null);
+  const existing = await findDemoByWebsite(website).catch((err) => {
+    console.error("[demo/crear] findDemoByWebsite failed", err);
+    return null;
+  });
   if (existing) return Response.json({ slug: existing.slug, reused: true });
 
   if (!isDemoLlmConfigured()) return fail(503, "unavailable", "Las demos no están disponibles en este momento. Puedes crear tu cuenta y probar a tu agente ahí.");
   if (!perDay.take(clientIp(request.headers))) return fail(429, "rate_limited", "Ya armaste varias demos hoy. Crea tu cuenta y sigue probando a tu agente ahí.");
-  if ((await countDemosSince(24).catch(() => Number.POSITIVE_INFINITY)) >= SITE_DAILY_DEMOS) {
+  // Una base caída no es «muchas demos»: decirlo así escondió por semanas que
+  // la tabla no existía. Se registra y el visitante sigue por otro camino.
+  const recent = await countDemosSince(24).catch((err) => {
+    console.error("[demo/crear] countDemosSince failed", err);
+    return null;
+  });
+  if (recent === null) {
+    return fail(503, "unavailable", "Las demos no están disponibles en este momento. Escríbele a nuestro agente por WhatsApp o crea tu cuenta y pruébalo ahí.");
+  }
+  if (recent >= SITE_DAILY_DEMOS) {
     return fail(429, "site_busy", "Hoy armamos muchas demos. Crea tu cuenta y prueba a tu agente ahí, es igual de rápido.");
   }
 

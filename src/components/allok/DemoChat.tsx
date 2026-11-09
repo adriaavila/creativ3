@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore, type FormEvent } from "react";
 import { CHAT_MAX_CHARS, CHAT_MAX_MESSAGES, CHAT_SESSION_TURNS, FALLBACK_REPLY } from "@/lib/demo-agent";
 
 /**
@@ -14,6 +14,7 @@ import { CHAT_MAX_CHARS, CHAT_MAX_MESSAGES, CHAT_SESSION_TURNS, FALLBACK_REPLY }
 
 type Msg = { id: number; role: "user" | "assistant"; content: string; at: string };
 
+const noopSubscribe = () => () => {};
 const clock = () => new Date().toLocaleTimeString("es-MX", { hour: "numeric", minute: "2-digit" });
 
 function initials(name: string): string {
@@ -30,14 +31,21 @@ export default function DemoChat({
   greeting,
   suggestions,
   website,
+  own = false,
 }: {
   slug: string;
   businessName: string;
   greeting: string;
   suggestions: string[];
   website: string | null;
+  /** La armó el propio dueño (`?tuya=1`): se le habla de tú. */
+  own?: boolean;
 }) {
-  const [messages, setMessages] = useState<Msg[]>(() => [{ id: 0, role: "assistant", content: greeting, at: clock() }]);
+  // La hora del saludo se pone en el navegador: en el servidor saldría en UTC.
+  const [messages, setMessages] = useState<Msg[]>(() => [{ id: 0, role: "assistant", content: greeting, at: "" }]);
+  // En el cliente este inicializador corre de nuevo, con la hora local; solo se muestra ya hidratado.
+  const [greetAt] = useState(clock);
+  const hydrated = useSyncExternalStore(noopSubscribe, () => true, () => false);
   const [draft, setDraft] = useState("");
   const [pending, setPending] = useState(false);
   const [closed, setClosed] = useState(false);
@@ -131,7 +139,7 @@ export default function DemoChat({
         {/* El aviso amarillo de WhatsApp, aquí para decir la verdad: es una demo. */}
         <p className="mx-auto mb-2 max-w-[92%] rounded-lg bg-[#fff3c4] px-3 py-2 text-center text-[12px] leading-snug text-[#54471a]">
           Demo de allok, armada con la web pública{host ? ` de ${host}` : ""}. No está conectada al WhatsApp del negocio: nada de lo
-          que escriba aquí le llega a nadie.
+          que {own ? "escribas" : "escriba"} aquí le llega a nadie.
         </p>
 
         <div aria-live="polite" className="flex flex-col gap-1.5">
@@ -146,7 +154,7 @@ export default function DemoChat({
                   <span className="sr-only">{m.role === "user" ? "Tú: " : `${businessName}: `}</span>
                   {m.content}
                   <span suppressHydrationWarning className="absolute bottom-1 right-2.5 text-[10.5px] text-[rgba(17,27,33,.55)]">
-                    {m.at}
+                    {m.at || (hydrated ? greetAt : "")}
                     {m.role === "user" ? <span className="ml-1 text-[#53bdeb]">✓✓</span> : null}
                   </span>
                 </p>

@@ -21,7 +21,9 @@ import { whatsappUrl } from "@/lib/contact";
 
 // ─── El perfil ────────────────────────────────────────────────
 
-const shortText = (max: number) => z.string().trim().min(1).max(max);
+// ponytail: el modelo a veces se pasa del largo; se recorta en vez de rechazar el perfil entero.
+const shortText = (max: number) =>
+  z.string().trim().min(1).transform((s) => (s.length > max ? s.slice(0, max).trimEnd() : s));
 
 export const demoServiceSchema = z.object({
   name: shortText(120),

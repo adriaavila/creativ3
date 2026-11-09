@@ -113,3 +113,10 @@ test("groundProfile: poda precios, teléfonos y datos que la web no dice", () =>
   assert.ok(isUsableProfile(profile));
   assert.equal(isUsableProfile(demoProfileSchema.parse({})), false);
 });
+
+test("parseProfileResponse: un texto más largo que el tope se recorta, no tumba el perfil", () => {
+  const p = parseProfileResponse(JSON.stringify({ summary: "a".repeat(343), services: [{ name: "Corte", notes: "b".repeat(300) }] }));
+  assert.ok(p);
+  assert.equal(p.summary?.length, 300);
+  assert.equal(p.services[0]?.notes?.length, 240);
+});

@@ -86,7 +86,7 @@ test("el autoservicio nace apagado: sin la variable (o con otro valor) nada camb
       }
       // Como antes: solo Completo lleva su prueba.
       assert.equal(trialNote(PLANS.find((p) => p.key === "esencial")!), null);
-      assert.equal(trialNote(PLANS.find((p) => p.key === "completo")!), null, "sin prueba en la web por ahora");
+      assert.equal(trialNote(PLANS.find((p) => p.key === "completo")!), "7 días de prueba");
     });
   }
 });
@@ -97,10 +97,8 @@ test("NEXT_PUBLIC_SELF_SERVE=true: cada plan de suscripción lleva al registro d
     for (const plan of PLANS) {
       const { href, label } = planCta(plan);
       if (plan.appPlan) {
-        // Completo llega con «pagar ahora» marcado; el resto, el registro con su plan.
-        const expected = plan.appPlan === "pro"
-          ? `${CRM_APP_URL}/register?plan=pro&pagar=1`
-          : `${CRM_APP_URL}/register?plan=${plan.appPlan}`;
+        // Todos entran por la prueba: el registro con su plan, sin «pagar ahora».
+        const expected = `${CRM_APP_URL}/register?plan=${plan.appPlan}`;
         assert.equal(href, expected, plan.key);
         assert.equal(label, "Crear mi cuenta", plan.key);
         continue;
@@ -114,20 +112,20 @@ test("NEXT_PUBLIC_SELF_SERVE=true: cada plan de suscripción lleva al registro d
   });
 });
 
-test("solo el botón de Completo marca «pagar ahora»; cabecera, portada y cierre llevan al registro a secas", () => {
+test("ningún botón marca «pagar ahora»; cabecera, portada y cierre llevan al registro a secas", () => {
   withSelfServe("true", () => {
     const talk = "https://wa.me/1?text=hola";
     for (const href of [headerCta().href, heroCta(talk).href, closingOffer(talk).primary.href]) {
       assert.equal(href, `${CRM_APP_URL}/register`);
     }
     const completo = PLANS.find((p) => p.appPlan === "pro")!;
-    assert.equal(new URL(planCta(completo).href).searchParams.get("pagar"), "1");
+    assert.equal(new URL(planCta(completo).href).searchParams.get("pagar"), null);
   });
 });
 
-test("encendido, ninguna tarjeta promete prueba (quitada de la web el 2026-10-05)", () => {
+test("encendido, cada plan de suscripción promete la misma prueba, sin tarjeta (Adrian, 2026-11-10)", () => {
   withSelfServe("true", () => {
-    for (const plan of PLANS) assert.equal(trialNote(plan), null, plan.key);
+    for (const plan of PLANS) assert.equal(trialNote(plan), plan.appPlan ? "7 días gratis, sin tarjeta." : null, plan.key);
   });
 });
 
@@ -171,7 +169,7 @@ test("el cierre de la home: encendido ofrece el registro y deja WhatsApp de segu
   withSelfServe("true", () => {
     const on = closingOffer(talk);
     assert.ok(!/nos cuentas tu negocio por WhatsApp|lo dejamos andando/i.test(on.line), on.line);
-    assert.ok(!/días|gratis|prueba/i.test(on.line), on.line);
+    assert.ok(on.line.endsWith("7 días gratis, sin tarjeta."), on.line);
     assert.deepEqual(on.primary, { href: `${CRM_APP_URL}/register`, label: "Crear mi cuenta" });
     assert.deepEqual(on.secondary, { href: talk, label: "Prefiero hablarlo por WhatsApp" });
   });

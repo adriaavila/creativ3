@@ -100,7 +100,7 @@ export function trialNote(plan: Plan): string | null {
     // que los días vivan en un solo lugar de este repo.
     const trial = PLANS.find((p) => p.appPlan === "pro");
     if (trial?.trialDays) {
-      return `${trial.trialDays} días gratis del plan ${trial.name}. Después eliges tu plan.`;
+      return `${trial.trialDays} días gratis, sin tarjeta.`;
     }
   }
   return plan.trialDays ? `${plan.trialDays} días de prueba` : null;
@@ -113,9 +113,8 @@ export function trialNote(plan: Plan): string | null {
  */
 export function planCta(plan: Plan): { href: string; label: string } {
   if (isSelfServe() && plan.appPlan) {
-    // Completo es el plan que se paga desde la web: `pagar=1` deja marcado
-    // «pagar ahora» en el registro del CRM (`register-form.tsx` en vocero-crm).
-    return { href: registerUrl(plan.appPlan, { payNow: plan.appPlan === "pro" }), label: "Crear mi cuenta" };
+    // Todos entran por la prueba; pagar ahora sigue en el registro del CRM.
+    return { href: registerUrl(plan.appPlan), label: "Crear mi cuenta" };
   }
   return {
     href: whatsappUrl(plan.talkTo ?? `Hola, vengo de allok.fun. Quiero el plan ${plan.name}.`),
@@ -220,8 +219,8 @@ export const PLANS: Plan[] = [
     price: 99,
     period: "mes",
     featured: true,
-    // ponytail: sin prueba en la web por ahora (Adrian, 2026-10-05: vender con entrada de US$199).
-    // El registro del CRM sigue dando 7 días; volver = `trialDays: 7`.
+    // Adrian, 2026-11-10: la prueba se muestra en la web (antes oculta desde el 2026-10-05).
+    trialDays: 7,
     line: "Cuando la consulta ya vale plata.",
     features: [
       "Tu número de siempre, sin cambiar nada",

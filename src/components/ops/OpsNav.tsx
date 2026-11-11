@@ -167,7 +167,7 @@ export default function OpsNav({ global = false }: OpsNavProps) {
             onClick={() => setMobileMenuOpen(false)}
             className="fixed inset-0 z-40 bg-[var(--scrim)] md:hidden"
           />
-          <aside className="fixed inset-y-0 left-0 z-50 flex w-[min(292px,86vw)] flex-col border-r border-[var(--hairline)] bg-white px-3 py-5 shadow-2xl md:hidden" aria-label="Navegación móvil">
+          <aside className="fixed inset-y-0 left-0 z-50 flex w-[min(292px,86vw)] flex-col border-r border-[var(--hairline)] bg-white px-3 py-5 md:hidden" aria-label="Navegación móvil">
             <div className="px-2">{renderBrand(true)}</div>
             <nav className="mt-8 space-y-1" aria-label="Páginas de Ops">
               {renderNavigation()}

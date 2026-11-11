@@ -106,7 +106,7 @@ export default function DemoChat({
   }
 
   return (
-    <div className="flex h-[min(74svh,640px)] min-h-[460px] w-full flex-col overflow-hidden rounded-[22px] bg-[#efeae2] text-[#111b21] shadow-[0_30px_80px_-30px_rgba(0,0,0,.6)] ring-1 ring-black/10">
+    <div className="flex h-[min(74svh,640px)] min-h-[460px] w-full flex-col overflow-hidden rounded-[10px] bg-[#efeae2] text-[#111b21] ring-1 ring-black/10">
       {/* La barra del chat, en el verde de WhatsApp. */}
       <div className="flex shrink-0 items-center gap-3 bg-[#008069] px-4 py-3 text-white">
         <div

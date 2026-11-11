@@ -107,7 +107,7 @@ export default function VoceroPage() {
       {/* ── El hilo rompe el borde del cielo. REI enseña un tablero; Vocero
              enseña la conversación, que es donde vive. ── */}
       <div className="relative z-[3] -mt-[150px] px-5 sm:px-10">
-        <div className="mx-auto max-w-[620px] rounded-[20px] border border-[rgba(16,17,18,.08)] bg-white p-4 shadow-[0_30px_80px_-34px_rgba(0,0,0,.45)] sm:p-6">
+        <div className="mx-auto max-w-[620px] rounded-[10px] border border-[var(--line)] bg-white p-4 sm:p-6">
           <p className="mono mb-4 text-[var(--ink-60)]">Consulta desde un anuncio · respuesta en 4 s</p>
           <div className="grid gap-2.5">
             {THREAD.map((m) => (
@@ -143,7 +143,7 @@ export default function VoceroPage() {
           {WHEN.map((col) => (
             <div
               key={col.head}
-              className={`rounded-[22px] border p-7 ${
+              className={`rounded-none border p-7 ${
                 col.accent
                   ? "allok-on-ink border-transparent bg-[#101112] text-[#f5f4f0]"
                   : "border-[var(--line)] bg-white"
@@ -207,7 +207,7 @@ export default function VoceroPage() {
             </a>
           </div>
 
-          <div className="grid content-start gap-px overflow-hidden rounded-[22px] border border-[var(--line)] bg-[var(--line)]">
+          <div className="grid content-start gap-px overflow-hidden rounded-none border border-[var(--line)] bg-[var(--line)]">
             {PRICE_DRIVERS.map(([title, body]) => (
               <div key={title} className="bg-white p-6">
                 <h3 className="display-sm text-[17px]">{title}</h3>

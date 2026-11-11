@@ -31,7 +31,7 @@ export default async function VerticalPage({ params }: PageProps<"/whatsapp-para
 
       {/* El hilo de ejemplo rompe el borde de la portada. Rotulado: no es de nadie. */}
       <div className="relative z-[3] -mt-[150px] px-5 sm:px-10">
-        <div className="mx-auto max-w-[620px] rounded-[20px] border border-[rgba(16,17,18,.08)] bg-white p-4 shadow-[0_30px_80px_-34px_rgba(0,0,0,.45)] sm:p-6">
+        <div className="mx-auto max-w-[620px] rounded-[10px] border border-[var(--line)] bg-white p-4 sm:p-6">
           <p className="mono mb-4 text-[var(--ink-60)]">Conversación de ejemplo · no es de un cliente real</p>
           <div className="grid gap-2.5">
             {page.example.map((m) => (
@@ -66,7 +66,7 @@ export default async function VerticalPage({ params }: PageProps<"/whatsapp-para
 
       <section className="mx-auto max-w-[1200px] px-5 pt-20 sm:px-10 sm:pt-28">
         <h2 className="statement max-w-[18ch]">Lo que hace allok</h2>
-        <div className="mt-10 grid gap-px overflow-hidden rounded-[26px] bg-[var(--line)] sm:grid-cols-2">
+        <div className="mt-10 grid gap-px overflow-hidden rounded-none bg-[var(--line)] sm:grid-cols-2">
           {page.does.map((d) => (
             <div key={d.title} className="min-w-0 bg-white p-7 sm:p-8">
               <h3 className="display-sm text-[clamp(1.2rem,1.7vw,1.45rem)]">{d.title}</h3>

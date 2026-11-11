@@ -402,7 +402,7 @@ export default function EmbeddedSignupClient({
             organiza las nuevas conversaciones.
           </p>
 
-          <div className="mt-8 overflow-hidden rounded-2xl border border-[#e1e6eb] bg-white shadow-[0_16px_42px_rgba(20,43,75,0.06)]">
+          <div className="mt-8 overflow-hidden rounded-2xl border border-[#e1e6eb] bg-white">
             <div className="flex items-center justify-between gap-4 border-b border-[#edf0f3] px-5 py-4 sm:px-7">
               <div>
                 <p className="text-[13px] font-semibold text-[#142b4b]">
@@ -478,7 +478,7 @@ export default function EmbeddedSignupClient({
                 type="button"
                 onClick={launchWhatsAppSignup}
                 disabled={!sdkReady || busy}
-                className="mt-6 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-[10px] bg-[#142b4b] px-5 text-[14px] font-semibold text-white shadow-[0_8px_20px_rgba(20,43,75,0.16)] transition hover:bg-[#234466] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#142b4b] disabled:cursor-not-allowed disabled:opacity-45"
+                className="mt-6 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-[10px] bg-[#142b4b] px-5 text-[14px] font-semibold text-white transition hover:bg-[#234466] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#142b4b] disabled:cursor-not-allowed disabled:opacity-45"
               >
                 {busy ? (
                   <>

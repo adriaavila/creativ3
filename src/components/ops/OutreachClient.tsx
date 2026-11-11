@@ -175,7 +175,7 @@ export default function OutreachClient({ data }: { data: OutreachOpsData }) {
               {metrics.map((m) => (
                 <div key={m.label} className="min-w-0 border-b border-r border-white/10 p-4">
                   <div className="font-mono text-[9px] font-semibold uppercase tracking-[0.14em] text-white/60">{m.label}</div>
-                  <div className={`mt-2 font-display text-2xl font-semibold tabular-nums tracking-[-0.04em] ${m.alert ? "text-[var(--st-atencion)]" : "text-[var(--assist)]"}`}>{m.value}</div>
+                  <div className={`mt-2 font-display text-2xl font-semibold tabular-nums tracking-[-0.04em] ${m.alert ? "text-[var(--st-atencion)]" : "text-[var(--assist-ink)]"}`}>{m.value}</div>
                 </div>
               ))}
               <p className="col-span-2 px-4 py-2.5 text-xs text-white/60 sm:col-span-4 lg:col-span-7">

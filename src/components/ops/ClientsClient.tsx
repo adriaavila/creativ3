@@ -117,7 +117,7 @@ export default function ClientsClient({
                 Inventario de credenciales
               </h2>
             </div>
-            <label className="flex min-h-11 w-full max-w-[360px] items-center gap-2 rounded-lg border border-[var(--rule)] bg-white px-3 text-sm shadow-sm">
+            <label className="flex min-h-11 w-full max-w-[360px] items-center gap-2 rounded-lg border border-[var(--rule)] bg-white px-3 text-sm">
               <Search className="size-4 shrink-0 text-[var(--ink-40)]" aria-hidden="true" />
               <span className="sr-only">Buscar cliente o identificador</span>
               <input

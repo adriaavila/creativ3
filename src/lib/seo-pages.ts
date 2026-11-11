@@ -554,8 +554,8 @@ export function seoMetadata(page: SeoPage): Metadata {
     title: page.title,
     description: page.description,
     alternates: { canonical: url },
-    // La imagen de la casa (`src/app/opengraph-image.tsx`): un `openGraph` propio
-    // reemplaza el del layout entero, imagen incluida, así que se repite aquí.
+    // La imagen la pone el `opengraph-image.tsx` de cada segmento (src/lib/og/card.tsx):
+    // la de un archivo gana a la que se escriba aquí.
     openGraph: {
       title,
       description: page.description,
@@ -563,8 +563,7 @@ export function seoMetadata(page: SeoPage): Metadata {
       type: "website",
       locale: "es",
       siteName: "allok",
-      images: [{ url: "/opengraph-image", width: 1200, height: 630, alt: "allok" }],
     },
-    twitter: { card: "summary_large_image", title, description: page.description, images: ["/opengraph-image"] },
+    twitter: { card: "summary_large_image", title, description: page.description },
   };
 }

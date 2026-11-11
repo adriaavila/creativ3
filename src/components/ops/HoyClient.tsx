@@ -165,7 +165,7 @@ export default function HoyClient({ initialLeads, today }: { initialLeads: Growt
           ].map((metric) => (
             <div key={metric.label} className={`min-w-0 border-white/10 p-4 sm:p-5 ${metric.cell}`}>
               <div className="font-mono text-[9px] font-semibold uppercase tracking-[0.14em] text-white/60">{metric.label}</div>
-              <div className="mt-2 font-display text-3xl font-semibold tabular-nums tracking-[-0.04em] text-[var(--assist)] sm:text-4xl">
+              <div className="mt-2 font-display text-3xl font-semibold tabular-nums tracking-[-0.04em] text-[var(--assist-ink)] sm:text-4xl">
                 {metric.value}
               </div>
               {metric.bar !== undefined && (

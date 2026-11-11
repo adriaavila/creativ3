@@ -23,7 +23,7 @@ export default function ArmaTuDemo() {
           disabled={busy}
           placeholder="Clínica Sonrisa"
           autoComplete="organization"
-          className="min-h-12 w-full rounded-[12px] border border-[rgba(11,13,14,.18)] bg-white px-4 text-[16px] text-[var(--ink)] outline-none transition-[border-color] placeholder:text-[var(--ink-40)] focus:border-[var(--ink)]"
+          className="min-h-12 w-full rounded-[4px] border border-[#d9dddf] bg-white px-4 text-[16px] text-[var(--ink)] outline-none transition-[border-color] placeholder:text-[var(--ink-40)] focus:border-[var(--ink)]"
         />
       </label>
       <label className="grid min-w-0 gap-1.5">
@@ -40,10 +40,10 @@ export default function ArmaTuDemo() {
           autoComplete="url"
           autoCapitalize="none"
           spellCheck={false}
-          className="min-h-12 w-full rounded-[12px] border border-[rgba(11,13,14,.18)] bg-white px-4 text-[16px] text-[var(--ink)] outline-none transition-[border-color] placeholder:text-[var(--ink-40)] focus:border-[var(--ink)]"
+          className="min-h-12 w-full rounded-[4px] border border-[#d9dddf] bg-white px-4 text-[16px] text-[var(--ink)] outline-none transition-[border-color] placeholder:text-[var(--ink-40)] focus:border-[var(--ink)]"
         />
       </label>
-      <button type="submit" disabled={busy} className="allok-btn min-h-12 bg-[var(--ink)] font-semibold text-[var(--cloud)] disabled:opacity-70">
+      <button type="submit" disabled={busy} className="allok-btn min-h-12 bg-[var(--signal)] text-white disabled:opacity-70">
         {busy ? "Armando…" : "Ver a mi agente"}
       </button>
       <p id="arma-demo-nota" className="text-[14px] leading-relaxed text-[var(--ink-60)] sm:col-span-3" aria-live="polite">

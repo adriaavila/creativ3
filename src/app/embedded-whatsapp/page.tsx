@@ -62,7 +62,7 @@ export default async function EmbeddedWhatsappPage({
 function InvalidOnboardingLink() {
   return (
     <main className="grid min-h-dvh place-items-center bg-[#f7f8fa] px-6 text-[#142b4b]">
-      <section className="w-full max-w-lg border border-[#dce2e8] bg-white p-8 text-center shadow-sm">
+      <section className="w-full max-w-lg border border-[#dce2e8] bg-white p-8 text-center">
         <AllokLogo variant="mark" className="mx-auto size-11"  state="activo"/>
         <h1 className="mt-5 font-display text-2xl font-semibold">Este enlace no es válido</h1>
         <p className="mt-3 text-sm leading-6 text-[#657386]">

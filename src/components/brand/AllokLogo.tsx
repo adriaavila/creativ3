@@ -1,4 +1,5 @@
-import { MARK, STATES, type SystemState } from "@/lib/brand";
+import { STATES, type SystemState } from "@/lib/brand";
+import { WordmarkSvg } from "@/components/ak/Brand";
 import OkDot from "./OkDot";
 
 type Props = {
@@ -18,14 +19,10 @@ type Props = {
 };
 
 /**
- * `all ● k` — el logotipo con el estado dentro.
- *
- * El punto ocupa el sitio de la `o`, así que el logo no se puede pintar sin
- * decir cómo está el sistema. En verde (`activo`) el logo literalmente se lee
- * «all ok».
- *
- * Sobre un fondo verde el punto se invierte a Ink: verde sobre verde
- * desaparece y el logotipo se lee «all k».
+ * El logotipo de allok, del sistema de diseño de la portada: dibujado, en Ink
+ * sobre Cloud y en Cloud sobre Ink. `state` sigue diciendo cómo está el
+ * sistema en la etiqueta accesible, en el `lockup` y en el punto del ícono
+ * cuando va `live`.
  */
 export default function AllokLogo({
   className = "",
@@ -36,13 +33,13 @@ export default function AllokLogo({
   live = false,
 }: Props) {
   const ink = on === "ink" ? "#F7F8F8" : "#0B0D0E";
-  const dotSize = Math.round(size * 0.6);
   const def = STATES[state];
 
   if (variant === "mark") {
-    // El icono de app: el círculo que el punto cierra (ver `MARK`). El punto
-    // es el mismo del logotipo, así que lleva el estado igual que la `o`.
-    const d = MARK.dot;
+    // El ícono de app del sistema de diseño (src/app/icon.svg): loseta Ink con
+    // radio 23,4 %, el símbolo de MarkSvg en Cloud y su punto. En reposo el
+    // punto es Blue, como el punto de un resultado; `live` lo deja con el
+    // estado animado del producto.
     return (
       <span
         className={`relative block shrink-0 ${className}`}
@@ -50,38 +47,28 @@ export default function AllokLogo({
         role="img"
         aria-label={`allok · ${def.label}`}
       >
-        <svg viewBox="0 0 64 64" className="block size-full" aria-hidden="true">
-          <rect width="64" height="64" rx="17" fill="#0B0D0E" />
-          <path d={MARK.ring} fill="none" stroke="#F7F8F8" strokeWidth={MARK.stroke} strokeLinecap="round" />
-          {!live && <circle cx={d.cx} cy={d.cy} r={d.r} fill={def.dot} />}
+        <svg viewBox="0 0 128 128" className="block size-full" aria-hidden="true">
+          <rect width="128" height="128" rx="30" fill="#0B0D0E" />
+          <g transform="translate(13.2 13.2) scale(1.27)">
+            <path d="M63.909 42.092A24 24 0 1 0 42.092 63.909" fill="none" stroke="#F7F8F8" strokeWidth="12" strokeLinecap="round" />
+            {!live && <circle cx="56.971" cy="56.971" r="6" fill="#315CFF" />}
+          </g>
         </svg>
         {live && (
-          <span
-            className="absolute grid -translate-x-1/2 -translate-y-1/2"
-            style={{ left: `${(d.cx / 64) * 100}%`, top: `${(d.cy / 64) * 100}%` }}
-          >
-            <OkDot state={state} size={(size * d.r * 2) / 64} />
+          <span className="absolute grid -translate-x-1/2 -translate-y-1/2" style={{ left: "66.9%", top: "66.9%" }}>
+            <OkDot state={state} size={size * 0.12} />
           </span>
         )}
       </span>
     );
   }
 
+  // El logotipo se dibuja, nunca se escribe en Geist: la geometría del máster
+  // del sistema (WordmarkSvg). Su alto de letra iguala al de la `allok` que
+  // antes se escribía a `size` px, así que nadie tiene que cambiar su tamaño.
   const word = (
-    <span
-      className="inline-flex items-center font-display leading-none"
-      style={{ fontSize: size, fontWeight: 800, letterSpacing: "-0.055em", color: ink }}
-    >
-      all
-      {live ? (
-        <OkDot state={state} size={dotSize} className="mx-[0.02em]" />
-      ) : (
-        <span
-          className="mx-[0.02em] inline-block shrink-0 rounded-full"
-          style={{ width: dotSize, height: dotSize, background: def.dot }}
-        />
-      )}
-      <span style={{ marginLeft: size * 0.04 }}>k</span>
+    <span className="inline-block leading-none" style={{ width: size * 2.6, color: ink, lineHeight: 0 }}>
+      <WordmarkSvg />
     </span>
   );
 

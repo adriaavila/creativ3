@@ -34,7 +34,7 @@ const NIGHT: [string, string, SystemState][] = [
 
 function Question({ at, q, state, dup }: { at: string; q: string; state: SystemState; dup: boolean }) {
   return (
-    <li data-dup={dup || undefined} className="flex shrink-0 items-center gap-3 rounded-[14px] border border-[var(--hair-void)] bg-white/[.035] px-4 py-3">
+    <li data-dup={dup || undefined} className="flex shrink-0 items-center gap-3 rounded-[4px] border border-[var(--hair-void)] bg-white/[.035] px-4 py-3">
       <span className="mono tabular-nums text-[var(--on-void-60)]">{at}</span>
       <span className="whitespace-nowrap text-[14.5px] text-white/80">{q}</span>
       <span className="size-2 shrink-0 rounded-full" style={{ background: STATES[state].dot }} />

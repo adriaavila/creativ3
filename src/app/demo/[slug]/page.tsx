@@ -59,7 +59,7 @@ export default async function DemoPage({ params, searchParams }: PageProps<"/dem
           <Link href="/agente-whatsapp" aria-label="allok, el agente de WhatsApp" className="inline-flex min-h-11 min-w-11 items-center">
             <Lockup live />
           </Link>
-          <span className="mono rounded-full border border-[var(--hair-void)] px-3 py-1.5 text-[var(--on-void-60)]">Demo</span>
+          <span className="mono rounded-[4px] border border-[var(--hair-void)] px-3 py-1.5 text-[var(--on-void-60)]">Demo</span>
         </header>
 
         <div className="mx-auto grid max-w-[1180px] grid-cols-[minmax(0,1fr)] gap-8 px-4 pt-4 sm:px-10 sm:pt-10 lg:grid-cols-[minmax(0,1fr)_440px] lg:gap-x-16 lg:gap-y-10">
@@ -94,7 +94,7 @@ export default async function DemoPage({ params, searchParams }: PageProps<"/dem
             />
           </div>
 
-          <div className="rounded-[22px] border border-[var(--hair-void)] p-6 text-left sm:p-8 lg:self-start">
+          <div className="rounded-none border border-[var(--hair-void)] p-6 text-left sm:p-8 lg:self-start">
             <h2 className="display-sm text-[clamp(1.35rem,2.2vw,1.75rem)] leading-tight">
               {own ? "¿Lo quieres en tu WhatsApp?" : "¿Le gustaría que su WhatsApp contestara así?"}
             </h2>

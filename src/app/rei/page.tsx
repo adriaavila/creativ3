@@ -112,7 +112,7 @@ export default function ReiPage() {
           {SHOWN_PLANS.map((plan) => (
             <div
               key={plan.key}
-              className={`rounded-[22px] border border-[var(--line)] p-7 ${
+              className={`rounded-none border border-[var(--line)] p-7 ${
                 plan.featured ? "allok-on-ink bg-[#101112] text-[#f5f4f0]" : "bg-white"
               }`}
             >
@@ -181,14 +181,14 @@ export default function ReiPage() {
 
 function Board() {
   return (
-    <div className="rounded-[20px] border border-[rgba(16,17,18,.08)] bg-white p-4 shadow-[0_30px_80px_-34px_rgba(0,0,0,.45)]">
+    <div className="rounded-[10px] border border-[var(--line)] bg-white p-4">
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
         {BOARD.map((col) => (
           <div key={col.stage} className={`rounded-xl p-2.5 ${"won" in col && col.won ? "bg-[#E3EFE7]" : "bg-[var(--paper-2)]"}`}>
             <div className="flex items-center justify-between px-1 pb-2.5 pt-0.5 text-[12.5px] font-semibold">
               {col.stage}
               <span
-                className={`rounded-md px-1.5 py-0.5 font-[family-name:var(--font-jetbrains)] text-[10.5px] font-medium ${
+                className={`rounded-[4px] px-1.5 py-0.5 text-[10.5px] font-medium ${
                   "won" in col && col.won ? "bg-[#14663A] text-white" : "bg-[rgba(16,17,18,.08)]"
                 }`}
               >

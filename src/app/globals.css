@@ -1907,14 +1907,16 @@ html:has(.rig) > body::-webkit-scrollbar-thumb, html .rig ::-webkit-scrollbar-th
   letter-spacing: -0.06em;
   line-height: 0.86;
 }
-/* Las planchas de cielo → campo Blue plano. */
-.sky-plate {
+/* Las planchas de cielo de las páginas (SkyPlate) → campo Blue plano. Los
+   juguetes del Lab (SkyMachine, GlassForge, TypeWeather) también usan
+   `.sky-plate`, pero ahí el cielo ES la obra: se quedan como están. */
+.sky-plate.sky-plate-field {
   background: #315cff;
   background-image: none;
   color: #ffffff;
 }
-.sky-plate::before,
-.sky-plate::after { display: none; }
+.sky-plate.sky-plate-field::before,
+.sky-plate.sky-plate-field::after { display: none; }
 .rig .stage-image { background: var(--paper-2); }
 .rig .reading-cover { box-shadow: none; }
 .rig .companion-screen { border-radius: 10px; }

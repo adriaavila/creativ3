@@ -17,7 +17,7 @@ export default function SkyPlate({
   children?: ReactNode;
 }) {
   return (
-    <div className={cn("sky-plate", className)}>
+    <div className={cn("sky-plate sky-plate-field", className)}>
       {label ? (
         <span className="sky-over mono !absolute left-5 top-1/2 -translate-y-1/2 opacity-90">{label}</span>
       ) : null}

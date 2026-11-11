@@ -7,6 +7,9 @@
 /* ── The header on the home: the wordmark alone. Not sticky (no data-hide-on-scroll): the way out is the bar. ── */
 .header-portada { display: flex; align-items: center; height: calc(var(--size-target) + var(--space-3)); }
 .header-portada .wordmark { display: inline-flex; align-items: center; min-height: var(--size-target); }
+/* Its one link, to the WhatsApp agent, goes to the right edge and stays on the phone too (the system hides
+   .header-end links below 760 px; this one is not in a .header-end). */
+.header-portada .agente-enlace { margin-left: auto; }
 
 /* ── The hero. Its side padding is the strip's bleed (B pulls .manos out by the same clamp). ── */
 .portada { padding: var(--space-6) clamp(20px, 5vw, 72px) var(--space-9); border-bottom: 0; }

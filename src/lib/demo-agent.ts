@@ -21,7 +21,9 @@ import { whatsappUrl } from "@/lib/contact";
 
 // ─── El perfil ────────────────────────────────────────────────
 
-const shortText = (max: number) => z.string().trim().min(1).max(max);
+// ponytail: el modelo a veces se pasa del largo; se recorta en vez de rechazar el perfil entero.
+const shortText = (max: number) =>
+  z.string().trim().min(1).transform((s) => (s.length > max ? s.slice(0, max).trimEnd() : s));
 
 export const demoServiceSchema = z.object({
   name: shortText(120),
@@ -197,6 +199,7 @@ export function buildSystemPrompt(agent: Pick<DemoAgent, "businessName" | "secto
     "- En español, como se escribe por WhatsApp: corto (1 a 3 frases, máximo unas 60 palabras), cálido y claro. Sin listas largas, sin markdown, sin títulos.",
     `- ${usted ? "Trata a la persona de usted." : "Tutea a la persona."} Como mucho un emoji, y solo si encaja.`,
     "- Una sola pregunta por mensaje.",
+    "- Español neutro de LATAM: nada de voseo («decís», «tenés», «querés»).",
     "",
     "Lo que sabes del negocio está en DATOS, abajo. Es lo ÚNICO que sabes:",
     "- Nunca inventes precios, horarios, disponibilidad, promociones, nombres de doctores o profesores, ni servicios que no estén en DATOS.",

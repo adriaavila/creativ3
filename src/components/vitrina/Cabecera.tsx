@@ -17,8 +17,8 @@ const NAV = [
  * La cabecera del sistema en /trabajo: la marca a la izquierda, los enlaces y
  * la acción a la derecha; se aparta al bajar y toma el tema de lo que tiene
  * debajo (Ink sobre la apertura, Cloud sobre el trabajo). En el celular
- * quedan la marca y el botón. La de la portada (solo la marca) es
- * CabeceraPortada, sin JavaScript.
+ * quedan la marca y el botón. La de la portada (la marca y el enlace al
+ * agente) es CabeceraPortada, sin JavaScript.
  */
 export default function Cabecera() {
   const ref = useRef<HTMLElement>(null);

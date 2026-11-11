@@ -90,6 +90,7 @@ export default async function DemoPage({ params, searchParams }: PageProps<"/dem
               greeting={greeting(agent)}
               suggestions={suggestions}
               website={agent.website}
+              own={own}
             />
           </div>
 

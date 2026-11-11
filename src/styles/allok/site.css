@@ -232,6 +232,7 @@ html.lienzo-3d .ak .manos .manos-trazo {opacity: 1;}
 }
 .ak .header-portada {display: flex; align-items: center; height: calc(var(--size-target) + var(--space-3));}
 .ak .header-portada .wordmark {display: inline-flex; align-items: center; min-height: var(--size-target);}
+.ak .header-portada .agente-enlace {margin-left: auto;}
 .ak .portada {padding: var(--space-6) clamp(20px, 5vw, 72px) var(--space-9); border-bottom: 0;}
 .ak .portada .display {margin: 0;}
 @keyframes portada-sube {from { transform: translateY(var(--travel-2)); } }

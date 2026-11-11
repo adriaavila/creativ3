@@ -3,7 +3,7 @@ import Link from "next/link";
 import { TRY_AGENT_MESSAGE, whatsappUrl } from "@/lib/contact";
 import { BRAND, STATES } from "@/lib/brand";
 import { faqJsonLd, jsonLdHtml } from "@/lib/seo";
-import { CANCEL_NOTE, FROM_PRICE, SETUP_SERVICE, SHOWN_PLANS, closingOffer, headerCta, headerNav, heroCta, isSelfServe, planCta, priceLabel, trialNote } from "@/lib/plans";
+import { CANCEL_NOTE, FROM_PRICE, PLANS, SETUP_SERVICE, SHOWN_PLANS, closingOffer, headerCta, headerNav, heroCta, isSelfServe, planCta, priceLabel, trialNote } from "@/lib/plans";
 import SiteHeader from "@/components/allok/SiteHeader";
 import SiteFooter from "@/components/allok/SiteFooter";
 import Conversation from "@/components/allok/Conversation";
@@ -141,6 +141,7 @@ export default function AgenteWhatsapp() {
   const connect = whatsappUrl(START);
   const closing = closingOffer(connect);
   const start = heroCta(connect);
+  const heroTrial = isSelfServe() ? trialNote(PLANS.find((p) => p.appPlan === "pro")!) : null;
   const selfServe = isSelfServe();
   const steps = selfServe ? SELF_SERVE_STEPS : ASSISTED_STEPS;
 
@@ -183,6 +184,7 @@ export default function AgenteWhatsapp() {
                 Probarlo con mi negocio
               </a>
             </div>
+            {heroTrial ? <p className="mono mt-4 opacity-65">{heroTrial}</p> : null}
           </div>
 
           {/* Los mensajes de la noche orbitan el teléfono: entran ámbar, salen verdes. */}
@@ -370,7 +372,6 @@ export default function AgenteWhatsapp() {
             >
               <div className="flex items-baseline justify-between gap-4">
                 <h3 className="display-sm text-[19px]">{plan.name}</h3>
-                {plan.featured ? <span className="mono text-[var(--on-void-60)]">Más elegido</span> : null}
               </div>
               <p className="mono mt-1.5 opacity-65">{plan.kicker}</p>
 

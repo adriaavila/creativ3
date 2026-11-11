@@ -151,6 +151,16 @@ export default function Muro() {
             ? `${CUENTAS.piezas} piezas, todas vivas: puedes abrirlas.`
             : `${CUENTAS.piezas} piezas, ${CUENTAS.enVivo} vivas para abrir ahora mismo.`}
         </motion.p>
+        {/* El producto que se vende hoy: quien llega a la portada tiene que poder encontrarlo. */}
+        <motion.a
+          href="/agente-whatsapp"
+          className="mt-8 inline-flex min-h-11 items-center gap-2 rounded-full bg-[var(--cream)] px-5 text-sm font-semibold text-[var(--ink)] transition-transform hover:-translate-y-px"
+          initial={reduce ? false : { opacity: 0, y: 14 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1, delay: 1.2 }}
+        >
+          Conoce el agente de WhatsApp →
+        </motion.a>
       </motion.div>
 
       <motion.a

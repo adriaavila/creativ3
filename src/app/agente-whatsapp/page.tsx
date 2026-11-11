@@ -372,7 +372,6 @@ export default function AgenteWhatsapp() {
             >
               <div className="flex items-baseline justify-between gap-4">
                 <h3 className="display-sm text-[19px]">{plan.name}</h3>
-                {plan.featured ? <span className="mono text-[var(--ok)]">Más elegido</span> : null}
               </div>
               <p className="mono mt-1.5 opacity-65">{plan.kicker}</p>
 

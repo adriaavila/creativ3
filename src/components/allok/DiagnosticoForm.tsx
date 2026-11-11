@@ -21,7 +21,7 @@ const FIELD_ERRORS: Record<string, string> = {
 };
 
 const input =
-  "min-h-12 w-full rounded-[12px] border border-[rgba(11,13,14,.16)] bg-white px-4 text-[16px] text-[var(--ink)] outline-none transition-[border-color] duration-200 placeholder:text-[var(--ink-40)] focus:border-[var(--ink)]";
+  "min-h-12 w-full rounded-[4px] border border-[#d9dddf] bg-white px-4 text-[16px] text-[var(--ink)] outline-none transition-[border-color] duration-200 placeholder:text-[var(--ink-40)] focus:border-[var(--ink)]";
 
 function origen(): string {
   try {
@@ -83,7 +83,7 @@ export default function DiagnosticoForm() {
 
   if (state.kind === "done") {
     return (
-      <div role="status" className="allok-on-paper grid content-center gap-5 rounded-[24px] bg-white p-8 text-[var(--ink)] sm:p-10">
+      <div role="status" className="allok-on-paper grid content-center gap-5 rounded-none bg-white p-8 text-[var(--ink)] sm:p-10">
         <span className="grid size-12 place-items-center rounded-full bg-[var(--ok)]" aria-hidden="true">
           <svg viewBox="0 0 24 24" className="size-6" fill="none" stroke="var(--ink)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <path d="M5 12.5l4.5 4.5L19 7.5" />
@@ -97,7 +97,7 @@ export default function DiagnosticoForm() {
             ? "Revisamos tu negocio antes de hablar, para que la primera conversación ya traiga ideas concretas. Si quieres adelantar, escríbenos por WhatsApp."
             : "No pudimos guardar tu solicitud. Mándanosla por WhatsApp: ya va escrita, solo tienes que enviarla."}
         </p>
-        <a href={state.whatsapp} className="allok-btn w-fit bg-[var(--ink)] font-semibold text-[var(--cloud)]">
+        <a href={state.whatsapp} className="allok-btn w-fit bg-[var(--signal)] text-white">
           {state.received ? "Escribir por WhatsApp" : "Enviar por WhatsApp"}
         </a>
       </div>
@@ -107,7 +107,7 @@ export default function DiagnosticoForm() {
   const busy = state.kind === "busy";
 
   return (
-    <form onSubmit={submit} noValidate={false} className="allok-on-paper grid gap-5 rounded-[24px] bg-white p-5 text-[var(--ink)] sm:p-8" aria-label="Solicitar diagnóstico">
+    <form onSubmit={submit} noValidate={false} className="allok-on-paper grid gap-5 rounded-none bg-white p-5 text-[var(--ink)] sm:p-8" aria-label="Solicitar diagnóstico">
       <div className="grid gap-4 sm:grid-cols-2">
         <Field label="Tu nombre">
           <input name="name" required minLength={2} maxLength={120} autoComplete="name" placeholder="Ana Pérez" className={input} disabled={busy} />
@@ -174,7 +174,7 @@ export default function DiagnosticoForm() {
       ) : null}
 
       <div className="flex flex-wrap items-center gap-x-5 gap-y-3">
-        <button type="submit" disabled={busy} className="allok-btn bg-[var(--ink)] font-semibold text-[var(--cloud)] disabled:opacity-60">
+        <button type="submit" disabled={busy} className="allok-btn bg-[var(--signal)] text-white disabled:opacity-60">
           {busy ? "Enviando…" : "Solicitar diagnóstico"}
         </button>
         <p className="text-[13.5px] text-[var(--ink-60)]">Sin costo. Respondemos en un día hábil.</p>
@@ -204,7 +204,7 @@ function Chip({ on, onClick, disabled, role, children }: { on: boolean; onClick:
       aria-checked={role ? on : undefined}
       onClick={onClick}
       disabled={disabled}
-      className={`min-h-11 rounded-full border px-4 text-[14.5px] transition-[background-color,border-color,color] duration-200 ${
+      className={`min-h-11 rounded-[4px] border px-4 text-[14.5px] transition-[background-color,border-color,color] duration-200 ${
         on ? "border-[var(--ink)] bg-[var(--ink)] text-[var(--cloud)]" : "border-[rgba(11,13,14,.16)] bg-white text-[var(--ink)] hover:border-[rgba(11,13,14,.4)]"
       }`}
     >

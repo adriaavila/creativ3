@@ -1,6 +1,5 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
-import { STATES } from "@/lib/brand";
 import { faqJsonLd, jsonLdHtml } from "@/lib/seo";
 import { COMPARISONS, OUTCOME, VERTICALS, priceLine, seoCta, seoPath, type Faq, type SeoPage } from "@/lib/seo-pages";
 import SiteHeader from "./SiteHeader";
@@ -52,12 +51,12 @@ function CtaLink({ href, className, children }: { href: string; className: strin
   );
 }
 
-/** Viñeta de lista, el punto verde de la portada. */
+/** Viñeta de lista: el punto Blue del símbolo, a tamaño de viñeta. */
 export function Dot() {
   return (
     <span
       className="mt-[8px] size-[5px] shrink-0 rounded-full"
-      style={{ background: STATES.activo.dot }}
+      style={{ background: "#315cff" }}
       aria-hidden="true"
     />
   );
@@ -96,7 +95,7 @@ export function SeoFaq({ faqs }: { faqs: Faq[] }) {
 export function SeoOutcome() {
   return (
     <section className="mx-auto max-w-[1200px] px-5 pt-20 sm:px-10 sm:pt-28">
-      <div className="allok-on-ink grid gap-10 rounded-[26px] bg-[var(--ink)] px-7 py-12 text-[var(--cloud)] sm:px-12 sm:py-14 md:grid-cols-2">
+      <div className="allok-on-ink grid gap-10 rounded-none bg-[var(--ink)] px-7 py-12 text-[var(--cloud)] sm:px-12 sm:py-14 md:grid-cols-2">
         <div>
           <p className="mono text-[var(--on-void-60)]">01 · Para empezar</p>
           <h2 className="display-sm mt-4 text-[clamp(1.5rem,2.4vw,2rem)]">{OUTCOME.chats.title}</h2>
@@ -123,7 +122,7 @@ export function TrajoSum({ className = "" }: { className?: string }) {
   return (
     <ul className={`mono grid gap-1.5 text-[13px] leading-snug ${className}`}>
       {rows.map(([op, label]) => (
-        <li key={label} className={`flex gap-3 ${op === "=" ? "border-t border-white/15 pt-2 text-[var(--ok)]" : "text-white/70"}`}>
+        <li key={label} className={`flex gap-3 ${op === "=" ? "border-t border-white/15 pt-2 font-semibold text-white" : "text-white/70"}`}>
           <span aria-hidden="true" className="w-3 shrink-0 text-center">{op}</span>
           {label}
         </li>
@@ -137,7 +136,7 @@ export function SeoClosing({ page, title }: { page: SeoPage; title: string }) {
   const cta = seoCta(page);
   return (
     <section className="mx-auto max-w-[1200px] px-5 pt-20 sm:px-10 sm:pt-28">
-      <div className="allok-sky allok-sky-hush rounded-[26px] px-7 py-14 text-center sm:px-14 sm:py-20">
+      <div className="allok-sky allok-sky-hush rounded-none px-7 py-14 text-center sm:px-14 sm:py-20">
         <h2 className="hero text-balance !text-[clamp(2rem,4.6vw,3.75rem)]">{title}</h2>
         <p className="mx-auto mt-5 max-w-[620px] text-[17px] leading-relaxed text-pretty">
           {page.cta === "rei"

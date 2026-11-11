@@ -284,7 +284,7 @@ export default function GrowthOpsClient({
               onClick={() => setTab(item)}
               role="tab"
               aria-selected={tab === item}
-              className={`shrink-0 rounded-lg px-4 py-2 text-sm font-semibold capitalize transition ${tab === item ? "bg-[var(--ink-fill)] text-white shadow-sm" : "text-[var(--ink-60)] hover:bg-[var(--ground-3)] hover:text-[var(--ink)]"}`}
+              className={`shrink-0 rounded-lg px-4 py-2 text-sm font-semibold capitalize transition ${tab === item ? "bg-[var(--ink-fill)] text-white" : "text-[var(--ink-60)] hover:bg-[var(--ground-3)] hover:text-[var(--ink)]"}`}
             >
               {item === "hoy" ? "Hoy" : item === "marketing" ? "Marketing" : item === "runs" ? "Runs" : item === "leads" ? "Leads" : "Borradores"}
             </button>

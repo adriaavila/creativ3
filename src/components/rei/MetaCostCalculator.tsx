@@ -19,7 +19,7 @@ export default function MetaCostCalculator() {
   });
 
   return (
-    <div className="grid items-center gap-10 rounded-[22px] border border-[var(--line)] bg-white p-6 sm:p-9 lg:grid-cols-[1fr_auto]">
+    <div className="grid items-center gap-10 rounded-none border border-[var(--line)] bg-white p-6 sm:p-9 lg:grid-cols-[1fr_auto]">
       <div>
         <p className="mono text-[var(--dusk)]">Lo que Meta te cobraría aparte</p>
         <p className="mt-3.5 mb-6 max-w-xl text-[16.5px] leading-relaxed text-[#3E4043] text-pretty">
@@ -47,7 +47,7 @@ export default function MetaCostCalculator() {
         />
       </div>
 
-      <div className="allok-sky allok-sky-quiet rounded-[18px] p-7 sm:min-w-[260px]">
+      <div className="allok-sky allok-sky-quiet rounded-none p-7 sm:min-w-[260px]">
         <div>
           <p className="mono">Costo Meta</p>
           <p className="display mt-2.5 text-[52px]">{usd(r.cost)}</p>

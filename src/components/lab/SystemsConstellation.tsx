@@ -107,7 +107,7 @@ export default function SystemsConstellation({ compact = false }: { compact?: bo
   const project = PROJECTS[active];
   return <div className={`constellation ${compact ? 'is-compact' : ''}`}>
     <div className="constellation-universe">
-      <div className="constellation-heading mono"><span>Field / {PROJECTS.length} connected systems</span><span>Dawn → dusk</span></div>
+      <div className="constellation-heading mono"><span>Field / {PROJECTS.length} connected systems</span><span>Electric blue</span></div>
       <canvas ref={canvas} aria-label="Systems constellation. Drag to rotate, use arrow keys to select a project, Enter to focus its case-study link." tabIndex={0}
         onKeyDown={event => { if (event.key.startsWith('Arrow')) { event.preventDefault(); select((active + (event.key === 'ArrowLeft' || event.key === 'ArrowUp' ? -1 : 1) + PROJECTS.length) % PROJECTS.length); } if (event.key === 'Enter') document.getElementById(`constellation-link-${compact ? 'compact' : 'full'}`)?.focus(); }}
         onPointerDown={event => { scene.current.pointer = { x: event.clientX, y: event.clientY, moved: 0 }; scene.current.velocity = 0; event.currentTarget.setPointerCapture(event.pointerId); }}

@@ -145,7 +145,7 @@ export default function ControlCenter() {
   }, [still]);
 
   return (
-    <div ref={host} className="overflow-hidden rounded-[24px] border border-white/10 bg-[#101315] shadow-[0_60px_120px_-50px_rgba(0,0,0,.9)]">
+    <div ref={host} className="overflow-hidden rounded-[10px] border border-white/10 bg-[#101315]">
       <div className="flex flex-wrap items-center justify-between gap-4 border-b border-white/10 px-6 py-5">
         <span className="flex items-center gap-3">
           <OkDot state="activo" size={12} />

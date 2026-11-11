@@ -44,7 +44,7 @@ export default function CasosPage() {
             <Rise key={c.slug}>
               <Link
                 href={`/casos/${c.slug}`}
-                className="group grid h-full content-start overflow-hidden rounded-[26px] bg-white ring-1 ring-[var(--line)] transition-transform duration-200 ease-[cubic-bezier(.23,1,.32,1)] active:scale-[.98]"
+                className="group grid h-full content-start overflow-hidden rounded-none bg-white ring-1 ring-[var(--line)] transition-transform duration-200 ease-[cubic-bezier(.23,1,.32,1)] active:scale-[.98]"
               >
                 <div className="flex justify-center bg-[var(--paper-2)] p-6 sm:p-8">
                   <Screen

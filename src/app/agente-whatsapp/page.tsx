@@ -173,7 +173,7 @@ export default function AgenteWhatsapp() {
             </p>
 
             <div className="mt-9 flex flex-wrap gap-3">
-              <a href={start.href} className="allok-btn bg-[var(--ink)] font-semibold text-[var(--cloud)]">
+              <a href={start.href} className="allok-btn bg-[var(--signal)] text-white">
                 {start.label}
               </a>
               <a
@@ -290,12 +290,12 @@ export default function AgenteWhatsapp() {
           </div>
         </Rise>
 
-        <ol className="mt-14 grid gap-px overflow-hidden rounded-[26px] bg-[var(--line)] md:grid-cols-3">
+        <ol className="mt-14 grid gap-px overflow-hidden rounded-none bg-[var(--line)] md:grid-cols-3">
           {steps.map((s, i) => (
             <Rise key={s.n} delay={(i as 0 | 1 | 2)} className="grid bg-white">
               <li className="grid content-start p-8">
                 <div className="flex items-start justify-between gap-4">
-                  <span className="mono tabular-nums text-[var(--ok-ink)]">{s.n}</span>
+                  <span className="mono tabular-nums text-[var(--signal)]">{s.n}</span>
                   <StepGlyph step={(i + 1) as 1 | 2 | 3} className="-mt-1 h-14 w-auto" />
                 </div>
                 <h3 className="display-sm mt-4 text-[clamp(1.25rem,1.8vw,1.55rem)]">{s.title}</h3>
@@ -360,7 +360,7 @@ export default function AgenteWhatsapp() {
         </Rise>
 
         {/* Columnas iguales; la elegida cambia de polaridad, no de tamaño. */}
-        <div className="mt-12 grid gap-px overflow-hidden rounded-[26px] bg-[var(--line)] md:grid-cols-2">
+        <div className="mt-12 grid gap-px overflow-hidden rounded-none bg-[var(--line)] md:grid-cols-2">
           {SHOWN_PLANS.map((plan) => (
             <div
               key={plan.key}
@@ -370,7 +370,7 @@ export default function AgenteWhatsapp() {
             >
               <div className="flex items-baseline justify-between gap-4">
                 <h3 className="display-sm text-[19px]">{plan.name}</h3>
-                {plan.featured ? <span className="mono text-[var(--ok)]">Más elegido</span> : null}
+                {plan.featured ? <span className="mono text-[var(--on-void-60)]">Más elegido</span> : null}
               </div>
               <p className="mono mt-1.5 opacity-65">{plan.kicker}</p>
 
@@ -386,7 +386,7 @@ export default function AgenteWhatsapp() {
                 href={planCta(plan).href}
                 className={`allok-btn w-full !py-3.5 !text-[15px] font-semibold ${
                   plan.featured
-                    ? "bg-[var(--ok)] text-[var(--ink)]"
+                    ? "bg-[var(--signal)] text-white"
                     : "border border-[rgba(11,13,14,.2)] font-medium text-[var(--ink)]"
                 }`}
               >
@@ -401,7 +401,7 @@ export default function AgenteWhatsapp() {
                   <li key={f} className="flex items-start gap-3 text-[14.5px] leading-snug">
                     <span
                       className="mt-[7px] size-[5px] shrink-0 rounded-full"
-                      style={{ background: STATES.activo.dot }}
+                      style={{ background: "#315cff" }}
                       aria-hidden="true"
                     />
                     {f}
@@ -468,7 +468,7 @@ export default function AgenteWhatsapp() {
       {/* ── Cierre: la marca cerrando la frase ──────────────────────────── */}
       <section className="mx-auto max-w-[1240px] px-5 pb-[clamp(72px,10vw,140px)] sm:px-10">
         <Rise>
-          <div className="allok-on-ink allok-dawn-host relative isolate grid items-center gap-10 overflow-hidden rounded-[30px] bg-[var(--ink)] px-7 py-16 text-[var(--cloud)] sm:px-14 sm:py-20 md:grid-cols-[minmax(0,1fr)_auto]">
+          <div className="allok-on-ink allok-dawn-host relative isolate grid items-center gap-10 overflow-hidden rounded-none bg-[var(--ink)] px-7 py-16 text-[var(--cloud)] sm:px-14 sm:py-20 md:grid-cols-[minmax(0,1fr)_auto]">
             <NightSky />
             {/* Sobre las estrellas el texto va en gris opaco (el white/55 de
                 antes, ya mezclado sobre --ink, 6,3:1): uno translúcido deja
@@ -487,7 +487,7 @@ export default function AgenteWhatsapp() {
               <p className="lede mt-6 max-w-[44ch] text-[#919292]">{closing.line}</p>
             </div>
             <div className="relative grid gap-3 md:justify-self-end">
-              <a href={closing.primary.href} className="allok-btn bg-[var(--ok)] font-semibold text-[var(--ink)]">
+              <a href={closing.primary.href} className="allok-btn bg-[var(--signal)] text-white">
                 {closing.primary.label}
               </a>
               {closing.secondary ? (

@@ -88,7 +88,7 @@ export default async function CasoPage({ params }: PageProps<"/casos/[slug]">) {
             <ul className="mt-4 grid gap-3">
               {caso.built.map((b) => (
                 <li key={b} className="flex items-start gap-3 text-[16px] leading-snug">
-                  <span className="mt-[8px] size-[6px] shrink-0 rounded-full bg-[var(--ok-ink)]" aria-hidden="true" />
+                  <span className="mt-[8px] size-[6px] shrink-0 rounded-full bg-[var(--signal)]" aria-hidden="true" />
                   {b}
                 </li>
               ))}
@@ -129,7 +129,7 @@ export default async function CasoPage({ params }: PageProps<"/casos/[slug]">) {
           <h2 className="mono text-[var(--ink-60)]">Con qué está hecho</h2>
           <p className="mt-4 flex flex-wrap gap-2">
             {stack.map((s) => (
-              <span key={s} className="rounded-full border border-[var(--line)] px-3 py-1.5 text-[14px]">
+              <span key={s} className="rounded-[4px] border border-[var(--line)] px-3 py-1.5 text-[14px]">
                 {s}
               </span>
             ))}
@@ -150,7 +150,7 @@ export default async function CasoPage({ params }: PageProps<"/casos/[slug]">) {
       </section>
 
       <section className="px-5 pb-[clamp(72px,10vw,140px)] sm:px-10">
-        <div className="allok-on-ink mx-auto grid max-w-[1240px] items-center gap-8 rounded-[30px] bg-[var(--ink)] px-7 py-14 text-[var(--cloud)] sm:px-14 md:grid-cols-[minmax(0,1fr)_auto]">
+        <div className="allok-on-ink mx-auto grid max-w-[1240px] items-center gap-8 rounded-none bg-[var(--ink)] px-7 py-14 text-[var(--cloud)] sm:px-14 md:grid-cols-[minmax(0,1fr)_auto]">
           <div>
             <h2 className="hero !text-[clamp(1.9rem,3.6vw,3rem)]">Hay más de donde salió este.</h2>
             <p className="lede mt-5 max-w-[46ch] text-[var(--on-void-60)]">
@@ -158,7 +158,7 @@ export default async function CasoPage({ params }: PageProps<"/casos/[slug]">) {
             </p>
           </div>
           <div className="grid gap-3 md:justify-self-end">
-            <Link href="/trabajo" className="allok-btn bg-[var(--ok)] font-semibold text-[var(--ink)]">
+            <Link href="/trabajo" className="allok-btn bg-[var(--signal)] text-white">
               Ver todo el trabajo
             </Link>
             <Link href={`/casos/${next.slug}`} className="allok-btn border border-[rgba(245,244,240,.28)] text-[var(--cloud)]">

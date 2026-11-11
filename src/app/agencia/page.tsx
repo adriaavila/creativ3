@@ -215,7 +215,7 @@ export default function AgenciaPage() {
           {SERVICES.map((service) => (
             <div
               key={service.name}
-              className="grid content-start rounded-[22px] border border-[rgba(16,17,18,.08)] bg-white p-7 shadow-[0_30px_80px_-38px_rgba(0,0,0,.45)]"
+              className="grid content-start rounded-none border border-[rgba(16,17,18,.08)] bg-white p-7"
             >
               <p className="mono text-[var(--dusk)]">{service.kicker}</p>
               <h2 className="display-sm mt-4 text-[24px]">{service.name}</h2>
@@ -307,7 +307,7 @@ export default function AgenciaPage() {
           {PLANS.map((plan) => (
             <div
               key={plan.name}
-              className={`grid min-w-0 content-start rounded-[22px] border p-7 ${
+              className={`grid min-w-0 content-start rounded-none border p-7 ${
                 plan.featured
                   ? "allok-on-ink border-transparent bg-[#101112] text-[#f5f4f0]"
                   : "border-[var(--line)] bg-white"
@@ -395,7 +395,7 @@ export default function AgenciaPage() {
       </section>
 
       <section className="mx-auto max-w-[1200px] px-5 pt-20 sm:px-10 sm:pt-28">
-        <div className="allok-sky allok-sky-hush rounded-[26px] px-7 py-14 text-center sm:px-14 sm:py-20">
+        <div className="allok-sky allok-sky-hush rounded-none px-7 py-14 text-center sm:px-14 sm:py-20">
           <h2 className="hero !text-[clamp(2rem,4.6vw,3.75rem)]">Dinos qué está frenando el crecimiento.</h2>
           <p className="mx-auto mt-5 max-w-[620px] text-[17px] leading-relaxed text-pretty">
             Te respondemos el mismo día con la primera pieza que

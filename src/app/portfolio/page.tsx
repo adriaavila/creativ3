@@ -120,7 +120,7 @@ export default function Home() {
               <h1 className="macro mt-5">
                 Industrial
                 <SkyPlate
-                  label="Dawn → dusk · the only colour on this page"
+                  label="Electric blue · the only colour on this page"
                   className="my-2 flex h-[74px] items-center sm:h-[96px] lg:ml-[9%]"
                 />
                 Engineer

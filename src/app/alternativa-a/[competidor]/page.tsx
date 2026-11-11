@@ -30,7 +30,7 @@ export default async function ComparisonPage({ params }: PageProps<"/alternativa
 
       {/* La tabla rompe el borde de la portada: es el objeto de esta página. */}
       <div className="relative z-[3] -mt-[150px] px-5 sm:px-10">
-        <div className="mx-auto max-w-[900px] rounded-[22px] border border-[rgba(16,17,18,.08)] bg-white p-5 shadow-[0_30px_80px_-34px_rgba(0,0,0,.45)] sm:p-8">
+        <div className="mx-auto max-w-[900px] rounded-none border border-[rgba(16,17,18,.08)] bg-white p-5 sm:p-8">
           <table className="w-full border-collapse text-left text-[15px] leading-snug">
             <caption className="sr-only">
               allok y {page.competitor}, lado a lado

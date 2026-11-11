@@ -24,7 +24,9 @@
      rather than editing each call site. */
   --font-display: var(--font-grotesk);
   --font-editorial: var(--font-grotesk);
-  --font-mono: var(--font-jetbrains);
+  /* `font-mono` también es Geist: el sistema de diseño tiene una sola letra.
+     Las cifras alineadas las da `tabular-nums`, no otra cara. */
+  --font-mono: var(--font-grotesk);
   --font-body: var(--font-grotesk);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -1724,3 +1726,257 @@ html .rig ::selection { background: var(--hazard); color: var(--paper); }
   background: var(--assist);
   color: var(--on-assist);
 }
+
+/* ═════════════════════════════════════════════════════════════════════════
+   El sistema de diseño de la portada (`.ak`, src/styles/allok/tokens.json),
+   en todo el resto del sitio.
+
+   Las páginas que no usan `.ak` siguen con sus familias de antes (`.allok`
+   para las comerciales y SEO, `.rig` para el portafolio en inglés,
+   `.allok-ops` para /ops y `:root` para pago, legales y el alta). En vez de
+   reescribir cada página, cada familia lee aquí los valores del sistema:
+     · cuatro colores: Ink #0b0d0e, Cloud #f7f8f8, Electric Blue #315cff y
+       Steel #697278 (más sus derivados: ground-2 #e9edef, line #d9dddf);
+     · una sola letra, Geist, también en etiquetas (nada de mono ni de Archivo);
+     · superficies cuadradas: 4 px en controles, 10 px en ventanas, nada más;
+     · sin degradados, sin resplandores y sin sombras. El cielo de antes pasa
+       a ser un campo Blue: «una sección azul por página».
+   Va al final y fuera de capa a propósito: gana a lo de arriba con la misma
+   especificidad. Los colores de WhatsApp (burbujas, teléfono) y los de estado
+   del producto (src/lib/brand.ts) no se tocan: son de la interfaz que se
+   muestra, no de la marca.
+   ═════════════════════════════════════════════════════════════════════════ */
+
+/* ── :root — pago, legales, alta, /conectar-whatsapp, /embedded-whatsapp ── */
+:root {
+  --surface-0: #0b0d0e;
+  --surface-1: #0b0d0e;
+  --surface-2: #16191b;
+  --surface-3: #1d2124;
+  --text-primary: #f7f8f8;
+  --text-secondary: #9da6ab;
+  --text-tertiary: #7f888d;
+  --line-subtle: rgba(255, 255, 255, 0.1);
+  --line: rgba(255, 255, 255, 0.18);
+  --line-strong: rgba(255, 255, 255, 0.35);
+  /* «lima» era la acción: ahora la acción es Electric Blue con letra blanca. */
+  --lima: #315cff;
+  --lima-electric: #4a70ff;
+  --lima-ink: #ffffff;
+  --lima-dim: rgba(49, 92, 255, 0.16);
+  --noche-deep: #0b0d0e;
+  --ink-rise: #16191b;
+  --r-sm: 4px;
+  --r-md: 4px;
+  --r-lg: 10px;
+  --r-xl: 10px;
+  --radius: 4px;
+  /* Los radios de Tailwind (rounded-md, -lg, -xl…): controles a 4, ventanas a 10. */
+  --radius-sm: 2px;
+  --radius-md: 4px;
+  --radius-lg: 4px;
+  --radius-xl: 10px;
+  --radius-2xl: 10px;
+  --radius-3xl: 10px;
+  --shadow-1: none;
+  --shadow-2: none;
+  --shadow-3: none;
+  --ease-out: cubic-bezier(0.2, 0.75, 0.25, 1);
+}
+::selection { background: #315cff; color: #ffffff; }
+:focus-visible { outline-color: #315cff; outline-offset: 4px; }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-thumb { background: #697278; border-radius: 999px; }
+html { scrollbar-width: thin; scrollbar-color: #697278 transparent; }
+
+/* ── .allok — /agente-whatsapp, SEO, /casos, /rei, /vocero, /agencia, /demo ── */
+.allok {
+  --paper: #f7f8f8;
+  --paper-2: #e9edef;
+  --cloud: #f7f8f8;
+  --ink: #0b0d0e;
+  --ink-60: #697278;
+  --ink-40: #8a9196;
+  --line: #d9dddf;
+  /* El único acento de texto era dusk (magenta): ahora es Blue. */
+  --dusk: #315cff;
+  --signal: #315cff;
+  --signal-ink: #315cff;
+  --sky-night: #315cff;
+  --on-sky: #ffffff;
+  --void: #0b0d0e;
+  --void-2: #16191b;
+  --on-void: #f7f8f8;
+  --on-void-60: #9da6ab;
+  --on-void-40: rgba(247, 248, 248, 0.45);
+  --hair-void: rgba(255, 255, 255, 0.18);
+  font-family: var(--font-grotesk), "Helvetica Neue", Arial, sans-serif;
+}
+.allok ::selection { background: #315cff; color: #ffffff; }
+.allok :focus-visible { outline-color: #315cff; outline-offset: 4px; }
+.allok .allok-void :focus-visible,
+.allok .allok-on-ink :focus-visible,
+.allok footer :focus-visible { outline-color: #315cff; }
+.allok .allok-sky :focus-visible { outline-color: #ffffff; }
+
+/* Titulares: los del sistema (peso 600, tracking −0,05 em, interlínea .9). */
+.allok .display,
+.allok .hero,
+.allok .statement { font-weight: 600; letter-spacing: -0.05em; line-height: 0.92; }
+.allok .display-sm { font-weight: 500; letter-spacing: -0.035em; }
+.allok h1, .allok h2 { letter-spacing: -0.045em; }
+/* Las etiquetas: `.label` del sistema, en Geist y no en mono. */
+.allok .mono,
+.rig .mono {
+  font-family: var(--font-grotesk), "Helvetica Neue", Arial, sans-serif;
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+
+/* El cielo → un campo Blue, plano. Sin resplandores. */
+.allok-sky,
+.allok-sky-quiet,
+.allok-sky-hush {
+  background: #315cff;
+  background-image: none;
+  color: #ffffff;
+  border-radius: 0 !important;
+}
+.allok-sky::before,
+.allok-sky::after,
+.allok-bloom::before,
+.allok-dawn,
+.allok-stars { display: none; }
+.allok-sky-panel { background-color: rgba(11, 13, 14, 0.18); }
+.allok-sky-text { background-image: none; -webkit-background-clip: border-box; background-clip: border-box; color: inherit; }
+.allok-sky-rule { background-image: none; background: rgba(255, 255, 255, 0.25); height: 1px; }
+html:has(.allok) { scrollbar-width: thin; scrollbar-color: #697278 transparent; }
+html:has(.allok) > body::-webkit-scrollbar-thumb, html .allok ::-webkit-scrollbar-thumb { background-image: none; background: #697278; }
+html:has(.allok) > body::-webkit-scrollbar-track, html .allok ::-webkit-scrollbar-track { background: transparent; }
+
+/* Botones: los del sistema. 4 px, 44 px de alto, Geist 600, un solo «press». */
+.allok-btn {
+  border-radius: 4px;
+  min-height: 44px;
+  padding: 15px 18px;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: 0;
+  transition-duration: 100ms;
+}
+.allok-btn:active { transform: translateY(1px); }
+.allok-btn-solid { background: #315cff; color: #ffffff; }
+.allok .allok-sky .allok-btn-solid { background: #0b0d0e; color: #ffffff; }
+.allok-btn-sky { background: #315cff; background-image: none; color: #ffffff; }
+.allok-btn-outline { color: inherit; border-color: rgba(255, 255, 255, 0.35); }
+
+/* La barra deslizante: pista Steel, recorrido Blue, pulgar plano. */
+.allok input[type="range"]::-webkit-slider-runnable-track { height: 4px; border-radius: 0; background: rgba(255, 255, 255, 0.35); background-image: none; }
+.allok input[type="range"]::-moz-range-track { height: 4px; border-radius: 0; background: rgba(255, 255, 255, 0.35); background-image: none; }
+.allok input[type="range"]::-webkit-slider-thumb { margin-top: -8px; border-radius: 4px; background: #ffffff; box-shadow: none; }
+.allok input[type="range"]::-moz-range-thumb { border-radius: 4px; background: #ffffff; box-shadow: none; }
+.allok input[type="range"]:focus-visible::-webkit-slider-thumb,
+.allok input[type="range"]:focus-visible::-moz-range-thumb { outline-color: #0b0d0e; }
+
+/* ── .rig — /portfolio, /work, /lab, /writing ── */
+.rig {
+  --paper: #f7f8f8;
+  --paper-2: #e9edef;
+  --paper-3: #d9dddf;
+  --carbon: #0b0d0e;
+  --carbon-2: #586168;
+  --carbon-3: #8a9196;
+  --rule: #d9dddf;
+  --rule-hard: #0b0d0e;
+  /* El rojo de peligro era el acento: ahora es Blue. */
+  --hazard: #315cff;
+}
+html .rig :focus-visible { outline-color: #315cff; outline-offset: 4px; }
+html .rig ::selection { background: #315cff; color: #ffffff; }
+html:has(.rig) { scrollbar-width: thin; scrollbar-color: #697278 transparent; }
+html:has(.rig) > body::-webkit-scrollbar-track, html .rig ::-webkit-scrollbar-track { background: transparent; }
+html:has(.rig) > body::-webkit-scrollbar-thumb, html .rig ::-webkit-scrollbar-thumb { background: #697278; border-radius: 999px; }
+/* La tipografía macro: Geist 600, como `.headline` del sistema. */
+.rig .macro {
+  font-family: var(--font-grotesk), "Helvetica Neue", Arial, sans-serif;
+  font-weight: 600;
+  letter-spacing: -0.06em;
+  line-height: 0.86;
+}
+/* Las planchas de cielo → campo Blue plano. */
+.sky-plate {
+  background: #315cff;
+  background-image: none;
+  color: #ffffff;
+}
+.sky-plate::before,
+.sky-plate::after { display: none; }
+.rig .stage-image { background: var(--paper-2); }
+.rig .reading-cover { box-shadow: none; }
+.rig .companion-screen { border-radius: 10px; }
+/* El botón de cristal («lens») → el botón primario del sistema. */
+.lens { padding: 0; border-radius: 4px; background: none; }
+.lens::before { display: none; }
+.lens > * {
+  border-radius: 4px;
+  min-height: 44px;
+  padding: 15px 18px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #ffffff;
+  background: #315cff;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  box-shadow: none;
+}
+.lens:hover { transform: none; }
+.lens:active { transform: translateY(1px); }
+
+/* ── .allok-ops — /ops y su entrada ── */
+.allok-ops {
+  --ground: #f7f8f8;
+  --ground-2: #f1f3f4;
+  --ground-3: #e9edef;
+  --ground-4: #d9dddf;
+  --ink-60: #586168;
+  --hairline: #e3e6e8;
+  --rule: #d9dddf;
+  /* La acción principal: Electric Blue, como en el resto del sistema. */
+  --assist: #315cff;
+  --assist-hover: #2a50e6;
+  --on-assist: #ffffff;
+  --assist-ink: #315cff;
+  --assist-soft: #e7edff;
+  --assist-line: rgba(49, 92, 255, 0.35);
+  --radius-sm: 4px;
+  --radius: 4px;
+  --radius-md: 4px;
+  --radius-lg: 10px;
+  --radius-xl: 10px;
+  --radius-2xl: 10px;
+  --radius-card: 10px;
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-pop: none;
+}
+.allok-ops.on-ink,
+.allok-ops .on-ink {
+  --ground: #0b0d0e;
+  --ground-2: #16191b;
+  --ground-3: #1d2124;
+  --ground-4: #262a2d;
+  --ink-60: #9da6ab;
+  --hairline: rgba(255, 255, 255, 0.1);
+  --rule: rgba(255, 255, 255, 0.18);
+  --assist: #315cff;
+  --assist-hover: #4a70ff;
+  --on-assist: #ffffff;
+  --assist-ink: #f7f8f8;
+  --assist-soft: rgba(49, 92, 255, 0.16);
+  --assist-line: rgba(255, 255, 255, 0.25);
+}
+.allok-ops :focus-visible { outline-color: #315cff; }

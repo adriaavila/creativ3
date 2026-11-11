@@ -215,7 +215,8 @@ export const PLANS: Plan[] = [
     key: "completo",
     appPlan: "pro",
     name: "Completo",
-    kicker: "El que elige casi todo el mundo",
+    // Adrian, 2026-11-11: sin «El que elige casi todo el mundo» ni «Más elegido» mientras no haya clientes que lo respalden.
+    kicker: "Para negocios de servicios",
     price: 99,
     period: "mes",
     featured: true,

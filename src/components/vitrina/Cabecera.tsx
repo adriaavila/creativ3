@@ -6,6 +6,7 @@ import { useState } from "react";
 import AllokLogo from "@/components/brand/AllokLogo";
 
 const NAV = [
+  { href: "/agente-whatsapp", label: "Agente de WhatsApp" },
   { href: "#trabajo", label: "Trabajo" },
   { href: "#por-dentro", label: "Por dentro" },
   { href: "#indice", label: "Índice" },

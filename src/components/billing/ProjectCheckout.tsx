@@ -110,7 +110,7 @@ export default function ProjectCheckout({
               type="button"
               onClick={startCheckout}
               disabled={loading}
-              className="mt-9 max-sm:mt-7 flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-[var(--lima)] px-5 text-sm font-semibold text-[var(--lima-ink)] transition disabled:cursor-wait disabled:opacity-70"
+              className="mt-9 max-sm:mt-7 flex min-h-12 w-full items-center justify-center gap-2 rounded-[4px] bg-[var(--lima)] px-5 text-sm font-semibold text-[var(--lima-ink)] transition disabled:cursor-wait disabled:opacity-70"
             >
               {loading ? <LoaderCircle className="size-4 animate-spin" aria-hidden /> : null}
               {loading ? "Abriendo pago seguro…" : cta}

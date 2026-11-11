@@ -46,21 +46,21 @@ export default function PaymentResult({
               href={whatsappUrl("Hola, vengo de allok.fun. Ya realicé el pago de mi servicio a medida.")}
               target="_blank"
               rel="noopener noreferrer"
-              className="rounded-full bg-[var(--lima)] px-7 py-3 text-sm font-semibold text-[var(--lima-ink)] transition-colors duration-200"
+              className="rounded-[4px] bg-[var(--lima)] px-7 py-3 text-sm font-semibold text-[var(--lima-ink)] transition-colors duration-200"
             >
               Hablar por WhatsApp
             </a>
           ) : success ? (
             <Link
               href={sessionId ? `/conectar-whatsapp?session_id=${encodeURIComponent(sessionId)}` : `/${locale}/desk`}
-              className="rounded-full bg-[var(--lima)] px-7 py-3 text-sm font-semibold text-[var(--lima-ink)] transition-colors duration-200"
+              className="rounded-[4px] bg-[var(--lima)] px-7 py-3 text-sm font-semibold text-[var(--lima-ink)] transition-colors duration-200"
             >
               {messages.payment.activate}
             </Link>
           ) : (
             <Link
               href={`/${locale}/desk#planes`}
-              className="rounded-full bg-[var(--lima)] px-7 py-3 text-sm font-semibold text-[var(--lima-ink)] transition-colors duration-200"
+              className="rounded-[4px] bg-[var(--lima)] px-7 py-3 text-sm font-semibold text-[var(--lima-ink)] transition-colors duration-200"
             >
               {messages.common.prices}
             </Link>
@@ -70,7 +70,7 @@ export default function PaymentResult({
           ) : null}
           <Link
             href={`/${locale}`}
-            className="rounded-full border border-[var(--line)] px-7 py-3 text-sm font-semibold text-[var(--text-primary)] transition-colors duration-200 hover:bg-[var(--surface-2)]"
+            className="rounded-[4px] border border-[var(--line)] px-7 py-3 text-sm font-semibold text-[var(--text-primary)] transition-colors duration-200 hover:bg-[var(--surface-2)]"
           >
             {messages.common.back}
           </Link>

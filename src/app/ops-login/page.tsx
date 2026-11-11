@@ -55,11 +55,11 @@ export default async function OpsLoginPage({
             autoComplete="current-password"
             required
             autoFocus
-            className="mt-2 min-h-12 w-full rounded-xl border border-white/10 bg-black/30 px-4 text-white outline-none transition focus:border-[var(--assist-line)]"
+            className="mt-2 min-h-12 w-full rounded-[4px] border border-white/10 bg-black/30 px-4 text-white outline-none transition focus:border-[var(--assist-line)]"
           />
           <button
             type="submit"
-            className="mt-4 min-h-12 w-full rounded-full bg-[var(--assist)] px-5 text-sm font-semibold text-[var(--on-assist)] transition hover:bg-white"
+            className="mt-4 min-h-12 w-full rounded-[4px] bg-[var(--assist)] px-5 text-sm font-semibold text-[var(--on-assist)] transition hover:bg-[var(--assist-hover)]"
           >
             Continuar
           </button>

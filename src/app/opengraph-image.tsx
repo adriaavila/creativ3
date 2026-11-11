@@ -1,84 +1,20 @@
-import { ImageResponse } from "next/og";
-import { CONTACT_EMAIL } from "@/lib/contact";
-import { PORTFOLIO_PROJECTS } from "@/lib/projects";
+import { readFile } from "node:fs/promises";
+import { join } from "node:path";
 
-export const alt = "allok — software que atiende, vende y deja registro";
+// La imagen que se ve al compartir allok.fun por WhatsApp o Facebook: el
+// cuadro cerrado de la escena de la portada («Te toca»), las dos manos con el
+// lazo cerrado entre las yemas, sobre Ink y con «allok» pequeño en Steel abajo
+// a la izquierda. Es la escena real, no un dibujo aparte: se renderizó una vez
+// con Playwright (window.__manos("cerrado") en desarrollo) a
+// public/og/te-toca.png, y esta ruta la sirve tal cual. La ruta sigue siendo
+// /opengraph-image porque /trabajo la enlaza.
+export const alt = "Te toca, 2026. Adrián Avila.";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
-// En producción = `launched`. Nunca una cifra escrita a mano.
-const LIVE = PORTFOLIO_PROJECTS.filter((p) => p.status === "launched").length;
+// Se lee una vez: no depende de la petición.
+const png = readFile(join(process.cwd(), "public/og/te-toca.png"));
 
-// Node runtime on purpose: this app ships as a standalone container, and
-// ImageResponse needs no edge runtime to render.
 export default async function Image() {
-  return new ImageResponse(
-    (
-      <div
-        style={{
-          background: "#f5f4f0",
-          width: "100%",
-          height: "100%",
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "space-between",
-          padding: "56px 64px",
-          color: "#101112",
-          fontFamily: "sans-serif",
-        }}
-      >
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            fontSize: 20,
-            letterSpacing: "0.16em",
-            textTransform: "uppercase",
-            borderBottom: "3px solid #101112",
-            paddingBottom: 20,
-          }}
-        >
-          <span>allok</span>
-          <span style={{ color: "#b41065" }}>{CONTACT_EMAIL}</span>
-        </div>
-
-        <div style={{ display: "flex", flexDirection: "column" }}>
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              fontSize: 108,
-              fontWeight: 900,
-              lineHeight: 0.86,
-              letterSpacing: "-0.05em",
-            }}
-          >
-            <span>Software que atiende</span>
-            <span>a tus clientes.</span>
-          </div>
-          {/* La única placa de cielo, con la misma rampa del sitio. */}
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              height: 74,
-              marginTop: 24,
-              padding: "0 22px",
-              fontSize: 18,
-              letterSpacing: "0.16em",
-              textTransform: "uppercase",
-              color: "#f7f4ef",
-              backgroundImage:
-                "linear-gradient(96deg, rgb(3,18,63) 0%, rgb(27,63,150) 30%, rgb(103,39,125) 62%, rgb(180,16,101) 100%)",
-            }}
-          >
-            {LIVE} sistemas en producción · rei · vocero · agencia
-          </div>
-        </div>
-
-        <div style={{ display: "flex", fontSize: 22, color: "rgba(16,17,18,0.62)" }}>allok.fun</div>
-      </div>
-    ),
-    size,
-  );
+  return new Response(new Uint8Array(await png), { headers: { "Content-Type": contentType } });
 }

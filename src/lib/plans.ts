@@ -31,10 +31,11 @@
  * diferencia que el código no hace.
  */
 
-/** La app del CRM: ahí se registra el negocio y ahí se cobra. */
-
 import { whatsappUrl } from "@/lib/contact";
-export const CRM_APP_URL = "https://whatsapp.allok.fun";
+import { CRM_APP_URL } from "@/lib/crm-app";
+
+/** La app del CRM: ahí se registra el negocio y ahí se cobra (definida en crm-app.ts). */
+export { CRM_APP_URL };
 
 export type Plan = {
   key: string;

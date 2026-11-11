@@ -44,7 +44,7 @@ const FEATURES = [
     ),
     desc:
       "Buscas, filtras por activos o suspendidos, ves al toque quién está al día y quién en mora. Cada alumno con su clase y horario asignado. Adiós cuaderno, adiós lista de WhatsApp.",
-    img: "alumnos.png",
+    img: "alumnos-sin-nombres.png",
     alt: "Listado de alumnos con estado de pago y clase",
   },
   {
@@ -56,7 +56,7 @@ const FEATURES = [
     ),
     desc:
       "Inscripciones y mensualidades por mes, filtradas por estado. Botón de pagado, contador de mora, recordatorio masivo a los 39 que deben. Tu efectivo deja de perderse.",
-    img: "cobros.png",
+    img: "cobros-sin-nombres.png",
     alt: "Pantalla de cobros con lista de pagos pendientes",
   },
 ];

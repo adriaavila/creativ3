@@ -49,12 +49,31 @@ function repoSlug(sourceUrl: string | undefined): string | null {
   return m ? m[1] : null;
 }
 
+/**
+ * Un pop-up que se abre al llegar (un webinar, un boletín) tapa la página:
+ * se cierra como lo cerraría una visita, con Escape o con su botón de cerrar.
+ */
+async function closePopups(page: Page) {
+  const open = page.locator('[role="dialog"]:visible, [aria-modal="true"]:visible, dialog[open]');
+  if ((await open.count()) === 0) return;
+  await page.keyboard.press("Escape");
+  await page.waitForTimeout(600);
+  // El primer «cerrar» puede ser el fondo sobre el que está el diálogo: se prueban en orden.
+  const buttons = open.first().getByRole("button", { name: /close|cerrar|maybe later|not now|ahora no|más tarde/i });
+  const n = Math.min(await buttons.count(), 4);
+  for (let i = 0; i < n && (await open.count()) > 0; i++) {
+    await buttons.nth(i).click({ timeout: 1_500 }).catch(() => {});
+    await page.waitForTimeout(600);
+  }
+}
+
 async function capture(page: Page, url: string, out: string, shot: (typeof SHOTS)[number]) {
   await page.setViewportSize(shot.viewport);
   await page
     .goto(url, { waitUntil: "networkidle", timeout: 45_000 })
     .catch(() => page.goto(url, { waitUntil: "domcontentloaded", timeout: 45_000 }));
   await page.waitForTimeout(2_500);
+  await closePopups(page);
   if ("scrollY" in shot && shot.scrollY) {
     await page.evaluate((y) => window.scrollTo({ top: y, behavior: "instant" }), shot.scrollY);
     await page.waitForTimeout(1_200);

@@ -8,7 +8,7 @@ import { WRITING } from './writing';
 
 test('chronology is stable, newest-first, and independent of later GitHub pushes', () => {
   const projects = chronologicalProjects(PORTFOLIO_PROJECTS);
-  assert.equal(projects[0].id, 'vocero-crm');
+  assert.equal(projects[0].id, 'cuadra');
   const original = PORTFOLIO_PROJECTS.map(p => p.id);
   const changed = PORTFOLIO_PROJECTS.map(p => ({ ...p, githubPushedAt: '2099-01-01T00:00:00Z' }));
   assert.deepEqual(chronologicalProjects(changed).map(p => p.id), projects.map(p => p.id));

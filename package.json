@@ -12,6 +12,7 @@
     "test": "node --import tsx --test \"src/lib/**/*.test.ts\"",
     "check:billing": "tsx scripts/check-billing-catalog.ts && tsx scripts/check-project-payment-email.ts",
     "check:meta-provider": "tsx scripts/check-meta-provider.ts",
+    "check:manos": "tsx scripts/manos-trazo.mts --check",
     "demo:build": "tsx --env-file-if-exists=.env.local scripts/demo-build.ts",
     "outreach": "tsx --env-file-if-exists=.env.local scripts/outreach.ts",
     "check:meta-webhook-db": "tsx scripts/check-meta-webhook-db.ts",
@@ -44,10 +45,12 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/three": "0.186.0",
     "eslint": "^9",
     "eslint-config-next": "16.3.6",
     "playwright": "^1.60.0",
     "tailwindcss": "^4",
+    "three": "0.186.1",
     "tsx": "^4.23.1",
     "typescript": "^5"
   }

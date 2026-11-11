@@ -1,29 +1,29 @@
 import type { Metadata } from "next";
-import { Instrument_Serif } from "next/font/google";
-import Cierre from "@/components/vitrina/Cierre";
+import Shell from "@/components/ak/Shell";
 import Vitrina from "@/components/vitrina/Vitrina";
-import { CUENTAS } from "@/lib/vitrina";
-import "./vitrina.css";
 
-const serif = Instrument_Serif({ subsets: ["latin"], weight: "400", style: ["normal", "italic"], variable: "--font-serif" });
+// «Te toca»: la portada es una pieza, las manos que esperan el toque, y casi
+// sin texto. El título se lee como un mensaje suyo cuando alguien pega
+// allok.fun en un chat. La imagen para compartir la pone
+// app/opengraph-image.tsx, el cuadro final de la escena. Sobre mí y Cómo
+// empezamos viven en /trabajo.
 
-const TITLE = "allok · el trabajo de Adrián Avila";
-const DESCRIPTION = `Webs, productos y agentes de IA hechos para negocios reales. ${CUENTAS.piezas} piezas con capturas reales, ${CUENTAS.enVivo} de ellas vivas para abrir.`;
+const TITLE = "Hola, soy Adrián · allok";
+const DESCRIPTION = "Webs, sistemas y agentes de WhatsApp para tu negocio. Te contesto yo.";
 
 export const metadata: Metadata = {
   title: { absolute: TITLE },
   description: DESCRIPTION,
   alternates: { canonical: "/" },
-  openGraph: { title: TITLE, description: DESCRIPTION, url: "/", type: "website", locale: "es" },
+  // Un openGraph propio reemplaza entero el del layout: el nombre del sitio va dicho aquí.
+  openGraph: { title: TITLE, description: DESCRIPTION, url: "/", siteName: "allok", type: "website", locale: "es" },
   twitter: { card: "summary_large_image", title: TITLE, description: DESCRIPTION },
 };
 
 export default function Home() {
   return (
-    <div className={serif.variable}>
-      <Vitrina>
-        <Cierre />
-      </Vitrina>
-    </div>
+    <Shell>
+      <Vitrina />
+    </Shell>
   );
 }

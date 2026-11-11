@@ -3,9 +3,9 @@ import type { PortfolioProject, ProjectImage } from './projects';
 export type ProjectDate = { value: string; precision: 'day' | 'year'; source: 'repository' | 'portfolio' | 'launch' };
 export type ProjectStory = { problem: string; contribution: string; outcome: string };
 
-// Repository beginnings verified with GitHub on 2026-09-06. These are NOT launch dates.
+// Repository beginnings verified with GitHub on 2026-09-06 (cuadra on 2026-11-03). These are NOT launch dates.
 const REPOSITORY_DATES: Record<string, string> = {
-  'nea-agent': '2026-08-08', 'vocero-crm': '2026-08-10',
+  cuadra: '2026-08-20', 'nea-agent': '2026-08-08', 'vocero-crm': '2026-08-10',
   'ainetworking-canada': '2026-07-16', samer: '2026-07-17',
   'santorini': '2026-07-19', shopea: '2026-06-22', 'dream-drop': '2026-06-08',
   'waha-fisio-agent': '2026-06-22', 'parley-mundial': '2026-05-21',
@@ -51,10 +51,15 @@ export const CURATED_IMAGES: Record<string, ProjectImage[]> = {
     { src: '/projects/integra/02-desktop-scroll.jpg', alt: 'Integra services overview', label: 'Services and capabilities' },
     { src: '/projects/integra/03-mobile.jpg', alt: 'Integra website on mobile', label: 'Mobile service discovery' },
   ],
+  // The scroll capture shows the site's live member and subscriber counters: theirs, not ours to publish.
+  'ainetworking-canada': [
+    { src: '/projects/ainetworking-canada/01-desktop.jpg', width: 2880, height: 1800, alt: 'AiNetworking Canada homepage: an AI networking community across Canada', label: 'Home' },
+    { src: '/projects/ainetworking-canada/03-mobile.jpg', width: 780, height: 1688, alt: 'AiNetworking Canada on mobile', label: 'Mobile' },
+  ],
   mistica: [
     { src: '/projects/mistica/dashboard.png', alt: 'Mística mobile dashboard with attendance and payment summaries', label: 'A daily operating picture' },
     { src: '/projects/mistica/home.png', alt: 'Mística home screen with upcoming classes', label: 'Today’s classes and activity' },
-    { src: '/projects/mistica/cobros.png', alt: 'Mística collections screen', label: 'Payment follow-up in context' },
+    { src: '/projects/mistica/cobros-sin-nombres.png', alt: 'Mística collections screen', label: 'Payment follow-up in context' },
   ],
 };
 

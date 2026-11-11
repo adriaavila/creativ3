@@ -1,0 +1,87 @@
+/* «Te toca» (builder A · Motor): the "draw" reveal and the Ficha (Ficha.tsx).
+   Read after site.src.css, so the Ficha rules here override the old ones there. */
+
+/* ── draw: an SVG line that draws itself. The shapes inside [data-reveal="draw"] carry
+   pathLength={1} and class "trazo"; motion.js puts .is-in on the reveal as usual. The line runs
+   0 → 1 in 700 ms, with the same delay the bundle gives every reveal (--i stagger + --d), plus an
+   optional --trazo-d on one shape to start it later than its siblings. The gap of 2 is longer than
+   the path, so no round cap shows at either end; hidden, the line is also transparent, for the
+   same reason. No .motion (reduced motion, no JS, motion.js late) → drawn. ── */
+.motion [data-reveal="draw"]:not(.is-in) { opacity: 1; transform: none; }
+.motion [data-reveal="draw"] .trazo, .motion .trazo[data-reveal="draw"] {
+  stroke-dasharray: 1 2;
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset var(--duration-slow) var(--ease-in-out), opacity var(--duration-instant) linear;
+  transition-delay: calc(var(--i, 0) * var(--duration-stagger) + var(--d, 0ms) + var(--trazo-d, 0ms));
+}
+.motion [data-reveal="draw"]:not(.is-in) .trazo, .motion .trazo[data-reveal="draw"]:not(.is-in) { stroke-dashoffset: 1; opacity: 0; }
+
+/* ── La ficha. Phases come from Ficha.tsx on .ficha[data-fase]: entrando (one frame at the start),
+   abierta, saliendo (the same way back, then it unmounts). The scrim fades in 200 ms; the sheet
+   rises from its own bottom edge in 400 ms (a clip, like the bundle's "stage": nothing slides in
+   from off screen). Closing runs it backwards: the sheet falls back to its edge with ease-in and
+   the scrim fades in the last 200 ms, so both end together. Reduced motion: no transition. ── */
+.ficha-scrim { background: color-mix(in srgb, var(--ink) 72%, transparent); }
+/* Open, the clip is the whole sheet: inset() to inset() interpolates; from "none" it would jump. */
+.ficha-sheet { clip-path: inset(0); }
+.ficha[data-fase="entrando"] .ficha-scrim, .ficha[data-fase="saliendo"] .ficha-scrim { opacity: 0; }
+.ficha[data-fase="entrando"] .ficha-sheet, .ficha[data-fase="saliendo"] .ficha-sheet { clip-path: inset(100% 0 0 0); }
+@media (prefers-reduced-motion: no-preference) {
+  .ficha-scrim { transition: opacity var(--duration-quick) var(--ease-out); }
+  .ficha-sheet { transition: clip-path var(--duration-base) var(--ease-out); }
+  .ficha[data-fase="saliendo"] .ficha-scrim { transition-delay: calc(var(--duration-base) - var(--duration-quick)); transition-timing-function: var(--ease-in); }
+  .ficha[data-fase="saliendo"] .ficha-sheet { transition-timing-function: var(--ease-in); }
+}
+
+/* The top: name and «Cerrar», sticky. A long name wraps instead of pushing «Cerrar» out. */
+.ficha-top .heading { min-width: 0; overflow-wrap: break-word; }
+.ficha-top .btn { flex: none; }
+
+/* Captures first, right under the top. */
+.ficha-galeria { padding-top: clamp(var(--space-5), 3vw, var(--space-8)); padding-bottom: clamp(var(--space-7), 5vw, var(--space-9)); }
+
+/* Then the words: the line of facts, the scene, what was built, the links. */
+.ficha-texto {
+  display: grid;
+  justify-items: start;
+  gap: var(--space-5);
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0 clamp(var(--space-5), 5vw, var(--space-9)) clamp(var(--space-8), 7vw, 110px);
+}
+.ficha-texto > .ficha-datos { display: block; width: 100%; margin: 0; padding-top: var(--space-5); border-top: 1px solid var(--line); }
+.ficha-escena { max-width: 30ch; text-wrap: pretty; }
+.ficha-texto > .ficha-historia { margin: 0; }
+.ficha-texto > .ficha-acciones { margin-top: var(--space-2); }
+
+/* The only Blue solid in the sheet: «Escríbeme por WhatsApp» with the piece's prefill, stuck to the
+   bottom of the sheet. On phone it is the home bar's twin: full width, 56 px plus the safe area, a
+   16 px label. */
+.ficha-escribeme { position: sticky; bottom: 0; z-index: 2; }
+.ficha-escribeme .btn {
+  display: flex;
+  width: 100%;
+  min-height: calc(var(--size-target) + var(--space-3) + env(safe-area-inset-bottom, 0px));
+  padding-bottom: calc(15px + env(safe-area-inset-bottom, 0px));
+  font-size: 16px;
+}
+
+/* From 760 px: a compact 48 px button at the bottom right, 16 px from the edges. The dock has no
+   height of its own, so the button floats over the sheet; «Siguiente» keeps room for it at the end. */
+@media (min-width: 760px) {
+  .ficha-escribeme { height: 0; }
+  .ficha-escribeme .btn {
+    position: absolute;
+    right: var(--space-4);
+    bottom: var(--space-4);
+    width: auto;
+    min-height: var(--space-8);
+    padding-bottom: 15px;
+  }
+  .ficha-siguiente { padding-bottom: max(clamp(56px, 7vw, 110px), calc(var(--space-8) + 2 * var(--space-4))); }
+}
+
+/* Phone: a shorter top, so the captures get the screen. */
+@media (max-width: 759.98px) {
+  .ficha-top { min-height: calc(var(--size-target) + var(--space-4)); }
+}

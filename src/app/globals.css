@@ -726,7 +726,7 @@ html:has(.rig) ::selection { background: var(--hazard); color: var(--paper); }
 .work-sequence,.work-archive,.constellation,.personal-section,.screen-gallery { --carbon-3:#66665f; }
 
 /* ═══════════════════════════════════════════════════════════════════
-   REI — la superficie del CRM de WhatsApp. Usa el mismo cielo que las
+   Rei — la superficie del CRM de WhatsApp. Usa el mismo cielo que las
    planchas del portafolio, pero como clima de la página entera en vez de
    una ventana recortada en el papel. Scoped como `.rig`, para
    que el portafolio y el producto no se pisen los tokens.

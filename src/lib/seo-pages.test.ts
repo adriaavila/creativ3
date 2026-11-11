@@ -74,7 +74,7 @@ test("con autoservicio, el botón es el registro del plan Completo", () => {
   const before = process.env.NEXT_PUBLIC_SELF_SERVE;
   process.env.NEXT_PUBLIC_SELF_SERVE = "true";
   try {
-    assert.equal(seoCta(COMPARISONS[0]!).href, registerUrl("pro", { payNow: true }));
+    assert.equal(seoCta(COMPARISONS[0]!).href, registerUrl("pro"));
   } finally {
     if (before === undefined) delete process.env.NEXT_PUBLIC_SELF_SERVE;
     else process.env.NEXT_PUBLIC_SELF_SERVE = before;

@@ -56,3 +56,6 @@ next-env.d.ts
 
 # playwright-cli scratch output
 /.playwright-cli/
+
+# Listas de leads (datos de contacto de negocios) y bitácora de corridas: fuera de git.
+marketing/leads/

@@ -52,6 +52,13 @@ test("countryCode reads the column, then the website TLD", () => {
   assert.equal(countryCode("", "https://clinica.com.co"), "CO");
   assert.equal(countryCode("Perú", "https://clinica.com.co"), null);
   assert.equal(countryCode("", "https://clinica.com"), null);
+  assert.equal(countryCode("Bolivia"), "BO");
+  assert.equal(countryCode("CL"), "CL");
+  assert.equal(countryCode("", "https://estudio.com.uy"), "UY");
+  assert.equal(countryCode("", "https://spa.com.py"), "PY");
+  assert.equal(countryCode("", "https://clinica.cl"), "CL");
+  assert.equal(countryCode("", "https://inmobiliaria.com.ve"), "VE");
+  assert.equal(countryCode("", "https://dental.com.bo"), "BO");
 });
 
 test("CSV import maps the leads header and keeps only website emails", () => {
@@ -85,7 +92,7 @@ test("CSV import maps the leads header and keeps only website emails", () => {
   assert.equal(reasons["Fuente ajena"], "la fuente del correo no es la web del negocio");
   assert.equal(reasons["Repetida"], "repetido");
   assert.equal(reasons["Suprimida"], "en la lista de supresión");
-  assert.equal(reasons["Peruana"], "país fuera de MX/CO o desconocido");
+  assert.equal(reasons["Peruana"], "país fuera de la lista o desconocido");
 
   const withFree = outreachLeadsFromCsv(csv, { allowFreemail: true });
   assert.ok(withFree.leads.some((l) => l.email === "bailabonitoadmin@gmail.com"));
@@ -131,6 +138,8 @@ test("send window is Mon–Fri 9:00–16:59 local", () => {
   assert.equal(inSendWindow(new Date("2026-10-05T22:00:00Z"), "CO"), false); // 17:00 Bogotá
   assert.equal(inSendWindow(new Date("2026-10-10T16:00:00Z"), "MX"), false); // Saturday
   assert.equal(inSendWindow(new Date("2026-10-09T20:00:00Z"), "CO"), true); // Friday 15:00
+  assert.equal(inSendWindow(new Date("2026-10-05T13:00:00Z"), "BO"), true); // 9:00 La Paz
+  assert.equal(inSendWindow(new Date("2026-10-05T12:59:00Z"), "VE"), false); // 8:59 Caracas
 });
 
 test("sequence runs day 0, 3 and 8", () => {

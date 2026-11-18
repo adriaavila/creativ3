@@ -1,6 +1,6 @@
 # Correo en frío desde hola.allok.fun
 
-Cómo escribirle por primera vez a un negocio (clínicas y academias de MX y CO)
+Cómo escribirle por primera vez a un negocio (MX, CO, CL, UY, VE, PY y BO; la lista vive en `COUNTRY_CODES` de `src/lib/outreach.ts`)
 sin quemar el dominio. Código: `src/lib/outreach*.ts`, `/ops/outreach`,
 `/api/cron/outreach`, `/api/outreach/baja`, `/api/outreach/resend-webhook`, y
 el script `scripts/outreach.ts` para correrlo a mano. Tablas: migraciones

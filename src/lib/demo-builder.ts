@@ -27,7 +27,8 @@ const MAX_HTML_BYTES = 1_500_000;
 const MAX_PAGE_CHARS = 20_000;
 const MAX_TOTAL_CHARS = 55_000;
 const MAX_REDIRECTS = 4;
-const USER_AGENT = "Mozilla/5.0 (compatible; allok-demo-builder/1.0; +https://allok.fun)";
+// Un navegador común: varias webs (firewalls de hosting) bloquean un user-agent de bot y la demo no se armaba.
+const USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36";
 
 export type SitePage = { url: string; text: string };
 

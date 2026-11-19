@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { getStripePurchaseBySessionId } from "@/lib/stripe-purchases-db";
 
 export const metadata: Metadata = {
-  title: "Conectá tu WhatsApp",
+  title: "Conecta tu WhatsApp",
   description: "Activación de tu plan de allok.",
   robots: { index: false, follow: false },
 };
@@ -41,7 +41,7 @@ export default async function ConectarWhatsAppPage({
   if (!sessionId) {
     return (
       <Shell tag="Verificación requerida" title="Falta el enlace de tu compra">
-        Abrí esta página desde el enlace que recibiste tras el pago. Si lo perdiste, escribinos y te
+        Abre esta página desde el enlace que recibiste tras el pago. Si lo perdiste, escríbenos y te
         lo reenviamos.
       </Shell>
     );
@@ -51,8 +51,8 @@ export default async function ConectarWhatsAppPage({
   if (!purchase) {
     return (
       <Shell tag="Verificación requerida" title="No encontramos esa compra">
-        Puede que el pago todavía se esté acreditando. Esperá un minuto y recargá; si sigue igual,
-        escribinos con el comprobante y lo resolvemos.
+        Puede que el pago todavía se esté acreditando. Espera un minuto y recarga; si sigue igual,
+        escríbenos con el comprobante y lo resolvemos.
       </Shell>
     );
   }
@@ -64,7 +64,7 @@ export default async function ConectarWhatsAppPage({
         enviamos un enlace de activación personal —vence a los siete días— al correo de la compra.
       </p>
       <p className="mt-3">
-        Conectás tu número sin cambiarlo y sin dejar de usar la app de WhatsApp en tu teléfono.
+        Conectas tu número sin cambiarlo y sin dejar de usar la app de WhatsApp en tu teléfono.
       </p>
     </Shell>
   );

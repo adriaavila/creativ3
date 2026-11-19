@@ -49,7 +49,7 @@ const SHIPPED = PORTFOLIO_PROJECTS.filter((p) => p.status === "launched").length
 export const metadata: Metadata = {
   metadataBase: new URL("https://allok.fun"),
   title: {
-    default: "allok — software que atiende, vende y deja registro",
+    default: "allok · Adrián Avila",
     // La casa firma todas las páginas. El portafolio es la sección de allok
     // donde manda Adrian, no un sitio aparte.
     template: "%s | allok",
@@ -71,7 +71,7 @@ export const metadata: Metadata = {
     "Adrian Avila Molina",
   ],
   openGraph: {
-    title: "allok — software que atiende, vende y deja registro",
+    title: "Hola, soy Adrián · allok",
     description:
       `${SHIPPED} sistemas en producción. Un CRM de WhatsApp, agentes a medida y la agencia que construye el resto — diseño, código y despliegue por el mismo par de manos.`,
     url: "https://allok.fun",
@@ -90,7 +90,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "allok — software que atiende, vende y deja registro",
+    title: "Hola, soy Adrián · allok",
     description:
       `${SHIPPED} sistemas en producción. Diseño, frontend, backend y despliegue, con los agentes haciendo la mitad aburrida.`,
     images: ["/opengraph-image"],

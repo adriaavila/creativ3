@@ -11,7 +11,8 @@ const ORDEN: Record<Pieza["status"], number> = { launched: 0, improving: 1, demo
  * prototipo). Se encienden de izquierda a derecha con el scroll, lineal
  * (--p de 0 a 1). Sin línea de tiempo de scroll lo hace DiecinueveLuz; con
  * movimiento reducido o sin JavaScript, todas encendidas. Las cuentas salen
- * de PIEZAS, nunca escritas a mano.
+ * de PIEZAS, nunca escritas a mano. Cada marca dice su nombre bajo el
+ * puntero y abre su ficha con un toque.
  */
 export default function Diecinueve() {
   const marcas = [...PIEZAS].sort((a, b) => ORDEN[a.status] - ORDEN[b.status]);
@@ -22,6 +23,17 @@ export default function Diecinueve() {
           {marcas.map((p, k) => (
             <li key={p.id} className={`marca-estado ${claseEstado(p.status)}`} style={vars({ "--k": k })}>
               <span role="img" aria-label={`${p.name}: ${ESTADO[p.status]}`} />
+              {/* Al pasar el puntero dice su nombre, y un toque abre su ficha (FichaIsla escucha [data-abrir-pieza]).
+                  Fuera del orden del teclado y del lector: para ellos la marca de arriba ya lo dice, y el enlace
+                  «Los 19 trabajos» lleva a todos. */}
+              <a
+                className="marca-toque"
+                href={`/trabajo#pieza=${p.id}`}
+                data-abrir-pieza={p.id}
+                data-nombre={p.name}
+                tabIndex={-1}
+                aria-hidden="true"
+              />
             </li>
           ))}
         </ol>

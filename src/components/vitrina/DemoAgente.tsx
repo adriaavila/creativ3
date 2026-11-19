@@ -32,7 +32,7 @@ function cierre(el: Element | null): number {
  * burbuja vacía: nada se escribe antes de que la API conteste. El lazo de
  * 24 px se cierra dentro de la burbuja solo cuando la API dice que sí (y
  * sigue la redirección de siempre); si falla, el mensaje lo dice y el lazo
- * queda abierto. En reposo no hay más texto que las etiquetas y el botón.
+ * queda abierto y el dibujo se apaga. En reposo no hay más texto que las etiquetas y el botón.
  *
  * Los campos quedan de solo lectura mientras arma y el botón inactivo pero
  * enfocable: el foco no se pierde. Los pasos se anuncian en una región viva
@@ -108,7 +108,14 @@ export default function DemoAgente({ tituloId, marca }: { tituloId: string; marc
         <button type="submit" className="btn btn-outline" aria-disabled={busy || undefined}>
           {busy ? "Armando…" : "Armar mi demo"}
         </button>
-        <div ref={espera} className="agente-espera" data-cerrado={cerrado ? "" : undefined} aria-hidden="true">
+        {/* Si falló, el dibujo a medias se va: una raya y una burbuja vacía se leían como algo roto. */}
+        <div
+          ref={espera}
+          className="agente-espera"
+          data-cerrado={cerrado ? "" : undefined}
+          data-fallo={error && !busy ? "" : undefined}
+          aria-hidden="true"
+        >
           <svg className="agente-dibujo" viewBox="0 0 112 40" focusable="false">
             <path className="agente-burbuja" pathLength={1} d={BURBUJA} data-on={rayas > 0 ? "" : undefined} />
             {RAYAS.map((d, k) => (

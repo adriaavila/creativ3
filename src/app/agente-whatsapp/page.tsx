@@ -159,14 +159,15 @@ export default function AgenteWhatsapp() {
             <p className="mono mt-6 text-[var(--ink-60)]">Tu agente de WhatsApp con IA</p>
 
             {/* La estructura del anuncio: tres líneas, y la tercera es la marca. */}
-            <div className="mt-10 font-display text-[clamp(1.75rem,3.4vw,2.6rem)] font-bold leading-[1.12] tracking-[-0.04em]">
-              <p>Te fuiste a dormir.</p>
-              <p className="text-[var(--ink-40)]">Tu WhatsApp no.</p>
-              <p className="mt-1 flex items-center gap-2.5">
+            {/* El título de la página (la única h1): sin ella, buscadores y lectores no sabían de qué va. */}
+            <h1 className="mt-10 font-display text-[clamp(1.75rem,3.4vw,2.6rem)] font-bold leading-[1.12] tracking-[-0.04em]">
+              <span className="block">Te fuiste a dormir.</span>
+              <span className="block text-[var(--ink-40)]">Tu WhatsApp no.</span>
+              <span className="mt-1 flex items-center gap-2.5">
                 <OkDot state="activo" size={17} />
                 <span>all ok</span>
-              </p>
-            </div>
+              </span>
+            </h1>
 
             <p className="lede mt-8 max-w-[44ch] text-[var(--ink-60)]">
               Aprende de tus propios chats cómo vendes y cómo contestas, atiende tu

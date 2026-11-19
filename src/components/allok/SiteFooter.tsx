@@ -11,9 +11,9 @@ const COLUMNS = [
   {
     title: "Trabajo",
     links: [
-      { href: "/#obras", label: "Trabajo" },
-      { href: "/casos", label: "Casos" },
+      { href: "/", label: "Inicio" },
       { href: "/trabajo", label: "Todo el trabajo" },
+      { href: "/casos", label: "Casos" },
       { href: "/#contacto", label: "Contacto" },
     ],
   },

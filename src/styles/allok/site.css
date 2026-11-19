@@ -420,6 +420,13 @@ html.lienzo-3d .ak .manos .manos-trazo {opacity: 1;}
 .ak .diecinueve .marca-estado.building::before {box-shadow: inset 0 0 0 var(--trazo) currentColor;}
 .ak .diecinueve .marca-estado.archived::before {height: var(--trazo);}
 .ak .diecinueve .marca-estado > span {position: absolute; inset: 0;}
+.ak .diecinueve .marca-toque {position: absolute; left: 50%; top: 50%; width: max(var(--size-target), calc(var(--columna) / var(--n))); height: var(--size-target); translate: -50% -50%;}
+.ak .diecinueve .marca-toque::after {content: attr(data-nombre); position: absolute; bottom: calc(50% + var(--marca-d)); left: 50%; translate: -50% 4px; white-space: nowrap; font: 500 13px/1 var(--font-sans); color: var(--text); opacity: 0; pointer-events: none; transition: opacity var(--duration-quick) var(--ease-out), translate var(--duration-quick) var(--ease-out);}
+@media (hover: hover) and (pointer: fine) {
+.ak .diecinueve .marca-toque:hover::after {opacity: 1; translate: -50% 0;}
+}
+@media not ((hover: hover) and (pointer: fine)) {
+.ak .diecinueve .marca-toque {display: none;} }
 .motion .ak .diecinueve .marca-estado {opacity: calc(0.2 + 0.8 * clamp(0, var(--p) * var(--n) - var(--k), 1));}
 @supports (animation-timeline: view()) {
 .motion .ak .diecinueve {animation-name: diecinueve-luz;
@@ -442,7 +449,8 @@ html.lienzo-3d .ak .manos .manos-trazo {opacity: 1;}
 .ak .btn-outline {background: transparent; color: var(--text); box-shadow: inset 0 0 0 1px var(--line-strong);}
 .ak .btn-outline[aria-disabled="true"] {opacity: 1;}
 .ak .agente .btn-outline {min-height: 52px; min-width: 10.5rem; font-size: 15px;}
-.ak .agente-espera {position: relative; flex: none; width: 112px; height: 40px; color: var(--text);}
+.ak .agente-espera {position: relative; flex: none; width: 112px; height: 40px; color: var(--text); transition: opacity var(--duration-base) var(--ease-out);}
+.ak .agente-espera[data-fallo] {opacity: 0;}
 .ak .agente-dibujo {display: block; width: 100%; height: 100%; overflow: visible;}
 .ak .agente-dibujo path {fill: none; stroke: currentColor; stroke-width: var(--trazo); stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 1 2; stroke-dashoffset: 1; opacity: 0;}
 .ak .agente-dibujo path[data-on] {stroke-dashoffset: 0; opacity: 1;}
@@ -479,4 +487,9 @@ html.lienzo-3d .ak .manos .manos-trazo {opacity: 1;}
 .ak .closer.cierre {padding-bottom: calc(var(--space-8) + var(--space-4) + var(--space-6));}
 .ak .cierre-precio, .ak .cierre-numero {width: auto; padding-inline: var(--space-4); text-align: right; font-size: 18px;}
 }
+.ak .no-existe .cierre-cuerpo .label {margin-top: var(--space-6);}
+.ak .no-existe .closer .cierre-titulo {margin-top: var(--space-3);}
+.ak .no-existe .cierre-bio {margin-top: var(--space-4); color: var(--text-muted);}
+.ak .no-existe-salidas {display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3) var(--space-4); margin-top: var(--space-6);}
+.ak .no-existe-salidas .btn {margin-top: 0;}
 

@@ -6,4 +6,5 @@
 4. At least 15 distinct URLs of allok.fun were requested, and broken links (4xx/5xx) are listed with the page that links to them, or the report says none were found.
 5. Every wa.me link found on the site is listed with its number and prefilled text, and any mismatch between them is flagged.
 6. SEO basics (title, description, canonical, H1, OG image) are reported for at least the home page, /agente-whatsapp and two /whatsapp-para/ pages.
-7. No finding is speculative: claims without evidence are absent.
+7. Every pricing or trial CTA is listed with its hops, final checkout URL host, price, interval, trial days and live/test mode, and the first rows of the findings table cover the money path (or the report says it checked out fine).
+8. No finding is speculative: claims without evidence are absent.

@@ -21,7 +21,8 @@
     "sync:projects": "tsx scripts/sync-projects.ts",
     "stripe:setup": "tsx scripts/stripe-setup.ts",
     "agents": "tsx --env-file-if-exists=.env.local scripts/agents.ts",
-    "content:batch": "tsx --env-file-if-exists=.env.local scripts/content-batch.ts"
+    "content:batch": "tsx --env-file-if-exists=.env.local scripts/content-batch.ts",
+    "demo:qa": "tsx --env-file-if-exists=.env.local scripts/demo-qa.ts"
   },
   "dependencies": {
     "@neondatabase/serverless": "1.1.0",

@@ -2,7 +2,9 @@ You audit allok's public web presence from the outside, the way a prospect, a se
 
 Scope: https://allok.fun and the pages it links to (home, /agente-whatsapp, /whatsapp-para/*, /casos, /demo/* examples you find linked, /pago and checkout entry points up to but not including payment, legal pages, sitemap.xml, robots.txt), and the sending domain hola.allok.fun.
 
-Check, with evidence for each finding (URL, command output, or quoted HTML):
+Money path first. A visitor who wants to pay must reach a working checkout. Before anything else, follow every pricing and trial CTA on the site (home, /agente-whatsapp, /whatsapp-para/*, /pago/*) with a headless browser up to the payment form, and stop there: never type card details. For each one report: the start URL, every hop, the final URL, the price, currency, billing interval and trial days shown on the checkout, whether the Stripe session is live or test (the `cs_live_` / `cs_test_` prefix or `pk_live_` / `pk_test_` in the page), and whether that matches what the allok.fun page promised. The advertised plans are US$49/month with a 7-day trial and US$99/month; any other price, a test-mode session, an error page or a CTA that never reaches Stripe is P0. Also check that the post-payment success and cancel URLs in the session (if visible) point to allok.fun pages that exist.
+
+Then check, with evidence for each finding (URL, command output, or quoted HTML):
 - Broken links, redirect chains, 4xx/5xx responses, mixed content.
 - Page weight and speed signals you can measure with curl (TTFB, HTML size, uncompressed assets, missing caching headers).
 - SEO basics per page: title, meta description, canonical, hreflang, H1, Open Graph image, structured data, sitemap coverage, robots rules, duplicate titles.

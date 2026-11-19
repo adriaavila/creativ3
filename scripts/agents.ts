@@ -230,6 +230,8 @@ async function download(sessionId: string, outDir: string): Promise<string[]> {
   for (let attempt = 0; attempt < 5; attempt++) {
     const names: string[] = [];
     for await (const f of client.beta.files.list({ scope_id: sessionId, betas: ["managed-agents-2026-04-01"] })) {
+      // Lo que subimos nosotros (exclude.txt) también aparece aquí y la API no deja bajarlo.
+      if (f.downloadable === false || f.filename === "exclude.txt") continue;
       const res = await client.beta.files.download(f.id);
       await writeFile(join(outDir, f.filename), Buffer.from(await res.arrayBuffer()));
       names.push(f.filename);
@@ -404,6 +406,26 @@ async function raise(sessionId: string, budget: number) {
   console.log(`Tope de ${sessionId} subido a $${budget}; la sesión sigue sola. Síguela con: pnpm agents fetch ${sessionId}`);
 }
 
+/** Sesión pausada en su tope con trabajo verificado adentro: corta la búsqueda y pide los archivos con lo que hay. */
+async function wrap(sessionId: string, budget: number) {
+  // Con la sesión en su tope solo se acepta el interrupt; el mensaje va después de subir el tope.
+  await client.beta.sessions.events.send(sessionId, { events: [{ type: "user.interrupt" }] });
+  await raise(sessionId, budget);
+  await client.beta.sessions.events.send(sessionId, {
+    events: [
+      {
+        type: "user.message",
+        content: [
+          {
+            type: "text",
+            text: "The budget is almost spent. Stop all research now: do not start new threads or workflows. Write the deliverables to /mnt/session/outputs/ exactly as your system prompt describes, using only the rows you have already verified, even if that is below the target count. Say the shortfall in summary.md.",
+          },
+        ],
+      },
+    ],
+  });
+}
+
 async function cost() {
   if (!existsSync(RUNS_FILE)) return console.log("Todavía no hay corridas.");
   const sessions = new Set(
@@ -454,6 +476,9 @@ async function main() {
     case "raise":
       if (!positionals[0] || !values.budget) throw new Error("Uso: pnpm agents raise <session_id> --budget <USD>");
       return raise(positionals[0], budget);
+    case "wrap":
+      if (!positionals[0] || !values.budget) throw new Error("Uso: pnpm agents wrap <session_id> --budget <USD>");
+      return wrap(positionals[0], budget);
     case "cost":
       return cost();
     default:

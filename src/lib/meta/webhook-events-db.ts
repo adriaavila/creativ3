@@ -7,6 +7,7 @@ export type MetaWebhookEventRecord = {
   payload: unknown;
   status: "pending" | "processing" | "processed" | "failed";
   attempts: number;
+  receivedAt: Date;
 };
 
 let sqlClient: NeonQueryFunction<false, false> | null = null;
@@ -59,7 +60,7 @@ export async function claimMetaWebhookEvents(limit = 10): Promise<MetaWebhookEve
         updated_at = now()
     FROM candidates
     WHERE event.id = candidates.id
-    RETURNING event.id, event.event_key, event.payload, event.status, event.attempts
+    RETURNING event.id, event.event_key, event.payload, event.status, event.attempts, event.received_at
   `;
   return rows.map((row) => ({
     id: Number(row.id),
@@ -67,6 +68,7 @@ export async function claimMetaWebhookEvents(limit = 10): Promise<MetaWebhookEve
     payload: row.payload,
     status: row.status as MetaWebhookEventRecord["status"],
     attempts: Number(row.attempts),
+    receivedAt: new Date(row.received_at),
   }));
 }
 
@@ -75,6 +77,17 @@ export async function markMetaWebhookEventProcessed(id: number) {
   await sql`
     UPDATE meta_whatsapp_webhook_events
     SET status = 'processed', processed_at = now(), updated_at = now()
+    WHERE id = ${id}
+  `;
+}
+
+/** Vuelve a la cola hasta `until` sin gastar un intento: no falló, todavía no toca. */
+export async function deferMetaWebhookEvent(id: number, until: Date) {
+  const sql = getSql();
+  await sql`
+    UPDATE meta_whatsapp_webhook_events
+    SET status = 'pending', attempts = greatest(attempts - 1, 0), processing_started_at = null,
+        next_attempt_at = ${until.toISOString()}, updated_at = now()
     WHERE id = ${id}
   `;
 }

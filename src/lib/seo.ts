@@ -4,7 +4,7 @@ export const SITE_URL = "https://allok.fun";
 export const SITE_NAME = "allok";
 
 /**
- * Two entities on purpose: `allok` is the company that sells REI, Vocero and
+ * Two entities on purpose: `allok` is the company that sells Rei, Vocero and
  * the agency; Adrian is the person who builds them and whose portfolio lives
  * at /portfolio. Emitted once in the root layout.
  */
@@ -17,7 +17,7 @@ export function siteJsonLd() {
       url: SITE_URL,
       email: CONTACT_EMAIL,
       description:
-        "Software comercial: REI (CRM de WhatsApp para inmobiliarias), Vocero (agentes de WhatsApp a medida) y desarrollo web y de producto.",
+        "Software comercial: Rei (CRM de WhatsApp para inmobiliarias), Vocero (agentes de WhatsApp a medida) y desarrollo web y de producto.",
       brand: { "@type": "Brand", name: "allok" },
       founder: { "@type": "Person", name: "Adrian Avila Molina" },
       makesOffer: [
@@ -28,7 +28,7 @@ export function siteJsonLd() {
         },
         {
           "@type": "Offer",
-          name: "REI — CRM de WhatsApp para inmobiliarias",
+          name: "Rei: CRM de WhatsApp para inmobiliarias",
           url: `${SITE_URL}/rei`,
         },
         {

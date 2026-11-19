@@ -28,7 +28,7 @@ const QUOTE_MESSAGE =
 
 /**
  * Los tres servicios, rescatados del sitio de agencia de 2026-08. El WhatsApp
- * salió de aquí a propósito: eso hoy es REI o Vocero, y mandar a la gente al
+ * salió de aquí a propósito: eso hoy es Rei o Vocero, y mandar a la gente al
  * lugar correcto vale más que sumar una cuarta tarjeta.
  */
 const SERVICES = [
@@ -165,7 +165,7 @@ const FAQS = [
   ],
   [
     "¿Y si lo que necesito es atender WhatsApp?",
-    "Eso es un producto, no un proyecto de agencia. Si vendes propiedades, REI ya lo hace por una mensualidad fija. Si tu operación tiene reglas propias, es un Vocero a medida.",
+    "Eso es un producto, no un proyecto de agencia. Si vendes propiedades, Rei ya lo hace por una mensualidad fija. Si tu operación tiene reglas propias, es un Vocero a medida.",
   ],
 ] as const;
 
@@ -245,7 +245,7 @@ export default function AgenciaPage() {
 
         <p className="mx-auto mt-7 max-w-[720px] text-center text-[14.5px] leading-relaxed text-[var(--ink-60)] text-pretty">
           ¿Lo que necesitas es atender WhatsApp? Eso ya es un producto:{" "}
-          <Link href="/rei" className="underline underline-offset-4">REI</Link> si vendes
+          <Link href="/rei" className="underline underline-offset-4">Rei</Link> si vendes
           propiedades, y el CRM genérico está en la{" "}
           <Link href="/vocero" className="underline underline-offset-4">Vocero</Link> si tu
           operación tiene reglas propias.

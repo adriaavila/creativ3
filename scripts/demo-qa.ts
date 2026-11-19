@@ -115,7 +115,7 @@ async function main() {
   qa.forEach((q, i) => {
     if (q.verdict) return;
     const parsed = parseProfileResponse(extracted.get(`p${i}`) ?? "");
-    if (!parsed) return Object.assign(q, { verdict: "mala", reason: "no salió un perfil válido de la web" });
+    if (!parsed) return Object.assign(q, { verdict: "sin probar", reason: "el perfil que sacó Claude no pasó el parser (formato, no la web): probar a mano" });
     const { profile } = groundProfile(parsed, q.pages.map((p) => p.text).join("\n"));
     if (!isUsableProfile(profile)) return Object.assign(q, { verdict: "mala", reason: "la web no dice servicios, horario ni dirección" });
     q.profile = profile;

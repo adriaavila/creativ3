@@ -1,0 +1,8 @@
+{
+  "environment": "env_0142q7AukNXBwP4FJ7rKqtD1",
+  "agents": {
+    "reader": "agent_01C9GnxF6gdqpKtrUPNVUndR",
+    "lead": "agent_01ErybKcQ8CWrzoptLxF6dAH",
+    "auditor": "agent_01KVEy1muMv5h5S8VfYtku4X"
+  }
+}

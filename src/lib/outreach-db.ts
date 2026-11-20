@@ -5,6 +5,7 @@ import {
   demoJobAfterAttempt,
   hostOf,
   normalizeEmail,
+  COUNTRY_LABELS,
   type CountryCode,
   type DemoJobState,
   type DemoJobStatus,
@@ -56,7 +57,7 @@ async function createOutreachTables(): Promise<void> {
       demo_slug text,
       sector text NOT NULL DEFAULT '',
       city text NOT NULL DEFAULT '',
-      country text NOT NULL CHECK (country IN ('MX', 'CO')),
+      country text NOT NULL CHECK (country IN ('MX', 'CO', 'CL', 'UY', 'VE', 'PY', 'BO')),
       offer text NOT NULL DEFAULT '',
       source text NOT NULL DEFAULT '',
       status text NOT NULL DEFAULT 'queued'
@@ -103,6 +104,19 @@ async function createOutreachTables(): Promise<void> {
         ALTER TABLE outreach_contact DROP CONSTRAINT IF EXISTS outreach_contact_status_check;
         ALTER TABLE outreach_contact ADD CONSTRAINT outreach_contact_status_check CHECK (status IN
           ('queued', 'sent', 'replied', 'bounced', 'complained', 'unsubscribed', 'signed_up', 'excluded'));
+      END IF;
+    END $$
+  `;
+  // Una tabla creada antes de abrir CL/UY/VE/PY/BO solo acepta MX y CO.
+  await sql`
+    DO $$ BEGIN
+      IF NOT EXISTS (
+        SELECT 1 FROM pg_constraint
+        WHERE conname = 'outreach_contact_country_check' AND pg_get_constraintdef(oid) LIKE '%BO%'
+      ) THEN
+        ALTER TABLE outreach_contact DROP CONSTRAINT IF EXISTS outreach_contact_country_check;
+        ALTER TABLE outreach_contact ADD CONSTRAINT outreach_contact_country_check CHECK (country IN
+          ('MX', 'CO', 'CL', 'UY', 'VE', 'PY', 'BO'));
       END IF;
     END $$
   `;
@@ -442,7 +456,7 @@ export async function backfillDemoJobs(): Promise<number> {
       businessName: String(c.business_name),
       sector: String(c.sector ?? ""),
       city: String(c.city ?? ""),
-      country: c.country === "CO" ? "Colombia" : c.country === "MX" ? "México" : String(c.country ?? ""),
+      country: COUNTRY_LABELS[c.country as CountryCode] ?? String(c.country ?? ""),
       existingSlug: null,
     })),
   );

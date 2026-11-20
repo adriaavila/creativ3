@@ -32,7 +32,7 @@ export type Historia = {
   /** La línea de la portada: lo que cambió para el dueño, en ocho palabras o menos. */
   linea: string;
   /** «Cliente» si es el trabajo de un negocio; «Mío» si es producto propio. Sale de `origen`. */
-  tag: "Cliente" | "Mío";
+  tag: "Client" | "Mine";
   /** El dibujo de línea que acompaña al nombre en la portada. */
   glifo: "casa" | "unidades" | "recibo" | "carriles";
   /** En la portada, bajo la captura, cuando lo que se ve no es de un cliente real. */
@@ -76,94 +76,94 @@ function captura(src: string, alt: string): Captura {
 const CUATRO: Omit<Historia, "n" | "nombre" | "tag">[] = [
   {
     id: "samer",
-    linea: "Lo que preguntan, ya en su web.",
+    linea: "What buyers ask, answered on the site.",
     glifo: "casa",
-    donde: "Constructora en Tarija, Bolivia",
+    donde: "Construction company in Tarija, Bolivia",
     origen: "Cliente",
-    escena: "Cada interesado te pregunta lo mismo por WhatsApp: cuánto cuesta, cuánto mide el terreno, cuándo se entrega.",
+    escena: "Every buyer asks you the same things on WhatsApp: how much, how big is the lot, when is it delivered.",
     cuerpo:
-      "En su web, cada casa se filtra por terreno, precio y fecha de entrega, y se recorre por dentro con las imágenes oficiales del proyecto. Quien quiere ir a verla pide la visita por WhatsApp, con el mensaje ya escrito.",
+      "On their site, every house filters by lot, price and delivery date, and you can walk through it with the project's official images. Whoever wants to see it books the visit on WhatsApp, with the message already written.",
     capturas: [
       captura(
         "/projects/samer/01-desktop.jpg",
-        "La web de SAMER: el condominio Santorini, en Tarija, con su próxima entrega y el botón para agendar una visita",
+        "The SAMER site: the Santorini condominium in Tarija, with its next delivery and the button to book a visit",
       ),
     ],
     url: "https://desamer.com",
     acciones: [
-      { tipo: "web", texto: "Abrir desamer.com", href: "https://desamer.com" },
-      { tipo: "caso", texto: "Leer el caso", href: "/casos/samer" },
+      { tipo: "web", texto: "Open desamer.com", href: "https://desamer.com" },
+      { tipo: "caso", texto: "Read the case study", href: "/casos/samer" },
     ],
   },
   {
     id: "rei-fm",
-    linea: "La cuota de cada vecino, sin perseguirlo.",
+    linea: "Every neighbor's fee, without chasing them.",
     glifo: "unidades",
-    notaCorta: "Datos de ejemplo",
-    donde: "Administración de edificios · Bolivia y Venezuela",
+    notaCorta: "Sample data",
+    donde: "Building management · Bolivia and Venezuela",
     origen: "Producto propio",
-    escena: "Cada mes, perseguir a cada vecino por su cuota y cuadrar a mano las facturas del edificio.",
+    escena: "Every month, chasing each neighbor for their fee and reconciling the building's bills by hand.",
     cuerpo:
-      "Lee la foto o el PDF de cada factura y propone el registro, pero nada entra al cierre del mes sin el ok del administrador. Cada vecino ve cuánto debe y cómo pagar desde un enlace, sin instalar nada.",
+      "It reads the photo or PDF of each bill and proposes the entry, but nothing goes into the month's close without the manager's ok. Each neighbor sees what they owe and how to pay from a link, without installing anything.",
     capturas: [
       captura(
         "/projects/rei-fm/02-desktop-scroll.jpg",
-        "La web de REI con el panel de un edificio: unidades, facturas por revisar y pagos por verificar",
+        "The REI site with a building's dashboard: units, bills to review and payments to verify",
       ),
     ],
     url: "https://reiprop.tech",
-    nota: "En la captura, datos de ejemplo.",
+    nota: "Sample data in the screenshot.",
     acciones: [
-      { tipo: "web", texto: "Abrir reiprop.tech", href: "https://reiprop.tech" },
-      { tipo: "caso", texto: "Leer el caso", href: "/casos/rei" },
+      { tipo: "web", texto: "Open reiprop.tech", href: "https://reiprop.tech" },
+      { tipo: "caso", texto: "Read the case study", href: "/casos/rei" },
     ],
   },
   {
     id: "cuadra",
-    linea: "Dólares y bolívares, aunque se caiga internet.",
+    linea: "Dollars and bolívares, even when the internet drops.",
     glifo: "recibo",
-    donde: "Punto de venta para comercios de Venezuela",
+    donde: "Point of sale for Venezuelan shops",
     origen: "Producto propio",
-    escena: "Te pagan una parte en dólares y otra en bolívares, y justo cuando hay gente esperando se cae el internet.",
+    escena: "They pay you part in dollars and part in bolívares, and right when people are waiting, the internet drops.",
     cuerpo:
-      "Cobra en las dos monedas en la misma venta, reparte el pago entre ocho métodos y guarda la tasa de cada cobro. Si se cae el internet, sigue vendiendo y se pone al día sola. Al cierre, compara el efectivo esperado con el contado.",
+      "It charges in both currencies in the same sale, splits payment across eight methods and keeps the rate of every charge. If the internet drops, it keeps selling and catches up on its own. At closing, it compares expected cash with what was counted.",
     capturas: [
       captura(
         "/projects/cuadra/02-desktop-scroll.jpg",
-        "La caja de Cuadra: cada producto con su precio en dólares y en bolívares, y el carrito con el total en las dos monedas",
+        "The Cuadra register: each product priced in dollars and bolívares, and the cart with the total in both currencies",
       ),
     ],
     url: "https://sicuadra.vercel.app",
     acciones: [
-      { tipo: "web", texto: "Abrir Cuadra", href: "https://sicuadra.vercel.app" },
-      { tipo: "ficha", texto: "Ver más pantallas" },
+      { tipo: "web", texto: "Open Cuadra", href: "https://sicuadra.vercel.app" },
+      { tipo: "ficha", texto: "See more screens" },
     ],
     campo: true,
   },
   {
     id: "mistica",
-    linea: "Una escuela de natación: quién vino, quién debe.",
+    linea: "A swim school: who came, who owes.",
     glifo: "carriles",
-    donde: "Escuela de natación",
+    donde: "Swim school",
     origen: "Cliente",
-    escena: "Las clases, la asistencia y los pagos viven en lugares distintos, y saber quién debe qué es una tarde de revisar listas.",
+    escena: "Classes, attendance and payments live in different places, and knowing who owes what takes an afternoon of checking lists.",
     cuerpo:
-      "Los instructores marcan la asistencia por clase desde el celular, cada cobro tiene su vencimiento y la cobranza pendiente se ve en una sola pantalla.",
+      "Instructors take attendance per class from their phone, every charge has its due date, and pending collections show on a single screen.",
     // Solo estas dos: son las capturas con los nombres de los alumnos tapados.
     // La app real pide entrar, así que no lleva url.
     capturas: [
       captura(
         "/projects/mistica/cobros-sin-nombres.png",
-        "Los cobros de Mística en el celular: cada inscripción y mensualidad con su vencimiento",
+        "Mística payments on the phone: every enrollment and monthly fee with its due date",
       ),
       captura(
         "/projects/mistica/alumnos-sin-nombres.png",
-        "Los alumnos de Mística en el celular: la clase de cada uno y si está al día, pendiente o en mora",
+        "Mística students on the phone: each one's class and whether they're paid up, pending or overdue",
       ),
     ],
     acciones: [
-      { tipo: "caso", texto: "Leer el caso", href: "/casos/mistica" },
-      { tipo: "ficha", texto: "Ver más pantallas" },
+      { tipo: "caso", texto: "Read the case study", href: "/casos/mistica" },
+      { tipo: "ficha", texto: "See more screens" },
     ],
   },
 ];
@@ -172,18 +172,18 @@ export const HISTORIAS: Historia[] = CUATRO.map((h, i) => ({
   ...h,
   n: String(i + 1).padStart(2, "0"),
   nombre: PIEZAS.find((p) => p.id === h.id)?.name ?? h.id,
-  tag: h.origen === "Cliente" ? "Cliente" : "Mío",
+  tag: h.origen === "Cliente" ? "Client" : "Mine",
 }));
 
 /** El agente de allok: el mismo ritmo, sin captura. En su escenario va la demo con la web del dueño. */
 export const AGENTE = {
-  kicker: "Agente de WhatsApp · Producto de allok",
-  escena: "Te escriben a las once de la noche preguntando precios, y nadie contesta hasta mañana.",
-  nombre: "Tu agente de WhatsApp",
+  kicker: "WhatsApp agent · An allok product",
+  escena: "They message you at eleven at night asking for prices, and nobody answers until morning.",
+  nombre: "Your WhatsApp agent",
   cuerpo:
-    "Aprende tus precios y tu forma de contestar de tus propios chats, responde y agenda la cita. Cuando una conversación necesita a una persona, te avisa al celular. Y no le contesta a nadie hasta que tú lo enciendas.",
-  prueba: "Pruébalo con tu web",
-  enlace: { texto: "Conocer el agente", href: "/agente-whatsapp" },
+    "It learns your prices and the way you answer from your own chats, replies and books the appointment. When a conversation needs a person, it alerts your phone. And it answers no one until you switch it on.",
+  prueba: "Try it with your website",
+  enlace: { texto: "Meet the agent", href: "/agente-whatsapp" },
 } as const;
 
 export type Fila = { n: string; grupo: Disciplina; pieza: Pieza };

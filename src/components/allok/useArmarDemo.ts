@@ -9,6 +9,8 @@ import { useRouter } from "next/navigation";
  */
 
 const STEPS = ["Abriendo tu web…", "Leyendo tus servicios y precios…", "Enseñándole a tu agente…", "Casi listo…"];
+/** Los mismos pasos en inglés, para la portada. */
+export const STEPS_EN = ["Opening your site…", "Reading your services and prices…", "Teaching your agent…", "Almost ready…"];
 
 type Opciones = {
   /**
@@ -16,9 +18,11 @@ type Opciones = {
    * lazo antes de irse). Se espera; sin él, se va en el acto.
    */
   antesDeIr?: () => Promise<void> | void;
+  /** Los textos de la espera; por defecto, en español. */
+  pasos?: string[];
 };
 
-export function useArmarDemo({ antesDeIr }: Opciones = {}) {
+export function useArmarDemo({ antesDeIr, pasos = STEPS }: Opciones = {}) {
   const router = useRouter();
   const [name, setName] = useState("");
   const [website, setWebsite] = useState("");
@@ -31,9 +35,9 @@ export function useArmarDemo({ antesDeIr }: Opciones = {}) {
   // La espera se cuenta: cada paso se ve unos segundos, el último se queda.
   useEffect(() => {
     if (!busy) return;
-    const id = window.setInterval(() => setStep((s) => Math.min(s + 1, STEPS.length - 1)), 7000);
+    const id = window.setInterval(() => setStep((s) => Math.min(s + 1, pasos.length - 1)), 7000);
     return () => window.clearInterval(id);
-  }, [busy]);
+  }, [busy, pasos.length]);
 
   async function submit(event: FormEvent) {
     event.preventDefault();
@@ -58,5 +62,5 @@ export function useArmarDemo({ antesDeIr }: Opciones = {}) {
     setError(data?.error?.message ?? "No pudimos armar la demo ahora. Prueba de nuevo en un momento.");
   }
 
-  return { name, setName, website, setWebsite, busy, paso: STEPS[step], error, codigo, submit };
+  return { name, setName, website, setWebsite, busy, paso: pasos[step], error, codigo, submit };
 }

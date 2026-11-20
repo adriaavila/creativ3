@@ -8,7 +8,7 @@ import { join } from "node:path";
 // con Playwright (window.__manos("cerrado") en desarrollo) a
 // public/og/te-toca.png, y esta ruta la sirve tal cual. La ruta sigue siendo
 // /opengraph-image porque /trabajo la enlaza.
-export const alt = "Te toca, 2026. Adrián Avila.";
+export const alt = "Your move, 2026. Adrián Avila.";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 

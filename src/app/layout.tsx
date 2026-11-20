@@ -71,7 +71,7 @@ export const metadata: Metadata = {
     "Adrian Avila Molina",
   ],
   openGraph: {
-    title: "Hola, soy Adrián · allok",
+    title: "Hi, I'm Adrián · allok",
     description:
       `${SHIPPED} sistemas en producción. Un CRM de WhatsApp, agentes a medida y la agencia que construye el resto — diseño, código y despliegue por el mismo par de manos.`,
     url: "https://allok.fun",
@@ -84,21 +84,22 @@ export const metadata: Metadata = {
         width: 1200,
         height: 630,
         // Describe la imagen (app/opengraph-image.tsx): el cuadro cerrado de «Te toca».
-        alt: "Te toca, 2026. Adrián Avila.",
+        alt: "Your move, 2026. Adrián Avila.",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Hola, soy Adrián · allok",
+    title: "Hi, I'm Adrián · allok",
     description:
       `${SHIPPED} sistemas en producción. Diseño, frontend, backend y despliegue, con los agentes haciendo la mitad aburrida.`,
     images: ["/opengraph-image"],
   },
 };
 
-// La casa habla español; el inglés es la excepción: el portafolio y `/en`.
-const ENGLISH_SECTIONS = ["en", "portfolio", "work", "lab", "writing", "projects"];
+// Lo principal habla inglés (la portada, /trabajo, el portafolio y `/en`, Adrián 2026-11-19); las páginas de
+// producto y de búsqueda siguen en español.
+const ENGLISH_SECTIONS = ["", "trabajo", "en", "portfolio", "work", "lab", "writing", "projects"];
 
 export default function RootLayout({
   children,

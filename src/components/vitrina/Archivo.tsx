@@ -26,15 +26,15 @@ export default function Archivo({ children, pie }: { children?: React.ReactNode;
       <main id="contenido">
         <section className="section-intro archivo-intro" data-theme="ink" data-stagger aria-labelledby="archivo-titulo">
           <p className="label" data-reveal="fade">
-            Trabajo
+            Work
           </p>
           <h1 id="archivo-titulo" className="display" data-reveal="rise" style={vars({ "--d": "120ms" })}>
-            <Rise>Todo el</Rise>
-            <Rise line={1}>trabajo.</Rise>
+            <Rise>All the</Rise>
+            <Rise line={1}>work.</Rise>
           </h1>
           <p className="lead" data-reveal style={vars({ "--d": "320ms" })}>
-            {CUENTAS.piezas} trabajos entre webs, sistemas y agentes de IA. {CUENTAS.lanzadas} ya están en uso. Toca cualquiera
-            para abrir su ficha.
+            {CUENTAS.piezas} projects across websites, systems and AI agents. {CUENTAS.lanzadas} are already in use. Tap any of them
+            to open it.
           </p>
         </section>
         <Indice onOpen={abrir} />

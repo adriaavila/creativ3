@@ -78,10 +78,10 @@ const cadena = (re) => {
 };
 const MSG_INICIO = cadena(/HOME_WHATSAPP_MESSAGE\s*=\s*"((?:[^"\\]|\\.)*)"/);
 const MSG_AGENTE = cadena(/origen\s*===\s*"agente"\)\s*return\s*"((?:[^"\\]|\\.)*)"/);
-const PLANTILLA_PIEZA = /`(Hola[^`]*?)\$\{pieza\.nombre\}([^`]*)`/.exec(CONTACTO);
-const msgPieza = (nombre) => (PLANTILLA_PIEZA ? `${PLANTILLA_PIEZA[1]}${nombre}${PLANTILLA_PIEZA[2]}` : `Hola, Adrián. Vi ${nombre} en allok.fun`);
+const PLANTILLA_PIEZA = /`(Hi[^`]*?)\$\{pieza\.nombre\}([^`]*)`/.exec(CONTACTO);
+const msgPieza = (nombre) => (PLANTILLA_PIEZA ? `${PLANTILLA_PIEZA[1]}${nombre}${PLANTILLA_PIEZA[2]}` : `Hi Adrián, I saw ${nombre} on allok.fun`);
 // Lo que la spec pide literalmente para SAMER.
-const SAMER_PREFIJO = "Hola, Adrián. Vi SAMER en allok.fun";
+const SAMER_PREFIJO = "Hi Adrián, I saw SAMER on allok.fun";
 if (!MSG_INICIO) {
   console.error("FAIL: no encuentro HOME_WHATSAPP_MESSAGE en src/lib/contact.ts");
   process.exit(1);
@@ -89,10 +89,10 @@ if (!MSG_INICIO) {
 
 // Los cuatro trabajos de la portada (historias.ts) y lo que dicen sus etiquetas.
 const OBRAS = [
-  { id: "samer", nombre: "SAMER", tag: "Cliente" },
-  { id: "rei-fm", nombre: "REI", tag: "Mío" },
-  { id: "cuadra", nombre: "Cuadra", tag: "Mío" },
-  { id: "mistica", nombre: "Mística", tag: "Cliente" },
+  { id: "samer", nombre: "SAMER", tag: "Client" },
+  { id: "rei-fm", nombre: "REI", tag: "Mine" },
+  { id: "cuadra", nombre: "Cuadra", tag: "Mine" },
+  { id: "mistica", nombre: "Mística", tag: "Client" },
 ];
 const selObra = (o) => `article.obra[data-pieza="${o.nombre}"], article.obra#${o.id}`;
 
@@ -683,7 +683,7 @@ function LIB() {
       for (const o of obras) {
         const art = document.querySelector(`article.obra[data-pieza="${o.nombre}"]`) || document.getElementById(o.id);
         const tag = art && art.querySelector(".obra-tag");
-        out.obras.push({ ...o, existe: !!art, tagVisto: tag && visible(tag) ? texto(tag) : null, nota: art ? /Datos de ejemplo/.test(textoVisible(art)) : false });
+        out.obras.push({ ...o, existe: !!art, tagVisto: tag && visible(tag) ? texto(tag) : null, nota: art ? /Sample data/.test(textoVisible(art)) : false });
       }
       const us = [];
       const tw = document.createTreeWalker(document, NodeFilter.SHOW_TEXT);
@@ -1001,7 +1001,7 @@ async function prefill(p) {
   if (yAgente === null) p.linea(false, `${etiqueta} #agente al centro`, "no hay section#agente");
   else {
     await desplazar(page, yAgente);
-    const esperado = MSG_AGENTE || "Hola, Adrián. Vi el agente de WhatsApp en allok.fun";
+    const esperado = MSG_AGENTE || "Hi Adrián, I saw the WhatsApp agent on allok.fun";
     ok = await esperar((t) => typeof t === "string" && t.startsWith(esperado));
     p.linea(ok, `${etiqueta} #agente al centro: la frase del agente`, corta(await leerBarra()));
   }
@@ -1127,7 +1127,7 @@ async function toque(p) {
     });
     return r && r.op === "1" && (await lib(page, "visible", "#inicio .respuesta")) ? r : null;
   }, { ms: 1500 });
-  p.linea(!!resp && resp.texto.includes("Cuéntame qué te quita tiempo."), `${etiqueta} «Cuéntame qué te quita tiempo.» a la vista`, resp ? corta(resp.texto) : "no se ve #inicio .respuesta");
+  p.linea(!!resp && resp.texto.includes("Tell me what eats your time."), `${etiqueta} «Tell me what eats your time.» a la vista`, resp ? corta(resp.texto) : "no se ve #inicio .respuesta");
 }
 
 /** [solo] Sin tocar nada, el lazo se cierra en 6.5 s desde el load (la spec: «within 6.5 s of load»), con y sin WebGL. */
@@ -1718,8 +1718,8 @@ async function sinJs(p) {
   const { page, etiqueta } = await p.abrir({ vista: "390", js: false });
   await ir(page);
   const r = await lib(page, "sinJs");
-  p.linea(r.h1.visible && /Hola, soy\s*Adrián\./.test(r.h1.texto), `${etiqueta} el H1`, corta(r.h1.texto));
-  p.linea(r.sub.visible && r.sub.texto.includes("Hago webs, sistemas y agentes de WhatsApp para tu negocio."), `${etiqueta} el sub`, corta(r.sub.texto));
+  p.linea(r.h1.visible && /Hi, I.m\s*Adrián\./.test(r.h1.texto), `${etiqueta} el H1`, corta(r.h1.texto));
+  p.linea(r.sub.visible && r.sub.texto.includes("I build websites, systems and WhatsApp agents for your business."), `${etiqueta} el sub`, corta(r.sub.texto));
   p.linea(r.boceto.existe && r.boceto.boceto && r.boceto.puntoVisible && r.boceto.arcoVisible !== false, `${etiqueta} el boceto, cerrado`, JSON.stringify(r.boceto));
   p.linea(r.barra.ok, `${etiqueta} una barra wa.me entera y sin tapar`, r.barra.detalle.length ? JSON.stringify(r.barra.detalle) : 'ningún a[href^="https://wa.me/"]');
   const ids = OBRAS.filter((o) => !r.capturas.ids.includes(o.id)).map((o) => o.id);
@@ -2042,7 +2042,7 @@ async function honestidad(p) {
   await recorrer(page);
   const r = await lib(page, "honestidad", OBRAS);
   const rei = r.obras.find((o) => o.id === "rei-fm");
-  p.linea(rei.existe && rei.nota, `${etiqueta} REI muestra «Datos de ejemplo»`, rei.existe ? (rei.nota ? "" : "no se ve") : "no hay article de REI");
+  p.linea(rei.existe && rei.nota, `${etiqueta} REI muestra «Sample data»`, rei.existe ? (rei.nota ? "" : "no se ve") : "no hay article de REI");
   for (const o of r.obras) p.linea(o.existe && o.tagVisto === o.tag, `${etiqueta} ${o.nombre} lleva «${o.tag}»`, o.existe ? (o.tagVisto === null ? "sin .obra-tag a la vista" : corta(o.tagVisto)) : "no hay article");
   p.linea(r.us.length === 0, `${etiqueta} ningún texto con «US$»`, r.us.map((x) => corta(x, 40)).join(" · "));
   p.linea(r.raya.length === 0, `${etiqueta} nada en pantalla con la raya larga (U+2014)`, r.raya.map((x) => corta(x, 40)).join(" · "));

@@ -1,10 +1,10 @@
 "use client";
 
 import { useRef, useState, type FormEvent, type ReactNode } from "react";
-import { useArmarDemo } from "@/components/allok/useArmarDemo";
+import { STEPS_EN, useArmarDemo } from "@/components/allok/useArmarDemo";
 import { prefill, whatsappUrl } from "@/lib/contact";
 
-// Lo que el dueño puede corregir en el formulario: ahí vale el mensaje de la API tal cual.
+// Lo que el dueño puede corregir en el formulario.
 const CORREGIBLE = new Set(["invalid", "bad_url"]);
 // Lo que falla por la web que pegó (un perfil de Instagram, una web que no abre o no dice nada).
 const POR_LA_DIRECCION = new Set(["walled_site", "unreadable", "empty"]);
@@ -47,6 +47,7 @@ export default function DemoAgente({ tituloId, marca }: { tituloId: string; marc
   // La API dijo que sí: el lazo se cierra (el arco y después el punto) y recién entonces se va a la demo.
   const [listo, setListo] = useState(false);
   const { name, setName, website, setWebsite, busy, paso, error, codigo, submit } = useArmarDemo({
+    pasos: STEPS_EN,
     antesDeIr: () => {
       setListo(true);
       return new Promise<void>((ir) => window.setTimeout(ir, cierre(espera.current)));
@@ -73,7 +74,7 @@ export default function DemoAgente({ tituloId, marca }: { tituloId: string; marc
     // Sin aria-busy en el formulario: callaría los pasos que la región viva va anunciando.
     <form onSubmit={enviar} className="agente-form" aria-labelledby={tituloId}>
       <label className="cmd-field agente-campo" data-reveal="row" suppressHydrationWarning>
-        <span className="label">Tu negocio</span>
+        <span className="label">Your business</span>
         <input
           required
           minLength={2}
@@ -81,13 +82,13 @@ export default function DemoAgente({ tituloId, marca }: { tituloId: string; marc
           value={name}
           onChange={(e) => setName(e.target.value)}
           readOnly={busy}
-          placeholder="p. ej. Panadería Luz"
+          placeholder="e.g. Luz Bakery"
           autoComplete="organization"
           aria-describedby={describe}
         />
       </label>
       <label className="cmd-field agente-campo" data-reveal="row" suppressHydrationWarning>
-        <span className="label">Tu web</span>
+        <span className="label">Your website</span>
         <input
           required
           minLength={3}
@@ -95,7 +96,7 @@ export default function DemoAgente({ tituloId, marca }: { tituloId: string; marc
           value={website}
           onChange={(e) => setWebsite(e.target.value)}
           readOnly={busy}
-          placeholder="p. ej. panaderialuz.com"
+          placeholder="e.g. luzbakery.com"
           inputMode="url"
           autoComplete="url"
           autoCapitalize="none"
@@ -106,7 +107,7 @@ export default function DemoAgente({ tituloId, marca }: { tituloId: string; marc
       </label>
       <div className="agente-envio" data-reveal="row" suppressHydrationWarning>
         <button type="submit" className="btn btn-outline" aria-disabled={busy || undefined}>
-          {busy ? "Armando…" : "Armar mi demo"}
+          {busy ? "Building…" : "Build my demo"}
         </button>
         {/* Si falló, el dibujo a medias se va: una raya y una burbuja vacía se leían como algo roto. */}
         <div
@@ -130,14 +131,19 @@ export default function DemoAgente({ tituloId, marca }: { tituloId: string; marc
       </p>
       <p id="demo-agente-error" className="agente-error" role="alert">
         {!error ? null : codigo && CORREGIBLE.has(codigo) ? (
-          error
+          // La API contesta en español: aquí se dice en inglés, como el resto de la portada.
+          codigo === "bad_url" ? (
+            "That doesn’t look like a website address. Check it and try again."
+          ) : (
+            "Check your business name and website, then try again."
+          )
         ) : (
           <>
-            No se pudo armar la demo {codigo && POR_LA_DIRECCION.has(codigo) ? "con esa dirección" : "ahora"}.{" "}
+            Couldn&apos;t build the demo {codigo && POR_LA_DIRECCION.has(codigo) ? "with that address" : "right now"}.{" "}
             <a href={whatsappUrl(prefill("agente"))} target="_blank" rel="noopener noreferrer">
-              Escríbeme por WhatsApp
+              Message me on WhatsApp
             </a>{" "}
-            y lo vemos.
+            and we&apos;ll sort it out.
           </>
         )}
       </p>

@@ -7,7 +7,7 @@ import ManosTrazo from "@/components/vitrina/ManosTrazo";
 import { prefill, whatsappUrl } from "@/lib/contact";
 
 export const metadata: Metadata = {
-  title: { absolute: "Aquí no hay nada · allok" },
+  title: { absolute: "Nothing here · allok" },
   robots: { index: false },
 };
 
@@ -28,20 +28,20 @@ export default function NotFound() {
           <div className="cierre-cuerpo">
             <p className="label">404</p>
             <h1 id="no-existe-titulo" className="headline cierre-titulo">
-              Aquí no hay nada.
+              Nothing here.
             </h1>
-            <p className="cierre-bio">Esta página no existe o cambió de lugar.</p>
-            <nav className="no-existe-salidas" aria-label="Salidas">
+            <p className="cierre-bio">This page doesn&apos;t exist or has moved.</p>
+            <nav className="no-existe-salidas" aria-label="Ways out">
               {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- <a> simple: next/link aquí sumaba JS a la portada */}
               <a className="btn btn-primary" href="/">
-                Volver al inicio
+                Back home
               </a>
               {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- ídem */}
               <a className="btn btn-outline" href="/trabajo">
-                Todo el trabajo
+                All the work
               </a>
               <a className="btn btn-link" href={whatsappUrl(prefill())} target="_blank" rel="noopener noreferrer">
-                Escríbeme por WhatsApp
+                Message me on WhatsApp
               </a>
             </nav>
           </div>

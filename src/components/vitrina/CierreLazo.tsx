@@ -42,7 +42,7 @@ export default function CierreLazo({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <button ref={caja} type="button" className="cierre-lazo" aria-label="Cierra el lazo">
+    <button ref={caja} type="button" className="cierre-lazo" aria-label="Close the loop">
       {children}
       <span className="manos-punto" aria-hidden="true" />
     </button>

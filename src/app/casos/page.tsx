@@ -3,7 +3,7 @@ import Link from "next/link";
 import { CASOS, LIVE_SYSTEMS, SOLUTIONS } from "@/lib/casos";
 import SiteHeader from "@/components/allok/SiteHeader";
 import SiteFooter from "@/components/allok/SiteFooter";
-import { prefill, whatsappUrl } from "@/lib/contact";
+import { HOME_WHATSAPP_MESSAGE_ES, whatsappUrl } from "@/lib/contact";
 import Rise from "@/components/allok/Rise";
 import Screen from "@/components/allok/Screen";
 
@@ -29,7 +29,7 @@ export default function CasosPage() {
   return (
     <div className="allok">
       <div className="allok-void pb-[clamp(56px,8vw,96px)]">
-        <SiteHeader nav={NAV} cta={{ href: whatsappUrl(prefill()), label: "Escríbeme" }} />
+        <SiteHeader nav={NAV} cta={{ href: whatsappUrl(HOME_WHATSAPP_MESSAGE_ES), label: "Escríbeme" }} />
         <div className="mx-auto max-w-[1000px] px-5 pt-10 text-center sm:px-10 sm:pt-14">
           <p className="mono text-[var(--on-void-60)]">{LIVE_SYSTEMS} sistemas en producción</p>
           <h1 className="hero mt-6 text-balance !text-[clamp(2.4rem,6vw,5rem)]">El trabajo habla primero.</h1>
@@ -83,7 +83,7 @@ export default function CasosPage() {
         </p>
       </section>
 
-      <SiteFooter mensaje={prefill()} />
+      <SiteFooter mensaje={HOME_WHATSAPP_MESSAGE_ES} />
     </div>
   );
 }

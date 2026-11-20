@@ -16,7 +16,7 @@ const FIRMA_ALTO = 48;
 const enPublic = (ruta: string) => join(process.cwd(), "public", ruta);
 
 // El colofón, como comentario en el HTML: a la vista vive en el pie de /trabajo.
-const COLOFON = "<!-- Geist by Vercel and basement.studio · three.js by Mr.doob · hecho con agentes de IA · Edición 2026 -->";
+const COLOFON = "<!-- Geist by Vercel and basement.studio · three.js by Mr.doob · made with AI agents · Edition 2026 -->";
 
 /**
  * La firma, si existe: sus trazos van en línea para que se dibujen solos, en
@@ -53,7 +53,7 @@ export default function Cierre() {
       </CierreLazo>
       <div className="cierre-cuerpo">
         <h2 id="cierre-titulo" className="headline cierre-titulo" data-reveal="rise">
-          <Rise>Te toca.</Rise>
+          <Rise>Your move.</Rise>
         </h2>
         <div className="cierre-quien">
           {retrato ? (
@@ -75,11 +75,11 @@ export default function Cierre() {
                 ))}
               </svg>
             ) : null}
-            <p className="cierre-bio">Ingeniero industrial. Trabajo con agentes de IA.</p>
+            <p className="cierre-bio">Industrial engineer. I work with AI agents.</p>
           </div>
         </div>
       </div>
-      <p className="cierre-precio">Precio cerrado antes de empezar.</p>
+      <p className="cierre-precio">Fixed price before we start.</p>
       {MOSTRAR_NUMERO ? <p className="cierre-numero tnum">{NUMERO}</p> : null}
     </section>
   );
@@ -101,13 +101,13 @@ export function Pie() {
       </span>
       {/* Un <a> simple, como en la fila de los 19: la portada no carga next/link. */}
       {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- a propósito, ver la línea de arriba */}
-      <a className="pie-item" href="/es/privacidad">
-        Privacidad
+      <a className="pie-item" href="/en/privacy">
+        Privacy
       </a>
       <span className="pie-punto" aria-hidden="true">
         ·
       </span>
-      <span className="pie-item">Edición 2026</span>
+      <span className="pie-item">Edition 2026</span>
       <span hidden dangerouslySetInnerHTML={{ __html: COLOFON }} />
     </footer>
   );

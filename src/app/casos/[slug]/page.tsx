@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { CASOS, SOLUTIONS, casoBySlug, casoLiveLinks, casoProjects } from "@/lib/casos";
 import SiteHeader from "@/components/allok/SiteHeader";
 import SiteFooter from "@/components/allok/SiteFooter";
-import { prefill, whatsappUrl } from "@/lib/contact";
+import { HOME_WHATSAPP_MESSAGE_ES, whatsappUrl } from "@/lib/contact";
 import Rise from "@/components/allok/Rise";
 import Screen from "@/components/allok/Screen";
 
@@ -45,7 +45,7 @@ export default async function CasoPage({ params }: PageProps<"/casos/[slug]">) {
   return (
     <div className="allok">
       <div className="allok-void pb-[clamp(200px,24vw,320px)]">
-        <SiteHeader nav={NAV} cta={{ href: whatsappUrl(prefill()), label: "Escríbeme" }} />
+        <SiteHeader nav={NAV} cta={{ href: whatsappUrl(HOME_WHATSAPP_MESSAGE_ES), label: "Escríbeme" }} />
         <div className="mx-auto max-w-[1000px] px-5 pt-10 text-center sm:px-10 sm:pt-14">
           <p className="mono text-[var(--on-void-60)]">
             <Link href="/casos" className="inline-flex min-h-11 items-center underline underline-offset-4">
@@ -169,7 +169,7 @@ export default async function CasoPage({ params }: PageProps<"/casos/[slug]">) {
         </div>
       </section>
 
-      <SiteFooter mensaje={prefill()} />
+      <SiteFooter mensaje={HOME_WHATSAPP_MESSAGE_ES} />
     </div>
   );
 }

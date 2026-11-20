@@ -20,17 +20,17 @@ export default function Indice({ onOpen }: { onOpen: (id: string) => void }) {
     <section id="indice" aria-labelledby="indice-titulo" className="section" data-theme="cloud" data-stagger>
       <div className="section-title">
         <p className="label" data-reveal="fade">
-          Todo
+          All
         </p>
         <h2 id="indice-titulo" className="headline" data-reveal="rise">
-          <Rise>Los {PIEZAS.length},</Rise>
-          <Rise line={1}>uno por uno.</Rise>
+          <Rise>All {PIEZAS.length},</Rise>
+          <Rise line={1}>one by one.</Rise>
         </h2>
       </div>
       {/* La lista mide dos o tres pantallas: con el 15 % de siempre, en un teléfono hacía falta media pantalla de ella a
           la vista antes de aparecer, y bajo el título quedaba un hueco vacío. Entra apenas asoma. */}
       <div data-reveal data-threshold="0">
-        <div role="group" aria-label="Filtrar por disciplina" className="chips indice-filtros">
+        <div role="group" aria-label="Filter by discipline" className="chips indice-filtros">
           {DISCIPLINAS.map((d) => {
             const n = d.id === "todo" ? PIEZAS.length : PIEZAS.filter((p) => p.disciplinas.includes(d.id as Disciplina)).length;
             const on = filtro === d.id;
@@ -42,7 +42,7 @@ export default function Indice({ onOpen }: { onOpen: (id: string) => void }) {
           })}
         </div>
         <p className="sr-only" aria-live="polite">
-          {lista.length === 1 ? "1 trabajo" : `${lista.length} trabajos`}
+          {lista.length === 1 ? "1 project" : `${lista.length} projects`}
         </p>
         <ol className="log">
           {lista.map((p) => (
@@ -57,7 +57,7 @@ export default function Indice({ onOpen }: { onOpen: (id: string) => void }) {
                 </span>
                 <span className={claseEstado(p.status)}>{ESTADO[p.status]}</span>
                 <span className="log-code">
-                  Abrir <span className="arw arw-r" aria-hidden="true">→</span>
+                  Open <span className="arw arw-r" aria-hidden="true">→</span>
                 </span>
               </button>
             </li>

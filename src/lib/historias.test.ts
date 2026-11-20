@@ -74,7 +74,7 @@ test("en la portada, cada trabajo cabe en una línea corta y dice de quién es",
   for (const h of HISTORIAS) {
     assert.ok(palabras(h.linea) <= 8, `${h.id}: «${h.linea}» pasa de ocho palabras`);
     assert.ok(!h.linea.includes("—"), `${h.id} con raya`);
-    assert.equal(h.tag === "Mío", h.origen === "Producto propio", `${h.id}: la etiqueta no coincide con su origen`);
+    assert.equal(h.tag === "Mine", h.origen === "Producto propio", `${h.id}: la etiqueta no coincide con su origen`);
     assert.equal(h.nombre, PIEZAS.find((p) => p.id === h.id)?.name, h.id);
   }
   assert.deepEqual(

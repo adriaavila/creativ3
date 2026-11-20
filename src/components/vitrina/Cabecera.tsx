@@ -8,9 +8,9 @@ import Escribeme from "./Escribeme";
 // Desde /trabajo y las demás páginas. Sobre mí y Cómo empezamos salieron de la portada y viven en /trabajo; el trabajo
 // de la portada ahora es #obras.
 const NAV = [
-  { href: "/#obras", label: "Trabajo" },
-  { href: "/trabajo#sobre-mi", label: "Sobre mí" },
-  { href: "/trabajo#empezar", label: "Cómo empezamos" },
+  { href: "/#obras", label: "Work" },
+  { href: "/trabajo#sobre-mi", label: "About" },
+  { href: "/trabajo#empezar", label: "How we start" },
 ];
 
 /**
@@ -59,22 +59,22 @@ export default function Cabecera() {
   return (
     <header ref={ref} className="header" data-hide-on-scroll data-theme="ink">
       <a className="btn btn-primary saltar" href="#contenido">
-        Saltar al contenido
+        Skip to content
       </a>
-      <Link className="wordmark" href="/" aria-label="allok, inicio">
+      <Link className="wordmark" href="/" aria-label="allok, home">
         <WordmarkSvg />
       </Link>
       <span />
-      <nav className="header-end" aria-label="Principal">
+      <nav className="header-end" aria-label="Main">
         {NAV.map((n) => (
           <Link key={n.href} className="btn btn-link" href={n.href}>
             {n.label}
           </Link>
         ))}
         <Link className="btn btn-link" href="/agente-whatsapp">
-          Agente de WhatsApp
+          WhatsApp agent
         </Link>
-        <Escribeme flecha={false}>Escríbeme</Escribeme>
+        <Escribeme flecha={false}>Message me</Escribeme>
       </nav>
     </header>
   );

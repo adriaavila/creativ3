@@ -13,15 +13,15 @@ export default function CabeceraPortada() {
     <header className="header header-portada" data-theme="ink">
       {/* Lo primero que alcanza el teclado; fuera de la vista hasta entonces. */}
       <a className="btn btn-primary saltar" href="#contenido">
-        Saltar al contenido
+        Skip to content
       </a>
       {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- a propósito: la portada no carga next/link (JS) */}
-      <a className="wordmark" href="/" aria-label="allok, inicio">
+      <a className="wordmark" href="/" aria-label="allok, home">
         <WordmarkSvg />
       </a>
       {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- a propósito: la portada no carga next/link (JS) */}
       <a className="btn btn-link agente-enlace" href="/agente-whatsapp">
-        Agente de WhatsApp
+        WhatsApp agent
       </a>
     </header>
   );

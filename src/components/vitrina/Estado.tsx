@@ -55,15 +55,15 @@ export default function Estado() {
         <span className="estado-punto" aria-hidden="true">
           ●
         </span>{" "}
-        <span className="estado-quien">Te contesto yo</span>
+        <span className="estado-quien">I reply myself</span>
         {/* El separador va con lo que separa: sin hora (o sin JavaScript) no queda un «·» colgando. */}
         <span className="estado-hora">
           {" "}
-          <span aria-hidden="true">·</span> <Reloj /> en Venezuela
+          <span aria-hidden="true">·</span> <Reloj /> in Venezuela
         </span>
         <span className="estado-lugar">
           {" "}
-          <span aria-hidden="true">·</span> Venezuela y Bolivia
+          <span aria-hidden="true">·</span> Venezuela and Bolivia
         </span>
       </p>
       {nota ? <VozChip src={NOTA} duracion={duracion(NOTA)} /> : null}

@@ -18,19 +18,19 @@ export default function Portada() {
   return (
     <section id="inicio" className="hero portada" data-theme="ink" aria-labelledby="inicio-titulo">
       <h1 id="inicio-titulo" className="display">
-        <Rise>Hola, soy</Rise>
+        <Rise>Hi, I&apos;m</Rise>
         <Rise line={1}>Adrián.</Rise>
       </h1>
       {/* Dos frases que no se parten por dentro. Cada una es su propio bloque de texto: así el nombre, que en el
           primer pintado todavía asoma desde su borde, sigue siendo el texto más grande de la pantalla (el LCP). */}
       <p className="sub">
-        <span>Hago webs, sistemas y agentes</span> <span>de WhatsApp para tu negocio.</span>
+        <span>I build websites, systems</span> <span>and WhatsApp agents for your business.</span>
       </p>
       <div className="portada-escena">
         <Manos>
           <ManosTrazo />
         </Manos>
-        <p className="respuesta">Cuéntame qué te quita tiempo.</p>
+        <p className="respuesta">Tell me what eats your time.</p>
       </div>
       <Estado />
     </section>

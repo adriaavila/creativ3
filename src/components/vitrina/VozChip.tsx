@@ -26,7 +26,7 @@ export default function VozChip({ src, duracion }: { src: string; duracion: stri
       <button
         type="button"
         className="voz"
-        aria-label={duracion ? `Escuchar a Adrián, ${duracion}` : "Escuchar a Adrián"}
+        aria-label={duracion ? `Listen to Adrián, ${duracion}` : "Listen to Adrián"}
         aria-pressed={sonando}
         onClick={tocar}
       >

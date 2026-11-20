@@ -11,7 +11,7 @@ export default function Agente() {
   return (
     <section id="agente" className="agente" data-theme="ink" data-stagger="" aria-labelledby="agente-titulo">
       <h2 id="agente-titulo" className="agente-titulo" data-reveal="">
-        Prueba tu agente de WhatsApp.
+        Try your WhatsApp agent.
       </h2>
       <DemoAgente tituloId="agente-titulo" marca={<MarkSvg />} />
     </section>

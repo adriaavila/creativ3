@@ -8,7 +8,7 @@ import Obra from "./Obra";
  */
 export default function Obras() {
   return (
-    <section id="obras" className="obras" data-theme="cloud" aria-label="Trabajos">
+    <section id="obras" className="obras" data-theme="cloud" aria-label="Work">
       {HISTORIAS.map((h) => (
         <Obra key={h.id} historia={h} />
       ))}

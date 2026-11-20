@@ -7,11 +7,11 @@ import { useEffect, useRef } from "react";
 // a 120 ms de una sola tarea al hidratar en un teléfono 4x más lento. Si el huso vuelve a cambiar, se cambia aquí.
 const DESFASE = -4 * 60 * 60 * 1000;
 
-/** «3:07 p. m.», como lo escribe Intl con es-VE (comprobado minuto a minuto): 12 del mediodía es «12:00 p. m.». */
+/** «3:07 p.m.»: 12 del mediodía es «12:00 p.m.» y medianoche «12:00 a.m.». */
 function hora(ahora: number): string {
   const d = new Date(ahora + DESFASE);
   const h = d.getUTCHours();
-  return `${h % 12 || 12}:${String(d.getUTCMinutes()).padStart(2, "0")} ${h < 12 ? "a." : "p."} m.`;
+  return `${h % 12 || 12}:${String(d.getUTCMinutes()).padStart(2, "0")} ${h < 12 ? "a.m." : "p.m."}`;
 }
 
 /**

@@ -386,7 +386,7 @@ export default function Manos({ children }: { children: ReactNode }) {
     <button ref={caja} type="button" className="manos" data-estado="espera" aria-labelledby={pista}>
       {children}
       <span className="manos-pista" id={pista}>
-        Toca las manos
+        Tap the hands
       </span>
       <span className="manos-punto" aria-hidden="true" />
     </button>

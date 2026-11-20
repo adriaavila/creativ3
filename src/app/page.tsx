@@ -8,15 +8,15 @@ import Vitrina from "@/components/vitrina/Vitrina";
 // app/opengraph-image.tsx, el cuadro final de la escena. Sobre mí y Cómo
 // empezamos viven en /trabajo.
 
-const TITLE = "Hola, soy Adrián · allok";
-const DESCRIPTION = "Webs, sistemas y agentes de WhatsApp para tu negocio. Te contesto yo.";
+const TITLE = "Hi, I'm Adrián · allok";
+const DESCRIPTION = "Websites, systems and WhatsApp agents for your business. I reply myself.";
 
 export const metadata: Metadata = {
   title: { absolute: TITLE },
   description: DESCRIPTION,
   alternates: { canonical: "/" },
   // Un openGraph propio reemplaza entero el del layout: el nombre del sitio va dicho aquí.
-  openGraph: { title: TITLE, description: DESCRIPTION, url: "/", siteName: "allok", type: "website", locale: "es" },
+  openGraph: { title: TITLE, description: DESCRIPTION, url: "/", siteName: "allok", type: "website", locale: "en" },
   twitter: { card: "summary_large_image", title: TITLE, description: DESCRIPTION },
 };
 

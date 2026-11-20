@@ -8,16 +8,16 @@ type Cuadro = { id: string; name: string; label: string; src: string; alt: strin
 
 // Lo que no se ve desde afuera: los sistemas por dentro, pantalla por pantalla.
 const ORDEN: [string, string, string][] = [
-  ["cuadra", "/projects/cuadra/02-desktop-scroll.jpg", "Una venta en dos monedas"],
-  ["soapy", "/projects/soapy/dashboard.jpg", "Tablero del dueño por sucursal"],
-  ["mistica", "/projects/mistica/dashboard.png", "Cobranza del mes"],
-  ["pace-running", "/projects/pace-running/01-desktop.jpg", "Atletas y planes"],
-  ["soapy", "/projects/soapy/orders.jpg", "Pedidos y sus traspasos"],
-  ["mistica", "/projects/mistica/home.png", "Las clases de hoy"],
-  ["taller-samer", "/projects/taller-samer/01-desktop.jpg", "Horas por equipo"],
-  ["pausa", "/projects/pausa/03-mobile.jpg", "Chequeo diario"],
-  ["almacen-vc", "/projects/almacen-vc/02-desktop-scroll.jpg", "Almacén por área"],
-  ["mistica", "/projects/mistica/cobros-sin-nombres.png", "Cobros con vencimiento"],
+  ["cuadra", "/projects/cuadra/02-desktop-scroll.jpg", "One sale, two currencies"],
+  ["soapy", "/projects/soapy/dashboard.jpg", "Owner dashboard by branch"],
+  ["mistica", "/projects/mistica/dashboard.png", "This month's collections"],
+  ["pace-running", "/projects/pace-running/01-desktop.jpg", "Athletes and plans"],
+  ["soapy", "/projects/soapy/orders.jpg", "Orders and their handoffs"],
+  ["mistica", "/projects/mistica/home.png", "Today's classes"],
+  ["taller-samer", "/projects/taller-samer/01-desktop.jpg", "Hours per machine"],
+  ["pausa", "/projects/pausa/03-mobile.jpg", "Daily check-in"],
+  ["almacen-vc", "/projects/almacen-vc/02-desktop-scroll.jpg", "Stock by area"],
+  ["mistica", "/projects/mistica/cobros-sin-nombres.png", "Payments with due dates"],
 ];
 
 const CUADROS: Cuadro[] = ORDEN.flatMap(([id, src, label]) => {
@@ -30,12 +30,12 @@ export default function Interior({ onOpen }: { onOpen: (id: string) => void }) {
   return (
     <section id="por-dentro" aria-labelledby="por-dentro-titulo" className="section" data-theme="cloud" data-stagger>
       <div className="section-title">
-        <p className="label" data-reveal="fade">Por dentro</p>
+        <p className="label" data-reveal="fade">Inside</p>
         <h2 id="por-dentro-titulo" className="headline" data-reveal="rise">
-          <Rise>Por</Rise>
-          <Rise line={1}>dentro.</Rise>
+          <Rise>Under the</Rise>
+          <Rise line={1}>hood.</Rise>
         </h2>
-        <p data-reveal>Lo que tus clientes nunca ven: las pantallas con las que se opera un negocio todos los días.</p>
+        <p data-reveal>What your customers never see: the screens a business runs on every day.</p>
       </div>
       <div className="tiles" data-stagger>
         {CUADROS.map((c, i) => (

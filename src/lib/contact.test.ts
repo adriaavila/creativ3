@@ -10,10 +10,10 @@ const TODOS: [Origen, { nombre: string } | undefined][] = [
   ...HISTORIAS.map((h): [Origen, { nombre: string }] => ["pieza", { nombre: h.nombre }]),
 ];
 
-test("cada primera frase contesta al «Hola, soy Adrián.» y queda abierta para que el dueño siga", () => {
+test("cada primera frase contesta al «Hi, I'm Adrián.» y queda abierta para que el dueño siga", () => {
   for (const [origen, pieza] of TODOS) {
     const m = prefill(origen, pieza);
-    assert.ok(m.startsWith("Hola, Adrián."), `${origen}: ${m}`);
+    assert.ok(m.startsWith("Hi Adrián,"), `${origen}: ${m}`);
     assert.ok(m.endsWith(": ") || m.endsWith(". "), `${origen}: ${m}`);
     assert.ok(!m.includes("—"), `${origen} con raya: ${m}`);
   }
@@ -28,8 +28,8 @@ test("la portada, el cierre y lo que no se reconoce usan la frase de siempre", (
 });
 
 test("cada trabajo y el agente se nombran en su frase", () => {
-  for (const h of HISTORIAS) assert.ok(prefill("pieza", { nombre: h.nombre }).includes(`Vi ${h.nombre} en allok.fun`), h.id);
-  assert.ok(prefill("agente").includes("el agente de WhatsApp"));
+  for (const h of HISTORIAS) assert.ok(prefill("pieza", { nombre: h.nombre }).includes(`I saw ${h.nombre} on allok.fun`), h.id);
+  assert.ok(prefill("agente").includes("the WhatsApp agent"));
 });
 
 test("el enlace de wa.me lleva el número y la frase entera, de ida y vuelta", () => {

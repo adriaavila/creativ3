@@ -33,116 +33,116 @@ export type Pieza = {
   images: { src: string; alt: string; label: string; mobile: boolean; ratio: number }[];
 };
 
-const ES: Record<string, { tipo: string; linea: string; historia: string }> = {
+const TEXTO: Record<string, { tipo: string; linea: string; historia: string }> = {
   "rei-fm": {
-    tipo: "Administración de edificios",
-    linea: "Tu edificio, administrado.",
+    tipo: "Building management",
+    linea: "Your building, managed.",
     historia:
-      "Cobranza por unidad, gastos con respaldo y el cierre del mes con sus informes, para edificios y condominios de Bolivia y Venezuela. Rei lee la foto o el PDF de cada factura y propone el registro; nada entra al cierre sin que el administrador lo apruebe. Cada residente ve su saldo y cómo pagar desde un enlace propio, sin instalar nada.",
+      "Fees per unit, expenses with receipts and the monthly close with its reports, for buildings and condominiums in Bolivia and Venezuela. Rei reads the photo or PDF of each bill and proposes the entry; nothing goes into the close without the manager’s approval. Every resident sees their balance and how to pay from their own link, without installing anything.",
   },
   cuadra: {
-    tipo: "Punto de venta bimoneda",
-    linea: "Dos monedas en una venta y el cierre sin hojas de cálculo.",
+    tipo: "Two-currency point of sale",
+    linea: "Two currencies in one sale, and the close without spreadsheets.",
     historia:
-      "Punto de venta para negocios venezolanos: cobra en dólares o bolívares en la misma venta, divide el pago entre ocho métodos y guarda la tasa de cada cobro. Si se va el internet, la venta queda en el equipo y se sincroniza sola. El cierre compara el efectivo esperado con el contado, y el contador entra con acceso de consulta para exportar los libros del período.",
+      "A point of sale for Venezuelan businesses: charge in dollars or bolívares in the same sale, split payment across eight methods and keep the rate of every charge. If the internet drops, the sale stays on the device and syncs on its own. The close compares expected cash with what was counted, and the accountant gets read-only access to export the period’s books.",
   },
   vistacampo: {
-    tipo: "Sitio institucional",
-    linea: "Un tema delicado, contado con confianza.",
+    tipo: "Institutional site",
+    linea: "A delicate subject, told with trust.",
     historia:
-      "Sitio multiidioma para un centro de tratamiento de adicciones: tratamiento, equipo, instalaciones y blog. Las familias llegan con miedo; la información tenía que dar calma, no ansiedad. El equipo publica sin esperar a un programador.",
+      "A multilingual site for an addiction treatment center: treatment, team, facilities and blog. Families arrive afraid; the information had to bring calm, not anxiety. The team publishes without waiting for a developer.",
   },
   samer: {
-    tipo: "Constructora",
-    linea: "El comprador compara terreno, precio y entrega antes de pedir la visita.",
+    tipo: "Construction company",
+    linea: "Buyers compare lot, price and delivery before asking for a visit.",
     historia:
-      "Sitio de venta de una constructora de Tarija: el condominio Santorini, los departamentos de Verona y construcción en terreno propio. Cada casa se filtra por terreno, precio y fecha de entrega, y se recorre por dentro en siete paradas con las imágenes oficiales del proyecto. Para pedir la visita, WhatsApp se abre con el mensaje listo.",
+      "The sales site of a construction company in Tarija: the Santorini condominium, the Verona apartments and building on your own lot. Every house filters by lot, price and delivery date, and you can walk through it in seven stops with the project’s official images. To book a visit, WhatsApp opens with the message ready.",
   },
   kawsay: {
-    tipo: "Café de especialidad",
-    linea: "Vender el origen, no solo el grano.",
+    tipo: "Specialty coffee",
+    linea: "Selling the origin, not just the bean.",
     historia:
-      "Tienda de café boliviano con catálogo, colecciones, checkout y la historia del origen metida en el camino de compra, no escondida en el pie de página.",
+      "A Bolivian coffee store with catalogue, collections, checkout and the origin story woven into the buying path, not hidden in the footer.",
   },
   "parley-mundial": {
-    tipo: "Juego social",
-    linea: "La quiniela de la oficina, ahora en una app.",
+    tipo: "Social game",
+    linea: "The office World Cup pool, now in an app.",
     historia:
-      "Juego de pronósticos del Mundial: perfil, ligas privadas, tabla y una identidad propia. Un ritual informal que ahora tiene registro, avatares y algo que vale la pena compartir.",
+      "A World Cup predictions game: profile, private leagues, leaderboard and its own identity. An informal ritual that now has a record, avatars and something worth sharing.",
   },
   integra: {
-    tipo: "Consultora",
-    linea: "Se explica sola antes de la primera reunión.",
+    tipo: "Consultancy",
+    linea: "It explains itself before the first meeting.",
     historia:
-      "Sitio y motor de contenido para una consultora de transformación digital en hotelería y retail. Blog y recursos que el equipo publica solo: el criterio de la firma trabaja antes de la llamada.",
+      "Site and content engine for a digital transformation consultancy in hospitality and retail. A blog and resources the team publishes on its own: the firm’s judgment works before the call.",
   },
   "viaja-ven": {
-    tipo: "Turismo gastronómico",
-    linea: "Inspirar y decidir en la misma pantalla.",
+    tipo: "Food tourism",
+    linea: "Inspire and decide on the same screen.",
     historia:
-      "Plataforma para recorrer la Colonia Tovar: experiencias, rutas temáticas e itinerarios. Veinte pestañas y una nota de voz convertidas en un solo objeto que se manda por WhatsApp.",
+      "A platform to explore Colonia Tovar: experiences, themed routes and itineraries. Twenty browser tabs and a voice note turned into a single thing you send on WhatsApp.",
   },
   "dream-drop": {
-    tipo: "Tienda por lanzamientos",
-    linea: "Vende por tiempo limitado, no con un catálogo fijo.",
+    tipo: "Drop-based store",
+    linea: "It sells by limited time, not a fixed catalogue.",
     historia:
-      "Ecommerce de lanzamientos limitados. La urgencia la comunica el diseño: sin contadores falsos ni presión fabricada.",
+      "Ecommerce for limited drops. The design carries the urgency: no fake countdowns, no manufactured pressure.",
   },
   artistheway: {
-    tipo: "Tienda de arte",
-    linea: "Arte digital presentado como pieza de colección.",
+    tipo: "Art store",
+    linea: "Digital art presented as a collector’s piece.",
     historia:
-      "Tienda para una marca de arte: catálogo visual, narrativa editorial y un checkout listo para cobrar. Que la marca se lea como algo para coleccionar y no como algo genérico.",
+      "A store for an art brand: visual catalogue, editorial storytelling and a checkout ready to charge. So the brand reads as something to collect, not something generic.",
   },
   "ainetworking-canada": {
-    tipo: "Comunidad de IA",
-    linea: "De no saber por dónde empezar a un plan de seis meses.",
+    tipo: "AI community",
+    linea: "From not knowing where to start to a six-month plan.",
     historia:
-      "Sitio bilingüe y plataforma de miembros para una comunidad sin fines de lucro de IA en Canadá. Tres rutas (entender, liderar, construir) terminan en un plan propio de seis meses, y un navegador recomienda por dónde empezar sin pedir cuenta. Suma un calendario de eventos de IA de todo el país, reservas para webinars y sesiones de consulta.",
+      "A bilingual site and member platform for a nonprofit AI community in Canada. Three paths (understand, lead, build) end in a personal six-month plan, and a navigator recommends where to start without asking for an account. Plus a calendar of AI events across the country, webinar bookings and consulting sessions.",
   },
   avepane: {
-    tipo: "Organización social",
-    linea: "Cincuenta años de trabajo social, en una sola página.",
+    tipo: "Social organization",
+    linea: "Fifty years of social work, on a single page.",
     historia:
-      "Sitio de una organización venezolana de inclusión y formación para personas con discapacidad intelectual. Ordena programas, impacto y formas de sumarse sin perder la calidez humana.",
+      "The site of a Venezuelan organization for the inclusion and training of people with intellectual disabilities. It lays out programs, impact and ways to join without losing the human warmth.",
   },
   soapy: {
-    tipo: "Operación de lavandería",
-    linea: "Cada pedido, seguido de la recepción a la entrega.",
+    tipo: "Laundry operation",
+    linea: "Every order, tracked from drop-off to delivery.",
     historia:
-      "Recepción en cuatro pasos, estados con historial, rutas, avisos por WhatsApp y un tablero del dueño por sucursal. Un solo flujo de servicio que se puede seguir de punta a punta.",
+      "A four-step drop-off, statuses with history, routes, WhatsApp notices and an owner dashboard per branch. One service flow you can follow end to end.",
   },
   mistica: {
-    tipo: "Escuela de natación",
-    linea: "Alumnos, asistencia y cobros contando la misma historia.",
+    tipo: "Swim school",
+    linea: "Students, attendance and payments telling the same story.",
     historia:
-      "Sistema en el celular para instructores y administración: horarios, asistencia por clase, cobros con vencimientos y un tablero con la cobranza pendiente en una pantalla.",
+      "A phone system for instructors and admin: schedules, attendance per class, payments with due dates and a dashboard with pending collections on one screen.",
   },
   "almacen-vc": {
-    tipo: "Inventario",
-    linea: "El stock crítico se ve antes de que se acabe.",
+    tipo: "Inventory",
+    linea: "Critical stock shows before it runs out.",
     historia:
-      "Almacén por área para Vistacampo: entradas, salidas, stock al día y avisos para comprar a tiempo. Cada movimiento queda registrado.",
+      "Stock by area for Vistacampo: goods in, goods out, stock up to date and alerts to buy in time. Every movement is on record.",
   },
   "taller-samer": {
-    tipo: "Taller mecánico",
-    linea: "Órdenes, repuestos y horas por equipo, sin depender del papel.",
-    historia: "Órdenes de trabajo, clientes, repuestos, estados y horas por equipo. El taller deja de depender del papel y la memoria.",
+    tipo: "Machine shop",
+    linea: "Work orders, parts and hours per machine, without paper.",
+    historia: "Work orders, clients, parts, statuses and hours per machine. The shop stops depending on paper and memory.",
   },
   "pace-running": {
-    tipo: "App para entrenadores",
-    linea: "Atletas, planes y métricas en un solo lugar.",
-    historia: "Para entrenadores de running: seguimiento por atleta, planes fáciles de revisar y menos chat disperso entre cuatro apps.",
+    tipo: "App for coaches",
+    linea: "Athletes, plans and metrics in one place.",
+    historia: "For running coaches: tracking per athlete, plans that are easy to review and less chat scattered across four apps.",
   },
   pausa: {
-    tipo: "Acompañante de recuperación",
-    linea: "En una crisis, la ayuda está a dos toques.",
-    historia: "App privada de recuperación, pensada para el celular: chequeos diarios, curva de progreso, ejercicios de anclaje y contactos de apoyo.",
+    tipo: "Recovery companion",
+    linea: "In a crisis, help is two taps away.",
+    historia: "A private recovery app, built for the phone: daily check-ins, a progress curve, grounding exercises and support contacts.",
   },
   "frontai-landing": {
-    tipo: "Web de un agente de voz",
-    linea: "Contesta el teléfono y lleva la llamada al siguiente paso de la venta.",
-    historia: "Un agente de voz con IA que contesta, entiende, califica y archiva cada llamada, y la conecta con el siguiente paso de la venta.",
+    tipo: "Site for a voice agent",
+    linea: "It answers the phone and moves the call to the next step of the sale.",
+    historia: "An AI voice agent that answers, understands, qualifies and files every call, and connects it to the next step of the sale.",
   },
 };
 
@@ -152,54 +152,18 @@ const DISCIPLINA: Record<string, Disciplina[]> = {
   automation: ["agentes"],
 };
 
-const ETIQUETA: Record<string, string> = {
-  "The public product introduction": "La presentación del producto",
-  "Explaining the property platform": "La plataforma, explicada",
-  "The mobile introduction": "En el celular",
-  Hero: "La portada",
-  Story: "La historia",
-  Mobile: "En el celular",
-  "Sign-up": "Registro",
-  Flow: "El recorrido",
-  Home: "Inicio",
-  Catalogue: "Catálogo",
-  Dashboard: "Tablero",
-  Plans: "Planes",
-  "Owner dashboard concepts": "Tablero del dueño",
-  "Creating a laundry order": "Recepción de un pedido",
-  "Orders and their handoffs": "Pedidos y sus traspasos",
-  "Expenses and inventory": "Gastos e inventario",
-  "A business report at a glance": "El negocio de un vistazo",
-  "A daily operating picture": "El día en una pantalla",
-  "Today’s classes and activity": "Las clases de hoy",
-  "Payment follow-up in context": "Cobros con contexto",
-  Orders: "Órdenes",
-  Tracking: "Seguimiento",
-  Panel: "Panel",
-  Movements: "Movimientos",
-  "Industrial services, introduced": "Los servicios, presentados",
-  "Services and capabilities": "Servicios y capacidades",
-  "Mobile service discovery": "En el celular",
-  Desktop: "En la pantalla grande",
-  Scroll: "Más abajo",
-  "Point of sale": "Punto de venta",
-};
-
 const casoPorProyecto = new Map(CASOS.flatMap((c) => c.projectIds.map((id) => [id, `/casos/${c.slug}`] as const)));
 
-// La descripción de cada captura, en español: la de casos.ts cuando es el mismo archivo; si no, el
-// nombre de la pieza y la etiqueta de la captura. La de projects.ts está en inglés y las páginas, no.
-const ALT_ES = new Map(CASOS.flatMap((c) => [c.cover, ...c.gallery]).map((img) => [img.src, img.alt] as const));
-
 function aPieza(p: PortfolioProject): Pieza | null {
-  const es = ES[p.id];
+  const es = TEXTO[p.id];
   if (!es || p.images.length === 0) return null;
   const name = p.name.replace(" · agency edition", "");
   const images = p.images.map((img) => {
-    const label = ETIQUETA[img.label] ?? img.label;
+    // Las etiquetas de projects.ts ya vienen en inglés, como lo principal del sitio.
+    const label = img.label;
     return {
       src: img.src,
-      alt: ALT_ES.get(img.src) ?? `${name}: ${label}`,
+      alt: `${name}: ${label}`,
       label,
       mobile: /mobile|home\.png|cobros|dashboard\.png|alumnos|mas\.png/.test(img.src),
       ratio: img.width && img.height ? img.width / img.height : 0,
@@ -229,10 +193,10 @@ export const PIEZAS: Pieza[] = PORTFOLIO_PROJECTS.map(aPieza).filter((p): p is P
  * la usa, y lo que el dueño quiere saber es eso.
  */
 export const ESTADO: Record<Pieza["status"], string> = {
-  launched: "En uso",
-  improving: "En evolución",
+  launched: "In use",
+  improving: "Evolving",
   demo: "Demo",
-  prototype: "Prototipo",
+  prototype: "Prototype",
 };
 
 /** La forma del estado (`.status`): punto lleno en uso, anillo mientras crece, raya si es demo o prototipo. */
@@ -249,8 +213,8 @@ export const CUENTAS = {
 };
 
 export const DISCIPLINAS: { id: Disciplina | "todo"; label: string }[] = [
-  { id: "todo", label: "Todo" },
-  { id: "web", label: "Webs y tiendas" },
-  { id: "producto", label: "Sistemas y aplicaciones" },
-  { id: "agentes", label: "Agentes y automatización" },
+  { id: "todo", label: "All" },
+  { id: "web", label: "Websites & stores" },
+  { id: "producto", label: "Systems & apps" },
+  { id: "agentes", label: "Agents & automation" },
 ];

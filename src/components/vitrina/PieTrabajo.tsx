@@ -16,40 +16,40 @@ export default function PieTrabajo() {
         Contacto
       </p>
       <h2 className="headline" data-reveal="rise">
-        <Rise>Cuéntame qué</Rise>
+        <Rise>Tell me what</Rise>
         <Rise line={1}>
-          <Outcome>te quita el tiempo</Outcome>
+          <Outcome>eats your time</Outcome>
         </Rise>
       </h2>
       <p className="lead" data-reveal style={vars({ "--d": "200ms" })}>
-        Escríbeme en dos líneas. Te respondo yo, con lo primero que construiría o con un «esto no te hace falta» si es el caso.
+        Write me two lines. I&apos;ll answer myself, with the first thing I&apos;d build, or with a &ldquo;you don&apos;t need this&rdquo; if that&apos;s the case.
       </p>
       <Escribeme origen="cierre" data-reveal style={vars({ "--d": "300ms" })} />
       <p className="caption pie-trabajo-correo" data-reveal style={vars({ "--d": "360ms" })}>
-        ¿Prefieres correo? <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>
+        Prefer email? <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>
       </p>
       <div className="closer-foot">
         <span className="wordmark">
           <WordmarkSvg />
         </span>
-        <span className="caption">© {new Date().getFullYear()} allok · Hecho entre Venezuela y Bolivia, con ayuda de IA</span>
-        <nav aria-label="Más">
-          <Link href="/trabajo">Todo el trabajo</Link>
-          <Link href="/casos">Casos</Link>
-          <Link href="/agente-whatsapp">Agente de WhatsApp</Link>
-          <Link href="/writing">Escritos</Link>
-          <Link href="/lab">Laboratorio</Link>
+        <span className="caption">© {new Date().getFullYear()} allok · Made between Venezuela and Bolivia, with help from AI</span>
+        <nav aria-label="More">
+          <Link href="/trabajo">All the work</Link>
+          <Link href="/casos">Case studies</Link>
+          <Link href="/agente-whatsapp">WhatsApp agent</Link>
+          <Link href="/writing">Writing</Link>
+          <Link href="/lab">Lab</Link>
           <a href="https://github.com/adriaavila" target="_blank" rel="noopener noreferrer">
             GitHub <span className="arw arw-ne" aria-hidden="true">↗</span>
           </a>
-          <Link href="/es/privacidad">Privacidad</Link>
+          <Link href="/en/privacy">Privacy</Link>
           <a href="#top">
-            Arriba <span className="arw arw-up" aria-hidden="true">↑</span>
+            Top <span className="arw arw-up" aria-hidden="true">↑</span>
           </a>
         </nav>
         {/* El colofón, a la vista aquí; en la portada va como comentario en su pie. */}
         <p className="caption pie-trabajo-colofon">
-          Geist by Vercel and basement.studio · three.js by Mr.doob · hecho con agentes de IA · Edición 2026
+          Geist by Vercel and basement.studio · three.js by Mr.doob · made with AI agents · Edition 2026
         </p>
       </div>
     </footer>

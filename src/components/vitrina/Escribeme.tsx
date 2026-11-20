@@ -22,7 +22,7 @@ type Props = Omit<ComponentProps<"a">, "href" | "target" | "rel" | "className"> 
  * otro mensaje.
  */
 export default function Escribeme({
-  children = "Escríbeme por WhatsApp",
+  children = "Message me on WhatsApp",
   flecha = true,
   origen = "portada",
   pieza,

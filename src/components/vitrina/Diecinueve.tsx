@@ -19,7 +19,7 @@ export default function Diecinueve() {
   return (
     <section id="diecinueve" className="diecinueve-sala" data-theme="cloud">
       <div className="diecinueve-caja">
-        <ol className="diecinueve" aria-label={`Los ${marcas.length} trabajos, por estado`} style={vars({ "--n": marcas.length })}>
+        <ol className="diecinueve" aria-label={`All ${marcas.length} projects, by status`} style={vars({ "--n": marcas.length })}>
           {marcas.map((p, k) => (
             <li key={p.id} className={`marca-estado ${claseEstado(p.status)}`} style={vars({ "--k": k })}>
               <span role="img" aria-label={`${p.name}: ${ESTADO[p.status]}`} />
@@ -40,7 +40,7 @@ export default function Diecinueve() {
         {/* Un <a> simple, sin next/link: nada que precargar y nada que sumar al JS de la portada. */}
         {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- a propósito, ver la línea de arriba */}
         <a href="/trabajo" className="btn btn-link diecinueve-enlace">
-          Los {marcas.length} trabajos <span className="arw arw-r" aria-hidden="true">→</span>
+          All {marcas.length} projects <span className="arw arw-r" aria-hidden="true">→</span>
         </a>
       </div>
       <DiecinueveLuz />

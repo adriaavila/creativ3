@@ -9,10 +9,10 @@ import { Ventana } from "./Marcos";
 
 // Lo que abre el enlace, dicho con el mismo estado que muestra la ficha.
 const ABRIR: Record<Pieza["status"], string> = {
-  launched: "Abrir la web",
-  improving: "Abrir la web",
-  demo: "Abrir la demo",
-  prototype: "Abrir el prototipo",
+  launched: "Open the site",
+  improving: "Open the site",
+  demo: "Open the demo",
+  prototype: "Open the prototype",
 };
 
 type Captura = { src: string; alt: string; label?: string; celular: boolean; ratio: number };
@@ -29,7 +29,7 @@ function contenido(p: Pieza): { escena?: string; cuerpo: string; capturas: Captu
   if (!h) {
     const enlaces: Enlace[] = [];
     if (p.liveUrl) enlaces.push({ tipo: "web", texto: ABRIR[p.status], href: p.liveUrl });
-    if (p.casoHref) enlaces.push({ tipo: "caso", texto: "Leer el caso", href: p.casoHref });
+    if (p.casoHref) enlaces.push({ tipo: "caso", texto: "Read the case study", href: p.casoHref });
     return { cuerpo: p.historia, capturas: todas, enlaces };
   }
   const primeras: Captura[] = h.capturas.map((c) => ({ ...c, label: todas.find((t) => t.src === c.src)?.label }));
@@ -177,14 +177,14 @@ export default function Ficha({ id, onClose, onGo }: { id: string | null; onClos
       aria-labelledby="ficha-titulo"
       inert={!viva}
     >
-      <button type="button" aria-label="Cerrar" className="ficha-scrim" onClick={onClose} tabIndex={-1} />
+      <button type="button" aria-label="Close" className="ficha-scrim" onClick={onClose} tabIndex={-1} />
       <div ref={hoja} className="ficha-sheet" data-theme="cloud">
         <div className="ficha-top">
           <h2 id="ficha-titulo" className="heading">
             {pieza.name}
           </h2>
           <button ref={cerrar} type="button" onClick={onClose} className="btn btn-link">
-            Cerrar <span aria-hidden="true">✕</span>
+            Close <span aria-hidden="true">✕</span>
           </button>
         </div>
 
@@ -216,7 +216,7 @@ export default function Ficha({ id, onClose, onGo }: { id: string | null; onClos
         </div>
 
         <button type="button" onClick={() => onGo(siguiente.id)} className="ficha-siguiente" data-theme="ink">
-          <span className="label">Siguiente</span>
+          <span className="label">Next</span>
           <span className="ficha-siguiente-nombre">
             <span className="headline">{siguiente.name}</span>
             <span className="arw arw-r ficha-flecha" aria-hidden="true">→</span>

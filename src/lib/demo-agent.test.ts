@@ -70,6 +70,8 @@ test("suggestedQuestions: solo pregunta lo que el perfil sabe", () => {
   assert.ok(!academy.includes("¿Qué horarios tienen?"), "sin horario no se sugiere preguntar por él");
   assert.ok(!academy.includes("¿Dónde están ubicados?"));
   assert.ok(academy.includes("Quiero una clase de prueba"));
+  assert.ok(!academy.some((q) => q.startsWith("¿Cuánto cuesta")), "sin precio en la web no se sugiere preguntarlo");
+  assert.ok(academy.includes("¿Qué servicios tienen?"));
 });
 
 test("buildSystemPrompt: reglas de no inventar, agendar y no fingir ser humano", () => {

@@ -163,6 +163,7 @@ async function fixtureQueue(path: string): Promise<OutreachContactRow[]> {
     sector: l.sector,
     country: l.country,
     offer: l.offer,
+    finding: l.finding,
     status: "queued",
     step: 0,
   }));

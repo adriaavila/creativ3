@@ -158,17 +158,18 @@ const lowerFirst = (s: string) => (s && /^[A-ZÁÉÍÓÚÑ][a-záéíóúñ]/.te
 export function suggestedQuestions(profile: DemoProfile, sector: string): string[] {
   const kind = sectorKind(sector);
   const out: string[] = [];
+  // Solo se sugiere el precio si la web lo publica: sin él, la primera respuesta
+  // de la demo era «lo confirmo con el equipo» (139 de 173 demos, 19-nov).
   const priced = profile.services.find((s) => s.price);
-  const first = priced ?? profile.services[0];
-  if (first) {
-    const name = lowerFirst(first.name).slice(0, 48);
+  if (priced) {
+    const name = lowerFirst(priced.name).slice(0, 48);
     out.push(kind === "academia" ? `¿Cuánto cuesta ${name}?` : `¿Cuánto cuesta ${articleFor(name)}${name}?`);
   }
   if (profile.hours.length > 0) out.push("¿Qué horarios tienen?");
   if (profile.address) out.push("¿Dónde están ubicados?");
   if (kind === "academia") out.push("Quiero una clase de prueba");
   else out.push("Quiero agendar una cita");
-  if (out.length < 4 && profile.services.length > 1) out.push("¿Qué servicios tienen?");
+  if (out.length < 4 && profile.services.length > (priced ? 1 : 0)) out.push("¿Qué servicios tienen?");
   if (out.length < 4 && profile.payment.length > 0) out.push("¿Qué formas de pago aceptan?");
   return out.slice(0, 4);
 }

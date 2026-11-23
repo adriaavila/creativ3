@@ -77,7 +77,11 @@ export function mapLeadColumns(header: string[]): Record<keyof LeadInput, number
   return out;
 }
 
-const COUNTRY_NAMES: Record<string, string> = { mx: "México", mex: "México", co: "Colombia", col: "Colombia" };
+const COUNTRY_NAMES: Record<string, string> = {
+  mx: "México", mex: "México", co: "Colombia", col: "Colombia", cl: "Chile", chl: "Chile",
+  uy: "Uruguay", ury: "Uruguay", ve: "Venezuela", ven: "Venezuela", py: "Paraguay", pry: "Paraguay",
+  bo: "Bolivia", bol: "Bolivia",
+};
 
 /** El país como se lee en una frase: «MX» → «México». */
 export function countryName(value: string): string {

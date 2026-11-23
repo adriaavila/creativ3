@@ -53,29 +53,56 @@ export function nextSendAt(stepJustSent: number, sentAt: Date): Date | null {
 
 // ─── País y ventana de envío ──────────────────────────────────
 
-export type CountryCode = "MX" | "CO";
+export const COUNTRY_CODES = ["MX", "CO", "CL", "UY", "VE", "PY", "BO"] as const;
+export type CountryCode = (typeof COUNTRY_CODES)[number];
 
 export const COUNTRY_TIMEZONES: Record<CountryCode, string> = {
   MX: "America/Mexico_City",
   CO: "America/Bogota",
+  CL: "America/Santiago",
+  UY: "America/Montevideo",
+  VE: "America/Caracas",
+  PY: "America/Asuncion",
+  BO: "America/La_Paz",
 };
+
+/** Cómo se escribe cada país en una frase y en la demo. */
+export const COUNTRY_LABELS: Record<CountryCode, string> = {
+  MX: "México",
+  CO: "Colombia",
+  CL: "Chile",
+  UY: "Uruguay",
+  VE: "Venezuela",
+  PY: "Paraguay",
+  BO: "Bolivia",
+};
+
+/** Lo que puede venir en la columna de país (sin tildes, en minúscula) → el código. */
+const COUNTRY_ALIASES: Record<string, CountryCode> = {
+  mexico: "MX", mx: "MX", mex: "MX",
+  colombia: "CO", co: "CO", col: "CO",
+  chile: "CL", cl: "CL", chl: "CL",
+  uruguay: "UY", uy: "UY", ury: "UY",
+  venezuela: "VE", ve: "VE", ven: "VE",
+  paraguay: "PY", py: "PY", pry: "PY",
+  bolivia: "BO", bo: "BO", bol: "BO",
+};
+
+/** El dominio de la web, cuando la columna de país viene vacía: `.cl`, `.com.bo`… */
+const COUNTRY_TLDS: Record<string, CountryCode> = { mx: "MX", co: "CO", cl: "CL", uy: "UY", ve: "VE", py: "PY", bo: "BO" };
 
 const stripAccents = (s: string) => s.normalize("NFD").replace(/[̀-ͯ]/g, "");
 
 /**
- * MX o CO, por la columna de país o, si viene vacía, por el dominio de la web
- * (`.mx`, `.com.co`…). `null` si no se sabe: sin país no hay zona horaria y
- * no se le escribe.
+ * El país, por la columna de país o, si viene vacía, por el dominio de la web
+ * (`.mx`, `.com.co`, `.cl`…). `null` si no se sabe o no está en
+ * `COUNTRY_CODES`: sin país no hay zona horaria y no se le escribe.
  */
 export function countryCode(country: string, website?: string | null): CountryCode | null {
   const c = stripAccents(countryName(country)).trim().toLowerCase();
-  if (c === "mexico" || c === "mx" || c === "mex") return "MX";
-  if (c === "colombia" || c === "co" || c === "col") return "CO";
-  if (c) return null;
+  if (c) return COUNTRY_ALIASES[c] ?? null;
   const host = website ? hostOf(website) : "";
-  if (/\.mx$/.test(host)) return "MX";
-  if (/\.co$/.test(host)) return "CO";
-  return null;
+  return COUNTRY_TLDS[host.slice(host.lastIndexOf(".") + 1)] ?? null;
 }
 
 /** La hora local del negocio: día de la semana (0 = domingo) y hora 0–23. */
@@ -165,9 +192,11 @@ export type OutreachLead = {
   country: CountryCode;
   /** Lo que el negocio ofrece, en una línea (`oferta_1_linea`): el gancho del primer correo. */
   offer: string;
+  /** Un hecho observable de cómo le llegan las consultas (`hallazgo_1`): prueba en el primer correo de que se miró su web. */
+  finding: string;
 };
 
-type Field = "name" | "website" | "email" | "emailSource" | "city" | "country" | "sector" | "offer";
+type Field = "name" | "website" | "email" | "emailSource" | "city" | "country" | "sector" | "offer" | "finding";
 
 const ALIASES: Record<Field, string[]> = {
   name: ["business_name", "name", "nombre", "negocio", "empresa", "razon_social", "company", "business"],
@@ -178,6 +207,7 @@ const ALIASES: Record<Field, string[]> = {
   country: ["country", "pais", "country_code"],
   sector: ["sector", "vertical", "category", "categoria", "rubro", "tipo", "industry", "industria", "giro"],
   offer: ["oferta_1_linea", "oferta", "offer", "hook", "gancho", "descripcion", "description"],
+  finding: ["hallazgo_1", "hallazgo", "finding", "observacion"],
 };
 
 const normHeader = (h: string) =>
@@ -230,7 +260,7 @@ export function outreachLeadsFromCsv(
     if (!name) return skip("sin nombre");
     if (candidates.length === 0) return skip("sin correo");
     const country = countryCode(at(row, "country"), website);
-    if (!country) return skip("país fuera de MX/CO o desconocido");
+    if (!country) return skip("país fuera de la lista o desconocido");
 
     const rejection = (email: string): string | null => {
       const problem = emailProblem(email);
@@ -255,7 +285,7 @@ export function outreachLeadsFromCsv(
     });
     if (!chosen) return skip(lastReason);
     seen.add(chosen);
-    leads.push({ email: chosen, businessName: name, website, sector: at(row, "sector"), city: at(row, "city"), country, offer: at(row, "offer") });
+    leads.push({ email: chosen, businessName: name, website, sector: at(row, "sector"), city: at(row, "city"), country, offer: at(row, "offer"), finding: at(row, "finding") });
   });
   return { leads, skipped, columns };
 }

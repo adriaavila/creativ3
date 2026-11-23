@@ -192,9 +192,11 @@ export type OutreachLead = {
   country: CountryCode;
   /** Lo que el negocio ofrece, en una línea (`oferta_1_linea`): el gancho del primer correo. */
   offer: string;
+  /** Un hecho observable de cómo le llegan las consultas (`hallazgo_1`): prueba en el primer correo de que se miró su web. */
+  finding: string;
 };
 
-type Field = "name" | "website" | "email" | "emailSource" | "city" | "country" | "sector" | "offer";
+type Field = "name" | "website" | "email" | "emailSource" | "city" | "country" | "sector" | "offer" | "finding";
 
 const ALIASES: Record<Field, string[]> = {
   name: ["business_name", "name", "nombre", "negocio", "empresa", "razon_social", "company", "business"],
@@ -205,6 +207,7 @@ const ALIASES: Record<Field, string[]> = {
   country: ["country", "pais", "country_code"],
   sector: ["sector", "vertical", "category", "categoria", "rubro", "tipo", "industry", "industria", "giro"],
   offer: ["oferta_1_linea", "oferta", "offer", "hook", "gancho", "descripcion", "description"],
+  finding: ["hallazgo_1", "hallazgo", "finding", "observacion"],
 };
 
 const normHeader = (h: string) =>
@@ -282,7 +285,7 @@ export function outreachLeadsFromCsv(
     });
     if (!chosen) return skip(lastReason);
     seen.add(chosen);
-    leads.push({ email: chosen, businessName: name, website, sector: at(row, "sector"), city: at(row, "city"), country, offer: at(row, "offer") });
+    leads.push({ email: chosen, businessName: name, website, sector: at(row, "sector"), city: at(row, "city"), country, offer: at(row, "offer"), finding: at(row, "finding") });
   });
   return { leads, skipped, columns };
 }

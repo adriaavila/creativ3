@@ -91,6 +91,8 @@ async function createOutreachTables(): Promise<void> {
   await sql`CREATE INDEX IF NOT EXISTS outreach_event_type_created_idx ON outreach_event (type, created_at DESC)`;
   await sql`CREATE INDEX IF NOT EXISTS outreach_event_resend_id_idx ON outreach_event (resend_id) WHERE resend_id IS NOT NULL`;
   await sql`CREATE INDEX IF NOT EXISTS outreach_event_email_idx ON outreach_event (email)`;
+  // 027: el hallazgo de cómo le llegan las consultas, para el primer correo.
+  await sql`ALTER TABLE outreach_contact ADD COLUMN IF NOT EXISTS finding text NOT NULL DEFAULT ''`;
   // 025: el estado que Resend reporta de cada envío (el cron lo consulta sin webhook).
   await sql`ALTER TABLE outreach_event ADD COLUMN IF NOT EXISTS resend_last_event text`;
   await sql`ALTER TABLE outreach_event ADD COLUMN IF NOT EXISTS resend_checked_at timestamptz`;
@@ -173,11 +175,12 @@ export async function upsertContacts(contacts: (OutreachLead & { demoSlug: strin
   let inserted = 0;
   for (const c of contacts) {
     const rows = await sql`
-      INSERT INTO outreach_contact (email, business_name, website, demo_slug, sector, city, country, offer, source)
-      VALUES (${c.email}, ${c.businessName}, ${c.website}, ${c.demoSlug}, ${c.sector}, ${c.city}, ${c.country}, ${c.offer}, ${source})
+      INSERT INTO outreach_contact (email, business_name, website, demo_slug, sector, city, country, offer, finding, source)
+      VALUES (${c.email}, ${c.businessName}, ${c.website}, ${c.demoSlug}, ${c.sector}, ${c.city}, ${c.country}, ${c.offer}, ${c.finding}, ${source})
       ON CONFLICT (email) DO UPDATE SET
         demo_slug = COALESCE(outreach_contact.demo_slug, EXCLUDED.demo_slug),
         offer = CASE WHEN outreach_contact.offer = '' THEN EXCLUDED.offer ELSE outreach_contact.offer END,
+        finding = CASE WHEN outreach_contact.finding = '' THEN EXCLUDED.finding ELSE outreach_contact.finding END,
         updated_at = now()
       RETURNING (xmax = 0) AS inserted
     `;
@@ -197,6 +200,7 @@ export type OutreachContactRow = {
   sector: string;
   country: CountryCode;
   offer: string;
+  finding: string;
   status: OutreachStatus;
   step: number;
 };
@@ -204,7 +208,7 @@ export type OutreachContactRow = {
 /** Los que ya tienen el siguiente paso vencido y no están suprimidos, el más atrasado primero. */
 export async function dueContacts(now: Date, limit = 500): Promise<OutreachContactRow[]> {
   const rows = await getSql()`
-    SELECT c.email, c.business_name, c.website, c.demo_slug, c.sector, c.country, c.offer, c.status, c.step
+    SELECT c.email, c.business_name, c.website, c.demo_slug, c.sector, c.country, c.offer, c.finding, c.status, c.step
     FROM outreach_contact c
     WHERE c.status IN ('queued', 'sent')
       AND c.step < 3
@@ -222,6 +226,7 @@ export async function dueContacts(now: Date, limit = 500): Promise<OutreachConta
     sector: String(r.sector ?? ""),
     country: String(r.country) as CountryCode,
     offer: String(r.offer ?? ""),
+    finding: String(r.finding ?? ""),
     status: String(r.status) as OutreachStatus,
     step: Number(r.step),
   }));
@@ -571,6 +576,7 @@ export type OpsContactRow = {
   sector: string;
   country: CountryCode;
   offer: string;
+  finding: string;
   status: OutreachStatus;
   step: number;
   lastSentAt: string | null;
@@ -579,7 +585,7 @@ export type OpsContactRow = {
 
 export async function listOpsContacts(limit = 1000): Promise<OpsContactRow[]> {
   const rows = await getSql()`
-    SELECT email, business_name, city, website, demo_slug, sector, country, offer, status, step, last_sent_at, next_send_at
+    SELECT email, business_name, city, website, demo_slug, sector, country, offer, finding, status, step, last_sent_at, next_send_at
     FROM outreach_contact ORDER BY created_at ASC, email ASC LIMIT ${limit}
   `;
   const iso = (v: unknown) => (v ? new Date(String(v)).toISOString() : null);
@@ -592,6 +598,7 @@ export async function listOpsContacts(limit = 1000): Promise<OpsContactRow[]> {
     sector: String(r.sector ?? ""),
     country: String(r.country) as CountryCode,
     offer: String(r.offer ?? ""),
+    finding: String(r.finding ?? ""),
     status: String(r.status) as OutreachStatus,
     step: Number(r.step),
     lastSentAt: iso(r.last_sent_at),

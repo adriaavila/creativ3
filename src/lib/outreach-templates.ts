@@ -14,6 +14,8 @@ export type OutreachContactForEmail = {
   sector: string;
   /** `oferta_1_linea` del CSV; vacío si no hay. */
   offer?: string | null;
+  /** `hallazgo_1` del CSV: cómo le llegan las consultas; vacío si no hay. */
+  finding?: string | null;
 };
 
 export type RenderedEmail = {
@@ -131,14 +133,34 @@ function outcome(sector: string): string {
   return `aprende en unos minutos de dos o tres chats que ustedes ya contestaron, y cada día les dice ${counted} y cuánto les trajo`;
 }
 
+/**
+ * El hallazgo del motor de leads como una frase del primer correo: la prueba
+ * de que alguien miró su web. Sin el número del enlace (wa.me/…), que ellos ya
+ * conocen. `null` si no hay o se lee mal: mejor sin la línea que con una rota.
+ */
+export function findingLine(finding: string | null | undefined): string | null {
+  let f = (finding ?? "")
+    .replace(/\s+/g, " ")
+    .replace(/\s*\((?:enlace\s+)?(?:wa\.me|wa\.link|api\.whatsapp)[^)]*\)/gi, "")
+    .replace(/\s+([,.;])/g, "$1")
+    .trim()
+    .replace(/[.\s]+$/, "");
+  if (f.length < 25 || f.length > 220 || /https?:|www\.|@/.test(f)) return null;
+  // «El botón…» → «el botón…»; marcas como WhatsApp o Instagram se quedan como vienen.
+  if (/^[A-ZÁÉÍÓÚÑ][a-záéíóúñü]/.test(f) && !/^(WhatsApp|Instagram|Facebook|Google)/.test(f)) f = f.charAt(0).toLowerCase() + f.slice(1);
+  return `Me fijé en cómo les llegan las consultas: ${f}.`;
+}
+
 function step1(c: OutreachContactForEmail, link: string): { subject: string; body: string } {
   const name = displayName(c.businessName);
   const hook = offerHook(c.offer);
+  const seen = findingLine(c.finding);
   if (c.demoSlug) {
     return {
       subject: `Le enseñé a un agente a contestar como ${name}`,
       body: [
         `Hola, equipo de ${name}:`,
+        ...(seen ? [seen] : []),
         hook
           ? `Vi en su web lo que ofrecen («${hook}») y, solo con lo que publican ahí, armé un agente de WhatsApp que contesta como ustedes. Puede probarlo aquí, sin registrarse:`
           : `Tomé lo que ${name} publica en su web (servicios, horarios, dónde están) y armé con eso un agente de WhatsApp que contesta como ustedes. Puede probarlo aquí, sin registrarse:`,
@@ -152,6 +174,7 @@ function step1(c: OutreachContactForEmail, link: string): { subject: string; bod
     subject: `Las preguntas que llegan al WhatsApp de ${name}`,
     body: [
       `Hola, equipo de ${name}:`,
+      ...(seen ? [seen] : []),
       `${hook ? `Vi en su web lo que ofrecen («${hook}»). ` : ""}Casi todo lo que llega al WhatsApp de un negocio como el suyo son las mismas preguntas: cuánto cuesta, qué horarios tienen, si hay lugar esta semana.`,
       `Hago allok, un agente que contesta eso en su WhatsApp con sus precios y horarios reales, y ${booking(c.sector)}. No hay que escribirle nada: ${outcome(c.sector)}. Aquí se ve cómo funciona:`,
       link,

@@ -17,7 +17,7 @@ import {
   verifySvixSignature,
   verifyUnsubscribeToken,
 } from "./outreach";
-import { displayName, offerHook, outreachLink, renderOutreachEmail, sectorPageSlug } from "./outreach-templates";
+import { displayName, findingLine, offerHook, outreachLink, renderOutreachEmail, sectorPageSlug } from "./outreach-templates";
 
 const HEADER = `"empresa","vertical","ciudad","pais","web","email","whatsapp","instagram","oferta_1_linea","evidencia_whatsapp_url","score","fuente_url","fecha"`;
 const row = (empresa: string, vertical: string, pais: string, web: string, email: string, fuente = web, oferta = "") =>
@@ -234,6 +234,30 @@ test("offer hook keeps the first clause and drops what reads badly", () => {
   assert.equal(offerHook("Ver https://x.mx para más información de cursos"), null);
 });
 
+test("finding line drops the wa.me number and reads as a sentence", () => {
+  assert.equal(
+    findingLine("El botón 'Agenda tu cita' abre WhatsApp (wa.me/573188270618) sin mensaje predefinido."),
+    "Me fijé en cómo les llegan las consultas: el botón 'Agenda tu cita' abre WhatsApp sin mensaje predefinido.",
+  );
+  assert.equal(
+    findingLine("WhatsApp es el único canal: el sitio no tiene formulario ni correo de contacto"),
+    "Me fijé en cómo les llegan las consultas: WhatsApp es el único canal: el sitio no tiene formulario ni correo de contacto.",
+  );
+  assert.equal(findingLine(""), null);
+  assert.equal(findingLine("Corto"), null);
+  assert.equal(findingLine("Ver https://x.mx/contacto para el formulario de citas en línea"), null);
+});
+
+test("CSV from the lead engine carries hallazgo_1 into the lead", () => {
+  const csv = [
+    "business_name,website,email,email_source,city,country,sector,oferta_1_linea,whatsapp,whatsapp_source,hallazgo_1,hallazgo_2,evidence_urls,score",
+    'OAE Cali,https://oaecali.com,correo@oaecali.com,https://oaecali.com/,Cali,Colombia,clínica dental,"Diseño de sonrisa y ortodoncia",+573188270618,https://oaecali.com/,El botón \'Agenda tu cita\' abre WhatsApp sin mensaje predefinido.,Otro hallazgo,https://oaecali.com/,8',
+  ].join("\n");
+  const { leads } = outreachLeadsFromCsv(csv);
+  assert.equal(leads.length, 1);
+  assert.equal(leads[0].finding, "El botón 'Agenda tu cita' abre WhatsApp sin mensaje predefinido.");
+});
+
 test("links go to the demo, the sector page or /agente-whatsapp, always on allok.fun", () => {
   assert.equal(
     outreachLink({ demoSlug: "clinica-vea-cdmx", sector: "" }, 1),
@@ -267,6 +291,10 @@ test("every step renders a short plain-text email with opt-out and only allok.fu
   assert.equal(demo.subject, "Le enseñé a un agente a contestar como Clínica VËA");
   assert.match(demo.text, /utm_content=step1/);
   assert.match(demo.text, /sus pacientes/);
+  assert.doesNotMatch(demo.text, /Me fijé/, "sin hallazgo no hay línea");
+  const withFinding = renderOutreachEmail({ ...base, demoSlug: "clinica-vea-cdmx", finding: "El botón de WhatsApp abre el chat sin mensaje ni horario de atención." }, 1, { secret: SECRET });
+  assert.match(withFinding.text, /Hola, equipo de Clínica VËA:\n\nMe fijé en cómo les llegan las consultas: el botón de WhatsApp abre el chat sin mensaje ni horario de atención\.\n\n/);
+  assert.doesNotMatch(renderOutreachEmail({ ...base, demoSlug: "clinica-vea-cdmx", finding: "El botón de WhatsApp abre el chat sin mensaje." }, 2, { secret: SECRET }).text, /Me fijé/, "solo el primer correo");
   const noDemo = renderOutreachEmail({ ...base, demoSlug: null, offer: "Spa médico y estética avanzada (Del Valle): tratamientos médico-estéticos desde $1,900 MXN" }, 1, { secret: SECRET });
   assert.match(noDemo.text, /whatsapp-para\/clinicas-esteticas/);
   assert.match(noDemo.text, /Vi en su web lo que ofrecen \(«tratamientos médico-estéticos desde \$1,900 MXN»\)/);

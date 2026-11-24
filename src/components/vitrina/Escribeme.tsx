@@ -13,6 +13,8 @@ type Props = Omit<ComponentProps<"a">, "href" | "target" | "rel" | "className"> 
    * la izquierda en vez de la flecha, y `.barra-wa` para su sitio en la página.
    */
   variante?: "boton" | "barra";
+  /** La primera frase entera, cuando la página tiene la suya (las de /para). Gana sobre `origen`. */
+  mensaje?: string;
   className?: string;
 };
 
@@ -27,13 +29,14 @@ export default function Escribeme({
   origen = "portada",
   pieza,
   variante = "boton",
+  mensaje,
   className,
   ...props
 }: Props) {
   const barra = variante === "barra";
   const clases = ["btn", "btn-primary", barra ? "barra-wa" : null, className].filter(Boolean).join(" ");
   return (
-    <a {...props} className={clases} href={whatsappUrl(prefill(origen, pieza))} target="_blank" rel="noopener noreferrer" data-origen={origen}>
+    <a {...props} className={clases} href={whatsappUrl(mensaje ?? prefill(origen, pieza))} target="_blank" rel="noopener noreferrer" data-origen={mensaje ? "para" : origen}>
       {barra ? (
         <span className="barra-marca" data-marca="" aria-hidden="true">
           <MarkSvg />

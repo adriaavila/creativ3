@@ -492,4 +492,7 @@ html.lienzo-3d .ak .manos .manos-trazo {opacity: 1;}
 .ak .no-existe .cierre-bio {margin-top: var(--space-4); color: var(--text-muted);}
 .ak .no-existe-salidas {display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3) var(--space-4); margin-top: var(--space-6);}
 .ak .no-existe-salidas .btn {margin-top: 0;}
+.ak .para-acciones {margin-top: var(--space-7);}
+.ak .principles.para-lista li {grid-template-columns: var(--size-mark-min) minmax(0, 1fr); gap: 10px 24px;}
+.ak .para-lista svg {width: var(--size-mark-min); height: auto; color: var(--accent); overflow: visible;}
 

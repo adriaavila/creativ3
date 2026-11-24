@@ -1,0 +1,4 @@
+/* /para/[apuesta]: las páginas de prueba. El botón bajo la promesa; lo que te llevas, una frase por fila con la marca. */
+.para-acciones {margin-top: var(--space-7);}
+.principles.para-lista li {grid-template-columns: var(--size-mark-min) minmax(0, 1fr); gap: 10px 24px;}
+.para-lista svg {width: var(--size-mark-min); height: auto; color: var(--accent); overflow: visible;}

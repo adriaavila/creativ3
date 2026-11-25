@@ -12,7 +12,16 @@ const nextConfig: NextConfig = {
       { source: "/pago/exito", destination: "/es/pago/exito", permanent: true },
       { source: "/pago/cancelado", destination: "/es/pago/cancelado", permanent: true },
       // The agency site became the portfolio; these had live inbound links.
-      { source: "/projects", destination: "/work", permanent: true },
+      { source: "/projects", destination: "/trabajo", permanent: true },
+      // Propuesta 2026-11-24: una sola oferta. Lo que confundía se redirige
+      // (temporal mientras se decide: 307, así Google no lo da por hecho).
+      { source: "/vocero", destination: "/agente-whatsapp", permanent: false },
+      { source: "/agencia", destination: "/", permanent: false },
+      { source: "/portfolio", destination: "/trabajo", permanent: false },
+      { source: "/work", destination: "/trabajo", permanent: false },
+      { source: "/work/:slug", destination: "/trabajo", permanent: false },
+      { source: "/projects/mistica", destination: "/casos/mistica", permanent: false },
+      { source: "/rei", destination: "https://reiprop.tech", permanent: false },
       { source: "/whatsapp", destination: "/agente-whatsapp", permanent: true },
       // `/crm` y la página del producto vendían lo mismo con dos rejillas de
       // precio. Desde 2026-10 el producto vive en /agente-whatsapp y la

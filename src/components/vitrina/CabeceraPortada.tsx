@@ -19,10 +19,16 @@ export default function CabeceraPortada() {
       <a className="wordmark" href="/" aria-label="allok, home">
         <WordmarkSvg />
       </a>
-      {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- a propósito: la portada no carga next/link (JS) */}
-      <a className="btn btn-link agente-enlace" href="/agente-whatsapp">
-        WhatsApp agent
-      </a>
+      <nav className="portada-nav" aria-label="Main">
+        {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- a propósito: la portada no carga next/link (JS) */}
+        <a className="btn btn-link agente-enlace" href="/agente-whatsapp">
+          WhatsApp agent
+        </a>
+        {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- a propósito: la portada no carga next/link (JS) */}
+        <a className="btn btn-link" href="/trabajo">
+          Work
+        </a>
+      </nav>
     </header>
   );
 }

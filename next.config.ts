@@ -19,7 +19,7 @@ const nextConfig: NextConfig = {
       { source: "/agencia", destination: "/", permanent: false },
       { source: "/portfolio", destination: "/trabajo", permanent: false },
       { source: "/work", destination: "/trabajo", permanent: false },
-      { source: "/work/:slug", destination: "/trabajo", permanent: false },
+      { source: "/work/:slug", destination: "/trabajo#pieza=:slug", permanent: false },
       { source: "/projects/mistica", destination: "/casos/mistica", permanent: false },
       { source: "/rei", destination: "https://reiprop.tech", permanent: false },
       { source: "/whatsapp", destination: "/agente-whatsapp", permanent: true },

@@ -535,7 +535,7 @@ export function fullTitle(page: SeoPage): string {
  */
 export function seoCta(page: SeoPage): { href: string; label: string; note: string | null } {
   if (page.cta === "rei") {
-    return { href: "/rei", label: "Ver REI para inmobiliarias", note: null };
+    return { href: "https://reiprop.tech", label: "Ver REI para inmobiliarias", note: null };
   }
   const cta = planCta(COMPLETO);
   return { ...cta, note: trialNote(COMPLETO) };

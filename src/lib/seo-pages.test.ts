@@ -65,7 +65,7 @@ test("cada dato de la competencia cita su fuente en el código", () => {
 test("inmobiliarias manda a REI; el resto al botón de los planes", () => {
   for (const page of VERTICALS) {
     const cta = seoCta(page);
-    if (page.slug === "inmobiliarias") assert.equal(cta.href, "/rei");
+    if (page.slug === "inmobiliarias") assert.equal(cta.href, "https://reiprop.tech");
     else assert.notEqual(cta.href, "/rei");
   }
 });

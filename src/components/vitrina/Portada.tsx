@@ -23,8 +23,16 @@ export default function Portada() {
       </h1>
       {/* Dos frases que no se parten por dentro. Cada una es su propio bloque de texto: así el nombre, que en el
           primer pintado todavía asoma desde su borde, sigue siendo el texto más grande de la pantalla (el LCP). */}
+      {/* Una sola promesa (propuesta 2026-11-24, apuesta A): lo que se vende hoy, y el botón a la prueba. */}
       <p className="sub">
-        <span>I build websites, systems</span> <span>and WhatsApp agents for your business.</span>
+        <span>Your WhatsApp answers and books,</span> <span>even when you&apos;re closed.</span>
+      </p>
+      <p className="portada-oferta">
+        {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- la portada no carga next/link (JS) */}
+        <a className="btn btn-primary" href="/agente-whatsapp">
+          Try it free for 7 days
+        </a>
+        <span className="portada-oferta-nota">US$99/month after. No card to start.</span>
       </p>
       <div className="portada-escena">
         <Manos>

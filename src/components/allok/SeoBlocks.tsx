@@ -13,7 +13,7 @@ import SiteHeader from "./SiteHeader";
 const NAV = [
   { href: "/agente-whatsapp#como", label: "Cómo funciona" },
   { href: "/agente-whatsapp#precios", label: "Precios" },
-  { href: "/rei", label: "Inmobiliarias" },
+  { href: "/whatsapp-para/inmobiliarias", label: "Inmobiliarias" },
 ];
 
 /** La portada negra: cabecera, etiqueta, H1 y el párrafo. `pb` deja sitio al objeto que rompe el borde. */

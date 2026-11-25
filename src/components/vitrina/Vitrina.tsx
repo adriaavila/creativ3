@@ -31,9 +31,9 @@ export default function Vitrina() {
       <div className="lienzo">
         <main id="contenido">
           <Portada />
+          <Agente />
           <Obras />
           <Diecinueve />
-          <Agente />
         </main>
         <Cierre />
         <BarraWhatsApp>

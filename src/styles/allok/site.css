@@ -232,7 +232,7 @@ html.lienzo-3d .ak .manos .manos-trazo {opacity: 1;}
 }
 .ak .header-portada {display: flex; align-items: center; height: calc(var(--size-target) + var(--space-3));}
 .ak .header-portada .wordmark {display: inline-flex; align-items: center; min-height: var(--size-target);}
-.ak .header-portada .agente-enlace {margin-left: auto;}
+.ak .header-portada .portada-nav {margin-left: auto; display: flex; gap: var(--space-2);}
 .ak .portada {padding: var(--space-6) clamp(20px, 5vw, 72px) var(--space-9); border-bottom: 0;}
 .ak .portada .display {margin: 0;}
 @keyframes portada-sube {from { transform: translateY(var(--travel-2)); } }
@@ -240,6 +240,8 @@ html.lienzo-3d .ak .manos .manos-trazo {opacity: 1;}
   animation-delay: calc(var(--l, 0) * var(--duration-stagger) * 1.5);}
 .ak .portada .sub {margin: var(--space-3) 0 0; max-width: 34ch; font: 400 clamp(17px, 1.6vw, 22px)/1.4 var(--font-sans); color: var(--text-muted); text-wrap: pretty;}
 .ak .portada .sub > span {display: inline-block;}
+.ak .portada-oferta {margin: var(--space-5) 0 0; display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3) var(--space-4);}
+.ak .portada-oferta-nota {font: 400 14px/1.4 var(--font-sans); color: var(--text-muted);}
 .ak .portada-escena {position: relative;}
 .ak .respuesta {position: absolute;
   left: 0;

@@ -9,7 +9,7 @@ import Vitrina from "@/components/vitrina/Vitrina";
 // empezamos viven en /trabajo.
 
 const TITLE = "Hi, I'm Adrián · allok";
-const DESCRIPTION = "Websites, systems and WhatsApp agents for your business. I reply myself.";
+const DESCRIPTION = "Your WhatsApp answers and books, even when you're closed. Try it free for 7 days.";
 
 export const metadata: Metadata = {
   title: { absolute: TITLE },

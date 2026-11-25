@@ -76,7 +76,7 @@ export default function CasosPage() {
         </div>
         <p className="mt-10 text-[15.5px] text-[var(--ink-60)]">
           ¿Quieres ver más?{" "}
-          <Link href="/work" className="text-[var(--ink)] underline underline-offset-4">
+          <Link href="/trabajo" className="text-[var(--ink)] underline underline-offset-4">
             Los {LIVE_SYSTEMS} sistemas, uno por uno
           </Link>
           .

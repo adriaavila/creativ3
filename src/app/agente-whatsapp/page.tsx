@@ -341,11 +341,8 @@ export default function AgenteWhatsapp() {
           ))}
         </dl>
         <p className="mt-8 max-w-[62ch] text-[15.5px] leading-relaxed text-[var(--ink-60)] text-pretty">
-          ¿Inmobiliaria? El mismo producto con el vocabulario de una corredora se
-          llama{" "}
-          <Link href="/rei" className="text-[var(--ink)] underline underline-offset-4">REI</Link>. ¿Reglas
-          propias o tu propio servidor? Eso es{" "}
-          <Link href="/vocero" className="text-[var(--ink)] underline underline-offset-4">allok a tu medida</Link>.
+          ¿Reglas propias o tu propio servidor? Eso es el plan{" "}
+          <Link href="#precios" className="text-[var(--ink)] underline underline-offset-4">A tu medida</Link>.
         </p>
       </section>
 

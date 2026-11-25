@@ -9,7 +9,7 @@
 .header-portada .wordmark { display: inline-flex; align-items: center; min-height: var(--size-target); }
 /* Its one link, to the WhatsApp agent, goes to the right edge and stays on the phone too (the system hides
    .header-end links below 760 px; this one is not in a .header-end). */
-.header-portada .agente-enlace { margin-left: auto; }
+.header-portada .portada-nav { margin-left: auto; display: flex; gap: var(--space-2); }
 
 /* ── The hero. Its side padding is the strip's bleed (B pulls .manos out by the same clamp). ── */
 .portada { padding: var(--space-6) clamp(20px, 5vw, 72px) var(--space-9); border-bottom: 0; }
@@ -26,6 +26,9 @@
 /* Two phrases that wrap as units, so the break falls between them. Each is its own text block for LCP: one block,
    the whole sub would outweigh an H1 line still masked at the first paint on a phone. */
 .portada .sub > span { display: inline-block; }
+/* La oferta bajo la promesa: el botón a la prueba y su letra chica. */
+.portada-oferta { margin: var(--space-5) 0 0; display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3) var(--space-4); }
+.portada-oferta-nota { font: 400 14px/1.4 var(--font-sans); color: var(--text-muted); }
 
 /* The reply sits in the line the hint takes inside the strip, so its height is reserved from the start. It shows
    once the loop closes (Manos sets data-cerrado on #inicio): it rises 8 px in 400 ms. CSS only. */

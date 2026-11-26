@@ -574,8 +574,8 @@ export function traceLine(gestures: Gesture[], options: LineOptions): Stroke[] {
 
       // Hacia dónde sigue la línea decide cómo termina el subrayado.
       const next = gestures.slice(i + 1).map(whereIs).find(Boolean);
-      const below = next ? next.y - (y + gap) > 60 : true;
-      const toRight = below ? Boolean(lanes) && (x0 + x1) / 2 > mid : next!.x > (x0 + x1) / 2;
+      const below = next ? next.y - (y + gap) > 60 : false;
+      const toRight = below ? Boolean(lanes) && (x0 + x1) / 2 > mid : next ? next.x > (x0 + x1) / 2 : false;
 
       const pen = open();
       pen.Q((x0 + x1) / 2, y + sag, x1, y - 1);

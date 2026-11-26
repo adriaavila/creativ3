@@ -124,7 +124,8 @@ export default function PenLine() {
           targets.push(null);
           handIndex = gestures.length - 1;
         } else if (kind === "strike") {
-          gestures.push({ kind: "strike", lines: linesOf(el) });
+          const from = el.dataset.penFrom;
+          gestures.push({ kind: "strike", lines: linesOf(el), from: from === "left" || from === "right" ? from : undefined });
           targets.push(el);
         } else if (kind === "draw") {
           const name = el.dataset.glyph as GlyphId;

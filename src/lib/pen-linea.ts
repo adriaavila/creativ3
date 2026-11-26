@@ -36,7 +36,7 @@ export type Gesture =
   /** Lo que dibuja quien visita, en la portada, antes de bajar. */
   | { kind: "hand"; points: Point[] }
   /** Tachar un problema, renglón por renglón, ida y vuelta. */
-  | { kind: "strike"; lines: Box[] }
+  | { kind: "strike"; lines: Box[]; from?: "left" | "right" }
   /** Un dibujo de un solo trazo dentro de su caja. */
   | { kind: "draw"; box: Box; glyph: GlyphId }
   /** El resultado: el único trazo azul junto con el lazo. */
@@ -503,7 +503,10 @@ export function traceLine(gestures: Gesture[], options: LineOptions): Stroke[] {
       const yOf = (l: Box) => l.y + l.h * 0.56;
       const first = g.lines[0]!;
       // Empieza por el lado del que viene la pluma.
-      const way = plan(first.x + first.w / 2, first.y, true);
+      // `from` lo fija quien arma la página, cuando al otro lado del renglón hay texto que la línea no debe pisar.
+      const way = g.from
+        ? { right: g.from === "right", lane: lanes ? (g.from === "right" ? lanes.right : lanes.left) : null }
+        : plan(first.x + first.w / 2, first.y, true);
       let startLtr = !way.right;
       // Si lo que sigue es el dibujo, el tachado termina de su lado: la línea no cruza la captura para llegar.
       const after = gestures[i + 1];
@@ -605,7 +608,9 @@ export function traceLine(gestures: Gesture[], options: LineOptions): Stroke[] {
       const y = g.box.y + g.box.h;
       const x0 = g.box.x;
       const x1 = g.box.x + g.box.w;
-      arrive({ x: x0, y: y + 1 }, RIGHT, i, plan((x0 + x1) / 2, y, false).lane);
+      // Un renglón se escribe de izquierda a derecha: si queda lejos, la línea baja siempre por el margen izquierdo.
+      const far = Boolean(lanes && at && y - at.y > laneAfter);
+      arrive({ x: x0, y: y + 1 }, RIGHT, i, far ? lanes!.left : plan((x0 + x1) / 2, y, false).lane);
       const pen = open();
       pen.Q((x0 + x1) / 2, y + clamp(g.box.w * 0.008, 2, 5), x1, y - 1);
       push(pen, { ink: "black", kind: "rule", gesture: i, mark: { gesture: i } });

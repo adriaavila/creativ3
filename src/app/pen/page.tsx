@@ -1,12 +1,14 @@
 import type { Metadata } from "next";
-import { Geist, Instrument_Serif } from "next/font/google";
 import type { CSSProperties } from "react";
 import { WordmarkSvg } from "@/components/ak/Brand";
 import PenLine from "@/components/pen/PenLine";
+import PenShare from "@/components/pen/PenShare";
 import PenSketch from "@/components/pen/PenSketch";
 import { propsDeImagen } from "@/components/vitrina/imagen";
 import { HOME_WHATSAPP_MESSAGE, whatsappUrl } from "@/lib/contact";
 import { AGENT, SKETCHBOOK, SKETCH_EXAMPLES, STORIES, countWord, type Story } from "@/lib/pen";
+import { IDEAS, ideaNumber, ideaPath } from "@/lib/pen-ideas";
+import { penFonts } from "./fonts";
 import "./pen.css";
 
 // «I never lift the pen»: el concepto de portada que Adrián eligió el 25 de
@@ -15,18 +17,9 @@ import "./pen.css";
 // Es una página de prueba: fuera del menú, del sitemap y de Google hasta que
 // él decida si reemplaza la portada.
 
-const sans = Geist({ subsets: ["latin"], variable: "--font-pen-sans", display: "swap" });
-const serif = Instrument_Serif({
-  weight: "400",
-  style: ["normal", "italic"],
-  subsets: ["latin"],
-  variable: "--font-pen-serif",
-  display: "swap",
-});
-
 const TITLE = "I never lift the pen · Adrián Ávila";
 const DESCRIPTION =
-  "Websites, systems and AI agents by Adrián Ávila. One line crosses out each problem and draws what replaced it.";
+  "Hi, I’m Adrián. I build websites, systems and AI agents. One line crosses out each problem and draws what replaced it.";
 
 export const metadata: Metadata = {
   title: { absolute: TITLE },
@@ -34,6 +27,7 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
   alternates: { canonical: "/pen" },
   openGraph: { title: TITLE, description: DESCRIPTION, url: "/pen", siteName: "allok", type: "website", locale: "en" },
+  twitter: { card: "summary_large_image", title: TITLE, description: DESCRIPTION },
 };
 
 const SIZES = {
@@ -69,7 +63,7 @@ function Shot({ story }: { story: Story }) {
 export default function PenPage() {
   const wa = whatsappUrl(HOME_WHATSAPP_MESSAGE);
   return (
-    <div className={`pen ${sans.variable} ${serif.variable}`} lang="en">
+    <div className={`pen ${penFonts}`} lang="en">
       <PenLine />
       <noscript>
         <style>{`.pen [data-pen] img,.pen [data-pen-tile] img{filter:none!important;opacity:1!important}`}</style>
@@ -83,6 +77,7 @@ export default function PenPage() {
         <nav className="pen-nav" aria-label="On this page">
           <a href="#work">Work</a>
           <a href="#sketchbook">Sketchbook</a>
+          <a href="#notebook">Notebook</a>
           <a href="#your-turn">Your turn</a>
         </nav>
         <a className="pen-btn is-small" href={wa} target="_blank" rel="noopener noreferrer">
@@ -92,18 +87,19 @@ export default function PenPage() {
 
       <main>
         <section className="pen-hero" data-pen-pad aria-labelledby="pen-title">
-          <p className="pen-label">Adrián Ávila · Engineer</p>
+          <p className="pen-label">Adrián Ávila · Engineer &amp; artist</p>
           <h1 id="pen-title" className="pen-display" data-pen="start">
             I never lift
             <br />
             the <em>pen.</em>
           </h1>
           <p className="pen-lead">
-            I design and build websites, systems and AI agents. Each one starts as somebody’s problem. Scroll: the line
-            crosses it out and draws what replaced it.
+            Hi, I’m Adrián. I build websites, systems and AI agents for people who’d rather run their business than fight
+            with software. Every project here began with someone telling me what was wearing them out. Scroll, and the
+            line will show you what we did about it.
           </p>
           <p className="pen-hint pen-label" aria-hidden="true">
-            Move your mouse. The pen is yours until you scroll.
+            Go on, draw something. The pen is yours until you scroll.
           </p>
         </section>
 
@@ -113,6 +109,9 @@ export default function PenPage() {
             <h2 id="pen-work-title" className="pen-h2">
               {countWord(STORIES.length)} problems, <em>crossed out.</em>
             </h2>
+            <p className="pen-sub">
+              Some for clients, some I built on my own. Each one started as a sentence somebody was tired of saying.
+            </p>
           </header>
 
           {STORIES.map((story, i) => (
@@ -173,7 +172,7 @@ export default function PenPage() {
             <h2 id="pen-book-title" className="pen-h2">
               The rest of the <em>sketchbook.</em>
             </h2>
-            <p className="pen-sub">Brands, stores and a World Cup game. Smaller pieces, same hand.</p>
+            <p className="pen-sub">Brands, stores and a World Cup game. This is where I get to play: smaller pieces, same hand.</p>
           </header>
           <ul className="pen-tiles" data-pen="weave">
             {SKETCHBOOK.map((tile) => {
@@ -197,6 +196,39 @@ export default function PenPage() {
           </ul>
         </section>
 
+        <section className="pen-section" id="notebook" aria-labelledby="pen-notes-title">
+          <header className="pen-head">
+            <p className="pen-label">Notebook</p>
+            <h2 id="pen-notes-title" className="pen-h2">
+              Things I keep <em>coming back to.</em>
+            </h2>
+            <p className="pen-sub">
+              Short notes on how I work. Each one has its own link, so if one sounds right, take it and pass it on.
+            </p>
+          </header>
+          <ol className="pen-notes">
+            {IDEAS.map((idea, i) => (
+              <li className="pen-note" key={idea.slug}>
+                <a href={ideaPath(idea)}>
+                  <div className="pen-note-was">
+                    <p className="pen-label">{ideaNumber(idea)}</p>
+                    <p className="pen-note-belief">
+                      {/* La primera se tacha desde el margen izquierdo: a la derecha están los títulos. */}
+                      <span data-pen="strike" data-pen-from={i === 0 ? "left" : undefined}>
+                        {idea.belief}
+                      </span>
+                    </p>
+                  </div>
+                  <div>
+                    <h3 className="pen-note-title">{idea.title}</h3>
+                    <span className="pen-note-go">Read and share</span>
+                  </div>
+                </a>
+              </li>
+            ))}
+          </ol>
+        </section>
+
         <section className="pen-section pen-turn" id="your-turn" aria-labelledby="pen-turn-title">
           <header className="pen-head">
             <p className="pen-label">Your turn</p>
@@ -204,7 +236,8 @@ export default function PenPage() {
               What eats <em>your</em> time?
             </h2>
             <p className="pen-sub">
-              Tell the pen. It crosses your problem out and sketches what could replace it, while you watch.
+              Tell me in a sentence, the way you’d say it to a friend. The pen crosses it out and sketches a first idea
+              while you watch. No form, no sales call.
             </p>
           </header>
           <PenSketch examples={SKETCH_EXAMPLES} />
@@ -218,9 +251,13 @@ export default function PenPage() {
           <a className="pen-btn is-big" data-pen="loop" href={wa} target="_blank" rel="noopener noreferrer">
             Message me on WhatsApp
           </a>
+          <p className="pen-end-note">
+            If something here sounded like your week, tell me about it. One sentence is enough to start.
+          </p>
           <p className="pen-meter pen-label">
             One line, from the headline to this button · <span data-pen-meter>0.0 m</span> of ink
           </p>
+          <PenShare path="/pen" text="I never lift the pen · Adrián Ávila" label="Know someone who needs this? Send them the page" />
         </section>
       </main>
     </div>

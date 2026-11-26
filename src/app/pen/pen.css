@@ -629,3 +629,226 @@ body:has(.pen) {
     padding-right: 28px;
   }
 }
+
+/* ── El cuaderno: ideas para compartir ────────────────────── */
+.pen-notes {
+  list-style: none;
+  margin: clamp(48px, 6vw, 88px) 0 0;
+  padding: 0;
+  border-top: 1px solid var(--pen-ink-15);
+}
+.pen-note {
+  border-bottom: 1px solid var(--pen-ink-15);
+}
+.pen-note a {
+  display: grid;
+  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.5fr);
+  column-gap: clamp(40px, 7vw, 120px);
+  align-items: start;
+  padding: clamp(28px, 3.2vw, 44px) 0 clamp(30px, 3.4vw, 48px);
+  color: inherit;
+  text-decoration: none;
+}
+.pen-note-belief {
+  margin-top: 16px !important;
+  font-family: var(--pen-serif);
+  font-size: clamp(19px, 1.7vw, 24px);
+  line-height: 1.25;
+  color: var(--pen-ink-60);
+}
+.pen-note-belief > span {
+  transition: color 0.7s ease;
+}
+.pen-note-belief > span.is-inked {
+  color: var(--pen-ink-40);
+}
+.pen-note-title {
+  max-width: 24ch;
+  font-size: clamp(26px, 3vw, 44px);
+  font-weight: 600;
+  line-height: 1.08;
+  letter-spacing: -0.035em;
+  text-wrap: balance;
+}
+.pen-note-go {
+  display: inline-block;
+  margin-top: 22px;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--pen-ink-60);
+  transition: color 0.2s ease;
+}
+.pen-note-go::after {
+  content: " →";
+  display: inline-block;
+  transition: transform 0.25s ease;
+}
+.pen-note a:hover .pen-note-go {
+  color: var(--pen-blue);
+}
+.pen-note a:hover .pen-note-go::after {
+  transform: translateX(4px);
+}
+.pen-note a:hover .pen-note-title {
+  text-decoration: underline;
+  text-decoration-color: var(--pen-blue);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 6px;
+}
+
+/* ── Una idea, en su propia página ────────────────────────── */
+.pen-idea {
+  max-width: var(--pen-measure);
+  margin: 0 auto;
+  padding: clamp(132px, 15vw, 210px) var(--pen-gutter) clamp(72px, 9vw, 130px);
+}
+.pen-idea .pen-label a {
+  color: inherit;
+  text-underline-offset: 4px;
+}
+.pen-idea .pen-label a:hover {
+  color: var(--pen-blue);
+}
+.pen-idea .pen-glyph {
+  display: block;
+  margin-top: clamp(36px, 4.4vw, 60px);
+}
+.pen-idea-title {
+  max-width: 17ch;
+  margin-top: clamp(20px, 2.4vw, 32px) !important;
+  font-size: clamp(38px, 6.2vw, 92px);
+  font-weight: 600;
+  line-height: 1.02;
+  letter-spacing: -0.045em;
+  text-wrap: balance;
+}
+.pen-idea-body {
+  max-width: 34em;
+  margin-top: clamp(40px, 5vw, 68px);
+  font-size: clamp(18px, 1.5vw, 21px);
+  line-height: 1.55;
+  color: var(--pen-ink);
+}
+.pen-idea-body p + p {
+  margin-top: 1.1em !important;
+}
+.pen-idea-by {
+  margin-top: 30px !important;
+  font-family: var(--pen-serif);
+  font-style: italic;
+  font-size: 24px;
+  color: var(--pen-ink-60);
+}
+.pen-idea .pen-link {
+  margin-top: 8px;
+  font-size: 15px;
+  color: var(--pen-ink-60);
+}
+
+.pen-share {
+  margin-top: clamp(44px, 5vw, 64px);
+}
+.pen-share-row {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 14px 0 0;
+  padding: 0;
+}
+.pen-chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 18px;
+  border: 1px solid var(--pen-ink-15);
+  border-radius: 999px;
+  background: var(--pen-paper);
+  color: var(--pen-ink);
+  font-family: var(--pen-sans);
+  font-size: 15px;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  transition: border-color 0.2s ease, color 0.2s ease, background-color 0.2s ease;
+}
+.pen-chip:hover {
+  border-color: var(--pen-blue);
+  color: var(--pen-blue);
+}
+.pen-chip.is-ink {
+  border-color: var(--pen-ink);
+  background: var(--pen-ink);
+  color: var(--pen-paper);
+}
+.pen-chip.is-ink:hover {
+  border-color: var(--pen-blue);
+  background: var(--pen-blue);
+  color: var(--pen-paper);
+}
+.pen-end .pen-share {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.pen-end .pen-share-row {
+  justify-content: center;
+}
+.pen-end-note {
+  max-width: 30em;
+  margin-top: 28px !important;
+  font-size: 17px;
+  color: var(--pen-ink-60);
+}
+
+.pen-more {
+  max-width: var(--pen-measure);
+  margin: 0 auto;
+  padding: 0 var(--pen-gutter);
+}
+.pen-more-list {
+  list-style: none;
+  margin: 18px 0 0;
+  padding: 0;
+  border-top: 1px solid var(--pen-ink-15);
+}
+.pen-more-list a {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr);
+  align-items: baseline;
+  padding: 20px 0;
+  border-bottom: 1px solid var(--pen-ink-15);
+  color: inherit;
+  text-decoration: none;
+}
+.pen-more-title {
+  font-size: clamp(19px, 1.9vw, 26px);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  transition: color 0.2s ease;
+}
+.pen-more-list a:hover .pen-more-title {
+  color: var(--pen-blue);
+}
+
+@media (max-width: 760px) {
+  .pen-note a {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 14px;
+  }
+  .pen-note-belief {
+    margin-top: 10px !important;
+  }
+  .pen-idea {
+    padding-top: 112px;
+  }
+  .pen-idea-body,
+  .pen-idea-title {
+    padding-right: 22px;
+  }
+}
+
+/* La línea cruza de un margen al otro justo antes del cuaderno: se le deja el aire. */
+.pen #notebook {
+  padding-top: calc(clamp(96px, 12vw, 180px) + 64px);
+}

@@ -111,3 +111,32 @@ test("sin gestos no hay línea, y la tinta se cuenta en metros", () => {
   assert.equal(inkMeters(0), 0);
   assert.ok(Math.abs(inkMeters(96) - 0.0254) < 1e-9);
 });
+
+test("un tachado con `from` entra por ese margen aunque la pluma venga del otro lado", () => {
+  const lanes = { left: 40, right: 1160 };
+  const strokes = traceLine(
+    [
+      { kind: "rule", box: { x: 700, y: 100, w: 400, h: 40 } },
+      { kind: "strike", lines: [{ x: 80, y: 700, w: 240, h: 30 }], from: "left" },
+    ],
+    { pad: 14, lanes },
+  );
+  const travel = strokes.find((s) => s.kind === "travel" && s.gesture === 1)!;
+  assert.ok(travel.d.includes(`${lanes.left}`), "baja por el margen izquierdo");
+  const strike = strokes.find((s) => s.kind === "strike")!;
+  assert.ok(strike.end.x > 300, "tacha de izquierda a derecha");
+});
+
+test("un renglón lejano se alcanza por el margen izquierdo, venga de donde venga la pluma", () => {
+  const lanes = { left: 40, right: 1160 };
+  const strokes = traceLine(
+    [
+      { kind: "strike", lines: [{ x: 80, y: 100, w: 240, h: 30 }] },
+      { kind: "rule", box: { x: 80, y: 900, w: 500, h: 60 } },
+    ],
+    { pad: 14, lanes },
+  );
+  const travel = strokes.find((s) => s.kind === "travel" && s.gesture === 1)!;
+  assert.ok(travel.d.includes(`${lanes.left}`));
+  assert.ok(!travel.d.includes(`${lanes.right}`));
+});

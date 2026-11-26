@@ -1,0 +1,631 @@
+/* «I never lift the pen»: papel blanco, tinta negra y una sola línea.
+   El azul es de la línea y de nada más: marca el resultado y la salida.
+   Todo vive bajo `.pen`; no toca los tokens compartidos de allok. */
+
+.pen {
+  --pen-paper: #ffffff;
+  --pen-wash: #f5f6f7;
+  --pen-ink: #0b0d0e;
+  --pen-ink-60: #5b6167;
+  --pen-ink-40: #8a9097;
+  --pen-ink-15: rgb(11 13 14 / 0.15);
+  --pen-ink-09: rgb(11 13 14 / 0.09);
+  --pen-blue: #1f4bff;
+  --pen-blue-soft: #e9edff;
+  --pen-stroke: 2px;
+  --pen-gutter: clamp(20px, 5vw, 72px);
+  --pen-measure: 1240px;
+  --pen-sans: var(--font-pen-sans), "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --pen-serif: var(--font-pen-serif), "Iowan Old Style", Georgia, serif;
+  --pen-mono: var(--font-jetbrains), ui-monospace, monospace;
+
+  position: relative;
+  color-scheme: light;
+  background: var(--pen-paper);
+  color: var(--pen-ink);
+  font-family: var(--pen-sans);
+  font-size: 17px;
+  line-height: 1.5;
+  overflow: clip;
+}
+
+body:has(.pen) {
+  background-color: #ffffff;
+}
+
+.pen ::selection {
+  background: var(--pen-blue);
+  color: #fff;
+}
+.pen :focus-visible {
+  outline: 2px solid var(--pen-blue);
+  outline-offset: 4px;
+}
+.pen em {
+  font-family: var(--pen-serif);
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+}
+.pen h1,
+.pen h2,
+.pen h3 {
+  font-family: var(--pen-sans);
+  margin: 0;
+}
+.pen p {
+  margin: 0;
+}
+
+/* ── La línea ─────────────────────────────────────────────── */
+.pen-line {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 3;
+  pointer-events: none;
+  overflow: visible;
+}
+.pen-ink {
+  fill: none;
+  stroke: var(--pen-ink);
+  stroke-width: var(--pen-stroke);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  visibility: hidden;
+}
+.pen-ink.is-blue {
+  stroke: var(--pen-blue);
+}
+.pen-ghost {
+  fill: none;
+  stroke: var(--pen-ink-15);
+  stroke-width: 1px;
+  stroke-dasharray: 1 7;
+  stroke-linecap: round;
+}
+.pen-tip-dot {
+  fill: var(--pen-blue);
+}
+.pen-tip-halo {
+  fill: var(--pen-blue);
+  opacity: 0.14;
+}
+
+/* ── Piezas pequeñas ──────────────────────────────────────── */
+.pen-label {
+  font-family: var(--pen-mono);
+  font-size: 11.5px;
+  line-height: 1.4;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--pen-ink-60);
+}
+
+.pen-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 48px;
+  padding: 0 24px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--pen-ink);
+  color: var(--pen-paper);
+  font-family: var(--pen-sans);
+  font-size: 15.5px;
+  font-weight: 500;
+  letter-spacing: -0.005em;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+.pen-btn:hover {
+  background: var(--pen-blue);
+}
+.pen-btn:active {
+  transform: scale(0.98);
+}
+.pen-btn:disabled {
+  background: var(--pen-ink-15);
+  color: var(--pen-ink-60);
+  cursor: not-allowed;
+}
+.pen-btn.is-small {
+  min-height: 38px;
+  padding: 0 16px;
+  font-size: 14px;
+}
+.pen-btn.is-big {
+  min-height: 68px;
+  padding: 0 40px;
+  font-size: clamp(18px, 1.6vw, 22px);
+}
+
+.pen-link {
+  display: inline-block;
+  margin-top: 22px;
+  font-size: 15.5px;
+  font-weight: 500;
+  color: var(--pen-ink);
+  text-decoration: underline;
+  text-decoration-color: var(--pen-ink-15);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 5px;
+  transition: color 0.2s ease, text-decoration-color 0.2s ease;
+}
+.pen-link::after {
+  content: " →";
+}
+.pen-link:hover {
+  color: var(--pen-blue);
+  text-decoration-color: var(--pen-blue);
+}
+
+/* ── Cabecera ─────────────────────────────────────────────── */
+.pen-top {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 18px var(--pen-gutter) 28px;
+  background: linear-gradient(to bottom, #fff 55%, rgb(255 255 255 / 0));
+}
+.pen-wordmark {
+  display: inline-flex;
+  color: var(--pen-ink);
+}
+.pen-wordmark svg {
+  height: 22px;
+  width: auto;
+}
+.pen-nav {
+  display: flex;
+  gap: 28px;
+}
+.pen-nav a {
+  font-size: 14.5px;
+  color: var(--pen-ink-60);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+.pen-nav a:hover {
+  color: var(--pen-ink);
+}
+
+/* ── Portada ──────────────────────────────────────────────── */
+.pen-hero {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 100svh;
+  max-width: calc(var(--pen-measure) + 2 * var(--pen-gutter));
+  margin: 0 auto;
+  padding: 120px var(--pen-gutter) 96px;
+}
+.pen-display {
+  margin-top: 28px !important;
+  font-size: clamp(60px, 10.5vw, 176px);
+  font-weight: 300;
+  line-height: 0.92;
+  letter-spacing: -0.05em;
+}
+.pen-display em {
+  letter-spacing: -0.03em;
+  padding-right: 0.04em;
+}
+.pen-lead {
+  max-width: 34ch;
+  margin-top: clamp(72px, 9vw, 132px) !important;
+  font-size: clamp(18px, 1.55vw, 22px);
+  line-height: 1.45;
+  color: var(--pen-ink-60);
+}
+.pen-hint {
+  display: none;
+  position: absolute;
+  right: var(--pen-gutter);
+  bottom: 40px;
+  transition: opacity 0.4s ease;
+}
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .pen-hint {
+    display: block;
+  }
+  .pen.has-hand .pen-hint {
+    opacity: 0;
+  }
+}
+
+/* ── Secciones ────────────────────────────────────────────── */
+.pen-section {
+  max-width: calc(var(--pen-measure) + 2 * var(--pen-gutter));
+  margin: 0 auto;
+  padding: clamp(96px, 12vw, 180px) var(--pen-gutter) 0;
+  scroll-margin-top: 24px;
+}
+.pen-head {
+  max-width: 880px;
+}
+.pen-h2 {
+  margin-top: 18px !important;
+  font-size: clamp(40px, 5.6vw, 88px);
+  font-weight: 300;
+  line-height: 0.98;
+  letter-spacing: -0.045em;
+}
+.pen-h2.is-big {
+  font-size: clamp(48px, 8vw, 132px);
+  line-height: 0.94;
+}
+.pen-sub {
+  max-width: 46ch;
+  margin-top: 22px !important;
+  font-size: clamp(17px, 1.4vw, 20px);
+  color: var(--pen-ink-60);
+}
+
+/* ── Una historia: lo tachado, lo dibujado, lo subrayado ──── */
+.pen-story {
+  padding-top: clamp(88px, 11vw, 168px);
+}
+.pen-before {
+  max-width: 30ch;
+  margin-top: 20px !important;
+  font-family: var(--pen-serif);
+  font-size: clamp(27px, 3.3vw, 50px);
+  line-height: 1.18;
+  letter-spacing: -0.015em;
+  color: var(--pen-ink);
+  text-wrap: balance;
+}
+.pen-before > span {
+  transition: color 0.7s ease;
+}
+.pen-before > span.is-inked {
+  color: var(--pen-ink-40);
+}
+.pen-before.is-small {
+  max-width: 34ch;
+  margin-top: 14px !important;
+  font-size: clamp(22px, 2.1vw, 30px);
+}
+
+.pen-row {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  gap: clamp(40px, 6vw, 104px);
+  align-items: start;
+  margin-top: clamp(56px, 7vw, 104px);
+}
+.pen-row.is-flip > .pen-after {
+  order: 2;
+}
+.pen-row.is-flip {
+  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+}
+.pen-row.is-agent {
+  grid-template-columns: minmax(0, 4fr) minmax(0, 8fr);
+  align-items: center;
+}
+
+.pen-glyph {
+  display: block;
+  width: 84px;
+  height: 84px;
+}
+.pen-glyph.is-big {
+  width: min(100%, 300px);
+  height: auto;
+  aspect-ratio: 1;
+  justify-self: center;
+}
+.pen-result {
+  margin-top: 40px !important;
+  max-width: 17ch;
+  font-size: clamp(30px, 3.3vw, 50px);
+  font-weight: 400;
+  line-height: 1.12;
+  letter-spacing: -0.035em;
+  padding-bottom: 14px;
+  text-wrap: balance;
+}
+.pen-row.is-agent .pen-result {
+  margin-top: 0 !important;
+  max-width: 20ch;
+}
+.pen-result.is-small {
+  margin-top: 26px !important;
+  font-size: clamp(24px, 2.3vw, 34px);
+  max-width: 22ch;
+}
+.pen-body {
+  max-width: 44ch;
+  margin-top: 18px !important;
+  color: var(--pen-ink-60);
+}
+
+.pen-frame {
+  margin: 0;
+}
+.pen-frame.is-phone {
+  width: min(100%, 300px);
+  justify-self: center;
+}
+.pen-shot {
+  position: relative;
+  overflow: hidden;
+  border-radius: 10px;
+  background: var(--pen-wash);
+  box-shadow: 0 0 0 1px var(--pen-ink-09);
+}
+.pen-frame.is-phone .pen-shot {
+  border-radius: 26px;
+}
+.pen-shot img {
+  object-fit: cover;
+  object-position: top center;
+}
+.pen-frame figcaption {
+  margin-top: 26px;
+}
+
+/* La captura espera en gris hasta que la línea la envuelve. */
+@media (prefers-reduced-motion: no-preference) {
+  .pen [data-pen="wrap"] img,
+  .pen [data-pen-tile] img {
+    filter: grayscale(1) contrast(0.92);
+    opacity: 0.32;
+    transition: filter 0.9s ease, opacity 0.9s ease;
+  }
+  .pen [data-pen="wrap"].is-inked img,
+  .pen [data-pen-tile].is-inked img {
+    filter: none;
+    opacity: 1;
+  }
+}
+
+/* ── El cuaderno ──────────────────────────────────────────── */
+.pen-tiles {
+  list-style: none;
+  margin: clamp(64px, 8vw, 120px) 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  column-gap: clamp(44px, 5.5vw, 88px);
+  row-gap: clamp(72px, 8vw, 120px);
+}
+.pen-tile a {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+}
+.pen-tile .pen-shot {
+  aspect-ratio: 16 / 10;
+  transition: transform 0.35s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.pen-tile a:hover .pen-shot {
+  transform: translateY(-4px);
+}
+.pen-tile .pen-label {
+  margin-top: 22px;
+}
+.pen-tile-name {
+  margin-top: 8px !important;
+  font-size: 24px;
+  font-weight: 400;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+}
+.pen-tile-line {
+  margin-top: 6px !important;
+  font-size: 15.5px;
+  color: var(--pen-ink-60);
+}
+
+/* ── Tu turno ─────────────────────────────────────────────── */
+.pen-turn-work {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: clamp(48px, 7vw, 112px);
+  align-items: start;
+  margin-top: clamp(56px, 7vw, 96px);
+  min-height: 420px;
+}
+.pen-field {
+  padding: 0 0 20px;
+  box-shadow: inset 0 -1px 0 var(--pen-ink-09);
+}
+.pen-field label {
+  display: block;
+}
+.pen-field textarea {
+  display: block;
+  width: 100%;
+  margin-top: 10px;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  resize: none;
+  background: transparent;
+  color: var(--pen-ink);
+  font-family: var(--pen-serif);
+  font-size: clamp(22px, 2vw, 28px);
+  line-height: 1.25;
+}
+.pen-field textarea::placeholder {
+  color: var(--pen-ink-40);
+}
+.pen-form-row {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 24px;
+  margin-top: 36px;
+}
+.pen-examples {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.pen-examples button {
+  padding: 8px 14px;
+  border: 1px solid var(--pen-ink-15);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--pen-ink-60);
+  font-family: var(--pen-sans);
+  font-size: 13.5px;
+  line-height: 1.3;
+  text-align: left;
+  cursor: pointer;
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+.pen-examples button:hover {
+  color: var(--pen-ink);
+  border-color: var(--pen-ink);
+}
+.pen-sheet .pen-btn {
+  margin-top: 28px;
+}
+.pen-sheet-note {
+  margin-top: 12px !important;
+  max-width: 34ch;
+  font-family: var(--pen-serif);
+  font-size: clamp(22px, 2.1vw, 30px);
+  line-height: 1.2;
+}
+.pen-sheet.is-empty .pen-sheet-note {
+  color: var(--pen-ink-40);
+}
+.pen-sheet .pen-after {
+  margin-top: 36px;
+}
+.pen-sheet .pen-glyph {
+  width: 72px;
+  height: 72px;
+}
+.pen-steps-label {
+  margin-top: 26px !important;
+}
+.pen-steps {
+  margin: 10px 0 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: paso;
+  max-width: 44ch;
+}
+.pen-steps li {
+  counter-increment: paso;
+  display: grid;
+  grid-template-columns: 30px 1fr;
+  padding: 11px 0;
+  border-top: 1px solid var(--pen-ink-09);
+}
+.pen-steps li::before {
+  content: counter(paso, decimal-leading-zero);
+  font-family: var(--pen-mono);
+  font-size: 11.5px;
+  line-height: 2.2;
+  color: var(--pen-ink-40);
+}
+.pen-fine {
+  margin-top: 18px !important;
+  font-size: 13px;
+  color: var(--pen-ink-40);
+}
+
+/* ── El final ─────────────────────────────────────────────── */
+.pen-end {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: clamp(140px, 18vw, 260px) var(--pen-gutter) clamp(120px, 12vw, 180px);
+}
+.pen-end .pen-btn {
+  margin-top: clamp(64px, 7vw, 96px);
+}
+.pen-meter {
+  margin-top: clamp(64px, 7vw, 96px) !important;
+}
+.pen-meter span {
+  color: var(--pen-blue);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Celular ──────────────────────────────────────────────── */
+@media (max-width: 760px) {
+  .pen {
+    --pen-stroke: 1.75px;
+    font-size: 16px;
+  }
+  .pen-nav {
+    display: none;
+  }
+  .pen-hero {
+    padding-top: 104px;
+    padding-bottom: 72px;
+  }
+  .pen-row,
+  .pen-row.is-flip,
+  .pen-row.is-agent,
+  .pen-turn-work {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .pen-row.is-flip > .pen-after {
+    order: 0;
+  }
+  .pen-row {
+    gap: 64px;
+  }
+  .pen-glyph {
+    width: 68px;
+    height: 68px;
+  }
+  .pen-glyph.is-big {
+    width: 180px;
+    justify-self: start;
+  }
+  .pen-row.is-agent .pen-result {
+    margin-top: 8px !important;
+  }
+  .pen-frame.is-phone {
+    width: 70%;
+  }
+  .pen-tiles {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 36px;
+    row-gap: 64px;
+  }
+  .pen-tile-name {
+    font-size: 19px;
+  }
+  .pen-tile-line {
+    font-size: 14px;
+  }
+  .pen-turn-work {
+    min-height: 0;
+  }
+  .pen-btn.is-big {
+    min-height: 60px;
+    padding: 0 28px;
+  }
+}
+
+@media (max-width: 760px) {
+  /* El margen derecho es de la línea: el texto de la portada le deja paso. */
+  .pen-lead {
+    padding-right: 28px;
+  }
+}

@@ -13,6 +13,9 @@ importers:
 
   .:
     dependencies:
+      '@ai-sdk/react':
+        specifier: ^4.0.187
+        version: 4.0.187(react@19.2.4)(zod@4.3.6)
       '@neondatabase/serverless':
         specifier: 1.1.0
         version: 1.1.0
@@ -22,6 +25,9 @@ importers:
       '@vercel/oidc':
         specifier: ^4.0.5
         version: 4.0.5
+      ai:
+        specifier: 7.0.118
+        version: 7.0.118(zod@4.3.6)
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -125,8 +131,20 @@ importers:
 
 packages:
 
+  '@ai-sdk/gateway@4.0.155':
+    resolution: {integrity: sha512-8/LE3fvfCIX6WrtUV796xd0sHKEI8E0ctRpCHP4c+kzBBZYJ4x6W4qa3ODVV4UDsoJRk4ndAoTphcmv8qjrYiQ==}
+    engines: {node: '>=22'}
+    peerDependencies:
+      zod: ^3.25.76 || ^4.1.8
+
   '@ai-sdk/gateway@4.0.96':
     resolution: {integrity: sha512-1aniRTzEf9T7uRHdKnBQ36WgEVQswK6wDgkPVsNMl+sPy7otcmrBa2HEurdFBS51s1q3/UXlh8nNcguwU79Hkg==}
+    engines: {node: '>=22'}
+    peerDependencies:
+      zod: ^3.25.76 || ^4.1.8
+
+  '@ai-sdk/mcp@2.0.105':
+    resolution: {integrity: sha512-X9jQeoFcw2v1vFieCgmyWi+GwzMoVQ1bQ7eG2LZiVRVJ77TwJ3n5K3aXP1yvZYSbko9v8GbHvA4T1ZPzJDM16A==}
     engines: {node: '>=22'}
     peerDependencies:
       zod: ^3.25.76 || ^4.1.8
@@ -143,9 +161,25 @@ packages:
     peerDependencies:
       zod: ^3.25.76 || ^4.1.8
 
+  '@ai-sdk/provider-utils@5.0.84':
+    resolution: {integrity: sha512-nj6xEZM7I1XdfRcMUPTKhYuZEGH8CVpzp9/dbBDtcsVFEF+qM+J4RoauGSQ9+1cARFunMtrZ0/4bMNsUBl55tA==}
+    engines: {node: '>=22'}
+    peerDependencies:
+      zod: ^3.25.76 || ^4.1.8
+
   '@ai-sdk/provider@4.0.18':
     resolution: {integrity: sha512-+GZJIgz1jk86pwEbb3f1BD2bdoSKyWE4Jg4YUc7NMnMozbWemSKYZcw2F4nMaO5qwsL5A8RmioAKW81YktRpIQ==}
     engines: {node: '>=22'}
+
+  '@ai-sdk/provider@4.0.39':
+    resolution: {integrity: sha512-jRvAhvW23+TeMGVCME2WGejP/TjzyDg7TplUep3t8HcEYnC2/8zqhCy9RRrjjVs1ljcygABZ8pQ21MbCRdF01w==}
+    engines: {node: '>=22'}
+
+  '@ai-sdk/react@4.0.187':
+    resolution: {integrity: sha512-Os1cANAMTART9jlye8hYOjCp9Qc9P3DfxZxm1oAKDNHEBv3o3UHrru8+F9kmr6lWgDRD/dVy6vBCT3DLiLG1zQ==}
+    engines: {node: '>=22'}
+    peerDependencies:
+      react: ^18 || ~19.0.1 || ~19.1.2 || ^19.2.1
 
   '@alloc/quick-lru@5.2.0':
     resolution: {integrity: sha512-UrcABB+4bUrFABwbluTIBErXwvbsU/V7TZWfmbgJfbkwiBuziS9gxdODUyuiecfdGQ85jglMW6juS3+z5TsKLw==}
@@ -1904,6 +1938,12 @@ packages:
     peerDependencies:
       zod: ^3.25.76 || ^4.1.8
 
+  ai@7.0.182:
+    resolution: {integrity: sha512-R1sCcajzTie+XhZjDUAZsSzWMfq7ggaQGqVYxaY8tpmlewYPYslynj98e45khjRYWJfowSIwpLxzsEspVywYpw==}
+    engines: {node: '>=22'}
+    peerDependencies:
+      zod: ^3.25.76 || ^4.1.8
+
   ajv@6.14.0:
     resolution: {integrity: sha512-IWrosm/yrn43eiKqkfkHis7QioDleaXQHdDVPKg0FSwwd/DuvyX79TZnFOnYpB7dcsFAMmtFztZuXPDvSePkFw==}
 
@@ -2115,6 +2155,10 @@ packages:
   define-properties@1.2.1:
     resolution: {integrity: sha512-8QmQKqEASLd5nx0U1B1okLElbUuuttJ/AnYmRXbbbGDWh6uS208EjD4Xqq/I9wK7u0v6O08XhTWnt5XtEbR6Dg==}
     engines: {node: '>= 0.4'}
+
+  dequal@2.0.3:
+    resolution: {integrity: sha512-0je+qPKHEMohvfRTCEo3CrPG6cAzAYgmzKyxRiYSSDkS6eGJdyVJm7WaYA5ECaAD9wLB2T4EEeymA5aFVcYXCA==}
+    engines: {node: '>=6'}
 
   detect-libc@2.1.2:
     resolution: {integrity: sha512-Btj2BOOO83o3WyH59e8MgXsxEQVcarkUOpEYrubB0urwnN10yQ364rsiByU11nZlqWYZm05i/of7io4mzihBtQ==}
@@ -2355,6 +2399,10 @@ packages:
 
   eventsource-parser@3.0.8:
     resolution: {integrity: sha512-70QWGkr4snxr0OXLRWsFLeRBIRPuQOvt4s8QYjmUlmlkyTZkRqS7EDVRZtzU3TiyDbXSzaOeF0XUKy8PchzukQ==}
+    engines: {node: '>=18.0.0'}
+
+  eventsource-parser@3.1.1:
+    resolution: {integrity: sha512-EKN1vKAMcZ8MlYMpaNuxN6R9yakzH6uajHcHVTqWJzvu5pWw9DyhbP35HH8MVBQ+dZjAfDxk+A8NiR9KWaXiyQ==}
     engines: {node: '>=18.0.0'}
 
   execa@5.1.1:
@@ -3076,6 +3124,10 @@ packages:
     resolution: {integrity: sha512-QP88BAKvMam/3NxH6vj2o21R6MjxZUAd6nlwAS/pnGvN9IVLocLHxGYIzFhg6fUQ+5th6P4dv4eW9jX3DSIj7A==}
     engines: {node: '>=12'}
 
+  pkce-challenge@5.0.2:
+    resolution: {integrity: sha512-vCc54+qyIfKC5e2UN28AZKElwqjLINgiIV3RKI8pDu93TjaAJoB3QrgMzEBouy8yOKsXVXdAinO1QArJf9x5WA==}
+    engines: {node: '>=16.20.0'}
+
   playwright-core@1.60.0:
     resolution: {integrity: sha512-9bW6zvX/m0lEbgTKJ6YppOKx8H3VOPBMOCFh2irXFOT4BbHgrx5hPjwJYLT40Lu+4qtD36qKc/Hn56StUW57IA==}
     engines: {node: '>=18'}
@@ -3374,6 +3426,11 @@ packages:
     resolution: {integrity: sha512-ot0WnXS9fgdkgIcePe6RHNk1WA8+muPa6cSjeR3V8K27q9BB1rTE3R1p7Hv0z1ZyAc8s6Vvv8DIyWf681MAt0w==}
     engines: {node: '>= 0.4'}
 
+  swr@2.5.1:
+    resolution: {integrity: sha512-BRw55e8r0B7SpDN20CAzoQAHl7y1yP7/Zt7oqUjMv0vSt2u2Xnkm88Ws+VypbV9BXHQVuSuyVq7zMjO16wSExw==}
+    peerDependencies:
+      react: ^16.11.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+
   tailwind-merge@3.5.0:
     resolution: {integrity: sha512-I8K9wewnVDkL1NTGoqWmVEIlUcB9gFriAEkXkfCjX5ib8ezGxtR3xD7iZIxrfArjEsH7F1CHD4RFUtxefdqV/A==}
 
@@ -3386,6 +3443,10 @@ packages:
 
   three@0.186.1:
     resolution: {integrity: sha512-blFeqb49wRCSGUGj7gtpfnSGHy2lwDk94RhUmS1c/hTby70kvChbWpkJ4Pm1390LqzzvTmzgXKHPEafJwCb8jA==}
+
+  throttleit@2.1.0:
+    resolution: {integrity: sha512-nt6AMGKW1p/70DF/hGBdJB57B8Tspmbp5gfJ8ilhLnt7kkr2ye7hzD6NVG8GGErk2HWF34igrL2CXmNIkzKqKw==}
+    engines: {node: '>=18'}
 
   tinyglobby@0.2.16:
     resolution: {integrity: sha512-pn99VhoACYR8nFHhxqix+uvsbXineAasWm5ojXoN8xEwK5Kd3/TrhNn1wByuD52UxWRLy8pu+kRMniEi6Eq9Zg==}
@@ -3562,11 +3623,26 @@ packages:
 
 snapshots:
 
+  '@ai-sdk/gateway@4.0.155(zod@4.3.6)':
+    dependencies:
+      '@ai-sdk/provider': 4.0.39
+      '@ai-sdk/provider-utils': 5.0.84(zod@4.3.6)
+      '@vercel/oidc': 3.2.0
+      zod: 4.3.6
+
   '@ai-sdk/gateway@4.0.96(zod@4.3.6)':
     dependencies:
       '@ai-sdk/provider': 4.0.18
       '@ai-sdk/provider-utils': 5.0.49(zod@4.3.6)
       '@vercel/oidc': 3.2.0
+      zod: 4.3.6
+
+  '@ai-sdk/mcp@2.0.105(zod@4.3.6)':
+    dependencies:
+      '@ai-sdk/provider': 4.0.39
+      '@ai-sdk/provider-utils': 5.0.84(zod@4.3.6)
+      cross-spawn: 7.0.6
+      pkce-challenge: 5.0.2
       zod: 4.3.6
 
   '@ai-sdk/openai-compatible@3.0.57(zod@4.3.6)':
@@ -3584,9 +3660,33 @@ snapshots:
       undici: 7.30.0
       zod: 4.3.6
 
+  '@ai-sdk/provider-utils@5.0.84(zod@4.3.6)':
+    dependencies:
+      '@ai-sdk/provider': 4.0.39
+      '@standard-schema/spec': 1.1.0
+      '@workflow/serde': 4.1.0
+      eventsource-parser: 3.1.1
+      zod: 4.3.6
+
   '@ai-sdk/provider@4.0.18':
     dependencies:
       json-schema: 0.4.0
+
+  '@ai-sdk/provider@4.0.39':
+    dependencies:
+      json-schema: 0.4.0
+
+  '@ai-sdk/react@4.0.187(react@19.2.4)(zod@4.3.6)':
+    dependencies:
+      '@ai-sdk/mcp': 2.0.105(zod@4.3.6)
+      '@ai-sdk/provider': 4.0.39
+      '@ai-sdk/provider-utils': 5.0.84(zod@4.3.6)
+      ai: 7.0.182(zod@4.3.6)
+      react: 19.2.4
+      swr: 2.5.1(react@19.2.4)
+      throttleit: 2.1.0
+    transitivePeerDependencies:
+      - zod
 
   '@alloc/quick-lru@5.2.0': {}
 
@@ -5178,6 +5278,13 @@ snapshots:
       '@ai-sdk/provider-utils': 5.0.49(zod@4.3.6)
       zod: 4.3.6
 
+  ai@7.0.182(zod@4.3.6):
+    dependencies:
+      '@ai-sdk/gateway': 4.0.155(zod@4.3.6)
+      '@ai-sdk/provider': 4.0.39
+      '@ai-sdk/provider-utils': 5.0.84(zod@4.3.6)
+      zod: 4.3.6
+
   ajv@6.14.0:
     dependencies:
       fast-deep-equal: 3.1.3
@@ -5407,6 +5514,8 @@ snapshots:
       define-data-property: 1.1.4
       has-property-descriptors: 1.0.2
       object-keys: 1.1.1
+
+  dequal@2.0.3: {}
 
   detect-libc@2.1.2: {}
 
@@ -5811,6 +5920,8 @@ snapshots:
       '@opentelemetry/api': 1.9.1
 
   eventsource-parser@3.0.8: {}
+
+  eventsource-parser@3.1.1: {}
 
   execa@5.1.1:
     dependencies:
@@ -6497,6 +6608,8 @@ snapshots:
 
   picomatch@4.0.4: {}
 
+  pkce-challenge@5.0.2: {}
+
   playwright-core@1.60.0: {}
 
   playwright@1.60.0:
@@ -6909,6 +7022,12 @@ snapshots:
 
   supports-preserve-symlinks-flag@1.0.0: {}
 
+  swr@2.5.1(react@19.2.4):
+    dependencies:
+      dequal: 2.0.3
+      react: 19.2.4
+      use-sync-external-store: 1.6.0(react@19.2.4)
+
   tailwind-merge@3.5.0: {}
 
   tailwindcss@4.2.4: {}
@@ -6916,6 +7035,8 @@ snapshots:
   tapable@2.3.3: {}
 
   three@0.186.1: {}
+
+  throttleit@2.1.0: {}
 
   tinyglobby@0.2.16:
     dependencies:

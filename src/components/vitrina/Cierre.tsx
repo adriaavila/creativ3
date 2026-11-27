@@ -15,7 +15,7 @@ const FIRMA = "/adrian/firma.svg";
 const FIRMA_ALTO = 48;
 const enPublic = (ruta: string) => join(process.cwd(), "public", ruta);
 
-// El colofón, como comentario en el HTML: a la vista vive en el pie de /trabajo.
+// El colofón, como comentario en el HTML: a la vista vive en el pie de /work.
 const COLOFON = "<!-- Geist by Vercel and basement.studio · three.js by Mr.doob · made with AI agents · Edition 2026 -->";
 
 /**

@@ -25,9 +25,9 @@ export async function generateMetadata({ params }: PageProps<"/casos/[slug]">): 
   };
 }
 
-// La misma cabecera que /trabajo: antes «Trabajo» (a la portada) y «Todo el trabajo» iban lado a lado.
+// La misma cabecera que /work: antes «Trabajo» (a la portada) y «Todo el trabajo» iban lado a lado.
 const NAV = [
-  { href: "/trabajo", label: "Trabajo" },
+  { href: "/work", label: "Trabajo" },
   { href: "/casos", label: "Casos" },
   { href: "/agente-whatsapp", label: "Agente de WhatsApp" },
 ];
@@ -159,7 +159,7 @@ export default async function CasoPage({ params }: PageProps<"/casos/[slug]">) {
             </p>
           </div>
           <div className="grid gap-3 md:justify-self-end">
-            <Link href="/trabajo" className="allok-btn bg-[var(--signal)] text-white">
+            <Link href="/work" className="allok-btn bg-[var(--signal)] text-white">
               Ver todo el trabajo
             </Link>
             <Link href={`/casos/${next.slug}`} className="allok-btn border border-[rgba(245,244,240,.28)] text-[var(--cloud)]">

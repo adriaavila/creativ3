@@ -7,7 +7,7 @@ import { useRef, useState } from "react";
  * existe si el archivo está en public/ al construir (lo decide Estado). Nunca
  * suena sola ni se descarga antes del toque (preload="none"); la muestra el
  * CSS cuando el lazo se cierra, sin estado de React. Su transcripción, el
- * día que llegue la nota, va en /trabajo#sobre-mi.
+ * día que llegue la nota, va en /work#sobre-mi.
  */
 export default function VozChip({ src, duracion }: { src: string; duracion: string | null }) {
   const audio = useRef<HTMLAudioElement>(null);

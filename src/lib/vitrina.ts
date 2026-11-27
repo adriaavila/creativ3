@@ -2,7 +2,7 @@ import { CASOS } from "./casos";
 import { PORTFOLIO_PROJECTS, type PortfolioProject } from "./projects";
 
 /**
- * Las piezas que enseñan la portada y /trabajo: el trabajo real, con su
+ * Las piezas que enseñan la portada y /work: el trabajo real, con su
  * estado. Las cuatro que la portada cuenta como historia viven en
  * `historias.ts`.
  *
@@ -188,7 +188,7 @@ function aPieza(p: PortfolioProject): Pieza | null {
 export const PIEZAS: Pieza[] = PORTFOLIO_PROJECTS.map(aPieza).filter((p): p is Pieza => p !== null);
 
 /**
- * El estado de cada pieza, con las mismas palabras en la portada, /trabajo y
+ * El estado de cada pieza, con las mismas palabras en la portada, /work y
  * la ficha. Nunca «En vivo» ni «Privado»: que una web abra no dice si alguien
  * la usa, y lo que el dueño quiere saber es eso.
  */

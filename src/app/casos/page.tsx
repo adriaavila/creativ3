@@ -18,9 +18,9 @@ export const metadata: Metadata = {
   openGraph: { title: TITLE, description: DESCRIPTION, url: "/casos", type: "website", locale: "es" },
 };
 
-// La misma cabecera que /trabajo: antes «Trabajo» (a la portada) y «Todo el trabajo» iban lado a lado.
+// La misma cabecera que /work: antes «Trabajo» (a la portada) y «Todo el trabajo» iban lado a lado.
 const NAV = [
-  { href: "/trabajo", label: "Trabajo" },
+  { href: "/work", label: "Trabajo" },
   { href: "/casos", label: "Casos" },
   { href: "/agente-whatsapp", label: "Agente de WhatsApp" },
 ];

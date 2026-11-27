@@ -11,7 +11,7 @@ import { useFicha } from "./useFicha";
 const IDS = PIEZAS.map((p) => p.id);
 
 /**
- * /trabajo: todas las piezas, con filtros, y las pantallas de adentro. La
+ * /work: todas las piezas, con filtros, y las pantallas de adentro. La
  * portada cuenta cuatro; aquí están todas. La ficha se abre con el mismo
  * `#pieza=` que en la portada. `children` son las secciones que siguen al
  * trabajo (quién lo hace, cómo se empieza), dentro de `main`; `pie`, el

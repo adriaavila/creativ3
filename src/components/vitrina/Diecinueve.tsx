@@ -28,7 +28,7 @@ export default function Diecinueve() {
                   «Los 19 trabajos» lleva a todos. */}
               <a
                 className="marca-toque"
-                href={`/trabajo#pieza=${p.id}`}
+                href={`/work#pieza=${p.id}`}
                 data-abrir-pieza={p.id}
                 data-nombre={p.name}
                 tabIndex={-1}
@@ -39,7 +39,7 @@ export default function Diecinueve() {
         </ol>
         {/* Un <a> simple, sin next/link: nada que precargar y nada que sumar al JS de la portada. */}
         {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- a propósito, ver la línea de arriba */}
-        <a href="/trabajo" className="btn btn-link diecinueve-enlace">
+        <a href="/work" className="btn btn-link diecinueve-enlace">
           All {marcas.length} projects <span className="arw arw-r" aria-hidden="true">→</span>
         </a>
       </div>

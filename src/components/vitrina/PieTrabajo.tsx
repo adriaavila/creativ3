@@ -4,10 +4,10 @@ import { CONTACT_EMAIL } from "@/lib/contact";
 import Escribeme from "./Escribeme";
 
 /**
- * El cierre de /trabajo, en Ink: el que antes cerraba la portada. Una frase,
+ * El cierre de /work, en Ink: el que antes cerraba la portada. Una frase,
  * la salida por WhatsApp, el correo para quien lo prefiera, y el pie con lo
  * que salió de la portada: los enlaces y el colofón a la vista. La portada
- * tiene el suyo (Cierre y Pie); /trabajo no los importa.
+ * tiene el suyo (Cierre y Pie); /work no los importa.
  */
 export default function PieTrabajo() {
   return (
@@ -34,7 +34,7 @@ export default function PieTrabajo() {
         </span>
         <span className="caption">© {new Date().getFullYear()} allok · Made between Venezuela and Bolivia, with help from AI</span>
         <nav aria-label="More">
-          <Link href="/trabajo">All the work</Link>
+          <Link href="/work">All the work</Link>
           <Link href="/casos">Case studies</Link>
           <Link href="/agente-whatsapp">WhatsApp agent</Link>
           <Link href="/writing">Writing</Link>

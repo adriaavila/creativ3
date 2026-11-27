@@ -8,7 +8,7 @@ import "./globals.css";
 import { siteJsonLd } from "@/lib/seo";
 import { PORTFOLIO_PROJECTS } from "@/lib/projects";
 
-// Sin precarga: la portada y /trabajo (el sistema `.ak`) solo pintan con Geist, y precargadas estas dos
+// Sin precarga: la portada y /work (el sistema `.ak`) solo pintan con Geist, y precargadas estas dos
 // eran 50 KB que en Slow 4G le quitaban ancho de banda al CSS antes del primer pintado. Las páginas que sí
 // las usan las siguen teniendo (el @font-face y la variable van en <html>): el navegador las pide al
 // encontrar el primer texto que las usa, con `swap` y el respaldo ajustado de next/font.

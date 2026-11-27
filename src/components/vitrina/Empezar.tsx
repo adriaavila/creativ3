@@ -37,7 +37,7 @@ const PASOS: { n: string; titulo: string; texto: string; ok?: string }[] = [
 const MOSTRAR_REFERENCIA = false;
 
 /**
- * Cómo se empieza, en Cloud, en /trabajo#empezar (salió de la portada): los
+ * Cómo se empieza, en Cloud, en /work#empezar (salió de la portada): los
  * cuatro pasos, lo que hace falta del dueño y el precio cerrado antes de
  * empezar, para que nadie escriba a ciegas. El título va arriba y a todo el
  * ancho: en la columna estrecha, «Empezamos» no cabe.

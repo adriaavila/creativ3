@@ -1,5 +1,5 @@
 /* «Te toca» (builder C1 · Portada): the first screen (#inicio), the header's portada variant, the WhatsApp bar and
-   /trabajo's footer (PieTrabajo). At 360×700: header 0-56, H1 84-179 (56 px), sub 191-239 (17 px, two lines), the
+   /work's footer (PieTrabajo). At 360×700: header 0-56, H1 84-179 (56 px), sub 191-239 (17 px, two lines), the
    strip 251-531 (Manos: its height is B's, reserved), the status row 543-591 (48 px) and the bar at 644-700. Who,
    what and the button fit on one screen with no scroll; the hero runs on under the bar, so no other ground shows
    above it. At 1440×900 the status row shares the bottom band with the bar (837-885, 836-884). */
@@ -168,7 +168,7 @@
   }
 }
 
-/* ── /trabajo's footer (PieTrabajo): the home's old close, with the colophon in view. ── */
+/* ── /work's footer (PieTrabajo): the home's old close, with the colophon in view. ── */
 .pie-trabajo-correo { margin-top: var(--space-4); }
 .pie-trabajo-correo a { display: inline-flex; align-items: center; min-height: var(--size-target); color: var(--text); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
 .pie-trabajo-colofon { flex-basis: 100%; }

@@ -15,7 +15,7 @@ const TITLE = "All the work · allok";
 const DESCRIPTION = `All ${CUENTAS.piezas} allok projects: websites, systems and AI agents, with real screenshots and their status. ${CUENTAS.lanzadas} are already in use.`;
 // La imagen para compartir es la de la portada (app/opengraph-image.tsx). Un openGraph propio reemplaza
 // entero el del layout, imagen incluida, así que va dicha aquí.
-const IMAGEN = "/opengraph-image";
+const IMAGEN = "/te-toca/opengraph-image";
 
 export const metadata: Metadata = {
   title: { absolute: TITLE },

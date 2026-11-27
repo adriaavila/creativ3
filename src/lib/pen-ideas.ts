@@ -34,7 +34,7 @@ export const IDEAS: Idea[] = [
       "“Every buyer asks me the same things on WhatsApp.” “I spend the month chasing neighbors for their fee.” Nobody says “I need a platform”. They say the thing that wears them out.",
       "So that sentence goes at the top of the page before anything gets built. If I can’t cross it out at the end, I built the wrong thing, however good it looks.",
     ],
-    from: { text: "It’s how every project on this page begins", href: "/pen#work" },
+    from: { text: "It’s how every project on this page begins", href: "/#work" },
     glyph: "bubble",
   },
   {
@@ -56,7 +56,7 @@ export const IDEAS: Idea[] = [
       "A shop doesn’t close because the internet dropped. People are still in line, some paying in dollars and some in bolívares.",
       "So Cuadra keeps selling when the connection goes, and catches up on its own when it comes back. I’d rather design for the afternoon when everything goes wrong than for the demo where nothing does.",
     ],
-    from: { text: "From Cuadra, a point of sale for Venezuelan shops", href: "/pen#work" },
+    from: { text: "From Cuadra, a point of sale for Venezuelan shops", href: "/#work" },
     glyph: "bolt",
   },
   {
@@ -67,7 +67,7 @@ export const IDEAS: Idea[] = [
       "You won’t find big percentages on this site. I’d rather not put a figure on someone else’s business that I can’t back up.",
       "What you’ll find instead are screenshots of things that are running, and links so you can open them yourself. That’s the proof I can stand behind.",
     ],
-    from: { text: "Open the work and check", href: "/pen#work" },
+    from: { text: "Open the work and check", href: "/#work" },
     glyph: "bars",
   },
 ];

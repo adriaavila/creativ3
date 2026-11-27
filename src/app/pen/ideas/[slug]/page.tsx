@@ -6,8 +6,8 @@ import PenLine from "@/components/pen/PenLine";
 import PenShare from "@/components/pen/PenShare";
 import { whatsappUrl } from "@/lib/contact";
 import { IDEAS, findIdea, ideaNumber, ideaPath, ideaReply } from "@/lib/pen-ideas";
-import { penFonts } from "../../fonts";
-import "../../pen.css";
+import { penFonts } from "@/components/pen/fonts";
+import "@/components/pen/pen.css";
 
 // Una idea del cuaderno de /pen, con su propia dirección para compartirla.
 // La misma línea de la página: tacha lo que se suele creer, dibuja y subraya
@@ -44,13 +44,13 @@ export default async function IdeaPage({ params }: { params: Promise<{ slug: str
     <div className={`pen ${penFonts}`} lang="en">
       <PenLine />
       <header className="pen-top">
-        <a className="pen-wordmark" href="/pen" aria-label="allok, back to the start">
+        <a className="pen-wordmark" href="/" aria-label="allok, back to the start">
           <WordmarkSvg />
         </a>
         <nav className="pen-nav" aria-label="Site">
-          <a href="/pen#work">Work</a>
-          <a href="/pen#notebook">Notebook</a>
-          <a href="/pen#your-turn">Your turn</a>
+          <a href="/#work">Work</a>
+          <a href="/#notebook">Notebook</a>
+          <a href="/#your-turn">Your turn</a>
         </nav>
         <a className="pen-btn is-small" href={whatsappUrl(ideaReply(idea))} target="_blank" rel="noopener noreferrer">
           WhatsApp
@@ -60,7 +60,7 @@ export default async function IdeaPage({ params }: { params: Promise<{ slug: str
       <main>
         <article className="pen-idea" data-pen-column>
           <p className="pen-label">
-            <a href="/pen#notebook">Notebook</a> · {ideaNumber(idea)}
+            <a href="/#notebook">Notebook</a> · {ideaNumber(idea)}
           </p>
           <p className="pen-before">
             <span data-pen="strike">{idea.belief}</span>

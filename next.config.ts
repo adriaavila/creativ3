@@ -22,6 +22,8 @@ const nextConfig: NextConfig = {
       // allok Desk fue el producto anterior; /desk daba 404 y /es/desk seguía vivo.
       { source: "/desk", destination: "/agente-whatsapp", permanent: true },
       { source: "/:locale(es|en)/desk", destination: "/agente-whatsapp", permanent: true },
+      // «I never lift the pen» pasó de página de prueba a portada el 2026-11-27.
+      { source: "/pen", destination: "/", permanent: true },
     ];
   },
   outputFileTracingIncludes: {

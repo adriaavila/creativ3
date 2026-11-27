@@ -37,7 +37,7 @@ export default function NotFound() {
                 Back home
               </a>
               {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- ídem */}
-              <a className="btn btn-outline" href="/trabajo">
+              <a className="btn btn-outline" href="/work">
                 All the work
               </a>
               <a className="btn btn-link" href={whatsappUrl(prefill())} target="_blank" rel="noopener noreferrer">

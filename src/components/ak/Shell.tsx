@@ -26,7 +26,7 @@ const GUARDIA =
 // atributos en desarrollo y de texto en producción. beforeInteractive además va en el layout raíz y
 // cargaría motion.js en todo el sitio, deteniendo la hidratación hasta que llegue.
 
-/** El marco que comparten la portada y /trabajo: la misma raíz, la misma fuente y el mismo movimiento. */
+/** El marco que comparten la portada y /work: la misma raíz, la misma fuente y el mismo movimiento. */
 export default function Shell({ children }: { children: React.ReactNode }) {
   return (
     <div className="ak" data-theme="cloud" id="top">

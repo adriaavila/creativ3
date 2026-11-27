@@ -7,8 +7,6 @@ import { CONTACT_EMAIL } from "@/lib/contact";
 import { cn } from "@/lib/utils";
 
 const NAV = [
-  { href: "/agencia", label: "Agencia" },
-  { href: "/portfolio", label: "Portafolio" },
   { href: "/work", label: "Work" },
   { href: "/lab", label: "Lab" },
   { href: "/writing", label: "Writing" },

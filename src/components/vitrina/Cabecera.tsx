@@ -5,16 +5,16 @@ import { useEffect, useRef } from "react";
 import { WordmarkSvg } from "@/components/ak/Brand";
 import Escribeme from "./Escribeme";
 
-// Desde /trabajo y las demás páginas. Sobre mí y Cómo empezamos salieron de la portada y viven en /trabajo; el trabajo
+// Desde /work y las demás páginas. Sobre mí y Cómo empezamos salieron de la portada y viven en /work; el trabajo
 // de la portada ahora es #obras.
 const NAV = [
   { href: "/#obras", label: "Work" },
-  { href: "/trabajo#sobre-mi", label: "About" },
-  { href: "/trabajo#empezar", label: "How we start" },
+  { href: "/work#sobre-mi", label: "About" },
+  { href: "/work#empezar", label: "How we start" },
 ];
 
 /**
- * La cabecera del sistema en /trabajo: la marca a la izquierda, los enlaces y
+ * La cabecera del sistema en /work: la marca a la izquierda, los enlaces y
  * la acción a la derecha; se aparta al bajar y toma el tema de lo que tiene
  * debajo (Ink sobre la apertura, Cloud sobre el trabajo). En el celular
  * quedan la marca y el botón. La de la portada (la marca y el enlace al

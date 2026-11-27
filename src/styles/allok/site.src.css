@@ -1,4 +1,4 @@
-/* allok.fun's home and /trabajo: the few rules the system's cards leave to the page.
+/* allok.fun's home and /work: the few rules the system's cards leave to the page.
    Only tokens; square surfaces; no shadows, no gradients. Scoped into site.css.
    The home («Te toca») has its own files in site/, read after this one. */
 
@@ -7,7 +7,7 @@
 .window-shot img { object-fit: cover; object-position: top; }
 .window-bar { font: 400 12px/1 var(--font-sans); color: var(--text-muted); }
 
-/* /trabajo's opening */
+/* /work's opening */
 .section-intro { display: block; border-bottom: 0; padding: clamp(90px, 12vw, 170px) clamp(20px, 5vw, 72px) clamp(40px, 5vw, 72px); }
 /* Inside a button the frame is made of spans (a button holds only phrasing content) */
 span.window, span.window-shot { display: block; }
@@ -27,7 +27,7 @@ span.window, span.window-shot { display: block; }
 .empezar-pie .lead { max-width: none; }
 .empezar-agente { display: grid; gap: var(--space-2); justify-items: start; }
 
-/* /trabajo: the opening, in Ink */
+/* /work: the opening, in Ink */
 .archivo-intro { padding-bottom: clamp(72px, 8vw, 110px); }
 .archivo-intro .display { margin-top: var(--space-7); }
 .archivo-intro .lead { margin-top: var(--space-6); }

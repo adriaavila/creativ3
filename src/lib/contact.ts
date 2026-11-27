@@ -8,7 +8,7 @@ export const DEFAULT_WHATSAPP_MESSAGE =
 export const TRY_AGENT_MESSAGE = "Hola, vengo de allok.fun. Quiero probar el agente en mi WhatsApp.";
 
 /**
- * La única salida de la portada y de /trabajo. Le escriben a Adrián, no al
+ * La única salida de la portada y de /work. Le escriben a Adrián, no al
  * agente, y la frase queda abierta para que el dueño solo complete lo suyo.
  */
 export const HOME_WHATSAPP_MESSAGE = "Hi Adrián, I found you on allok.fun. What eats most of my time in the business is: ";

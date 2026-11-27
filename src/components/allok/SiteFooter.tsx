@@ -12,7 +12,7 @@ const COLUMNS = [
     title: "Trabajo",
     links: [
       { href: "/", label: "Inicio" },
-      { href: "/trabajo", label: "Todo el trabajo" },
+      { href: "/work", label: "Todo el trabajo" },
       { href: "/casos", label: "Casos" },
       { href: "/#contacto", label: "Contacto" },
     ],
@@ -28,8 +28,6 @@ const COLUMNS = [
   {
     title: "Portafolio",
     links: [
-      { href: "/portfolio", label: "Portafolio" },
-      { href: "/work", label: "Work" },
       { href: "/lab", label: "Lab" },
       { href: "/writing", label: "Writing" },
     ],

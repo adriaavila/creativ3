@@ -5,7 +5,7 @@ import { Rise } from "@/components/ak/Brand";
 import { DISCIPLINAS, ESTADO, PIEZAS, claseEstado, type Disciplina } from "@/lib/vitrina";
 
 /**
- * Todo el trabajo, en /trabajo: una lista que abre con una regla y se filtra por disciplina. Al tocar una fila, se abre su ficha.
+ * Todo el trabajo, en /work: una lista que abre con una regla y se filtra por disciplina. Al tocar una fila, se abre su ficha.
  * Los filtros son botones que se quedan apretados (`aria-pressed`), no pestañas: no hay paneles, solo la misma lista más corta,
  * y cuántos quedan se anuncia.
  */

@@ -67,7 +67,7 @@ export default function Obra({ historia: h }: { historia: Historia }) {
 }
 
 /**
- * Una captura en su marco. Es un enlace a su pieza en /trabajo: sin
+ * Una captura en su marco. Es un enlace a su pieza en /work: sin
  * JavaScript, o con una tecla de por medio, lleva allí; un toque normal lo
  * toma FichaIsla y abre la ficha encima, sin salir de la portada.
  */
@@ -83,7 +83,7 @@ function Pieza({ id, captura: c, celular, retraso }: { id: string; captura: Capt
   return (
     <div className="obra-pieza">
       <MarcoAbierto proporcion={proporcion} retraso={retraso} />
-      <a className="obra-captura" href={`/trabajo#pieza=${id}`} data-abrir-pieza={id} data-reveal="up" data-threshold="0.6" style={caja}>
+      <a className="obra-captura" href={`/work#pieza=${id}`} data-abrir-pieza={id} data-reveal="up" data-threshold="0.6" style={caja}>
         {/* eslint-disable-next-line @next/next/no-img-element -- es el <img> de next/image, sin su JS */}
         <img {...img} alt={c.alt} />
       </a>

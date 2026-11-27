@@ -13,6 +13,10 @@ const nextConfig: NextConfig = {
       { source: "/pago/cancelado", destination: "/es/pago/cancelado", permanent: true },
       // The agency site became the portfolio; these had live inbound links.
       { source: "/projects", destination: "/work", permanent: true },
+      // 2026-11-27, «todo en inglés»: el archivo de la vitrina pasó de /trabajo a /work y el
+      // portafolio viejo (/portfolio) se jubiló. Los /work/<id> de antes siguen vivos.
+      { source: "/trabajo", destination: "/work", permanent: true },
+      { source: "/portfolio", destination: "/work", permanent: true },
       { source: "/whatsapp", destination: "/agente-whatsapp", permanent: true },
       // `/crm` y la página del producto vendían lo mismo con dos rejillas de
       // precio. Desde 2026-10 el producto vive en /agente-whatsapp y la
@@ -24,6 +28,8 @@ const nextConfig: NextConfig = {
       { source: "/:locale(es|en)/desk", destination: "/agente-whatsapp", permanent: true },
       // «I never lift the pen» pasó de página de prueba a portada el 2026-11-27.
       { source: "/pen", destination: "/", permanent: true },
+      // La pieza de las manos se llama en inglés desde el mismo día.
+      { source: "/te-toca", destination: "/your-move", permanent: true },
     ];
   },
   outputFileTracingIncludes: {

@@ -46,8 +46,8 @@ import { readFileSync, writeFileSync } from "node:fs";
 import { setTimeout as dormir } from "node:timers/promises";
 
 const BASE = (process.env.BASE_URL || "http://localhost:3124").replace(/\/+$/, "");
-// «Te toca» dejó la portada el 2026-11-27: la pieza vive en /te-toca.
-const HOME = `${BASE}/te-toca`;
+// «Te toca» dejó la portada el 2026-11-27: la pieza vive en /your-move.
+const HOME = `${BASE}/your-move`;
 const NAVEGADOR = process.env.PW_CHROMIUM || "/opt/pw-browsers/chromium";
 const LOCALES = new Set(["localhost", "127.0.0.1", "[::1]", "::1", new URL(BASE).hostname]);
 

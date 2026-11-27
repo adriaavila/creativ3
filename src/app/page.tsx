@@ -15,7 +15,7 @@ import "@/components/pen/pen.css";
 // noviembre de 2026, en blanco. Una sola línea recorre la página: tacha cada
 // problema, dibuja la pieza, subraya el resultado y envuelve la captura.
 // Desde el 27 de noviembre de 2026 es la portada (Adrián: «todo en inglés, con
-// pen al inicio»). La pieza de las manos, «Te toca», vive en /te-toca.
+// pen al inicio»). La pieza de las manos, «Te toca», vive en /your-move.
 
 const TITLE = "I never lift the pen · Adrián Ávila";
 const DESCRIPTION =
@@ -178,7 +178,7 @@ export default function Home() {
               const img = propsDeImagen({ src: tile.src, alt: tile.alt, fill: true, sizes: SIZES.tile, loading: "lazy" });
               return (
                 <li className="pen-tile" key={tile.id} data-pen-tile>
-                  <a href={`/trabajo#pieza=${tile.id}`}>
+                  <a href={`/work#pieza=${tile.id}`}>
                     <div className="pen-shot">
                       {/* eslint-disable-next-line @next/next/no-img-element -- es el <img> de next/image, sin su JS */}
                       <img {...img} alt={tile.alt} />
@@ -196,8 +196,8 @@ export default function Home() {
           <p className="pen-sub">
             {/* La pieza que fue portada: dos manos de luz, con su propio WebGL2. */}
             {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- <a> simple, sin JS de next/link */}
-            <a className="pen-link" href="/te-toca">
-              Te toca: two glowing hands that wait for your tap
+            <a className="pen-link" href="/your-move">
+              Your move: two glowing hands that wait for your tap
             </a>
           </p>
         </section>

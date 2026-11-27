@@ -32,7 +32,7 @@ const sinModificadores = (e: MouseEvent) => e.button === 0 && !e.metaKey && !e.c
  * La ficha en la portada. Un solo oyente en el documento para todo
  * `[data-abrir-pieza]`: un clic sin teclas de por medio abre la ficha de esa
  * pieza en vez de seguir el enlace (que, sin JS o antes de hidratar, lleva a
- * /trabajo#pieza=… y funciona igual). Con Ctrl, Cmd, Shift o el botón del
+ * /work#pieza=… y funciona igual). Con Ctrl, Cmd, Shift o el botón del
  * medio el enlace hace lo suyo. `ids` son las piezas que se pueden abrir; los
  * pasa el servidor para que PIEZAS no viaje en el JS inicial.
  */
@@ -43,7 +43,7 @@ export default function FichaIsla({ ids }: { ids: string[] }) {
   const clave = ids.join(" ");
 
   // Hace falta la ficha (un toque, un enlace directo con #pieza=, Atrás o Adelante) y todavía no llegó. Si
-  // no llega (sin red, o un despliegue nuevo que ya no tiene ese trozo), la pieza se abre en /trabajo, que
+  // no llega (sin red, o un despliegue nuevo que ya no tiene ese trozo), la pieza se abre en /work, que
   // la trae en su propio JS; si tampoco puede, el router de Next termina en una carga completa.
   useEffect(() => {
     if (!abierta || Ficha) return;
@@ -51,7 +51,7 @@ export default function FichaIsla({ ids }: { ids: string[] }) {
     cargar().then(
       (F) => setFicha(() => F),
       () => {
-        if (vigente) router.push(`/trabajo#pieza=${encodeURIComponent(abierta)}`);
+        if (vigente) router.push(`/work#pieza=${encodeURIComponent(abierta)}`);
       },
     );
     return () => {

@@ -19,7 +19,7 @@ type Props = Omit<ComponentProps<"a">, "href" | "target" | "rel" | "className"> 
 };
 
 /**
- * La única salida de la portada y de /trabajo: WhatsApp, con la primera frase
+ * La única salida de la portada y de /work: WhatsApp, con la primera frase
  * ya escrita. Todos los botones pasan por aquí para que ninguno se quede con
  * otro mensaje.
  */

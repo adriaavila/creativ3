@@ -79,7 +79,7 @@ function aislar(ficha: HTMLElement): HTMLElement[] {
 }
 
 /**
- * La ficha de una pieza, sobre la portada o /trabajo: abre con sus capturas,
+ * La ficha de una pieza, sobre la portada o /work: abre con sus capturas,
  * después la escena y lo que se construyó, los enlaces, la siguiente pieza y,
  * pegado abajo, el único botón azul: escribir por WhatsApp nombrando la pieza.
  * Entra y sale con transiciones de CSS (10-motor.src.css); `id` en null la

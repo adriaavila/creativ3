@@ -27,7 +27,7 @@ function idDelHash(): string | null {
 
 /**
  * Qué ficha está abierta, escrito en la URL (`#pieza=rei-fm`) para que se
- * pueda compartir. Lo comparten la portada (FichaIsla) y /trabajo (Archivo):
+ * pueda compartir. Lo comparten la portada (FichaIsla) y /work (Archivo):
  *
  * - `abrir`: una entrada nueva en el historial, así Atrás (el del celular
  *   también) la cierra.

@@ -49,23 +49,23 @@ const SHIPPED = PORTFOLIO_PROJECTS.filter((p) => p.status === "launched").length
 export const metadata: Metadata = {
   metadataBase: new URL("https://allok.fun"),
   title: {
-    default: "allok · Adrián Avila",
+    default: "allok · Adrián Ávila",
     // La casa firma todas las páginas. El portafolio es la sección de allok
     // donde manda Adrian, no un sitio aparte.
     template: "%s | allok",
   },
   description:
-    "allok construye software comercial: REI, el CRM de WhatsApp para inmobiliarias; Vocero, agentes de WhatsApp a medida; y la agencia que diseña, programa y despliega el resto.",
+    "Adrián Ávila, AI engineer and artist. allok is his studio: websites, systems and AI agents, designed, built and shipped by the same hands.",
   verification: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION
     ? { google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION }
     : undefined,
   keywords: [
-    "CRM de WhatsApp",
-    "WhatsApp Business API",
-    "agente de WhatsApp",
-    "software para inmobiliarias",
-    "automatización con IA",
-    "desarrollo web a medida",
+    "AI engineer",
+    "AI agents",
+    "WhatsApp AI agent",
+    "AI automation",
+    "custom software",
+    "creative developer",
     "Next.js",
     "allok",
     "Adrian Avila Molina",
@@ -73,18 +73,18 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Hi, I'm Adrián · allok",
     description:
-      `${SHIPPED} sistemas en producción. Un CRM de WhatsApp, agentes a medida y la agencia que construye el resto — diseño, código y despliegue por el mismo par de manos.`,
+      `${SHIPPED} systems in production. Websites, systems and AI agents, designed, built and shipped by the same hands.`,
     url: "https://allok.fun",
     siteName: "allok",
-    locale: "es",
+    locale: "en",
     type: "website",
     images: [
       {
         url: "/opengraph-image",
         width: 1200,
         height: 630,
-        // Describe la imagen (app/opengraph-image.tsx): el cuadro cerrado de «Te toca».
-        alt: "Your move, 2026. Adrián Avila.",
+        // Describe la imagen (app/opengraph-image.tsx): el titular y la línea de la portada.
+        alt: "I never lift the pen. Adrián Ávila: websites, systems and AI agents.",
       },
     ],
   },
@@ -92,14 +92,31 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Hi, I'm Adrián · allok",
     description:
-      `${SHIPPED} sistemas en producción. Diseño, frontend, backend y despliegue, con los agentes haciendo la mitad aburrida.`,
+      `${SHIPPED} systems in production. Design, frontend, backend and deploy, with agents doing the boring half.`,
     images: ["/opengraph-image"],
   },
 };
 
-// Lo principal habla inglés (la portada, /trabajo, el portafolio y `/en`, Adrián 2026-11-19); las páginas de
-// producto y de búsqueda siguen en español.
-const ENGLISH_SECTIONS = ["", "trabajo", "en", "portfolio", "work", "lab", "writing", "projects"];
+// allok.fun habla inglés (Adrián, 2026-11-27: «todo en inglés»). Las páginas de producto y de
+// búsqueda en español siguen aquí hasta mudarse a whatsapp.allok.fun; mientras, este script les
+// pone `lang="es"`.
+const SPANISH_SECTIONS = [
+  "es",
+  "casos",
+  "agente-whatsapp",
+  "rei",
+  "vocero",
+  "agencia",
+  "alternativa-a",
+  "whatsapp-para",
+  "para",
+  "conectar-whatsapp",
+  "eliminacion-de-datos",
+  "embedded-whatsapp",
+  "pago",
+  "ops",
+  "ops-login",
+];
 
 export default function RootLayout({
   children,
@@ -107,13 +124,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   // Leer la petición aquí (headers/cookies) vuelve dinámico todo el sitio:
-  // cada visita sería una función en Vercel. El HTML sale en español y este
-  // script corrige `lang` antes de pintar en las secciones en inglés.
-  // ponytail: un crawler sin JS ve `lang="es"` en /portfolio; si importa,
-  // separar en route groups (es)/(en) con un root layout cada uno.
-  const setLang = `if(${JSON.stringify(ENGLISH_SECTIONS)}.includes(location.pathname.split("/")[1]))document.documentElement.lang="en"`;
+  // cada visita sería una función en Vercel. El HTML sale en inglés, que es lo
+  // que Google lee en la portada y el portafolio, y este script corrige `lang`
+  // antes de pintar en las secciones en español.
+  const setLang = `if(${JSON.stringify(SPANISH_SECTIONS)}.includes(location.pathname.split("/")[1]))document.documentElement.lang="es"`;
   return (
-    <html lang="es" suppressHydrationWarning className={`${jetbrains.variable} ${geist.variable} ${archivo.variable}`}>
+    <html lang="en" suppressHydrationWarning className={`${jetbrains.variable} ${geist.variable} ${archivo.variable}`}>
       <head>
         <script dangerouslySetInnerHTML={{ __html: setLang }} />
       </head>

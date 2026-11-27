@@ -31,9 +31,31 @@ REALTIME_INGEST_URL=https://realtime.allok.fun/internal/events
 REALTIME_INGEST_SECRET=
 REALTIME_TOKEN_SECRET=
 NEXT_PUBLIC_REALTIME_URL=wss://realtime.allok.fun
+TELEGRAM_BOT_TOKEN=
+TELEGRAM_HOME_CHANNEL=
 ```
 
 `DATABASE_URL` stores the durable connected-number inventory, webhook queue, and auto-reply queue shown in `/ops`. Connected-account tokens are encrypted in Postgres and are never forwarded to n8n. `META_APP_SECRET`, connected-account business tokens, webhook secrets, and database URLs must stay server-side.
+
+### account_update alerts
+
+Every CRM shares the allok Meta app, and its only app-level webhook is this
+one, so allok.fun is the only place that hears when Meta disconnects a number
+or a business finishes coexistence. The queue processor sends those to Adrian's
+Telegram (`src/lib/meta/account-update-alerts.ts`), through the same bot and
+chat the VPS routines use with `hermes send`: copy `TELEGRAM_BOT_TOKEN` and
+`TELEGRAM_HOME_CHANNEL` from `/home/dev/.hermes/.env`. Without them nothing is
+sent and the log shows `whatsapp_account_alert` with `sent: false`.
+
+- `PARTNER_REMOVED` / `PARTNER_APP_UNINSTALLED`: "Meta desconectó el WABA …"
+  with Meta's reason and the CRM slug, when `whatsapp_connections` has it.
+- `PARTNER_ADDED`: the row waits 4 minutes in the queue, then alerts unless
+  `whatsapp_connections` saved that WABA from 15 minutes before the event on
+  (every signup rewrites `connected_at`, so an old row does not count). allok.fun cannot
+  see the CRMs' own tables, so a signup done directly in a CRM always alerts;
+  the message says to ignore it if the number is already in the CRM. The wait
+  happens inside the webhook invocation (`maxDuration` 300 s) because nothing
+  else drains the queue on a schedule.
 
 ## Meta Dashboard Checks
 

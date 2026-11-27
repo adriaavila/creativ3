@@ -102,6 +102,7 @@ export type WhatsAppConnectionUpdatedEvent = WhatsAppNormalizedEventBase & {
   update: string;
   state?: WhatsAppConnectionStatus["state"];
   reason?: string;
+  initiatedBy?: string;
 };
 
 export type WhatsAppErrorReceivedEvent = WhatsAppNormalizedEventBase & {

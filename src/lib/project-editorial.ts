@@ -42,9 +42,9 @@ export const CURATED_IMAGES: Record<string, ProjectImage[]> = {
     { src: '/projects/vocero-crm/lab.png', width: 1440, height: 900, alt: 'Upstream Vocero agent evaluation reference interface', label: 'Upstream reference — agent evaluation (Kevin Belier / Vocero)' },
   ],
   'rei-fm': [
-    { src: '/projects/rei-fm/01-desktop.jpg', alt: 'REI public property platform landing page', label: 'The public product introduction' },
-    { src: '/projects/rei-fm/02-desktop-scroll.jpg', alt: 'REI website describing the property management product', label: 'Explaining the property platform' },
-    { src: '/projects/rei-fm/03-mobile.jpg', alt: 'REI public website on mobile', label: 'The mobile introduction' },
+    { src: '/projects/rei-fm/01-desktop.jpg', alt: 'Rei public property platform landing page', label: 'The public product introduction' },
+    { src: '/projects/rei-fm/02-desktop-scroll.jpg', alt: 'Rei website describing the property management product', label: 'Explaining the property platform' },
+    { src: '/projects/rei-fm/03-mobile.jpg', alt: 'Rei public website on mobile', label: 'The mobile introduction' },
   ],
   integra: [
     { src: '/projects/integra/01-desktop.jpg', alt: 'Integra industrial services website', label: 'Industrial services, introduced' },

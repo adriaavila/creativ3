@@ -104,7 +104,7 @@ export default function VoceroPage() {
         </div>
       </div>
 
-      {/* ── El hilo rompe el borde del cielo. REI enseña un tablero; Vocero
+      {/* ── El hilo rompe el borde del cielo. Rei enseña un tablero; Vocero
              enseña la conversación, que es donde vive. ── */}
       <div className="relative z-[3] -mt-[150px] px-5 sm:px-10">
         <div className="mx-auto max-w-[620px] rounded-[10px] border border-[var(--line)] bg-white p-4 sm:p-6">
@@ -200,7 +200,7 @@ export default function VoceroPage() {
             </p>
             <p className="mt-5 text-[16px] leading-relaxed text-[var(--ink-60)] text-pretty">
               Los mensajes de WhatsApp siempre los factura Meta a tu empresa, a
-              su tarifa. Eso no pasa por nosotros ni en Vocero ni en REI.
+              su tarifa. Eso no pasa por nosotros ni en Vocero ni en Rei.
             </p>
             <a href={whatsappUrl(QUOTE_MESSAGE)} className="allok-btn allok-btn-sky mt-7">
               Pedir cotización

@@ -24,17 +24,17 @@
       "images": [
         {
           "src": "/projects/rei-fm/01-desktop.jpg",
-          "alt": "REI — Desktop",
+          "alt": "Rei — Desktop",
           "label": "Desktop"
         },
         {
           "src": "/projects/rei-fm/02-desktop-scroll.jpg",
-          "alt": "REI — Scroll",
+          "alt": "Rei — Scroll",
           "label": "Scroll"
         },
         {
           "src": "/projects/rei-fm/03-mobile.jpg",
-          "alt": "REI — Mobile",
+          "alt": "Rei — Mobile",
           "label": "Mobile"
         }
       ]

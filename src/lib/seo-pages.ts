@@ -33,7 +33,7 @@ const SETUP = `US$${SETUP_SERVICE.price}`;
 
 export type Faq = { q: string; a: string };
 
-/** A dónde manda el botón principal: el registro (o WhatsApp sin autoservicio) o REI. */
+/** A dónde manda el botón principal: el registro (o WhatsApp sin autoservicio) o Rei. */
 export type CtaKind = "signup" | "rei";
 
 type PageBase = {
@@ -437,10 +437,10 @@ export const VERTICALS: VerticalPage[] = [
     slug: "inmobiliarias",
     sector: "Inmobiliarias",
     title: "WhatsApp para inmobiliarias con agente de IA",
-    description: "REI es allok para inmobiliarias: un agente de IA que contesta por cada propiedad, califica al interesado y agenda la visita en tu WhatsApp.",
+    description: "Rei es allok para inmobiliarias: un agente de IA que contesta por cada propiedad, califica al interesado y agenda la visita en tu WhatsApp.",
     h1: "WhatsApp para inmobiliarias",
     kicker: "allok para inmobiliarias",
-    lede: "¿Sigue disponible, cuánto sale y cuándo la puedo ver? Para corredoras, allok tiene su propia edición: REI, el mismo producto con el vocabulario de una inmobiliaria.",
+    lede: "¿Sigue disponible, cuánto sale y cuándo la puedo ver? Para corredoras, allok tiene su propia edición: Rei, el mismo producto con el vocabulario de una inmobiliaria.",
     questions: [
       "¿Sigue disponible la propiedad?",
       "¿Cuánto es el mantenimiento y qué incluye?",
@@ -462,7 +462,7 @@ export const VERTICALS: VerticalPage[] = [
     ],
     faqs: [
       {
-        q: "¿Qué es REI?",
+        q: "¿Qué es Rei?",
         a: "Es allok con el vocabulario y las etapas de una inmobiliaria: captaciones, visitas, propuestas y cierres. Mismo producto, mismos planes.",
       },
       ACTIVATE_FAQ,
@@ -531,11 +531,11 @@ export function fullTitle(page: SeoPage): string {
 /**
  * El botón principal. El registro sale de `planCta` (con autoservicio apagado
  * es la conversación de WhatsApp, igual que en la portada); inmobiliarias va a
- * REI, que es donde se vende a corredoras.
+ * Rei, que es donde se vende a corredoras.
  */
 export function seoCta(page: SeoPage): { href: string; label: string; note: string | null } {
   if (page.cta === "rei") {
-    return { href: "/rei", label: "Ver REI para inmobiliarias", note: null };
+    return { href: "/rei", label: "Ver Rei para inmobiliarias", note: null };
   }
   const cta = planCta(COMPLETO);
   return { ...cta, note: trialNote(COMPLETO) };

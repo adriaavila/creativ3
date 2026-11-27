@@ -133,15 +133,15 @@ const RAW_PORTFOLIO_PROJECTS: PortfolioProject[] = [
   },
   {
     id: "rei-fm",
-    name: "REI",
+    name: "Rei",
     kind: "New infrastructure for the property market.",
     categories: ["webapp"],
     description:
       "Marketplace, CRM, property administration, resident portal and supervised AI document processing.",
     result:
-      "REI joins the parts of a property operation that normally live in separate tools.",
+      "Rei joins the parts of a property operation that normally live in separate tools.",
     businessGoal: "reduce_costs",
-    businessOutcome: "REI joins the parts of a property operation that normally live in separate tools.",
+    businessOutcome: "Rei joins the parts of a property operation that normally live in separate tools.",
     agentRole: "Operational follow-up copilot",
     status: "launched",
     stack: ["Next.js", "TypeScript", "Postgres", "Stripe"],
@@ -152,17 +152,17 @@ const RAW_PORTFOLIO_PROJECTS: PortfolioProject[] = [
     images: [
       {
         src: "/projects/rei-fm/01-desktop.jpg",
-        alt: "REI dashboard on desktop",
+        alt: "Rei dashboard on desktop",
         label: "Dashboard",
       },
       {
         src: "/projects/rei-fm/02-desktop-scroll.jpg",
-        alt: "REI property operation, extended view",
+        alt: "Rei property operation, extended view",
         label: "Operation",
       },
       {
         src: "/projects/rei-fm/03-mobile.jpg",
-        alt: "REI on mobile",
+        alt: "Rei on mobile",
         label: "Mobile",
       },
     ],
